@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+	<target name="javadoc">
+		<javadoc access="package" author="true" classpath="../lib/swt/swt.jar;../lib/log4j-1.2.14.jar;../lib/junit-4.4.jar" destdir="../docs/javadoc" doctitle="Muggl Documentation" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" overview="E:\Daten\Uni-Arbeit\Dissertation\Muggl\src\de\wwu\muggl\overview.html" 
+			packagenames="de.wwu.muggl.*,org.apache.log4j"
+			source="1.5" sourcepath="../src" splitindex="true" use="true" version="true"/>
+	</target>
+</project>

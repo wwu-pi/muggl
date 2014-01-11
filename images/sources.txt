@@ -1,0 +1,28 @@
+Arrow_refresh.png
+http://commons.wikimedia.org/wiki/Image:Arrow_refresh.png
+Description: Image from the Silk icon theme by Mark James
+Source: http://www.famfamfam.com/lab/icons/silk/
+
+Fairytale_folder.png
+http://commons.wikimedia.org/wiki/Image:Fairytale_folder.png
+GNU Lesser General Public License
+
+Nuvola apps filetypes.svg
+http://commons.wikimedia.org/wiki/Image:Nuvola_apps_filetypes.svg
+GNU Free Documentation License
+
+Info icon.png
+http://commons.wikimedia.org/wiki/Image:Info_icon.png
+GNU General Public License
+
+Nuvola_apps_kmoon.png
+http://commons.wikimedia.org/wiki/Image:Nuvola_apps_kmoon.png
+GNU Lesser General Public License
+
+Gartoon-Gedit-icon.png
+http://commons.wikimedia.org/wiki/Image:Gartoon-Gedit-icon.png
+GNU General Public License
+
+400px-P_yes_green.svg.png
+http://commons.wikimedia.org/wiki/Image:P_yes_green.svg
+GNU Free Documentation License

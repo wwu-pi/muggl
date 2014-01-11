@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Packaging Generator" default="_packaging_generation_">
+<target name="_packaging_generation_" depends="N65540,N65565"/>
+<target name="N65540" description="muggl.jar">
+<jar destfile="../muggl.jar" manifest="../src/META-INF/MANIFEST.MF">
+<zipfileset dir="../bin" includes="**/*.class" excludes="de/wwu/testtool/** de/wwu/logic/** test/**"/>
+<zipfileset dir=".." includes="images/**" excludes=""/>
+</jar>
+</target>
+<target name="N65565" description="solving.jar">
+<mkdir dir="../lib"/>
+<jar destfile="../lib/solving.jar">
+<zipfileset dir="../bin" includes="de/wwu/testtool/**/*.class"/>
+</jar>
+</target>
+</project>

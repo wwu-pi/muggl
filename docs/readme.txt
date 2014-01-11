@@ -1,0 +1,1 @@
+There is no documentation for this application beside the (very comprehensive) Javadoc provided in the /javadoc subfolder, yet.

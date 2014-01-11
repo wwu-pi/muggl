@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Packaging Generator" default="_packaging_generation_">
+<target name="_packaging_generation_" depends="N65541"/>
+<target name="N65541" description="logicjava.jar">
+<jar destfile="../logicjava.jar" manifest="../src/de/wwu/logic/META-INF/MANIFEST.MF">
+<zipfileset dir="../bin" includes="**/*.class*" excludes="de/wwu/testtool/** de/wwu/muggl/** org/** test/**"/>
+</jar>
+</target>
+</project>

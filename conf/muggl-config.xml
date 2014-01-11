@@ -1,0 +1,309 @@
+<?xml version="1.0"?>
+<!-- Written on Saturday, 11 January, 2014 1:33 PM -->
+<MugglConfiguration>
+	<setting name="javaHome">
+		<value>C:\Program Files (x86)\Java\jre6</value>
+		<default></default>
+	</setting>
+	<setting name="javaVersion">
+		<value>1.6.0_24</value>
+		<default></default>
+	</setting>
+	<setting name="classPathEntries" type="multi">
+		<value>E:/Daten/Uni-Arbeit/Promotion/Muggl-SVN/bin/</value>
+		<default></default>
+	</setting>
+	<setting name="methodListHideInitClinit">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="methodListShowMainMethodOnly">
+		<value>false</value>
+		<default>false</default>
+	</setting>
+	<setting name="executionModeSingleSteps">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="symbolicalMode">
+		<value>false</value>
+		<default>false</default>
+	</setting>
+	<setting name="logicMode">
+		<value>false</value>
+		<default>false</default>
+	</setting>
+	<setting name="assumeMissingValues">
+		<value>false</value>
+		<default>false</default>
+	</setting>
+	<setting name="askUserInCasOfMissingValues">
+		<value>false</value>
+		<default>false</default>
+	</setting>
+	<setting name="stepByStepVisuallySkipInvocations">
+		<value>0</value>
+		<default>0</default>
+	</setting>
+	<setting name="visuallySkipStaticInitializers">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="stepByStepShowInstructionBytePosition">
+		<value>true</value>
+		<default>false</default>
+	</setting>
+	<setting name="symbolicSearchAlgorithm">
+		<value>2</value>
+		<default>2</default>
+	</setting>
+	<setting name="iterativeDeepeningStartingDepth">
+		<value>5</value>
+		<default>10</default>
+	</setting>
+	<setting name="iterativeDeepeningDeepnessIncrement">
+		<value>3</value>
+		<default>5</default>
+	</setting>
+	<setting name="doNotHaltOnNativeMethods">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="assumeNativeReturnValuesToBeZeroNull">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="forwardJavaPackageNativeInvocations">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="maximumExecutionTime">
+		<value>15</value>
+		<default>60</default>
+	</setting>
+	<setting name="maximumLoopsToTake">
+		<value>200</value>
+		<default>100</default>
+	</setting>
+	<setting name="maximumInstructionsBeforeFindingANewSolution">
+		<value>-1</value>
+		<default>-1</default>
+	</setting>
+	<setting name="onlyCountChoicePointGeneratingInstructions">
+		<value>false</value>
+		<default>false</default>
+	</setting>
+	<setting name="maximumStepByStepLoggingEntries">
+		<value>15</value>
+		<default>15</default>
+	</setting>
+	<setting name="testClassesDirectory">
+		<value>E:/Daten/Uni-Arbeit/Promotion/Muggl-SVN/src/test/unitTests</value>
+		<default>E:/Daten/Uni-Arbeit/Dissertation/Muggl/src/test</default>
+	</setting>
+	<setting name="testClassesPackageName">
+		<value>test.unitTests</value>
+		<default>test</default>
+	</setting>
+	<setting name="testClassesName">
+		<value>TestClass</value>
+		<default>TestClass</default>
+	</setting>
+	<setting name="maximumLogEntries">
+		<value>50000</value>
+		<default>50000</default>
+	</setting>
+	<setting name="htmlLogging">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="measureSymbolicExecutionTime">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="hideDrivesAB">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="doNotClearClassLoaderCache">
+		<value>false</value>
+		<default>true</default>
+	</setting>
+	<setting name="maximumClassLoaderCacheEntries">
+		<value>-1</value>
+		<default>-1</default>
+	</setting>
+	<setting name="maximumClassLoaderCacheByteSize">
+		<value>0</value>
+		<default>0</default>
+	</setting>
+	<setting name="useDefUseCoverage">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="useControlFlowCoverage">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="coverageTracking">
+		<value>1</value>
+		<default>2</default>
+	</setting>
+	<setting name="coverageAbortionCriteria">
+		<value>1</value>
+		<default>1</default>
+	</setting>
+	<setting name="eliminateSolutionsByCoverage">
+		<value>3</value>
+		<default>3</default>
+	</setting>
+	<setting name="numberOfRecentFiles">
+		<value>5</value>
+		<default>5</default>
+	</setting>
+	<setting name="recentFilesPaths" type="multi">
+		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\de\wwu\muggl\ui\UiStarter.class</value>
+		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\test\papers\Paper200809.class</value>
+		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\test\problematic\ArrayClone.class</value>
+		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\test\papers\bahn\Bahn.class</value>
+		<value>C:\Program Files\Java\jdk1.6.0_24\jre\lib\rt.jar|java/lang/String.class</value>
+		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\test\papers\bahn\BahnSimple$TravelPrice.class</value>
+		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\test\misc\VerySimpleTest.class</value>
+		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\de\wwu\muggl\vm\classfile\ClassFile.class</value>
+		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\de\wwu\muggl\vm\classfile\ClassFileException.class</value>
+		<value>/papers/bahn/Bahn.class</value>
+		<value>/papers/P2010.class</value>
+		<value>/papers/Paper200809.class</value>
+		<value></value>
+		<value></value>
+		<default></default>
+	</setting>
+	<setting name="rgb_fileInspection_ConstantClass" type="rgb">
+		<value name="red">230</value>
+		<value name="green">230</value>
+		<value name="blue">255</value>
+		<value name="default red">230</value>
+		<value name="default green">230</value>
+		<value name="default blue">255</value>
+	</setting>
+	<setting name="rgb_fileInspection_ConstantDouble" type="rgb">
+		<value name="red">230</value>
+		<value name="green">255</value>
+		<value name="blue">255</value>
+		<value name="default red">230</value>
+		<value name="default green">255</value>
+		<value name="default blue">255</value>
+	</setting>
+	<setting name="rgb_fileInspection_ConstantFieldref" type="rgb">
+		<value name="red">220</value>
+		<value name="green">255</value>
+		<value name="blue">220</value>
+		<value name="default red">220</value>
+		<value name="default green">255</value>
+		<value name="default blue">220</value>
+	</setting>
+	<setting name="rgb_fileInspection_ConstantFloat" type="rgb">
+		<value name="red">235</value>
+		<value name="green">255</value>
+		<value name="blue">255</value>
+		<value name="default red">235</value>
+		<value name="default green">255</value>
+		<value name="default blue">255</value>
+	</setting>
+	<setting name="rgb_fileInspection_ConstantInteger" type="rgb">
+		<value name="red">255</value>
+		<value name="green">235</value>
+		<value name="blue">255</value>
+		<value name="default red">255</value>
+		<value name="default green">235</value>
+		<value name="default blue">255</value>
+	</setting>
+	<setting name="rgb_fileInspection_ConstantInterfaceMethodref" type="rgb">
+		<value name="red">230</value>
+		<value name="green">255</value>
+		<value name="blue">230</value>
+		<value name="default red">230</value>
+		<value name="default green">255</value>
+		<value name="default blue">230</value>
+	</setting>
+	<setting name="rgb_fileInspection_ConstantLong" type="rgb">
+		<value name="red">255</value>
+		<value name="green">240</value>
+		<value name="blue">255</value>
+		<value name="default red">255</value>
+		<value name="default green">240</value>
+		<value name="default blue">255</value>
+	</setting>
+	<setting name="rgb_fileInspection_ConstantMethodref" type="rgb">
+		<value name="red">240</value>
+		<value name="green">255</value>
+		<value name="blue">240</value>
+		<value name="default red">240</value>
+		<value name="default green">255</value>
+		<value name="default blue">240</value>
+	</setting>
+	<setting name="rgb_fileInspection_ConstantNameAndType" type="rgb">
+		<value name="red">255</value>
+		<value name="green">255</value>
+		<value name="blue">230</value>
+		<value name="default red">255</value>
+		<value name="default green">255</value>
+		<value name="default blue">230</value>
+	</setting>
+	<setting name="rgb_fileInspection_ConstantString" type="rgb">
+		<value name="red">255</value>
+		<value name="green">230</value>
+		<value name="blue">230</value>
+		<value name="default red">255</value>
+		<value name="default green">230</value>
+		<value name="default blue">230</value>
+	</setting>
+	<setting name="rgb_fileInspection_ConstantUtf8" type="rgb">
+		<value name="red">255</value>
+		<value name="green">240</value>
+		<value name="blue">240</value>
+		<value name="default red">255</value>
+		<value name="default green">240</value>
+		<value name="default blue">240</value>
+	</setting>
+	<setting name="classFileWriteAccess">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="enableSJVMMultithreading">
+		<value>false</value>
+		<default>false</default>
+	</setting>
+	<setting name="numberOfSimultaneousThreads">
+		<value>2</value>
+		<default>2</default>
+	</setting>
+	<setting name="symbolicArrayInitializationNumberOfRunsTotal">
+		<value>25</value>
+		<default>25</default>
+	</setting>
+	<setting name="symbolicArrayInitializationStartingLength">
+		<value>1</value>
+		<default>1</default>
+	</setting>
+	<setting name="symbolicArrayInitializationIncrementationStrategy">
+		<value>0</value>
+		<default>2</default>
+	</setting>
+	<setting name="symbolicArrayInitializationIncrementationStrategyLinearStepSize">
+		<value>1</value>
+		<default>1</default>
+	</setting>
+	<setting name="symbolicArrayInitializationTestNull">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="symbolicArrayInitializationTestZeroLengthArray">
+		<value>true</value>
+		<default>true</default>
+	</setting>
+	<setting name="dynamicallyReplaceInstructionsWithOptimizedOnes">
+		<value>false</value>
+		<default>true</default>
+	</setting>
+</MugglConfiguration>
