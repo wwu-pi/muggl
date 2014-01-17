@@ -3,6 +3,9 @@
 # Binaries
 bin/
 
+# Contents of log/
+log/*.html
+
 # Package Files #
 *.jar
 *.war
