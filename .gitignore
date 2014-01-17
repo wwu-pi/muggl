@@ -1,5 +1,8 @@
 *.class
 
+# Binaries
+bin/
+
 # Package Files #
 *.jar
 *.war
