@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Created-By: Muggl
-Main-Class: de.wwu.muggl.ui.UiStarter
-Class-Path: lib/solving.jar lib/log4j-1.2.14.jar lib/swt/swt.jar lib/junit-4.4.jar
