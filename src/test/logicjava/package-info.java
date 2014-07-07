@@ -3,4 +3,4 @@
  * 
  * @author Tim Majchrzak
  */
-package test;
+package test.logicjava;

@@ -3,4 +3,4 @@
  * 
  * @author Tim Majchrzak
  */
-package de.wwu.muggl.vm.classfile.structures.attributes;
+package de.wwu.muggl.vm.classfile.structures.attributes.elements;

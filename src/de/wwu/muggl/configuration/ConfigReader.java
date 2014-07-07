@@ -40,7 +40,8 @@ public class ConfigReader {
 	 * @return true, if loading the settings was successful, false otherwise.
 	 */
 	public static boolean loadConfig(boolean loadDefaultValues) {
-		File file = new File(Options.getInst().configurationFile);
+		String configFile = Options.getInst().configurationFile;
+		File file = new File(configFile);
 		// Check if the file can be used.
 		if (!file.exists() || !file.isFile()) {
 			if (Globals.getInst().logger.isEnabledFor(Level.WARN))

@@ -3,4 +3,4 @@
  * 
  * @author Tim Majchrzak
  */
-package de.wwu.muggl.ui;
+package de.wwu.muggl.ui.easy;
