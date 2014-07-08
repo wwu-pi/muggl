@@ -414,10 +414,10 @@ public class SWTGui {
 					+ Globals.VERSION_MINOR + " " + Globals.VERSION_RELEASE + "\n"
 					+ "This version is " + Globals.VERSION_STATUS + ".\n\n"
 					+ "Copyrights 2007-09 by Tim Alexander Majchrzak.\n"
-					+ "Developed at the chair for practical computer science at the institute for information systems, WWU Münster, Germany.\n"
-					+ "(Praktische Informatik, Institut für Wirtschaftsinformatik, WWU Münster)\n\n"
-					+ "This work has been inspired by it predecessor, GlassTT. It also uses some of the constraint solving techniques developed for GlassTT at the WWU Münster. "
-					+ "The author would like to thank Christoph Lembeck and Roger A. Müller for their effort.\n\n"
+					+ "Developed at the chair for practical computer science at the institute for information systems, WWU Mï¿½nster, Germany.\n"
+					+ "(Praktische Informatik, Institut fï¿½r Wirtschaftsinformatik, WWU Mï¿½nster)\n\n"
+					+ "This work has been inspired by it predecessor, GlassTT. It also uses some of the constraint solving techniques developed for GlassTT at the WWU Mï¿½nster. "
+					+ "The author would like to thank Christoph Lembeck and Roger A. Mï¿½ller for their effort.\n\n"
 					+ "Further information about " + Globals.APP_NAME + " "
 					+ "can be found at http://www.wi.uni-muenster.de/pi/personal/majchrzak.php";
 				StaticGuiSupport.showMessageBox(getShell(), text);
@@ -560,8 +560,10 @@ public class SWTGui {
 									// Tell this to the user.
 									StaticGuiSupport.showMessageBox(getShell(), "Error", "The jar-archive " + pathToFile + " was opened. However, the entry " + pathInJar + " could not be found. The archive probably was modified.", SWT.OK | SWT.ICON_ERROR);
 									// Do not continue.
+									jarFile.close();
 									return;
 								}
+								jarFile.close();
 							}
 
 							// Everything went fine. Browse to the file.

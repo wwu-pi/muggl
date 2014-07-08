@@ -4,4 +4,4 @@
  * 
  * @author Tim Majchrzak
  */
-package test;
+package test.misc;

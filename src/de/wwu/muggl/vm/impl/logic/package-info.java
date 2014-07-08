@@ -4,4 +4,4 @@
  * 
  * @author Tim Majchrzak
  */
-package de.wwu.muggl.vm.impl.real;
+package de.wwu.muggl.vm.impl.logic;
