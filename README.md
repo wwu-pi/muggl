@@ -5,8 +5,6 @@ In order to compile the system from eclipse:
 
 - Include the most recent version of the libraries:
  + JUnit
- + SWT
- + log4j 
 
 - Include the 'images' folder in the 'src' folder
 
