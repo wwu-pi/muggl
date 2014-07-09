@@ -22,6 +22,11 @@ import java.util.Collection;
 public class CheckingArrayList<E> extends ArrayList<E> {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Inherited constructor.
 	 * @param initialCapacity the initial capacity of the list
 	 * see ArrayList#ArrayList(int)

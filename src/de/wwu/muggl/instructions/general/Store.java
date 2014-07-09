@@ -107,7 +107,6 @@ public abstract class Store extends GeneralInstructionWithOtherBytes implements
 	 * @param localVariable The local variable index to store to.
 	 * @throws SymbolicExecutionException Thrown in case of fatal problems during the symbolic execution.
 	 */
-	@SuppressWarnings("unused")
 	public void executeSymbolically(Frame frame, int localVariable) throws SymbolicExecutionException {
 		// Save the current value, if necessary.
 		if (((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().savingLocalVariableValues()) {

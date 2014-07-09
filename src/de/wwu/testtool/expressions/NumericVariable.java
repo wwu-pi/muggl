@@ -9,7 +9,6 @@ import de.wwu.testtool.solver.Solution;
 import de.wwu.testtool.solver.constraints.Assignment;
 import de.wwu.testtool.solver.constraints.Monomial;
 import de.wwu.testtool.solver.constraints.Polynomial;
-import de.wwu.testtool.solver.numbers.DoubleWrapper;
 import de.wwu.testtool.solver.numbers.Fraction;
 import de.wwu.testtool.solver.numbers.NumberFactory;
 import de.wwu.testtool.solver.numbers.NumberWrapper;

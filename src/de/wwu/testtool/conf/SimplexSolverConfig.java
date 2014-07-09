@@ -8,7 +8,6 @@ import org.w3c.dom.Node;
 import de.wwu.testtool.solver.numbers.NumberFactory;
 import de.wwu.testtool.solver.tsolver.SimplexSolver;
 import de.wwu.testtool.solver.tsolver.SimplexSolverCL;
-import de.wwu.testtool.tools.Timer;
 
 /**
  * Configuration class encapsulating configuration for the SimplexSolverCL.

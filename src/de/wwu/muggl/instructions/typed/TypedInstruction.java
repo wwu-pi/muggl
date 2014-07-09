@@ -104,7 +104,6 @@ public abstract class TypedInstruction {
 	 * @param type The type of the object, which determines the extension strategy.
 	 * @return The (probably extended) value.
 	 */
-	@SuppressWarnings("unused")
 	protected Object extendValue(Object value, String type) {
 		return value;
 	}
@@ -208,7 +207,6 @@ public abstract class TypedInstruction {
 	 * @param type The type of the Term, which determines the truncation strategy.
 	 * @return The (probably truncated) term.
 	 */
-	@SuppressWarnings("unused")
 	protected Term truncateSymbolicValue(Term term, int type) {
 		return term;
 	}

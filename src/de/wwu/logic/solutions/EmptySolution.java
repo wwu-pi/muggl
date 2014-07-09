@@ -6,7 +6,7 @@ package de.wwu.logic.solutions;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-07-20
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class EmptySolution extends Solution {
 
 }
