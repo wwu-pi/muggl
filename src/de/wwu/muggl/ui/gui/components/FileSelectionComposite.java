@@ -1662,8 +1662,12 @@ public class FileSelectionComposite extends Composite {
 			slashPos = barPos;
 		}
 
-		// Get the new path and file to find.
-		needToFind = path.substring(0, slashPos);
+		// Get the new path and file to find.		
+		needToFind = path.substring(0, slashPos); 
+		// rafaC: if failed if the path started by /; in this case the empty string ins obtained
+		if (needToFind.length()==0)
+			needToFind = path.substring(0, slashPos+1); 
+			 
 		path = path.substring(slashPos + 1);
 
 		// Open tree.
