@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+
+
 <project default="create_run_jar" name="Create Runnable Jar for Project Muggl-svn">
-    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
-    <!--ANT 1.7 is required                                        -->
+	
+    <!--ANT 1.7 is required        -->                                
     <target name="create_run_jar">
-        <jar destfile="${basedir}/muggl.jar"  filesetmanifest="mergewithoutmain">
-            <manifest>
-                <attribute name="Main-Class" value="de.wwu.muggl.ui.UiStarter"/>
-                <attribute name="Class-Path" value="."/>
-            </manifest>
-            <fileset dir="${basedir}/bin"/>      </jar>
-    	<chmod file="${basedir}/muggl.jar" perm="755"/>
+    	   <!-- Define the swt-jar packer task !-->
+    		<taskdef name="swtjar" classname="org.swtjar.ant.SWTJarTask"
+    		                       classpath="./lib/swtjar.jar"/>
+    		<!-- Package cross platform SWT Jar -->
+    		<swtjar jarfile="./muggl.jar"
+    				targetmainclass="de.wwu.muggl.ui.UiStarter"
+    				swtversion="4.3.2">
+    		  <!-- Application Classes -->
+    		  <fileset dir="./bin"/>
+    		  
+    		  <!-- SWT Jars -->
+    		  <fileset dir="./lib" includes="swt-*-4.3.2.jar" />
+    		</swtjar>
+    		<chmod file="./muggl.jar" perm="755"/>
     </target>
+
+ 
 </project>

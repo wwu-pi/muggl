@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
-<!-- Written on Saturday, 11 January, 2014 1:33 PM -->
+<!-- Written on Thursday, 10 July, 2014 3:46 PM -->
 <MugglConfiguration>
 	<setting name="javaHome">
-		<value>C:\Program Files (x86)\Java\jre6</value>
+		<value>/usr/lib/jvm/java-6-openjdk-amd64/jre</value>
 		<default></default>
 	</setting>
 	<setting name="javaVersion">
-		<value>1.6.0_24</value>
+		<value>1.6.0_31</value>
 		<default></default>
 	</setting>
 	<setting name="classPathEntries" type="multi">
-		<value>E:/Daten/Uni-Arbeit/Promotion/Muggl-SVN/bin/</value>
+		<value>/</value>
 		<default></default>
 	</setting>
 	<setting name="methodListHideInitClinit">
