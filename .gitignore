@@ -1,5 +1,7 @@
 *.class
 
+muggl-config.xml
+
 # Binaries
 bin/
 
