@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
-<!-- Written on Friday, 11 July, 2014 11:09 AM -->
+<!-- Written on Friday, 11 July, 2014 2:02 PM -->
 <MugglConfiguration>
 	<setting name="javaHome">
-		<value>/usr/lib/jvm/java-7-openjdk-amd64/jre</value>
+		<value>/usr/lib/jvm/java-6-openjdk-amd64/jre</value>
 		<default></default>
 	</setting>
 	<setting name="javaVersion">
-		<value>1.7.0_55</value>
+		<value>1.6.0_31</value>
 		<default></default>
 	</setting>
 	<setting name="classPathEntries" type="multi">
-		<value>/</value>
+		<value>/home/rafa/repos/git/muggl/bin/</value>
 		<default></default>
 	</setting>
 	<setting name="methodListHideInitClinit">
@@ -22,11 +22,11 @@
 		<default>false</default>
 	</setting>
 	<setting name="executionModeSingleSteps">
-		<value>true</value>
+		<value>false</value>
 		<default>true</default>
 	</setting>
 	<setting name="symbolicalMode">
-		<value>false</value>
+		<value>true</value>
 		<default>false</default>
 	</setting>
 	<setting name="logicMode">
@@ -98,7 +98,7 @@
 		<default>15</default>
 	</setting>
 	<setting name="testClassesDirectory">
-		<value>E:/Daten/Uni-Arbeit/Promotion/Muggl-SVN/src/test/unitTests</value>
+		<value>.</value>
 		<default>E:/Daten/Uni-Arbeit/Dissertation/Muggl/src/test</default>
 	</setting>
 	<setting name="testClassesPackageName">
@@ -162,20 +162,11 @@
 		<default>5</default>
 	</setting>
 	<setting name="recentFilesPaths" type="multi">
-		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\de\wwu\muggl\ui\UiStarter.class</value>
-		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\test\papers\Paper200809.class</value>
-		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\test\problematic\ArrayClone.class</value>
-		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\test\papers\bahn\Bahn.class</value>
-		<value>C:\Program Files\Java\jdk1.6.0_24\jre\lib\rt.jar|java/lang/String.class</value>
-		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\test\papers\bahn\BahnSimple$TravelPrice.class</value>
-		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\test\misc\VerySimpleTest.class</value>
-		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\de\wwu\muggl\vm\classfile\ClassFile.class</value>
-		<value>E:\Daten\Uni-Arbeit\Promotion\Muggl-SVN\bin\de\wwu\muggl\vm\classfile\ClassFileException.class</value>
-		<value>/papers/bahn/Bahn.class</value>
-		<value>/papers/P2010.class</value>
-		<value>/papers/Paper200809.class</value>
-		<value></value>
-		<value></value>
+		<value>/home/rafa/repos/git/muggl/bin/test/misc/Money.class</value>
+		<value>/home/rafa/repos/git/muggl/bin/test/papers/SquareRoot.class</value>
+		<value>/home/rafa/repos/git/muggl/bin/test/papers/Blur.class</value>
+		<value>/home/rafa/repos/git/muggl/bin/test/papers/Quicksort.class</value>
+		<value>/home/rafa/repos/git/muggl/bin/test/papers/Gcd.class</value>
 		<default></default>
 	</setting>
 	<setting name="rgb_fileInspection_ConstantClass" type="rgb">
