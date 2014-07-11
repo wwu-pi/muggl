@@ -1,6 +1,7 @@
 *.class
 
-muggl-config.xml
+# Conf
+conf/
 
 # Binaries
 bin/
