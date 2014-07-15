@@ -219,6 +219,7 @@ public final class Globals {
 			iterator.next().setLevel(Level.INFO);
 		}
 
+		
 		// Finished
 		if (this.logger.isInfoEnabled())
 			this.logger.info("Logging started. Current logging level is " + this.logger.getLevel().toString());

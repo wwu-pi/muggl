@@ -39,6 +39,8 @@ public class SolverManagerNew implements SolverManager {
 	ComposedConstraint cc = ce.convertToComposedConstraint(substitutionTable);
 	substitutionTable.signalStackElementAdded();
 	
+	
+	
 	try {
 	    composedConstraintSolver.addConstraint(cc);
 	} catch (IncorrectSolverException e) {
