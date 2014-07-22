@@ -178,4 +178,12 @@ public class AndConstraint implements ComposedConstraint{
 	}
 	return this;
     }
+
+	public ComposedConstraint getLeft() {
+		return left;
+	}
+
+	public ComposedConstraint getRight() {
+		return right;
+	}
 }

@@ -17,7 +17,7 @@ public abstract class NumericConstant extends Term implements Constant{
     /**
      * Get or create a new instance of NumericConstant with the given value and type.
      * @param value the value which the constant is supposed to has.
-     * @param type the desired type according to {@link SymbolivVirtaulMachineElement}.
+     * @param type the desired type according to {@link Expression}.
      * @return the desired numeric constant.
      */
     public static NumericConstant getInstance(int value, byte type){

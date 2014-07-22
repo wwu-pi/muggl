@@ -126,6 +126,18 @@ public final class Globals {
 	 * TRACE: Really detailed information about the solvers work.
 	 */
 	public final Logger solverLogger;
+	
+	/**
+	 * Symbolic Execution Logger:
+	 * FATAL: Unexpected error that shuldn't occur
+	 * ERROR: Not used
+	 * WARN: Not used
+	 * INFO: Not used
+	 * DEBUG: Detailed information about the use of the debugger
+	 * TRACE: Very detailed information about steps being taken by the JacopSolver
+	 */
+	public final Logger jacopLogger;
+
 	/**
 	 * Symbolic Execution Logger:
 	 * FATAL: Error in the symbolic execution which forces halting of the application.
@@ -188,6 +200,7 @@ public final class Globals {
 		this.guiLogger = Logger.getLogger(APP_NAME + " gui");
 		this.solverLogger = Logger.getLogger(APP_NAME + " solver");
 		this.symbolicExecLogger = Logger.getLogger(APP_NAME + " symbolic execution");
+		this.jacopLogger = Logger.getLogger(APP_NAME + " JaCoP solver");
 
 		// Finally start logging.
 		try {
@@ -200,6 +213,7 @@ public final class Globals {
 			this.guiLogger.addAppender(this.fileAppender);
 			this.solverLogger.addAppender(this.fileAppender);
 			this.symbolicExecLogger.addAppender(this.fileAppender);
+			this.jacopLogger.addAppender(this.fileAppender);
 		} catch (IOException e) {
 			System.out.println("Fatal error: Could not initialize logging due to an I/O error. Halting.");
 			System.exit(1);
@@ -212,13 +226,15 @@ public final class Globals {
 		this.loggers.add(this.guiLogger);
 		this.loggers.add(this.solverLogger);
 		this.loggers.add(this.symbolicExecLogger);
+		this.loggers.add(this.jacopLogger);
 
 		// Set the basic level for logging.
 		Iterator<Logger> iterator = this.loggers.iterator();
 		while (iterator.hasNext()) {
-			iterator.next().setLevel(Level.INFO);
+			iterator.next().setLevel(Level.OFF); // RafaC: change to INFO
 		}
-
+		this.solverLogger.setLevel(Level.TRACE);
+        this.jacopLogger.setLevel(Level.TRACE);
 		
 		// Finished
 		if (this.logger.isInfoEnabled())

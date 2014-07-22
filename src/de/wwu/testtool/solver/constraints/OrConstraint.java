@@ -184,5 +184,13 @@ public class OrConstraint implements ComposedConstraint{
 	    return this;
     }
 
+	public ComposedConstraint getLeft() {
+		return left;
+	}
+
+	public ComposedConstraint getRight() {
+		return right;
+	}
+
 
 }

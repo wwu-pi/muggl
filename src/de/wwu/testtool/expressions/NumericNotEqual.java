@@ -134,4 +134,12 @@ public class NumericNotEqual extends ConstraintExpression{
     public String toTexString(boolean useInternalVariableNames) {
 	return "(" + left.toTexString(useInternalVariableNames) + " \\neq " + right.toTexString(useInternalVariableNames) + ")";
     }
+
+	public Term getLeft() {
+		return left;
+	}
+
+	public Term getRight() {
+		return right;
+	}
 }
