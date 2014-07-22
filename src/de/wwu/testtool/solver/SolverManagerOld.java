@@ -15,7 +15,6 @@ import de.wwu.testtool.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.constraints.ConstraintStack;
 import de.wwu.testtool.solver.constraints.ConstraintSystem;
 import de.wwu.testtool.solver.constraints.SingleConstraint;
-import de.wwu.testtool.solver.jacop.JaCoPSolver;
 import de.wwu.testtool.solver.listener.SolverManagerListener;
 import de.wwu.testtool.solver.listener.SolverManagerListenerList;
 import de.wwu.testtool.solver.tools.SubstitutionTable;
@@ -51,13 +50,6 @@ public class SolverManagerOld implements SolverManager {
 	private Logger logger;
 	
 	/**
-	* the JaCoPSolver. If it works this should be removed and
-	* the solver integrated as any other solver
-	* @author rafa
-	*/
-	protected JaCoPSolver jacop;
-    
-	/**
 	 * Creates a new Solver Manager object and initializes it with a stream that
 	 * collects the logging informations if wanted.
 	 */
@@ -81,8 +73,6 @@ public class SolverManagerOld implements SolverManager {
 														+ listener.getClass().getName());
 		}
 
-		// RafaC
-		jacop = new JaCoPSolver();
 
 	}
 
@@ -113,9 +103,6 @@ public class SolverManagerOld implements SolverManager {
 														if (logger.isTraceEnabled()) {
 																logger.trace(constraintStackToString());
 														}
-
-		// RafaC
-		jacop.add(cc);
 
 		return cc;
 	}
@@ -165,7 +152,6 @@ public class SolverManagerOld implements SolverManager {
 
 													if (logger.isDebugEnabled())
 														logger.debug("getSolution"); // RafaC
-		Solution jacops = jacop.getSolution();	
 		
 
 		listeners.fireGetSolutionStarted(this);
@@ -380,8 +366,7 @@ public class SolverManagerOld implements SolverManager {
 														// RafaC
 														if (logger.isDebugEnabled())
 															logger.debug("hasSolution: ");
-		boolean b = jacop.hasSolution(); 
-
+		
 		totalConstraintsChecked++; // Added 2008.05.02
 		listeners.fireHasSolutionStarted(this);
 		long startTime = System.nanoTime();
@@ -539,8 +524,6 @@ public class SolverManagerOld implements SolverManager {
 																	logger.trace(constraintStackToString());
 																}
 															}
-		// RafaC
-		jacop.remove();
 	}
 
 	private void removeConstraints(int count) {

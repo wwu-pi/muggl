@@ -231,10 +231,8 @@ public final class Globals {
 		// Set the basic level for logging.
 		Iterator<Logger> iterator = this.loggers.iterator();
 		while (iterator.hasNext()) {
-			iterator.next().setLevel(Level.OFF); // RafaC: change to INFO
+			iterator.next().setLevel(Level.INFO); 
 		}
-		this.solverLogger.setLevel(Level.TRACE);
-        this.jacopLogger.setLevel(Level.TRACE);
 		
 		// Finished
 		if (this.logger.isInfoEnabled())
