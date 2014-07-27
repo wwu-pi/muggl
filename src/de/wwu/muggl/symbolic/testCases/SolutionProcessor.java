@@ -685,7 +685,7 @@ public class SolutionProcessor {
 				boolean firstPass = true;
 
 				// Go!
-				for (int a = startAt; a < parameterTypes.length; a++) {
+				for (int a = startAt; a < parameters.length; a++) {
 					// Add a comma separator if needed.
 					if (!firstPass) {
 						testMethodStringBuilder.append(", this.");
@@ -1216,11 +1216,11 @@ public class SolutionProcessor {
 			else if (sign.equals("}")) 	sign = "_braceClosed_";
 			else if (sign.equals("[")) 	sign = "_suaqreBracketOpen_";
 			else if (sign.equals("]")) 	sign = "_suaqreBracketClosed_";
-			else if (sign.equals("§")) 	sign = "_paragraph_";
+			else if (sign.equals("ï¿½")) 	sign = "_paragraph_";
 			else if (sign.equals("#")) 	sign = "_hash_";
-			else if (sign.equals("°")) 	sign = "_degreeSymbol_";
-			else if (sign.equals("²")) 	sign = "_square2_";
-			else if (sign.equals("³")) 	sign = "_square3_";
+			else if (sign.equals("ï¿½")) 	sign = "_degreeSymbol_";
+			else if (sign.equals("ï¿½")) 	sign = "_square2_";
+			else if (sign.equals("ï¿½")) 	sign = "_square3_";
 			else if (sign.equals(";")) 	sign = "_semicolon_";
 			else if (sign.equals(":")) 	sign = "_colon_";
 			escaped += sign;
