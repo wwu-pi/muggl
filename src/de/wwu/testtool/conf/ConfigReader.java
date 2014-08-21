@@ -53,7 +53,6 @@ public class ConfigReader {
 	    docBuilder.setErrorHandler(new ConfigErrorHandler());
 	    configuration = docBuilder.parse(fileName);
 	} catch (Exception e){
-	    // e.printStackTrace();
 	    throw new InternalError("Configuration file can not be read: " + e.getClass().getName()
 		    + "(" + e.getMessage() + ")");
 	}

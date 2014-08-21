@@ -54,6 +54,7 @@ public class StepByStepExecutionWindow implements ShellWindow {
 					this.display.sleep();
 				}
 		} catch (Throwable t) {
+			t.printStackTrace();
 			StaticGuiSupport.processGuiError(t, "Step by step execution", parentShell);
 		} finally {
 			//Make the parent shell visible.

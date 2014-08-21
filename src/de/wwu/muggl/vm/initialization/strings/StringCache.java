@@ -18,36 +18,46 @@ import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.testtool.expressions.IntConstant;
 
 /**
- * This class provides a cache for strings. It is required by the Java Language Specification,
- * Second Edition <a href="http://java.sun.com/docs/books/jls/second_edition/html/j.title.doc.html"
- * target="_blank">http://java.sun.com/docs/books/jls/second_edition/html/j.title.doc.html</a> that
- * string literals are "interned" and share the same internal instance (see section 3.10.5). Hence,
- * two string literals with the same values are also the same instance.<br />
+ * This class provides a cache for strings. It is required by the Java Language
+ * Specification, Second Edition <a href=
+ * "http://java.sun.com/docs/books/jls/second_edition/html/j.title.doc.html"
+ * target
+ * ="_blank">http://java.sun.com/docs/books/jls/second_edition/html/j.title
+ * .doc.html</a> that string literals are "interned" and share the same internal
+ * instance (see section 3.10.5). Hence, two string literals with the same
+ * values are also the same instance.<br />
  * <br />
- * More technically speaking, the string cache is used when executing ldc instructions and when
- * using the intern() method of strings. ldc and its widened version ldc_w can be used to push
- * string literals from the constant pool. They will get a value from the constant pool and use the
- * string cache to get an String object reference for it. Calls to the native method intern() in
- * class java.lang.String are caught and forwarded to the string cache either. By doing so, the
- * requirements can be met and this virtual machine implementation behaves as it is supposed to.<br />
+ * More technically speaking, the string cache is used when executing ldc
+ * instructions and when using the intern() method of strings. ldc and its
+ * widened version ldc_w can be used to push string literals from the constant
+ * pool. They will get a value from the constant pool and use the string cache
+ * to get an String object reference for it. Calls to the native method intern()
+ * in class java.lang.String are caught and forwarded to the string cache
+ * either. By doing so, the requirements can be met and this virtual machine
+ * implementation behaves as it is supposed to.<br />
  * <br />
- * Whenever a String object reference is requested, the cache is searched for an already existing
- * instance of the adequate String. If it is found, it will simply be returned. Otherwise, a new
- * String object reference is constructed. Before it is returned it will be cached for future usage.<br />
+ * Whenever a String object reference is requested, the cache is searched for an
+ * already existing instance of the adequate String. If it is found, it will
+ * simply be returned. Otherwise, a new String object reference is constructed.
+ * Before it is returned it will be cached for future usage.<br />
  * <br />
- * To speed up the access to cached object references, the character representation of strings is
- * used to build a search tree of String object reference. There is a root {@link StringCacheEntry},
- * containing the String object reference for the empty String. It has a {@link HashMap} containing
- * the first characters of cached strings as its key and linking to further StringCacheEntry
- * instances. They each have a HashMap of their own, linking to further entries.<br />
+ * To speed up the access to cached object references, the character
+ * representation of strings is used to build a search tree of String object
+ * reference. There is a root {@link StringCacheEntry}, containing the String
+ * object reference for the empty String. It has a {@link HashMap} containing
+ * the first characters of cached strings as its key and linking to further
+ * StringCacheEntry instances. They each have a HashMap of their own, linking to
+ * further entries.<br />
  * <br />
- * Searching for a cached String starts at the root entry. If the empty String is searched for, the
- * object reference is returned directly. Otherwise, the first character is used to check the
- * HashMap for the corresponding entry. When found, the StringCacheEntry is accessed and search
- * continues on it with the next character. This is kept on until the last character is reached. The
- * corresponding StringCacheEntry will hold a reference to the appropriate String object reference.
- * If it does not, or if at some point there was no tree entry for the currently searched character,
- * the needed entries are generated.<br />
+ * Searching for a cached String starts at the root entry. If the empty String
+ * is searched for, the object reference is returned directly. Otherwise, the
+ * first character is used to check the HashMap for the corresponding entry.
+ * When found, the StringCacheEntry is accessed and search continues on it with
+ * the next character. This is kept on until the last character is reached. The
+ * corresponding StringCacheEntry will hold a reference to the appropriate
+ * String object reference. If it does not, or if at some point there was no
+ * tree entry for the currently searched character, the needed entries are
+ * generated.<br />
  * <br />
  * The search tree thus has a layout like this:<br />
  *
@@ -63,16 +73,21 @@ import de.wwu.testtool.expressions.IntConstant;
  *
  * </blockquote>
  *
- * Each node (StringCacheEntry) (not only leafs) may hold a reference to a String object reference.
- * The edges of the search tree are the entries of the HashMaps.<br />
+ * Each node (StringCacheEntry) (not only leafs) may hold a reference to a
+ * String object reference. The edges of the search tree are the entries of the
+ * HashMaps.<br />
  * <br />
- * In order to speed up execution even further, hashing is used. Wrapping characters as
- * {@link HashableCharacter} makes sure that each distinct character has an unique hash code value
- * and can be used in HashMap instances that provide constant-time performance for the operations
- * required.
+ * In order to speed up execution even further, hashing is used. Wrapping
+ * characters as {@link HashableCharacter} makes sure that each distinct
+ * character has an unique hash code value and can be used in HashMap instances
+ * that provide constant-time performance for the operations required.
+ * 
+ * TODO Experimental: Removed the count and the offset fields, which seem to
+ * have been omitted in newer JDK releases without notice. There might be new
+ * fields that need to be added. TODO
  *
  * @author Tim Majchrzak
- * @version 1.0.0, 2010-03-10
+ * @version 1.0.0, 2014-08-21
  */
 public class StringCache {
 	// Reference of the virtual machine.
@@ -113,9 +128,9 @@ public class StringCache {
 			throw new InitializationException(
 					"Fatal problem constructing the StringCache: Cannot load class java.lang.Character.");
 		}
-		this.stringCountField = this.stringClassFile.getFieldByNameAndDescriptor("count", "I");
+		//this.stringCountField = this.stringClassFile.getFieldByNameAndDescriptor("count", "I");
 		this.stringHashField = this.stringClassFile.getFieldByNameAndDescriptor("hash", "I");
-		this.stringOffsetField = this.stringClassFile.getFieldByNameAndDescriptor("offset", "I");
+		//this.stringOffsetField = this.stringClassFile.getFieldByNameAndDescriptor("offset", "I");
 		this.stringValueField = this.stringClassFile.getFieldByNameAndDescriptor("value", "[C");
 		this.root = new StringCacheEntry(this, provideStringReference(new char[0]));
 	}
@@ -140,9 +155,9 @@ public class StringCache {
 		// Pre-cache objects.
 		this.stringClassFile = stringClassFile;
 		this.characterClassFile = characterClassFile;
-		this.stringCountField = this.stringClassFile.getFieldByNameAndDescriptor("count", "I");
+		//this.stringCountField = this.stringClassFile.getFieldByNameAndDescriptor("count", "I");
 		this.stringHashField = this.stringClassFile.getFieldByNameAndDescriptor("hash", "I");
-		this.stringOffsetField = this.stringClassFile.getFieldByNameAndDescriptor("offset", "I");
+		//this.stringOffsetField = this.stringClassFile.getFieldByNameAndDescriptor("offset", "I");
 		this.stringValueField = this.stringClassFile.getFieldByNameAndDescriptor("value", "[C");
 		this.root = new StringCacheEntry(this, provideStringReference(new char[0]));
 	}
@@ -242,14 +257,14 @@ public class StringCache {
 		// Put the fields.
 		stringInitializedClass.putField(this.stringValueField, arrayref);
 		if (symbolicalMode) {
-			stringInitializedClass.putField(this.stringOffsetField, IntConstant.getInstance(0));
-			stringInitializedClass.putField(this.stringCountField,
-					IntConstant.getInstance(charArray.length));
+			//stringInitializedClass.putField(this.stringOffsetField, IntConstant.getInstance(0));
+			//stringInitializedClass.putField(this.stringCountField,
+					//IntConstant.getInstance(charArray.length));
 			stringInitializedClass.putField(this.stringHashField,
 					IntConstant.getInstance(getHashCode(charArray)));
 		} else {
-			stringInitializedClass.putField(this.stringOffsetField, 0);
-			stringInitializedClass.putField(this.stringCountField, charArray.length);
+			//stringInitializedClass.putField(this.stringOffsetField, 0);
+			//stringInitializedClass.putField(this.stringCountField, charArray.length);
 			stringInitializedClass.putField(this.stringHashField, getHashCode(charArray));
 		}
 		return stringInitializedClass;

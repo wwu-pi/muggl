@@ -69,6 +69,7 @@ public class TesttoolConfig {
 	    texFileAppender.setName(texFileLoggerFilename);
 	    texLogger.addAppender(texFileAppender);
 	} catch (IOException e) {
+		e.printStackTrace();
 	    System.out.println("Fatal error: Could not initialize logging due to an I/O error. Halting.\n" + e);
 	    System.exit(1);
 	}
