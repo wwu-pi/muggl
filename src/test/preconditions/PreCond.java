@@ -9,9 +9,17 @@ public class PreCond {
 	public int f(int x,int y) {
 		// do something
 		int z = y-x;
-		for (int i=0; i<z; i++) 
+		
+		for (int i=0; i<z; i++)
 			System.out.println(i);
+		System.out.println("Hi");
+			
 		return z;
+	}
+	
+	public int thisMethodFails() {
+		System.out.println("Boo!");
+		return 0;
 	}
 		
 	public int g(int a, int b, int c){
