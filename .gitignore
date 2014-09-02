@@ -2,6 +2,7 @@
 
 # Conf
 conf/
+conf/*
 
 # Binaries
 bin/

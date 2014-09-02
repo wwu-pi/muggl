@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
-<!-- Written on Friday, 11 July, 2014 2:02 PM -->
+<!-- Written on Tuesday, 02 September, 2014 11:55 AM -->
 <MugglConfiguration>
 	<setting name="javaHome">
 		<value>/usr/lib/jvm/java-6-openjdk-amd64/jre</value>
 		<default></default>
 	</setting>
 	<setting name="javaVersion">
-		<value>1.6.0_31</value>
+		<value>1.6.0_32</value>
 		<default></default>
 	</setting>
 	<setting name="classPathEntries" type="multi">
-		<value>/home/rafa/repos/git/muggl/bin/</value>
+		<value>/home/vincentvonhof/git/muggl/muggl.jar</value>
 		<default></default>
 	</setting>
 	<setting name="methodListHideInitClinit">
@@ -162,11 +162,11 @@
 		<default>5</default>
 	</setting>
 	<setting name="recentFilesPaths" type="multi">
+		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/preconditions/PreCond.class</value>
+		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/papers/bahn/BahnSimple$TravelPrice.class</value>
+		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/papers/bahn/BahnSimple.class</value>
+		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/papers/bahn/Bahn.class</value>
 		<value>/home/rafa/repos/git/muggl/bin/test/misc/Money.class</value>
-		<value>/home/rafa/repos/git/muggl/bin/test/papers/SquareRoot.class</value>
-		<value>/home/rafa/repos/git/muggl/bin/test/papers/Blur.class</value>
-		<value>/home/rafa/repos/git/muggl/bin/test/papers/Quicksort.class</value>
-		<value>/home/rafa/repos/git/muggl/bin/test/papers/Gcd.class</value>
 		<default></default>
 	</setting>
 	<setting name="rgb_fileInspection_ConstantClass" type="rgb">
