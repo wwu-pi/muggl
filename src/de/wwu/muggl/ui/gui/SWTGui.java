@@ -72,7 +72,6 @@ public class SWTGui {
 			exitCode = 1;
 			if (Globals.getInst().guiLogger.isEnabledFor(Level.FATAL)) Globals.getInst().guiLogger.fatal(message);
 		} catch (Exception e) {
-			e.printStackTrace();
 			String message = Globals.APP_NAME + " crashed with an unexpected Exception. There is no chance to recover, so it is halting. The root cause is: " + e.getMessage();
 			StaticGuiSupport.showMessageBox(getShell(), "Fatal error", message, SWT.OK | SWT.ICON_ERROR);
 			exitCode = 1;
