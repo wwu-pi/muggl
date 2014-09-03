@@ -13,6 +13,9 @@ public class InsertionSort {
 		return (n >= 0 && n < array.length && isOrdered(array, n));
 	}
 
+	public boolean insertOrderedPostcondition(int[] array, int n) {
+		return isOrdered(array, n+1);
+	}
 	
 	/**
 	 * Muggl throws a ClassCastException with this function. 
@@ -30,11 +33,8 @@ public class InsertionSort {
 	
 	/**
 	 * Sorting by insertion. Iterative algorithm.
-	 * 
-	 * But it seems Muggl cannot handle this, because of the error shown
-	 * above (sillyFunction)
 	 */
-	public void insertOrdered(int[] array, int n) {
+	public void insertOrdered(int[] array, Integer n) {
 		while (n > 0 && array[n] < array[n-1]) {
 			int tmp = array[n-1];
 			array[n-1] = array[n];
@@ -49,4 +49,27 @@ public class InsertionSort {
 		}
 	}
 
+	/*
+	public int insertionSort_check_precondition(int[] array) {
+		for (int i = 0; i < array.length; i++) {
+			if (!insertOrderedPrecondition(array, i)) {
+				return 1;
+			}
+			insertOrdered(array, i);
+			if (!insertOrderedPostcondition(array, i)) {
+				return -1;
+			}
+		}
+		return 0;
+	}*/
+	
+	public int simpleArraySwap(int[] array) {
+		// Swap the first two elements
+		int tmp = array[0];
+		array[0] = array[1];
+		array[1] = tmp;
+		
+		if (array[0] > array[1]) return 1;
+		return 0;
+	}
 }
