@@ -34,7 +34,7 @@ public class If_icmple extends If_icmp implements Instruction {
 	 */
 	@Override
 	public String getName() {
-		return "if_icmplt";
+		return "if_icmple";
 	}
 
 	/**
