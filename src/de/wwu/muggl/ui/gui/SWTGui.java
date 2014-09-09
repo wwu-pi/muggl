@@ -102,12 +102,14 @@ public class SWTGui {
 		this.shell = new Shell(this.display, SWT.BORDER | SWT.CLOSE | SWT.TITLE | SWT.MIN);
 		this.shell.setText(Globals.APP_NAME + " " + Globals.VERSION_MAJOR + "." + Globals.VERSION_MINOR + " " + Globals.VERSION_RELEASE);
 		this.shell.setLayout(new FillLayout(SWT.VERTICAL));
+
 		final Image small = new Image(shell.getDisplay(),
 		        "images/images/tray_small.png");
 		final Image large = new Image(shell.getDisplay(),
 				 "images/images/tray_large.png");
 		this.shell.setImages(new Image[] { small, large });
-
+		
+		
 		// Get the image repository.
 		ImageRepository repos = ImageRepository.getInst();
 		

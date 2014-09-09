@@ -1,6 +1,7 @@
 package de.wwu.muggl.ui.gui.windows;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
@@ -58,7 +59,13 @@ public class OptionsWindow implements ShellWindow {
 		this.shell = new Shell(this.display, SWT.BORDER | SWT.CLOSE | SWT.TITLE | SWT.MIN);
 		this.shell.setText(Globals.WINDOWS_TITLE + Globals.WINDOWS_TITLE_CONNECTOR + "Options");
 		this.shell.setLayout(new FillLayout(SWT.VERTICAL));
-
+		
+		final Image small = new Image(shell.getDisplay(),
+		        "images/images/tray_small.png");
+		final Image large = new Image(shell.getDisplay(),
+				 "images/images/tray_large.png");
+		this.shell.setImages(new Image[] { small, large });
+		
 		// No need to read it later, so it is not assigned to a variable.
 		new OptionsComposite(this, this.shell, SWT.NONE, classLoader);
 

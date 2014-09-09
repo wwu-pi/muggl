@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- Written on Tuesday, 02 September, 2014 11:55 AM -->
+<!-- Written on Thursday, 04 September, 2014 10:15 AM -->
 <MugglConfiguration>
 	<setting name="javaHome">
 		<value>/usr/lib/jvm/java-6-openjdk-amd64/jre</value>
@@ -163,10 +163,10 @@
 	</setting>
 	<setting name="recentFilesPaths" type="multi">
 		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/preconditions/PreCond.class</value>
-		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/papers/bahn/BahnSimple$TravelPrice.class</value>
-		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/papers/bahn/BahnSimple.class</value>
-		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/papers/bahn/Bahn.class</value>
-		<value>/home/rafa/repos/git/muggl/bin/test/misc/Money.class</value>
+		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/preconditions/InsertionSort.class</value>
+		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/preconditions/Average.class</value>
+		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/misc/SystemOutPrintlnAString.class</value>
+		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/papers/generator/Paper201008.class</value>
 		<default></default>
 	</setting>
 	<setting name="rgb_fileInspection_ConstantClass" type="rgb">

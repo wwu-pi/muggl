@@ -1,6 +1,7 @@
 package de.wwu.muggl.ui.gui.windows;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
@@ -80,6 +81,12 @@ public class ExecutionWindow implements ShellWindow {
 		this.shell.setText(Globals.WINDOWS_TITLE + Globals.WINDOWS_TITLE_CONNECTOR + "Execution of " + method.getFullName());
 		this.shell.setLayout(new FillLayout(SWT.VERTICAL));
 
+		final Image small = new Image(shell.getDisplay(),
+		        "images/images/tray_small.png");
+		final Image large = new Image(shell.getDisplay(),
+				 "images/images/tray_large.png");
+		this.shell.setImages(new Image[] { small, large });
+		
 		/*
 		 * Listen for close events.
 		 */
