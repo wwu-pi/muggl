@@ -9,7 +9,6 @@ package test.preconditions;
  */
 public class IntegerDivision {
 	
-	
 	public boolean precondition(int a, int b) {
 		return b != 0;
 	}
@@ -17,10 +16,17 @@ public class IntegerDivision {
 	
 	public boolean postcondition(int a, int b, int[] result) {
 		return (result != null) && (result.length == 2) && 
-				(0 <= result[1]) && (result[1] < Math.abs(b)) && (a == b*result[0] + result[1]);
+				(0 <= result[1]) && (result[1] < Math.abs(b)) && (a == b * result[0] + result[1]);
 	}
 
 	
+	/*
+	 * Integer division algorithm. It relies on the algorithm of
+	 * natural division.
+	 * 
+	 * Adapted from: 
+	 * http://en.wikipedia.org/wiki/Division_algorithm#Division_by_repeated_subtraction
+	 */
 	public int[] quotientRemainderArray(int a, int b) {
 		if (b < 0) {
 			int[] result = quotientRemainderArray(a, -b);
@@ -38,50 +44,11 @@ public class IntegerDivision {
 		}
 	}
 	
+	/*
+	 * Dummy example showing that numbers array is left uninitialized
+	 */
 	public int simpleArray(int x) {
 		int[] numbers = {x,0};
 		return numbers[1];
 	}
-	
-	
-/*	
-	public int nonNaturalQuotientRemainderArrayCheckPrecondition(int a, int b) {
-		if (b < 0) {
-			if (!precondition(a, -b)) return 1; 
-			int[] result = quotientRemainderArray(a, -b);
-			return 0;
-		} else if (a < 0) {
-			if (!precondition(-a, b)) return 2; 
-			int[] result = quotientRemainderArray(-a, b);
-			return 0;
-		} else {
-			if (!precondition(a, b)) return 3; 
-			return 0;
-		}
-	}
-	
-	
-	public int checkNonNaturalQuotientRemanderArray(int a, int b) {
-		if (!nonNaturalDivisionPrecondition(a, b)) return 1;
-		int[] result = nonNaturalQuotientRemainderArray(a, b);
-		if (!nonNaturalDivisionPostconditionArray(a,b,result)) return -1;
-		return 0;		
-	}
-	
-	public int checkQuotientRemainder(int a, int b) {
-		if (!precondition(a,b)) return 1;
-		int q = quotient(a,b);
-		int r = remainder(a,b);
-		if (!postcondition(a,b,q,r)) return -1;
-		return 0;
-	}
-	
-	public int checkQuotientRemainderArray(int a, int b) {
-		if (!precondition(a,b)) return 1;
-		int[] result = quotientRemainderArray(a, b);
-		if (!postconditionArray(a,b,result)) return -1;
-		return 0;		
-	}
-	*/
-
 }
