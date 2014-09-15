@@ -110,7 +110,8 @@ public abstract class Astore extends GeneralInstruction implements JumpException
 
 			// Save the current value, if necessary.
 			if (((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().savingArrayValues()) {
-				ArrayRestore arrayValue = new ArrayRestore(arrayref, index, value);
+				Object oldValue = arrayref.getElement(index);
+				ArrayRestore arrayValue = new ArrayRestore(arrayref, index, oldValue);
 				((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().saveArrayValue(arrayValue);
 			}
 
