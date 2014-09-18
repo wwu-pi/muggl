@@ -509,7 +509,11 @@ public class ArrayInitializationChoicePoint implements ChoicePoint {
 		// Set or push?
 		if (this.index != -1) {
 			this.frame.setLocalVariable(this.index, this.preparedArray);
-			this.frame.getMethod().setGeneratedValue(this.index, this.preparedArray);
+			if (this.preparedArray == null) {
+				this.frame.getMethod().setGeneratedValue(this.index, null);
+			} else {
+				this.frame.getMethod().setGeneratedValue(this.index, this.preparedArray.clone());
+			}
 		} else {
 			// Push.
 			this.frame.getOperandStack().push(this.preparedArray);

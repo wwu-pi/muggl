@@ -17,6 +17,7 @@ import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.MugglToJavaConversion;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
+import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.testtool.expressions.Variable;
 
 /**
@@ -178,7 +179,12 @@ public abstract class Load extends GeneralInstructionWithOtherBytes implements L
 
 						// Generate an ArrayInitializationChoicePoint.
 						((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, null, null);
-						frame.getMethod().setGeneratedValue(localVariable, localVariables[localVariable]);
+						
+						if (localVariables[localVariable] == null) {
+							frame.getMethod().setGeneratedValue(localVariable, null);
+						} else {
+							frame.getMethod().setGeneratedValue(localVariable, ((ModifieableArrayref)localVariables[localVariable]).clone());
+						}
 					} else {
 						// Create and push an non array type.
 						Variable variable = this.typedInstruction.getNewVariable(frame.getMethod(), localVariable);
