@@ -12,4 +12,4 @@ In order to compile the system from eclipse:
 
 - Check that the 'conf' folder (included in the distribution) in the same folder as muggl.jar
 
-- tested on jdk6, 7 and 8 currently not supported
+- tested on jdk6; 7 and 8 currently not supported
