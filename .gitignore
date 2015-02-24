@@ -14,3 +14,7 @@ log/*.html
 *.jar
 *.war
 *.ear
+
+# Eclipse (classpath swt problem)
+.settings/
+.classpath
