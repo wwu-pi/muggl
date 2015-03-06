@@ -143,6 +143,7 @@ class DUGenerator {
 			Method method = currentBranch.getMethod();
 			Instruction[] instructions = method.getInstructionsAndOtherBytes();
 			int pc = currentBranch.getPC();
+			System.out.println("pc="+pc);
 			boolean branchIsFinished = false;
 			
 			/*
@@ -189,6 +190,7 @@ class DUGenerator {
 					if (!branchIsFinished) {
 						branch(stack, currentBranch, method, pc, instruction);
 					}
+					else System.out.println("branch terminated");
 				}
 			}
 		}
@@ -236,6 +238,7 @@ class DUGenerator {
 				currentBranch.setPC(edge);
 				stack.push(currentBranch);
 			} else {
+				System.out.println("branch");
 				for (int edge : edgesToProcess) {
 					// Create a branch for each possible jump target.
 					DUGenerationBranch branch = currentBranch.getSafeCopy();
@@ -593,6 +596,7 @@ class DUGenerator {
 					if (def != null) {
 						Use use = new Use(variable, pc);
 						DefUseChain chain = new DefUseChain(def, use);
+						System.out.println("new chain:"+chain.toString());
 						if (!addNewChain(chain, method)) {
 							// Only continue if new definitions were found in the meantime.
 							if (!checkAndResetChanges(chain)) {	// Changed to ! Is that correct? TODO
@@ -615,6 +619,7 @@ class DUGenerator {
 				if (def != null) {
 					Use use = new Use(variable, pc);
 					DefUseChain chain = new DefUseChain(def, use);
+					System.out.println("new chain:"+chain.toString());
 					if (!addNewChain(chain, method)) {
 						// Only continue if new definitions were found in the meantime.
 						if (checkAndResetChanges(chain)) {
