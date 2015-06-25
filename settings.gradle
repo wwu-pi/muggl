@@ -1,0 +1,1 @@
+include ':muggl-core', ':muggl-swt'
