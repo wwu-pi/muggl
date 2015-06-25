@@ -11,4 +11,5 @@ dependencies {
 
 sourceSets {
 	main.java.srcDir "src"
+	main.java.exclude "test/logicjava/**/*"
 }
