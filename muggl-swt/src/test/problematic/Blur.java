@@ -47,7 +47,7 @@ public class Blur {
 			aktuelleReihe = aktuelleReihe + laenge;
 		}
 	
-		// Pixel ver‰ndern
+		// Pixel ver√§ndern
 		
 		aktuelleReihe = 0;
 		

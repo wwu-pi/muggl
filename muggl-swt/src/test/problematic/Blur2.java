@@ -6,9 +6,9 @@ package test.problematic;
 
 public class Blur2 {
 	public static int[] simpleBlur (int[] picture) throws IllegalArgumentException{
-		//Bild groﬂ genug?
+		//Bild gro√ü genug?
 		if (picture==null || picture.length < 16){throw new IllegalArgumentException();}
-		//Seitenl‰nge bestimmen
+		//Seitenl√§nge bestimmen
 		int width = 4;
 		while (width*width < picture.length){width++;}
 		if (width*width != picture.length){throw new IllegalArgumentException(String.valueOf(width));}
@@ -30,10 +30,10 @@ public class Blur2 {
 				int center = 4;
 				if (i==0 || i==width-1){center++;}
 				if (j==0 || j==width-1){center++;}
-				picture[j*width+i] = (center*source[i+1][j+1]+source[i+1][j]+source[i+1][j+2]+source[i][j+1]+source[i+2][j+1]+4)/8; //+4 f¸r mathematisches Runden
+				picture[j*width+i] = (center*source[i+1][j+1]+source[i+1][j]+source[i+1][j+2]+source[i][j+1]+source[i+2][j+1]+4)/8; //+4 f√ºr mathematisches Runden
 				}
 		}
-		// Output f¸r Debugging
+		// Output f√ºr Debugging
 		/*
 		  for (int j=0; j<width; j++){
 			String s = "";
