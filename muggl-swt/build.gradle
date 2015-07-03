@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'application'
 
 repositories {
     mavenCentral()
@@ -13,3 +14,6 @@ sourceSets {
 	main.java.srcDir "src"
 	main.java.exclude "test/logicjava/**/*"
 }
+
+mainClassName = 'de.wwu.muggl.ui.UiStarter'
+
