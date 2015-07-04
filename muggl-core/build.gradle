@@ -13,3 +13,9 @@ dependencies {
 sourceSets {
 	main.java.srcDir "src"
 }
+
+eclipse.jdt.file {
+	withProperties { jdt ->
+		setProperties(jdt)
+	}
+}

@@ -20,3 +20,8 @@ sourceSets {
 
 mainClassName = 'de.wwu.muggl.ui.UiStarter'
 
+eclipse.jdt.file {
+	withProperties { jdt ->
+		setProperties(jdt)
+	}
+}
