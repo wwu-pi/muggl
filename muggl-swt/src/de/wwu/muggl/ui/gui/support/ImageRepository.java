@@ -66,27 +66,27 @@ public final class ImageRepository {
 	 */
 	private ImageRepository() {
 		this.folderImage = new Image(Display.getDefault(),
-		        "images/images/Fairytale_folder.png");
+		        ImageRepository.class.getResourceAsStream("/images/Fairytale_folder.png"));
 		this.moonImage = new Image(Display.getDefault(),
-		        "images/images/Nuvola_apps_kmoon.png");
+				ImageRepository.class.getResourceAsStream("/images/Nuvola_apps_kmoon.png"));
 		this.checkImage = new Image(Display.getDefault(),
-		        "images/images/400px-P_yes_green.svg.png");
+		        ImageRepository.class.getResourceAsStream("/images/400px-P_yes_green.svg.png"));
 		this.logfileImage = new Image(Display.getDefault(),
-		        "images/images/Gartoon-Gedit-icon.png");
+		        ImageRepository.class.getResourceAsStream("/images/Gartoon-Gedit-icon.png"));
 		this.helpImage = new Image(Display.getDefault(),
-		        "images/images/Nuvola_apps_filetypes.png");
+		        ImageRepository.class.getResourceAsStream("/images/Nuvola_apps_filetypes.png"));
 		this.infoImage = new Image(Display.getDefault(),
-		        "images/images/Info_icon.png");
+		        ImageRepository.class.getResourceAsStream("/images/Info_icon.png"));
 		this.refreshImage = new Image(Display.getDefault(),
-		        "images/images/Arrow_refresh.png");
+		        ImageRepository.class.getResourceAsStream("/images/Arrow_refresh.png"));
 		this.editImage = new Image(Display.getDefault(),
-		        "images/images/edit16.png");
+		        ImageRepository.class.getResourceAsStream("/images/edit16.png"));
 		this.pushImage = new Image(Display.getDefault(),
-		        "images/images/push16.png");
+		        ImageRepository.class.getResourceAsStream("/images/push16.png"));
 		this.popImage = new Image(Display.getDefault(),
-		        "images/images/pop16.png");
+		        ImageRepository.class.getResourceAsStream("/images/pop16.png"));
 		this.emptyImage = new Image(Display.getDefault(),
-		        "images/images/empty16.png");
+		        ImageRepository.class.getResourceAsStream("/images/empty16.png"));
 	}
 	
 	/**
