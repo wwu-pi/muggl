@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'application'
 
 repositories {
     mavenCentral()
@@ -7,16 +6,9 @@ repositories {
 }
 
 dependencies {
-	compile 'junit:junit:4.+'
-	compile project(':muggl-core')
 	compile project(':muggl-common')
-}
+} 
 
 sourceSets {
 	main.java.srcDir "src"
-	main.resources.srcDir "images"
-	main.java.exclude "test/logicjava/**/*"
 }
-
-mainClassName = 'de.wwu.muggl.ui.UiStarter'
-

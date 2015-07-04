@@ -1,3 +1,3 @@
-include ':muggl-core', ':muggl-swt'
+include ':muggl-core', ':muggl-swt', ':muggl-solver-muconst', ':muggl-common'
 
 
