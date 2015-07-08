@@ -1,17 +1,18 @@
+# Muggl
 
-Some notes for the developer
+## Some notes for the developer
 
-In order to compile the system from eclipse:
+**General remark**: The build system of Muggl is currently switched to Gradle, managing dependencies as well as the actual build. If you experience any problems with that, please let the developers know!
 
-- Include the most recent version of JUnit
-
-- Include the 'images' folder in the 'src' folder
-
-- Check that the 'conf' folder (included in the distribution) in the same folder as muggl.jar
-
+In order to **run** the system:
+- Install Gradle (2.4+ tested).
+- Edit the file `gradle.properties` to reflect the path to an installation of OpenJDK 6.
+- In the root directory that you cloned, enter `gradle run`. Muggl is then compiled and started.
 - tested on jdk6; 7 and 8 currently not supported
 
+In order to compile the system from eclipse:
+- In the root directory that you cloned, enter `gradle eclipse`. Metadata for all project is generated in accordance with the settings of the build script.
+- Check that the `conf` folder is in the `muggl-swt` directory.
 
-Not required anymore (but useful for deployment):
-- Create a runnable 'muggl.jar' file (the application looks for the existence of such a file)
- + using the ANT script 
+In order to create a deployable jar file:
+- (todo)

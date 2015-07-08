@@ -104,9 +104,9 @@ public class SWTGui {
 		this.shell.setLayout(new FillLayout(SWT.VERTICAL));
 
 		final Image small = new Image(shell.getDisplay(),
-		        "images/images/tray_small.png");
+		        SWTGui.class.getResourceAsStream("/images/tray_small.png"));
 		final Image large = new Image(shell.getDisplay(),
-				 "images/images/tray_large.png");
+				SWTGui.class.getResourceAsStream("/images/tray_large.png"));
 		this.shell.setImages(new Image[] { small, large });
 		
 		

@@ -8,7 +8,7 @@ conf/*
 bin/
 
 # Contents of log/
-log/*.html
+muggl-swt/log/*.html
 
 # Package Files #
 *.jar
