@@ -1,0 +1,20 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://raw.githubusercontent.com/maven-eclipse/swt-repo/master/' }
+}
+
+dependencies {
+	compile project(':muggl-common')
+} 
+
+sourceSets {
+	main.java.srcDir "src"
+}
+
+eclipse.jdt.file {
+	withProperties { jdt ->
+		setProperties(jdt)
+	}
+}
