@@ -6,7 +6,8 @@ repositories {
 }
 
 dependencies {
-	compile project(':muggl-solver-muconst')
+	//compile project(':muggl-solver-muconst')
+	compile project(':muggl-solver-jacop')
 	compile project(':muggl-common')
 } 
 
