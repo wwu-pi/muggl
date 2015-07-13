@@ -24,7 +24,7 @@ import de.wwu.testtool.solver.tsolver.Solver;
  *
  * @author Christoph Lembeck
  */
-public class SolverManagerOld implements SolverManager {
+public class SolverManagerJaCoP implements SolverManager {
 
 	private static long totalConstraintsChecked = 0;
 
@@ -53,7 +53,7 @@ public class SolverManagerOld implements SolverManager {
 	 * Creates a new Solver Manager object and initializes it with a stream that
 	 * collects the logging informations if wanted.
 	 */
-	public SolverManagerOld() {
+	public SolverManagerJaCoP() {
 		addShutdownHook();
 												logger = Globals.getInst().solverLogger;
 

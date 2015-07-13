@@ -17,7 +17,7 @@ import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.expressions.*;
 import de.wwu.testtool.solver.Solution;
 import de.wwu.testtool.solver.SolverManager;
-import de.wwu.testtool.solver.SolverManagerOld;
+import de.wwu.testtool.solver.SolverManagerJaCoP;
 import de.wwu.testtool.solver.constraints.Assignment;
 import de.wwu.testtool.solver.constraints.ComposedConstraint;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;
@@ -535,7 +535,7 @@ public class ExampleProblems {
 	console.addAppender(consoleAppender);
 
 	// setup some stuff
-	solverManager = new SolverManagerOld();
+	solverManager = new SolverManagerJaCoP();
 	ConstraintExpression constraint = null;
 	
 	// linear program with doubles

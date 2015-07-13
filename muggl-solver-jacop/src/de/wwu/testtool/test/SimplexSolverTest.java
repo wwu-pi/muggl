@@ -24,8 +24,7 @@ import de.wwu.testtool.expressions.*;
 import de.wwu.testtool.solver.HasSolutionInformation;
 import de.wwu.testtool.solver.Solution;
 import de.wwu.testtool.solver.SolverManager;
-import de.wwu.testtool.solver.SolverManagerNew;
-import de.wwu.testtool.solver.SolverManagerOld;
+import de.wwu.testtool.solver.SolverManagerJaCoP;
 import de.wwu.testtool.solver.constraints.Assignment;
 import de.wwu.testtool.solver.constraints.NumericConstraint;
 import de.wwu.testtool.solver.constraints.Polynomial;
@@ -74,7 +73,7 @@ public class SimplexSolverTest {
 	simplexSolver.getSolution();
 
 	ConstraintExpression falseTest = example.falseTestExpression();
-	SolverManager solverManager = new SolverManagerNew();
+	SolverManager solverManager = new SolverManagerJaCoP();
 	solverManager.addConstraint(falseTest);
 	console.info(falseTest.verifySolution( solverManager.getSolution() ) );
 	
@@ -374,7 +373,7 @@ public class SimplexSolverTest {
     }
 
     public void testOldSolver(){
-	SolverManager solverManager = new SolverManagerNew();
+	SolverManager solverManager = new SolverManagerJaCoP();
 	ExampleProblems example = new ExampleProblems();	
 	ConstraintExpression test = example.typeCastExpression();
 

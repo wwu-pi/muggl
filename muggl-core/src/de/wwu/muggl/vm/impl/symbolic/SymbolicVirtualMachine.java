@@ -44,7 +44,7 @@ import de.wwu.testtool.expressions.ConstraintExpression;
 import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.Term;
 import de.wwu.testtool.solver.SolverManager;
-import de.wwu.testtool.solver.SolverManagerOld;
+import de.wwu.testtool.solver.SolverManagerJaCoP;
 
 /**
  * This concrete class represents a virtual machine for the symbolic execution of java bytecode,
@@ -177,7 +177,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 			throws InitializationException {
 		super(application, classLoader, classFile, initialMethod);
 		Options options = Options.getInst();
-		this.solverManager = new SolverManagerOld();
+		this.solverManager = new SolverManagerJaCoP();
 		this.searchAlgorithm = searchAlgorithm;
 		this.coverage = new CoverageController(this);
 		this.trackCoverage = options.useCFCoverage && options.useDUCoverage;
