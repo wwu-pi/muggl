@@ -6,7 +6,7 @@ import de.wwu.testtool.exceptions.IncorrectSolverException;
 import de.wwu.testtool.exceptions.SolverUnableToDecideException;
 import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.solver.HasSolutionInformation;
-import de.wwu.testtool.solver.Solution;
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.constraints.SingleConstraint;
 
@@ -57,7 +57,7 @@ public interface Solver {
      * or to find a solution instance.
      * @throws TimeoutException if the algorithm stops because of reaching the
      * timeout limit before being able to decide about the problem
-     * @see de.wwu.testtool.solver.Solution#NOSOLUTION
+     * @see de.wwu.muggl.solvers.Solution#NOSOLUTION
      */
     public Solution getSolution() throws IncorrectSolverException, SolverUnableToDecideException, TimeoutException;
 
