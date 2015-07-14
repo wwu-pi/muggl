@@ -9,9 +9,8 @@ allprojects {
 
 	repositories {
 	    mavenCentral()
-	    flatDir {
-	        dirs '../lib'
-	    }
+	    maven { url 'https://raw.githubusercontent.com/maven-eclipse/swt-repo/master/' }
+		flatDir { dirs '../lib' }
 	}
 
 }

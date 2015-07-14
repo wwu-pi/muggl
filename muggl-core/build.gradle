@@ -1,14 +1,10 @@
 apply plugin: 'java'
 
-repositories {
-    mavenCentral()
-    maven { url 'https://raw.githubusercontent.com/maven-eclipse/swt-repo/master/' }
-}
-
 dependencies {
 	//compile project(':muggl-solver-muconst')
 	compile project(':muggl-solver-jacop')
 	compile project(':muggl-common')
+	compile 'log4j:log4j:1.2.17'
 } 
 
 sourceSets {
