@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.Frame;
@@ -17,7 +18,6 @@ import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.LessThan;
 import de.wwu.testtool.expressions.NumericEqual;
 import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.solver.SolverManager;
 
 /**
  * A LongComparisonChoicePoint is generated whenever the instruction lcmp is reached. The

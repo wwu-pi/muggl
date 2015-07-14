@@ -1,14 +1,18 @@
-package de.wwu.testtool.solver;
+package de.wwu.muggl.solvers.jacop;
 
 import org.apache.log4j.Logger;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.conf.TesttoolConfig;
 import de.wwu.testtool.conf.SolverManagerConfig;
 import de.wwu.testtool.exceptions.IncorrectSolverException;
 import de.wwu.testtool.exceptions.SolverUnableToDecideException;
 import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.expressions.ConstraintExpression;
+import de.wwu.testtool.solver.HasSolutionInformation;
+import de.wwu.testtool.solver.Solution;
 import de.wwu.testtool.solver.constraints.Assignment;
 import de.wwu.testtool.solver.constraints.ComposedConstraint;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;
@@ -32,13 +36,9 @@ public class SolverManagerJaCoP implements SolverManager {
 	 * The constraint stack who is responsible for administrating the
 	 * incrementally adding and removing of new or obsolete constraints.
 	 */
-	protected ConstraintStack constraintStack;
-
 	protected boolean finalized = false;
 
 	protected SolverManagerListenerList listeners;
-
-	protected SolverChooser solverChooser;
 
 	protected SubstitutionTable substitutionTable;
 
@@ -62,8 +62,6 @@ public class SolverManagerJaCoP implements SolverManager {
 
 		SolverManagerConfig solverConf = SolverManagerConfig.getInstance();
 		substitutionTable = new SubstitutionTable();
-		constraintStack = new ConstraintStack();
-		solverChooser = new SolverChooser(this);
 
 		listeners = new SolverManagerListenerList();
 		for (SolverManagerListener listener : solverConf.getListeners()) {
@@ -90,8 +88,9 @@ public class SolverManagerJaCoP implements SolverManager {
 
 		ComposedConstraint cc = ce
 				.convertToComposedConstraint(substitutionTable);
-
-		constraintStack.addConstraint(ce, cc);
+		
+		// Rafa: jacop.add(cc) --> JaCoPSolver.add(cc)
+		//TODO add constraint to JaCoP Store
 
 		substitutionTable.signalStackElementAdded();
 
@@ -102,26 +101,12 @@ public class SolverManagerJaCoP implements SolverManager {
 																logger.debug("Add: ce: " + ce + ". cc: " + cc);
 														if (logger.isTraceEnabled()) {
 																logger.trace(constraintStackToString());
+																//TODO Store.toString() or something similar
 														}
 
 		return cc;
 	}
 
-	/**
-	 * String representation of the system stack including all its elements
-	 * @return A String representation of the system stack
-	 */
-	private String constraintStackToString() {
-		String s = "";
-		int n = constraintStack.getSize();
-		s = "Constraint Stack: (" + n + ") " + "elements:";
-		s += "[";
-		for (int i=0; i<constraintStack.getSystemCount(); i++) 
-		   s+= constraintStack.getSystem(i).toString();
-		s+="]";
-		return s;
-	}
-	
 	@Override
 	public void finalize() throws Throwable {
 		listeners.fireFinalize(this);
@@ -305,11 +290,6 @@ public class SolverManagerJaCoP implements SolverManager {
 					// and we can stop here
 					if (solution.equals(Solution.NOSOLUTION)) {
 						break;
-						// constraintStack.setSolution(idx,
-						// Solution.NOSOLUTION);
-						// listeners.fireInternalGetSolutionFinished(this, idx,
-						// Solution.NOSOLUTION, System.nanoTime() - startTime);
-						// return Solution.NOSOLUTION;
 					}
 				}
 			} catch (IncorrectSolverException ise) {
@@ -324,21 +304,8 @@ public class SolverManagerJaCoP implements SolverManager {
 		return solution;
 	}
 
-	/**
-	 * Tries to find a valid constraint solver for the given set of constraints.
-	 * 
-	 * @param constraintSet
-	 *            the system of constraints a dedicated solver should be found
-	 *            for.
-	 * @return the solver that should be able to handle the passed system of
-	 *         conatraints.
-	 */
 	private Solver[] getSolver(SingleConstraintSet constraintSet) {
-		Solver[] result = solverChooser.getSolvers(constraintSet);
-		if (result == null || result.length == 0)
-			throw new InternalError("No appropriate solver found!\n"
-					+ constraintSet);
-		return result;
+		throw new NotImplementedException();
 	}
 
 	/**
@@ -541,17 +508,6 @@ public class SolverManagerJaCoP implements SolverManager {
 														logger.debug("Reset"); // RafaC
 
 		removeConstraints(constraintStack.getSize());
-	}
-
-	/**
-	 * 
-	 * @param solution
-	 * @return
-	 */
-	@Override
-	@Deprecated
-	public boolean verifySolution(Solution solution) {
-		return constraintStack.verifySolution(solution);
 	}
 
 	private void addShutdownHook() {

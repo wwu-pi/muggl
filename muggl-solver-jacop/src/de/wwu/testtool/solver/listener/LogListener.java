@@ -2,10 +2,10 @@ package de.wwu.testtool.solver.listener;
 
 import org.apache.log4j.Logger;
 
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.conf.TesttoolConfig;
 import de.wwu.testtool.expressions.ConstraintExpression;
 import de.wwu.testtool.solver.Solution;
-import de.wwu.testtool.solver.SolverManager;
 import de.wwu.testtool.solver.constraints.ComposedConstraint;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.constraints.ConstraintSystem;

@@ -16,6 +16,8 @@ import de.wwu.muggl.instructions.general.Load;
 import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
+import de.wwu.muggl.solvers.SolverManager;
+import de.wwu.muggl.solvers.jacop.SolverManagerJaCoP;
 import de.wwu.muggl.symbolic.flow.coverage.CoverageController;
 import de.wwu.muggl.symbolic.generating.Generator;
 import de.wwu.muggl.symbolic.searchAlgorithms.SearchAlgorithm;
@@ -43,8 +45,6 @@ import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.expressions.ConstraintExpression;
 import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.solver.SolverManager;
-import de.wwu.testtool.solver.SolverManagerJaCoP;
 
 /**
  * This concrete class represents a virtual machine for the symbolic execution of java bytecode,

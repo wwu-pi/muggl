@@ -1,8 +1,9 @@
-package de.wwu.testtool.solver;
+package de.wwu.muggl.solvers;
 
 import de.wwu.testtool.exceptions.SolverUnableToDecideException;
 import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.expressions.ConstraintExpression;
+import de.wwu.testtool.solver.Solution;
 import de.wwu.testtool.solver.constraints.ComposedConstraint;
 
 /**
@@ -66,13 +67,6 @@ public interface SolverManager {
 
     public void finalize() throws Throwable;
     
-    /**
-     * 
-     * @param solution
-     * @return
-     */
-    public boolean verifySolution(Solution solution);
-
     /**
      * TODOME: put this into listeners.
      * Getter for the total number of constraints checked with hasSolution(). Added 2008.02.05

@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.Frame;
@@ -15,7 +16,6 @@ import de.wwu.testtool.expressions.ConstraintExpression;
 import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.NumericEqual;
 import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.solver.SolverManager;
 
 /**
  * A SwitchingChoicePoint is generated whenever one the instructions lookupswitch or tableswitch are

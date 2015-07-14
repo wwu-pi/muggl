@@ -22,7 +22,7 @@ public abstract class ConstraintExpression implements Expression{
      * @return the ComposedConstraint object representing the same constraint as
      * this expression.
      * @see de.wwu.testtool.solver.constraints.ComposedConstraint
-     * @see de.wwu.testtool.solver.SolverManager#addConstraint(ConstraintExpression)
+     * @see de.wwu.muggl.solvers.SolverManager#addConstraint(ConstraintExpression)
      */
     public abstract ComposedConstraint convertToComposedConstraint(SubstitutionTable subTable);
 

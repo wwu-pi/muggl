@@ -14,6 +14,7 @@ import de.wwu.muggl.instructions.general.CompareFp;
 import de.wwu.muggl.instructions.general.GeneralInstructionWithOtherBytes;
 import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.symbolic.flow.coverage.CGCoverageTrailElement;
 import de.wwu.muggl.symbolic.flow.coverage.DUCoverageTrailElement;
 import de.wwu.muggl.symbolic.generating.Generator;
@@ -49,7 +50,6 @@ import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.expressions.ConstraintExpression;
 import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.solver.SolverManager;
 
 /**
  * This class implements the depth first search algorithm.<br />

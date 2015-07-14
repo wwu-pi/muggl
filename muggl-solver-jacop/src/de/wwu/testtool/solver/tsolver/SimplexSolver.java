@@ -16,6 +16,7 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.conf.TesttoolConfig;
 import de.wwu.testtool.conf.SimplexSolverConfig;
 import de.wwu.testtool.exceptions.IncompleteSolutionException;
@@ -26,7 +27,6 @@ import de.wwu.testtool.expressions.Expression;
 import de.wwu.testtool.expressions.NumericVariable;
 import de.wwu.testtool.solver.HasSolutionInformation;
 import de.wwu.testtool.solver.Solution;
-import de.wwu.testtool.solver.SolverManager;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.constraints.Monomial;
 import de.wwu.testtool.solver.constraints.NumericConstraint;
