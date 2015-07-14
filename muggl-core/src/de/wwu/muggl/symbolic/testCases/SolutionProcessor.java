@@ -17,6 +17,7 @@ import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.ui.gui.support.StaticGuiSupport;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
@@ -39,7 +40,6 @@ import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.LongConstant;
 import de.wwu.testtool.expressions.Term;
 import de.wwu.testtool.expressions.Variable;
-import de.wwu.testtool.solver.Solution;
 
 /**
  * The SolutionProcessor stores information about the solutions found during the symbolic execution

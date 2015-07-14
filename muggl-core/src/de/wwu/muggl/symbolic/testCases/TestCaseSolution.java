@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.initialization.Arrayref;
@@ -20,7 +21,6 @@ import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.LongConstant;
 import de.wwu.testtool.expressions.Term;
 import de.wwu.testtool.expressions.Variable;
-import de.wwu.testtool.solver.Solution;
 
 /**
  * This class represents a solution found by the symbolic virtual machine. It holds

@@ -2,6 +2,7 @@ package de.wwu.testtool.solver;
 
 import java.util.TreeSet;
 
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.testtool.expressions.Variable;
 import de.wwu.testtool.solver.constraints.ConstraintStackElement;
 

@@ -3,7 +3,7 @@ package de.wwu.muggl.solvers;
 import de.wwu.testtool.exceptions.SolverUnableToDecideException;
 import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.solver.Solution;
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.testtool.solver.constraints.ComposedConstraint;
 
 /**
@@ -36,7 +36,7 @@ public interface SolverManager {
      * @throws TimeoutException if the used algorithms stop because of reaching
      * the specified time limits before being able to decide about the given
      * problem.
-     * @see de.wwu.testtool.solver.Solution#NOSOLUTION
+     * @see de.wwu.muggl.solvers.Solution#NOSOLUTION
      */
     public Solution getSolution() throws SolverUnableToDecideException, TimeoutException;
     
