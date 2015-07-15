@@ -1,6 +1,15 @@
 package de.wwu.muggl.solvers.jacop;
 
 import org.apache.log4j.Logger;
+import org.jacop.constraints.Constraint;
+import org.jacop.core.IntVar;
+import org.jacop.core.Store;
+import org.jacop.search.DepthFirstSearch;
+import org.jacop.search.IndomainMin;
+import org.jacop.search.Search;
+import org.jacop.search.SelectChoicePoint;
+import org.jacop.search.SimpleSelect;
+import org.jacop.search.SmallestDomain;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import de.wwu.muggl.configuration.Globals;
@@ -26,9 +35,9 @@ import de.wwu.testtool.solver.tsolver.Solver;
 
 /**
  *
- * @author Christoph Lembeck
+ * @author Jan C. Dageförde
  */
-public class SolverManagerJaCoP implements SolverManager {
+public class JaCoPSolverManager implements SolverManager {
 
 	private static long totalConstraintsChecked = 0;
 
@@ -40,28 +49,24 @@ public class SolverManagerJaCoP implements SolverManager {
 
 	protected SolverManagerListenerList listeners;
 
-	protected SubstitutionTable substitutionTable;
+	protected Store jacopStore;
 
-	/**
-	 * Constraint solver logger
-	 * @author rafa
-	 */
-	// 
 	private Logger logger;
 	
 	/**
 	 * Creates a new Solver Manager object and initializes it with a stream that
 	 * collects the logging informations if wanted.
 	 */
-	public SolverManagerJaCoP() {
+	public JaCoPSolverManager() {
 		addShutdownHook();
-												logger = Globals.getInst().solverLogger;
+		logger = Globals.getInst().solverLogger;
 
-												if (logger.isDebugEnabled())
-													logger.debug("SolverManager started");
+		if (logger.isDebugEnabled())
+			logger.debug("SolverManager started");
 
 		SolverManagerConfig solverConf = SolverManagerConfig.getInstance();
-		substitutionTable = new SubstitutionTable();
+		
+		jacopStore = new Store();
 
 		listeners = new SolverManagerListenerList();
 		for (SolverManagerListener listener : solverConf.getListeners()) {
@@ -84,27 +89,27 @@ public class SolverManagerJaCoP implements SolverManager {
 	 *         constraint stack.
 	 */
 	@Override
-	public ComposedConstraint addConstraint(ConstraintExpression ce) {
+	public Constraint addConstraint(ConstraintExpression ce) {
 
-		ComposedConstraint cc = ce
-				.convertToComposedConstraint(substitutionTable);
+		Constraint jacopConstraint = transformToJaCoPConstraint(ce);
 		
-		// Rafa: jacop.add(cc) --> JaCoPSolver.add(cc)
-		//TODO add constraint to JaCoP Store
+		jacopStore.impose(jacopConstraint);
 
-		substitutionTable.signalStackElementAdded();
+		listeners.fireAddConstraint(this, ce, null); // `null` WAS `cc` -- how to deal with composed constraints in jacop?
 
-		listeners.fireAddConstraint(this, ce, cc);
+		// TODO use Muggl logging
+		if (logger.isDebugEnabled())
+				logger.debug("Add: ce: " + ce + ". jacop: " + jacopConstraint.toString());
+		if (logger.isTraceEnabled()) {
+			logger.trace(jacopStore.toString());
+			logger.trace(jacopStore.toStringChangedEl());
+		}
 
-														// RafaC
-														if (logger.isDebugEnabled())
-																logger.debug("Add: ce: " + ce + ". cc: " + cc);
-														if (logger.isTraceEnabled()) {
-																logger.trace(constraintStackToString());
-																//TODO Store.toString() or something similar
-														}
+		return jacopConstraint;
+	}
 
-		return cc;
+	private Constraint transformToJaCoPConstraint(ConstraintExpression ce) {
+		throw new NotImplementedException();
 	}
 
 	@Override
@@ -135,47 +140,38 @@ public class SolverManagerJaCoP implements SolverManager {
 	public Solution getSolution() throws SolverUnableToDecideException,
 			TimeoutException {
 
-													if (logger.isDebugEnabled())
-														logger.debug("getSolution"); // RafaC
+		if (logger.isDebugEnabled())
+			logger.debug("getSolution"); 
 		
 
 		listeners.fireGetSolutionStarted(this);
 		long startTime = System.nanoTime();
+		
+		//TODO correct var type? Note: BooleanVar extends IntVar!
+		IntVar[] vars = null; // TODO set vars from store -- maybe beforehand
+		SelectChoicePoint<IntVar> select =
+			new SimpleSelect<IntVar>(vars,
+			new SmallestDomain<IntVar>(),
+			new IndomainMin<IntVar>());
 
-		// if no ConstraintSystem present return trivial Solution
-		if (constraintStack.getSystemCount() == 0) {
-			Solution solution = new Solution();
-			listeners.fireGetSolutionFinished(this, solution, System.nanoTime()
-					- startTime);
-													//RafaC
-													if (logger.isDebugEnabled())
-														System.out.println("solution: " + solution);
-			return solution;
+		Search<IntVar> label = new DepthFirstSearch<IntVar>();
+		boolean labellingSuccessful = label.labeling(jacopStore, select);
+		
+		Solution result = null;
+		
+		if (!labellingSuccessful) { // TODO is this assumption on labeling() correct?
+			result = Solution.NOSOLUTION;
+		} else {
+			//TODO fill result
 		}
+		listeners.fireGetSolutionFinished(this, result, System.nanoTime()
+				- startTime);
+		if (logger.isDebugEnabled())
+			System.out.println("solution: " + result);
+		
+		return result;
 
-		// try to find a solution for a ConstraintSystem starting with the first
-		// on which is not already proved contradictory
-		int idx = constraintStack.getFirstNoncontradictorySystemIndex();
-		while (idx < constraintStack.getSystemCount()) {
-			Solution solution = getSolution(idx);
-			if (solution.equals(Solution.NOSOLUTION))
-				idx++;
-			else {
-				listeners.fireGetSolutionFinished(this, solution,
-						System.nanoTime() - startTime);
-															// RafaC
-															if (logger.isDebugEnabled())
-																logger.debug("solution: " + solution);
-				return solution;
-			}
-		}
-
-		// no solution for any of our ConstraintSystems found
-		listeners.fireGetSolutionFinished(this, Solution.NOSOLUTION,
-				System.nanoTime() - startTime);
-															if (logger.isDebugEnabled())
-																System.out.println("No solution");
-		return Solution.NOSOLUTION;
+		
 	}
 
 	/**
@@ -203,6 +199,9 @@ public class SolverManagerJaCoP implements SolverManager {
 			TimeoutException {
 		long startTime = System.nanoTime();
 
+		throw new NotImplementedException();
+
+		/*
 		// try to find solution in the cache
 		Solution solution = constraintStack.getCachedSolution(idx);
 		if (solution != null) {
@@ -301,7 +300,7 @@ public class SolverManagerJaCoP implements SolverManager {
 		constraintStack.setSolution(idx, solution);
 		listeners.fireInternalGetSolutionFinished(this, idx, solution,
 				System.nanoTime() - startTime);
-		return solution;
+		return solution;*/
 	}
 
 	private Solver[] getSolver(SingleConstraintSet constraintSet) {
@@ -330,15 +329,26 @@ public class SolverManagerJaCoP implements SolverManager {
 	public boolean hasSolution() throws SolverUnableToDecideException,
 			TimeoutException {
 
-														// RafaC
-														if (logger.isDebugEnabled())
-															logger.debug("hasSolution: ");
-		
+		// RafaC
+		if (logger.isDebugEnabled())
+			logger.debug("hasSolution: ");
+
 		totalConstraintsChecked++; // Added 2008.05.02
 		listeners.fireHasSolutionStarted(this);
 		long startTime = System.nanoTime();
+		
+		// "The result true only indicates that inconsistency cannot be found. In other
+		// words, since the finite domain solver is not complete it does not automatically mean
+		// that the store is consistent."(JaCoP Guide, Ch. 2, p. 12)
+		boolean result = jacopStore.consistency();
+		
+		listeners.fireHasSolutionFinished(this, result , System.nanoTime()
+				- startTime);
+														if (logger.isDebugEnabled())
+															logger.debug(result);
+		return result;
 
-		if (constraintStack.getSystemCount() == 0) {
+		/*if (constraintStack.getSystemCount() == 0) {
 			listeners.fireHasSolutionFinished(this, true, System.nanoTime()
 					- startTime);
 														if (logger.isDebugEnabled())
@@ -363,7 +373,7 @@ public class SolverManagerJaCoP implements SolverManager {
 				- startTime);
 														if (logger.isDebugEnabled())
 															logger.debug("false");
-		return false;
+		return false;*/
 	}
 
 	/**
@@ -391,10 +401,13 @@ public class SolverManagerJaCoP implements SolverManager {
 
 	private boolean hasSolution(int idx) throws SolverUnableToDecideException,
 			TimeoutException {
-
+		
 		long startTime = System.nanoTime();
+		
+		throw new NotImplementedException();
 
-		Solution solutionTmp = constraintStack.getCachedSolution(idx);
+		/* TODO caching
+		 * Solution solutionTmp = constraintStack.getCachedSolution(idx);
 		if (solutionTmp != null) {
 			listeners.fireInternalHasSolutionStarted(this, idx, null, true);
 			boolean result = !solutionTmp.equals(Solution.NOSOLUTION);
@@ -402,8 +415,9 @@ public class SolverManagerJaCoP implements SolverManager {
 					System.nanoTime() - startTime);
 			return result;
 		}
+		 */
 
-		ConstraintSystem system = constraintStack.getSystem(idx);
+		/*ConstraintSystem system = constraintStack.getSystem(idx);
 		listeners.fireInternalHasSolutionStarted(this, idx, system, false);
 		if (system.isContradictory()) {
 			constraintStack.setSolution(idx, Solution.NOSOLUTION);
@@ -473,41 +487,58 @@ public class SolverManagerJaCoP implements SolverManager {
 		listeners.fireInternalHasSolutionFinished(this, idx, true,
 				System.nanoTime() - startTime);
 		return true;
+		*/
 	}
 
 	/**
 	 * Removes the lastly added constraint from the constraint stack.
 	 */
 	public void removeConstraint() {
-
-		constraintStack.removeConstraint();
-		substitutionTable.signalStackElementRemoved();
+		if (jacopStore.level <= 0) {
+			throw new IllegalStateException("Trying to remove constraint when level is already 0");
+		}
+		jacopStore.removeLevel(jacopStore.level);
+		jacopStore.setLevel(jacopStore.level - 1);
+		
 		listeners.fireConstraintRemoved(this);
 
-															// RafaC
-															if (logger.isDebugEnabled()) {
-																logger.debug("Remove constraint");
-																if (logger.isTraceEnabled()) {	
-																	logger.trace(constraintStackToString());
-																}
-															}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Remove constraint");
+		}
+		if (logger.isTraceEnabled()) {	
+			logger.trace(jacopStore.toString());
+			logger.trace(jacopStore.toStringChangedEl());
+		}
+															
 	}
 
 	private void removeConstraints(int count) {
-													if (logger.isDebugEnabled())
-														logger.debug("Remove constraints " + count);// RafaC
+		if (logger.isDebugEnabled())
+			logger.debug("Remove constraints " + count);
+		
 		if (count > 0) {
-			constraintStack.removeConstraints(count);
-			substitutionTable.signalStackElementsRemoved(count);
+			int targetLevel = jacopStore.level - count;
+			if (targetLevel < 0) targetLevel = 0;
+			
+			while (jacopStore.level > targetLevel) {
+				jacopStore.removeLevel(jacopStore.level);
+				jacopStore.setLevel(jacopStore.level - 1);
+			}
 			listeners.fireConstraintsRemoved(this, count);
 		}
 	}
 
 	public void reset() {
-													if (logger.isDebugEnabled())
-														logger.debug("Reset"); // RafaC
+		if (logger.isDebugEnabled())
+			logger.debug("Reset");
 
-		removeConstraints(constraintStack.getSize());
+		while (jacopStore.level > 0) {
+			jacopStore.removeLevel(jacopStore.level);
+			jacopStore.setLevel(jacopStore.level - 1);
+		}
+		// afterwards, jacopStore.level is 0. 
+		// Assumption: Level is always raised before adding a constraint.
+		// Therefore, there are no constraints at level 0 that would need to be removed.
 	}
 
 	private void addShutdownHook() {

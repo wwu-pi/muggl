@@ -17,7 +17,7 @@ import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.solvers.SolverManager;
-import de.wwu.muggl.solvers.jacop.SolverManagerJaCoP;
+import de.wwu.muggl.solvers.jacop.JaCoPSolverManager;
 import de.wwu.muggl.symbolic.flow.coverage.CoverageController;
 import de.wwu.muggl.symbolic.generating.Generator;
 import de.wwu.muggl.symbolic.searchAlgorithms.SearchAlgorithm;
@@ -177,7 +177,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 			throws InitializationException {
 		super(application, classLoader, classFile, initialMethod);
 		Options options = Options.getInst();
-		this.solverManager = new SolverManagerJaCoP();
+		this.solverManager = new JaCoPSolverManager();
 		this.searchAlgorithm = searchAlgorithm;
 		this.coverage = new CoverageController(this);
 		this.trackCoverage = options.useCFCoverage && options.useDUCoverage;
