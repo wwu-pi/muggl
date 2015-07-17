@@ -1,9 +1,5 @@
 *.class
 
-# Conf
-conf/
-conf/*
-
 # Binaries
 bin/
 
