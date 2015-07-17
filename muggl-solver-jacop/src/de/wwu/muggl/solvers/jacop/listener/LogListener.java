@@ -1,4 +1,4 @@
-package de.wwu.testtool.solver.listener;
+package de.wwu.muggl.solvers.jacop.listener;
 
 import org.apache.log4j.Logger;
 

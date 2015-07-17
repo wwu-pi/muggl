@@ -15,6 +15,8 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
+import de.wwu.muggl.solvers.jacop.listener.SolverManagerListener;
+import de.wwu.muggl.solvers.jacop.listener.SolverManagerListenerList;
 import de.wwu.testtool.conf.TesttoolConfig;
 import de.wwu.testtool.conf.SolverManagerConfig;
 import de.wwu.testtool.exceptions.IncorrectSolverException;
@@ -28,8 +30,6 @@ import de.wwu.testtool.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.constraints.ConstraintStack;
 import de.wwu.testtool.solver.constraints.ConstraintSystem;
 import de.wwu.testtool.solver.constraints.SingleConstraint;
-import de.wwu.testtool.solver.listener.SolverManagerListener;
-import de.wwu.testtool.solver.listener.SolverManagerListenerList;
 import de.wwu.testtool.solver.tools.SubstitutionTable;
 import de.wwu.testtool.solver.tsolver.Solver;
 
@@ -41,10 +41,6 @@ public class JaCoPSolverManager implements SolverManager {
 
 	private static long totalConstraintsChecked = 0;
 
-	/**
-	 * The constraint stack who is responsible for administrating the
-	 * incrementally adding and removing of new or obsolete constraints.
-	 */
 	protected boolean finalized = false;
 
 	protected SolverManagerListenerList listeners;
@@ -71,9 +67,9 @@ public class JaCoPSolverManager implements SolverManager {
 		listeners = new SolverManagerListenerList();
 		for (SolverManagerListener listener : solverConf.getListeners()) {
 			listeners.addListener(listener);
-												if (logger.isDebugEnabled())
-													logger.debug("SolverManager: added listener "
-														+ listener.getClass().getName());
+			if (logger.isDebugEnabled())
+				logger.debug("SolverManager: added listener "
+					+ listener.getClass().getName());
 		}
 
 

@@ -1,7 +1,9 @@
-package de.wwu.testtool.solver.listener;
+package de.wwu.muggl.solvers.jacop.listener;
 
 import java.util.ArrayList;
 import java.util.Vector;
+
+import org.jacop.constraints.Constraint;
 
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
@@ -27,9 +29,9 @@ public class SolverManagerListenerList {
 	listeners.add(listener);
     }
 
-    public void fireAddConstraint(SolverManager manager, ConstraintExpression ce, ComposedConstraint cc){
+    public void fireAddConstraint(SolverManager manager, ConstraintExpression ce, Constraint jacopConstraint){
 	for (SolverManagerListener listener: listeners)
-	    listener.constraintAdded(manager, ce, cc);
+	    listener.constraintAdded(manager, ce, null);
     }
 
     public void fireConstraintRemoved(SolverManager manager){

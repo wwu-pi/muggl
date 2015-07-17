@@ -1,4 +1,4 @@
-package de.wwu.testtool.solver.listener;
+package de.wwu.muggl.solvers.jacop.listener;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
