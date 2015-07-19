@@ -2,6 +2,8 @@ package de.wwu.testtool.solver;
 
 import org.apache.log4j.Logger;
 
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.conf.SolverManagerConfig;
 import de.wwu.testtool.conf.TesttoolConfig;
 import de.wwu.testtool.exceptions.IncorrectSolverException;
@@ -84,7 +86,7 @@ public class OldSolverManagerSolver implements ComposedConstraintSolver {
      * @throws TimeoutException if the used algorithms stop because of reaching
      * the specified time limits before being able to decide about the given
      * problem.
-     * @see de.wwu.testtool.solver.Solution#NOSOLUTION
+     * @see de.wwu.muggl.solvers.Solution#NOSOLUTION
      */
     @Override
     public Solution getSolution() throws SolverUnableToDecideException, TimeoutException{
@@ -124,7 +126,7 @@ public class OldSolverManagerSolver implements ComposedConstraintSolver {
      * @throws TimeoutException if the used algorithms stop because of reaching
      * the specified time limits before being able to decide about the given
      * problem.
-     * @see de.wwu.testtool.solver.Solution#NOSOLUTION
+     * @see de.wwu.muggl.solvers.Solution#NOSOLUTION
      */
     private Solution getSolution(int idx) throws SolverUnableToDecideException, TimeoutException{
 	long startTime = System.nanoTime();

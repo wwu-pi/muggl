@@ -6,7 +6,6 @@ import de.wwu.testtool.expressions.FloatConstant;
 import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.LongConstant;
 import de.wwu.testtool.expressions.NumericConstant;
-import de.wwu.testtool.solver.tsolver.Binomials;
 
 /**
  * @author Christoph Lembeck

@@ -3,6 +3,8 @@ package de.wwu.testtool.solver;
 import org.apache.log4j.Logger;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.conf.TesttoolConfig;
 import de.wwu.testtool.conf.SolverManagerConfig;
 import de.wwu.testtool.exceptions.IncorrectSolverException;
@@ -24,7 +26,7 @@ import de.wwu.testtool.solver.tsolver.Solver;
  *
  * @author Christoph Lembeck
  */
-public class SolverManagerOld implements SolverManager {
+public class SolverManagerOld implements SolverManager, MuconstSolverManager {
 
 	private static long totalConstraintsChecked = 0;
 
@@ -144,7 +146,7 @@ public class SolverManagerOld implements SolverManager {
 	 *             if the used algorithms stop because of reaching the specified
 	 *             time limits before being able to decide about the given
 	 *             problem.
-	 * @see de.wwu.testtool.solver.Solution#NOSOLUTION
+	 * @see de.wwu.muggl.solvers.Solution#NOSOLUTION
 	 */
 	@Override
 	public Solution getSolution() throws SolverUnableToDecideException,
@@ -212,7 +214,7 @@ public class SolverManagerOld implements SolverManager {
 	 *             if the used algorithms stop because of reaching the specified
 	 *             time limits before being able to decide about the given
 	 *             problem.
-	 * @see de.wwu.testtool.solver.Solution#NOSOLUTION
+	 * @see de.wwu.muggl.solvers.Solution#NOSOLUTION
 	 */
 	private Solution getSolution(int idx) throws SolverUnableToDecideException,
 			TimeoutException {

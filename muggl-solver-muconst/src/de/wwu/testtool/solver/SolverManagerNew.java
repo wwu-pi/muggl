@@ -1,5 +1,7 @@
 package de.wwu.testtool.solver;
 
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.conf.SolverManagerConfig;
 import de.wwu.testtool.conf.TesttoolConfig;
 import de.wwu.testtool.exceptions.IncorrectSolverException;
@@ -16,7 +18,7 @@ import de.wwu.testtool.solver.tools.SubstitutionTable;
  * @author Marko Ernsting
  *
  */
-public class SolverManagerNew implements SolverManager {
+public class SolverManagerNew implements SolverManager, MuconstSolverManager {
 
     private SolverManagerListenerList listeners = new SolverManagerListenerList();
     private ComposedConstraintSolver composedConstraintSolver;

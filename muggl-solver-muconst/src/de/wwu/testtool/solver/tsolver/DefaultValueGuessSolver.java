@@ -17,8 +17,8 @@ import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.LongConstant;
 import de.wwu.testtool.expressions.Variable;
 import de.wwu.testtool.solver.HasSolutionInformation;
-import de.wwu.testtool.solver.Solution;
-import de.wwu.testtool.solver.SolverManager;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.constraints.SingleConstraint;
 

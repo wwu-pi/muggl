@@ -11,8 +11,9 @@ import de.wwu.muggl.configuration.Globals;
 import de.wwu.testtool.exceptions.IncompleteSolutionException;
 import de.wwu.testtool.expressions.NumericVariable;
 import de.wwu.testtool.solver.HasSolutionInformation;
-import de.wwu.testtool.solver.Solution;
-import de.wwu.testtool.solver.SolverManager;
+import de.wwu.testtool.solver.MuconstSolverManager;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.constraints.NumericConstraint;
 import de.wwu.testtool.solver.constraints.Polynomial;
@@ -96,7 +97,7 @@ public class LeastSquaresSolver implements Solver {
 	    NumberWrapper oldValue;
 	    if (solverLogger.isDebugEnabled()) solverLogger.debug("teste " + testSolution); // Changed 2008.02.05
 	    int counter = 0;
-	    while (!solverManager.verifySolution(testSolution)) {
+	    while (!((MuconstSolverManager)solverManager).verifySolution(testSolution)) {
 		oldValue = newValue;
 		NumberWrapper maxGradient = null;
 		int maxIDX = 0;

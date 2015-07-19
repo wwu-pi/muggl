@@ -1,5 +1,7 @@
 package de.wwu.testtool.solver;
 
+import de.wwu.muggl.solvers.Solution;
+
 /**
  * TODOME: doc!
  * @author Christoph Lembeck

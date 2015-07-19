@@ -24,8 +24,8 @@ import de.wwu.testtool.expressions.NumericVariable;
 import de.wwu.testtool.expressions.Term;
 import de.wwu.testtool.expressions.Variable;
 import de.wwu.testtool.solver.HasSolutionInformation;
-import de.wwu.testtool.solver.Solution;
-import de.wwu.testtool.solver.SolverManager;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.constraints.Monomial;
 import de.wwu.testtool.solver.constraints.NumericConstraint;
@@ -156,7 +156,7 @@ public class EliminationSolver implements Solver{
      * @throws IncorrectSolverException if the solver is not able to handle the
      * actual set of constraints.
      * @throws TimeoutException 
-     * @see de.wwu.testtool.solver.Solution#NOSOLUTION
+     * @see de.wwu.muggl.solvers.Solution#NOSOLUTION
      */
     public Solution getSolution() throws IncorrectSolverException, TimeoutException {
 	try{

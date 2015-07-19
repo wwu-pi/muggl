@@ -1,5 +1,6 @@
 package de.wwu.testtool.solver;
 
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.testtool.exceptions.IncorrectSolverException;
 import de.wwu.testtool.exceptions.SolverUnableToDecideException;
 import de.wwu.testtool.exceptions.TimeoutException;

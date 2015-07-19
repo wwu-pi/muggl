@@ -6,6 +6,7 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.conf.SolverManagerConfig;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.tsolver.BooleanSolver;

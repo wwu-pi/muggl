@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import javax.swing.JOptionPane;
 
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.solver.tsolver.Solver;
 
 /**

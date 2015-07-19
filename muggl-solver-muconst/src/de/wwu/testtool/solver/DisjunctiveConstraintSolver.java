@@ -2,6 +2,7 @@ package de.wwu.testtool.solver;
 
 import java.util.ArrayList;
 
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.testtool.exceptions.IncorrectSolverException;
 import de.wwu.testtool.exceptions.SolverUnableToDecideException;
 import de.wwu.testtool.exceptions.TimeoutException;

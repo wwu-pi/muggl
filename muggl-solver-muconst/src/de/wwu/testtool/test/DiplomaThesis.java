@@ -13,7 +13,7 @@ import de.wwu.testtool.exceptions.IncompleteSolutionException;
 import de.wwu.testtool.exceptions.IncorrectSolverException;
 import de.wwu.testtool.exceptions.SolverUnableToDecideException;
 import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.solver.Solution;
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.testtool.solver.constraints.NumericConstraint;
 import de.wwu.testtool.solver.constraints.Polynomial;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;

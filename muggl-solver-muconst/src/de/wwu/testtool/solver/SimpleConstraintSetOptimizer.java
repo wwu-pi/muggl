@@ -2,6 +2,7 @@ package de.wwu.testtool.solver;
 
 import java.util.Vector;
 
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.testtool.expressions.BooleanConstant;
 import de.wwu.testtool.expressions.Constant;
 import de.wwu.testtool.expressions.Variable;

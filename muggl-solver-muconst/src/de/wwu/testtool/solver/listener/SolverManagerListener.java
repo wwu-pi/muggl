@@ -1,8 +1,8 @@
 package de.wwu.testtool.solver.listener;
 
 import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.solver.Solution;
-import de.wwu.testtool.solver.SolverManager;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.solver.constraints.ComposedConstraint;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.constraints.ConstraintSystem;

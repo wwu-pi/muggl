@@ -4,13 +4,13 @@ import org.apache.log4j.Logger;
 
 import de.wwu.testtool.conf.TesttoolConfig;
 import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.solver.Solution;
-import de.wwu.testtool.solver.SolverManager;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.solver.constraints.ComposedConstraint;
 import de.wwu.testtool.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.constraints.ConstraintSystem;
+import de.wwu.testtool.solver.tools.StringFormater;
 import de.wwu.testtool.solver.tsolver.Solver;
-import de.wwu.testtool.tools.StringFormater;
 
 /**
  * This Listener logs events to a log4j logger. It can be used to  
