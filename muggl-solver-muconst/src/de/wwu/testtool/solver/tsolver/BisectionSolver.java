@@ -1,4 +1,4 @@
-package de.wwu.testtool.solver.tsolver.bisection;
+package de.wwu.testtool.solver.tsolver;
 
 import java.util.List;
 import java.util.Stack;
@@ -27,7 +27,10 @@ import de.wwu.testtool.solver.constraints.NumericConstraint;
 import de.wwu.testtool.solver.constraints.SingleConstraint;
 import de.wwu.testtool.solver.numbers.NumberFactory;
 import de.wwu.testtool.solver.numbers.NumberWrapper;
-import de.wwu.testtool.solver.tsolver.Solver;
+import de.wwu.testtool.solver.tsolver.bisection.Hypercube;
+import de.wwu.testtool.solver.tsolver.bisection.Interval;
+import de.wwu.testtool.solver.tsolver.bisection.MultiIndexMap;
+import de.wwu.testtool.solver.tsolver.bisection.MultiIndexVariablesReference;
 import de.wwu.testtool.tools.Timer;
 
 

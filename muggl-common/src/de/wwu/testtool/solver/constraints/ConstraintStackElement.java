@@ -7,7 +7,7 @@ import java.util.Vector;
 import de.wwu.testtool.expressions.ConstraintExpression;
 import de.wwu.testtool.expressions.Variable;
 import de.wwu.muggl.solvers.Solution;
-import de.wwu.muggl.solvers.SolutionCache;
+import de.wwu.testtool.solver.SolutionCache;
 
 /**
  * Objects of this class represent single elements of the ConstraintStack. Each

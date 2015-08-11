@@ -7,7 +7,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import de.wwu.testtool.conf.SolverManagerConfig;
 import de.wwu.testtool.exceptions.IncompleteSolutionException;
 import de.wwu.testtool.expressions.BooleanConstant;
 import de.wwu.testtool.expressions.Expression;
