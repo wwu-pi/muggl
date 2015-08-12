@@ -148,8 +148,8 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 			}
 
 			// Check if we do not exceed the maximum possible number of steps.
-			if (!success && this.step == 3)
-				throw new SymbolicExecutionException("The first term is neither less than, greater than or equal to the second one. This is impossible and hints to serious problems.");
+			if (!success && this.step == this.maximumSteps)
+				throw new SymbolicExecutionException("Equations are violated. The term from stack cannot be fulfilled by any switch condition, including the default. This is impossible and hints to serious problems.");
 		}
 		// Save the execution time.
 		if (measureExecutionTime) ((SymbolicVirtualMachine) frame.getVm()).increaseTimeSolvingForChoicePointGeneration(System.nanoTime() - timeSolvingTemp);
@@ -170,6 +170,7 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 	 *         targets.
 	 * @throws NullPointerException If either of the specified arrays is null.
 	 * @throws SymbolicExecutionException On fatal problems applying the constraint.
+	 * @throws EquationViolationException If all possible new equations violate the choice point parents' equations.
 	 */
 	public SwitchingChoicePoint(Frame frame, int pc, int pcNext, Term termFromStack,
 			IntConstant[] keys, int[] pcs, ChoicePoint parent) throws SymbolicExecutionException {
