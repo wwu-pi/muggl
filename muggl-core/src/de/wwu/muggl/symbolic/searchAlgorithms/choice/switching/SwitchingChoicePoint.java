@@ -170,7 +170,6 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 	 *         targets.
 	 * @throws NullPointerException If either of the specified arrays is null.
 	 * @throws SymbolicExecutionException On fatal problems applying the constraint.
-	 * @throws EquationViolationException If all possible new equations violate the choice point parents' equations.
 	 */
 	public SwitchingChoicePoint(Frame frame, int pc, int pcNext, Term termFromStack,
 			IntConstant[] keys, int[] pcs, ChoicePoint parent) throws SymbolicExecutionException {
