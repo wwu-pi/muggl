@@ -37,7 +37,7 @@ public class SolverManagerNew implements SolverManager, MuconstSolverManager {
     }
     
     @Override
-    public ComposedConstraint addConstraint(ConstraintExpression ce) {
+    public void addConstraint(ConstraintExpression ce) {
 	ComposedConstraint cc = ce.convertToComposedConstraint(substitutionTable);
 	substitutionTable.signalStackElementAdded();
 	
@@ -51,7 +51,7 @@ public class SolverManagerNew implements SolverManager, MuconstSolverManager {
 	
 	listeners.fireAddConstraint(this, ce, cc);
 	
-	return cc;
+	//return cc;
     }
 
     @Override

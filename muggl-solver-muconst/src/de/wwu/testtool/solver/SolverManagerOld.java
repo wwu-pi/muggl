@@ -88,7 +88,7 @@ public class SolverManagerOld implements SolverManager, MuconstSolverManager {
 	 *         constraint stack.
 	 */
 	@Override
-	public ComposedConstraint addConstraint(ConstraintExpression ce) {
+	public void addConstraint(ConstraintExpression ce) {
 
 		ComposedConstraint cc = ce
 				.convertToComposedConstraint(substitutionTable);
@@ -106,7 +106,7 @@ public class SolverManagerOld implements SolverManager, MuconstSolverManager {
 																logger.trace(constraintStackToString());
 														}
 
-		return cc;
+		//return cc;
 	}
 
 	/**

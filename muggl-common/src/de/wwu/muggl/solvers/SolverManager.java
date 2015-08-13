@@ -23,7 +23,7 @@ public interface SolverManager {
      * @return the transformed system of constraints that was added to the
      * constraint stack.
      */
-    public ComposedConstraint addConstraint(ConstraintExpression ce);
+    public void addConstraint(ConstraintExpression ce);
     
     /**
      * Tries to find a solution for the first non-contradictory constraint system contained in the constraint
