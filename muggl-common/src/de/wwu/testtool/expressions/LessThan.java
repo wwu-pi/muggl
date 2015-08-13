@@ -15,7 +15,7 @@ import de.wwu.testtool.solver.tools.SubstitutionTable;
  * @author Christoph Lembeck
  */
 @SuppressWarnings("all")
-public class LessThan extends ConstraintExpression{
+public class LessThan extends ConstraintExpression implements HasLeftAndRightTerms{
 
     /**
      * Creates a new LessThan object representing the <code>&lt;</code>
@@ -422,4 +422,14 @@ public class LessThan extends ConstraintExpression{
     public String toTexString(boolean useInternalVariableNames) {
 	return "(" + left.toTexString(useInternalVariableNames) + " < " + right.toTexString(useInternalVariableNames) + ")";
     }
+
+    @Override
+	public Term getLeft() {
+		return left;
+	}
+
+    @Override
+	public Term getRight() {
+		return right;
+	}
 }

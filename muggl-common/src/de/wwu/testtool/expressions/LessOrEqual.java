@@ -14,7 +14,7 @@ import de.wwu.testtool.solver.tools.SubstitutionTable;
  * Represents the <code>&lt;=</code> operation on numeric expressions (terms).
  * @author Christoph Lembeck
  */
-public class LessOrEqual extends ConstraintExpression{
+public class LessOrEqual extends ConstraintExpression implements HasLeftAndRightTerms{
 
     /**
      * Creates a new LessOrEqual object representing the <code>&lt;=</code>
@@ -390,4 +390,14 @@ public class LessOrEqual extends ConstraintExpression{
     public String toTexString(boolean useInternalVariableNames) {
 	return "(" + left.toTexString(useInternalVariableNames) + " \\leq " + right.toTexString(useInternalVariableNames) + ")";
     }
+
+    @Override
+	public Term getLeft() {
+		return left;
+	}
+
+    @Override
+	public Term getRight() {
+		return right;
+	}
 }

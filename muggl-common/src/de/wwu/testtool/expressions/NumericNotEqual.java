@@ -10,7 +10,7 @@ import de.wwu.testtool.solver.tools.SubstitutionTable;
  * Represents the <code>&#033;=</code> operation on numeric expressions (terms).
  * @author Christoph Lembeck
  */
-public class NumericNotEqual extends ConstraintExpression{
+public class NumericNotEqual extends ConstraintExpression implements HasLeftAndRightTerms{
 
     /**
      * Creates a new NumericNotEqual object representing the operation
@@ -135,10 +135,12 @@ public class NumericNotEqual extends ConstraintExpression{
 	return "(" + left.toTexString(useInternalVariableNames) + " \\neq " + right.toTexString(useInternalVariableNames) + ")";
     }
 
+    @Override
 	public Term getLeft() {
 		return left;
 	}
 
+    @Override
 	public Term getRight() {
 		return right;
 	}

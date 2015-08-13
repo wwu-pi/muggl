@@ -14,7 +14,7 @@ import de.wwu.testtool.solver.tools.SubstitutionTable;
  * Represents the <code>==</code> operation on numeric expressions (terms).
  * @author Christoph Lembeck
  */
-public class NumericEqual extends ConstraintExpression{
+public class NumericEqual extends ConstraintExpression implements HasLeftAndRightTerms{
 
     /**
      * Creates a new NumericEqual object representing the operation
@@ -358,4 +358,14 @@ public class NumericEqual extends ConstraintExpression{
     public String toTexString(boolean useInternalVariableNames) {
 	return "(" + left.toTexString(useInternalVariableNames) + " = " + right.toTexString(useInternalVariableNames) + ")";
     }
+
+    @Override
+	public Term getLeft() {
+		return left;
+	}
+
+    @Override
+	public Term getRight() {
+		return right;
+	}
 }

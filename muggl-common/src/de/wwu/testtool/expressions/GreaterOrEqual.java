@@ -9,7 +9,7 @@ import de.wwu.testtool.solver.tools.SubstitutionTable;
  * Represents the <code>&gt;=</code> operation on numeric expressions (terms).
  * @author Christoph Lembeck
  */
-public class GreaterOrEqual extends ConstraintExpression{
+public class GreaterOrEqual extends ConstraintExpression implements HasLeftAndRightTerms{
 
     /**
      * Creates a new GreaterOrEqual object representing the <code>&gt;=</code>
@@ -141,4 +141,14 @@ public class GreaterOrEqual extends ConstraintExpression{
     public String toTexString(boolean useInternalVariableNames) {
 	return "(" + left.toTexString(useInternalVariableNames) + " \\geq " + right.toTexString(useInternalVariableNames) + ")";
     }
+
+    @Override
+	public Term getLeft() {
+		return left;
+	}
+
+    @Override
+	public Term getRight() {
+		return right;
+	}
 }
