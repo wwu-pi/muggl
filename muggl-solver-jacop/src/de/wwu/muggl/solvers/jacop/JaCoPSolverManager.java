@@ -2,6 +2,7 @@ package de.wwu.muggl.solvers.jacop;
 
 import org.apache.log4j.Logger;
 import org.jacop.core.Domain;
+import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
 import org.jacop.search.DepthFirstSearch;
 import org.jacop.search.IndomainMin;
@@ -20,6 +21,7 @@ import de.wwu.testtool.conf.SolverManagerConfig;
 import de.wwu.testtool.exceptions.SolverUnableToDecideException;
 import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.expressions.ConstraintExpression;
+import de.wwu.testtool.expressions.NumericConstant;
 import de.wwu.testtool.expressions.Variable;
 
 /**
@@ -148,10 +150,15 @@ public class JaCoPSolverManager implements SolverManager {
             for(int i = 0; i < solution.length; i++) {
             	System.out.print(vars[i].id() + " ");
             	Variable variable = jacopStore.getVariable(vars[i]);
-            	System.out.print(variable + " ");
-		
-            	System.out.print(solution[i] + " ");
-            	//result.addBinding(var, value);
+            	if (variable == null) {
+            		continue;
+            	}
+            	System.out.print(variable + " = ");
+            	System.out.println(solution[i]);
+            	
+            	result.addBinding(variable, 
+            			NumericConstant.getInstance(((IntDomain)solution[i]).min(), NumericConstant.INT)
+            			);
             }
 			
 		}
