@@ -1,8 +1,14 @@
 package de.wwu.muggl.solvers.jacop;
 
 import org.jacop.constraints.Constraint;
+import org.jacop.constraints.XeqY;
+import org.jacop.constraints.XgtC;
 import org.jacop.constraints.XgteqC;
+import org.jacop.constraints.XltC;
 import org.jacop.constraints.XlteqC;
+import org.jacop.constraints.XmulYeqZ;
+import org.jacop.constraints.XneqY;
+import org.jacop.constraints.XplusYeqZ;
 import org.jacop.core.IntVar;
 import org.jacop.core.IntervalDomain;
 
@@ -12,11 +18,18 @@ import de.wwu.testtool.expressions.GreaterThan;
 import de.wwu.testtool.expressions.HasLeftAndRightTerms;
 import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.LessOrEqual;
+import de.wwu.testtool.expressions.LessThan;
+import de.wwu.testtool.expressions.NumericEqual;
+import de.wwu.testtool.expressions.NumericNotEqual;
 import de.wwu.testtool.expressions.NumericVariable;
+import de.wwu.testtool.expressions.Product;
+import de.wwu.testtool.expressions.Sum;
 import de.wwu.testtool.expressions.Term;
 import de.wwu.testtool.expressions.Variable;
 
 public class JaCoPTransformer {
+	private static final IntervalDomain DOMAIN_INTEGER = new IntervalDomain(-10, 20);
+
 	public static void transformAndImpose(ConstraintExpression ce, JacopMugglStore store) {
 		
 		if (ce instanceof HasLeftAndRightTerms) {
@@ -27,6 +40,7 @@ public class JaCoPTransformer {
 	}
 
 	private static void generateEquation(HasLeftAndRightTerms ce, JacopMugglStore store) {
+		System.out.println("Transforming equation " + ce);
 		Term left = ce.getLeft();
 		Term right = ce.getRight();
 		
@@ -58,7 +72,15 @@ public class JaCoPTransformer {
 						resultingConstraint = new XgteqC(termVar, constantValue);
 					} else {
 						resultingConstraint = new XlteqC(termVar, constantValue);
-						//resultingConstraint = new XgteqC(termVar, constantValue);//TODO remove this; was just for testing
+					}
+				} else if (ce instanceof LessThan) {
+					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
+					// assert: termVar == variableTerm
+					
+					if (switchSides) { 
+						resultingConstraint = new XgtC(termVar, constantValue);
+					} else {
+						resultingConstraint = new XltC(termVar, constantValue);
 					}
 				} else {
 					// other type of equation with constant
@@ -66,7 +88,19 @@ public class JaCoPTransformer {
 				}
 			} else {
 				// no constant, all int
-				throw new IllegalArgumentException("Unknown (non-constant, all-int) constraint type " + ce.getClass().getName());
+				if (ce instanceof NumericEqual) {
+					IntVar leftTermVar = normaliseIntegerTerm(ce.getLeft(), store);
+					IntVar rightTermVar = normaliseIntegerTerm(ce.getRight(), store);
+					
+					resultingConstraint = new XeqY(leftTermVar, rightTermVar);
+				} else if (ce instanceof NumericNotEqual) {
+					IntVar leftTermVar = normaliseIntegerTerm(ce.getLeft(), store);
+					IntVar rightTermVar = normaliseIntegerTerm(ce.getRight(), store);
+					
+					resultingConstraint = new XneqY(leftTermVar, rightTermVar);
+				} else {
+					throw new IllegalArgumentException("Unknown (non-constant, all-int) constraint type " + ce.getClass().getName());
+				}
 			}
 			
 		} else {
@@ -81,7 +115,11 @@ public class JaCoPTransformer {
 	}
 
 	private static IntVar normaliseIntegerTerm(Term integerTerm, JacopMugglStore store) {
-		if (integerTerm instanceof NumericVariable) {
+		if (integerTerm instanceof IntConstant) {
+			// for a constant, just add a variable with a very restricted domain. Should save one constraint.
+			int constantValue = ((IntConstant)integerTerm).getIntValue();
+			return new IntVar(store, constantValue, constantValue);
+		} else if (integerTerm instanceof NumericVariable) {
 			if ( !((NumericVariable)integerTerm).isInteger() ) {
 				throw new IllegalStateException("Trying to normalise an integer term that contains a non-integer Variable"); 
 			}
@@ -91,11 +129,34 @@ public class JaCoPTransformer {
 			if (intVar == null) {
 				intVar = new IntVar(store, 
 					((NumericVariable)integerTerm).getInternalName(), 
-					new IntervalDomain(Integer.MIN_VALUE, Integer.MAX_VALUE)); //  + 1 MIN_VALUE + 1 because otherwise Store will integer overflow while checking boundaries
+					DOMAIN_INTEGER);
 				// add to cache
 				store.addVariable((Variable)integerTerm, intVar);
 			}
 			return intVar;
+		} else if (integerTerm instanceof Sum) {
+			// Returns an intermediate variable, and impose a constraint that this intermediate
+			// variable be the sum of its two terms. Note that a term may be anything (e.g. a Sum),
+			// so that this function may work recursively until reaching a constant or variable 
+			IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
+			// TODO optimization: sequences of additions -> Sum
+			XplusYeqZ sumConstraint = new XplusYeqZ(
+					normaliseIntegerTerm(((Sum)integerTerm).getLeft(), store), 
+					normaliseIntegerTerm(((Sum)integerTerm).getRight(), store), 
+					intermediateVariable);
+			store.impose(sumConstraint);
+			return intermediateVariable;
+		} else if (integerTerm instanceof Product) {
+			// Returns an intermediate variable, and impose a constraint that this intermediate
+			// variable be the sum of its two terms. Note that a term may be anything (e.g. a Sum),
+			// so that this function may work recursively until reaching a constant or variable 
+			IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
+			XmulYeqZ productConstraint = new XmulYeqZ(
+					normaliseIntegerTerm(((Product)integerTerm).getLeft(), store),
+					normaliseIntegerTerm(((Product)integerTerm).getRight(), store), 
+					intermediateVariable);
+			store.impose(productConstraint);
+			return intermediateVariable;
 		} else {
 			throw new IllegalArgumentException("Unknown integer term type " + integerTerm.getClass().getName());
 		}
@@ -107,6 +168,12 @@ public class JaCoPTransformer {
 			return true;
 		} else if (term instanceof NumericVariable) {
 			return ((NumericVariable)term).isInteger();
+		} else if (term instanceof Sum) {
+			return isInteger( ((Sum)term).getLeft() ) && 
+					isInteger( ((Sum)term).getRight() );
+		} else if (term instanceof Product) {
+			return isInteger( ((Product)term).getLeft() ) && 
+					isInteger( ((Product)term).getRight() );
 		}
 		throw new IllegalArgumentException("Unknown term type " + term.getClass().getName());
 	}
