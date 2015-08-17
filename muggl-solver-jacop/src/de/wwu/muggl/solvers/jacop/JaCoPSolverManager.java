@@ -148,11 +148,11 @@ public class JaCoPSolverManager implements SolverManager {
 			//label.getSolutionListener().printAllSolutions();
 			Domain[] solution = label.getSolution();
             for(int i = 0; i < solution.length; i++) {
-            	System.out.print(vars[i].id() + " ");
             	Variable variable = jacopStore.getVariable(vars[i]);
             	if (variable == null) {
             		continue;
             	}
+            	System.out.print(vars[i].id() + " ");
             	System.out.print(variable + " = ");
             	System.out.println(solution[i]);
             	
@@ -299,7 +299,7 @@ public class JaCoPSolverManager implements SolverManager {
 	@Deprecated
 	@Override
 	public long getTotalConstraintsChecked() {
-		return 0;
+		return jacopStore.numberConstraints();
 	}
 
 	/**
