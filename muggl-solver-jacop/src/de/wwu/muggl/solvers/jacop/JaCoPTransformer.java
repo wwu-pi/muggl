@@ -1,14 +1,18 @@
 package de.wwu.muggl.solvers.jacop;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+
 import org.jacop.constraints.Constraint;
+import org.jacop.constraints.SumInt;
 import org.jacop.constraints.XeqY;
 import org.jacop.constraints.XgtC;
 import org.jacop.constraints.XgteqC;
 import org.jacop.constraints.XltC;
 import org.jacop.constraints.XlteqC;
+import org.jacop.constraints.XmulCeqZ;
 import org.jacop.constraints.XmulYeqZ;
 import org.jacop.constraints.XneqY;
-import org.jacop.constraints.XplusYeqZ;
 import org.jacop.core.IntVar;
 import org.jacop.core.IntervalDomain;
 
@@ -135,31 +139,90 @@ public class JaCoPTransformer {
 			}
 			return intVar;
 		} else if (integerTerm instanceof Sum) {
-			// Returns an intermediate variable, and impose a constraint that this intermediate
-			// variable be the sum of its two terms. Note that a term may be anything (e.g. a Sum),
-			// so that this function may work recursively until reaching a constant or variable 
-			IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
-			// TODO optimization: sequences of additions -> Sum
-			XplusYeqZ sumConstraint = new XplusYeqZ(
-					normaliseIntegerTerm(((Sum)integerTerm).getLeft(), store), 
-					normaliseIntegerTerm(((Sum)integerTerm).getRight(), store), 
-					intermediateVariable);
-			store.impose(sumConstraint);
-			return intermediateVariable;
+			return normaliseIntegerSum((Sum)integerTerm, store);
 		} else if (integerTerm instanceof Product) {
-			// Returns an intermediate variable, and impose a constraint that this intermediate
-			// variable be the sum of its two terms. Note that a term may be anything (e.g. a Sum),
-			// so that this function may work recursively until reaching a constant or variable 
-			IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
-			XmulYeqZ productConstraint = new XmulYeqZ(
-					normaliseIntegerTerm(((Product)integerTerm).getLeft(), store),
-					normaliseIntegerTerm(((Product)integerTerm).getRight(), store), 
-					intermediateVariable);
-			store.impose(productConstraint);
-			return intermediateVariable;
+			return normaliseIntegerProduct((Product)integerTerm, store);
 		} else {
 			throw new IllegalArgumentException("Unknown integer term type " + integerTerm.getClass().getName());
 		}
+		
+	}
+
+	/**
+	 * @param integerTerm
+	 * @param store
+	 * @return
+	 */
+	private static IntVar normaliseIntegerProduct(Product integerProduct,
+			JacopMugglStore store) {
+		// Returns an intermediate variable, and impose a constraint that this intermediate
+		// variable be the product of its two factors. Note that a term may be anything (e.g. a Product),
+		// so that this function may work recursively until reaching a constant or variable 
+		IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
+		
+		Constraint productConstraint;
+		
+		
+		if (integerProduct.getLeft().isConstant() || integerProduct.getRight().isConstant()) {
+			int constantValue = integerProduct.getLeft().isConstant() ? ((IntConstant)integerProduct.getLeft()).getValue() : ((IntConstant)integerProduct.getRight()).getValue();
+			Term variableTerm = integerProduct.getLeft().isConstant() ? integerProduct.getRight() : integerProduct.getLeft();
+			
+			productConstraint = new XmulCeqZ(
+					normaliseIntegerTerm(variableTerm, store),
+					constantValue, 
+					intermediateVariable);
+		} else {
+			productConstraint = new XmulYeqZ(
+					normaliseIntegerTerm(integerProduct.getLeft(), store),
+					normaliseIntegerTerm(integerProduct.getRight(), store), 
+					intermediateVariable);
+		}
+		store.impose(productConstraint);
+		return intermediateVariable;
+	}
+
+	/**
+	 * Returns an intermediate variable, and impose a constraint that this intermediate
+	 * variable be the sum of its two terms. In case one or both terms are again a Sum,
+	 * the resulting constraint is composed from all comprised Sums.		
+	 * @param integerSum Term that is a sum
+	 * @param store JaCoPStore used for storing the resulting constraint
+	 * @return One IntVar that is constrained to be equal to the Sum
+	 */
+	private static IntVar normaliseIntegerSum(Sum integerSum,
+			JacopMugglStore store) {
+		// TODO faster handling of simple sums (XplusYeqZ)
+		//IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
+		//XplusYeqZ sumConstraint = new XplusYeqZ(
+		//		normaliseIntegerTerm(integerSum.getLeft(), store), 
+		//		normaliseIntegerTerm(integerSum.getRight(), store), 
+		//		intermediateVariable);
+		//store.impose(sumConstraint);
+		//return intermediateVariable;		
+		
+		ArrayDeque<Sum> pendingSums = new ArrayDeque<Sum>();
+		ArrayList<IntVar> termList = new ArrayList<IntVar>();
+		
+		pendingSums.addLast(integerSum);
+		while (!pendingSums.isEmpty()) {
+			Sum currentSum = pendingSums.removeLast();
+			if (currentSum.getLeft() instanceof Sum) {
+				pendingSums.addLast((Sum)currentSum.getLeft());
+			} else {
+				termList.add( normaliseIntegerTerm(currentSum.getLeft(), store) );
+			}
+			if (currentSum.getRight() instanceof Sum) {
+				pendingSums.addLast((Sum)currentSum.getRight());
+			} else {
+				termList.add( normaliseIntegerTerm(currentSum.getRight(), store) );
+			}
+		}
+
+		// Compose and impose Sum constraint
+		IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
+		SumInt sumConstraint = new SumInt(store, termList, "==", intermediateVariable);
+		store.impose(sumConstraint);
+		return intermediateVariable;
 		
 	}
 
