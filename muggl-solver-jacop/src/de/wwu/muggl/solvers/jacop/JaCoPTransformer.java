@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import org.jacop.constraints.Constraint;
 import org.jacop.constraints.SumInt;
+import org.jacop.constraints.SumWeight;
 import org.jacop.constraints.XeqY;
 import org.jacop.constraints.XgtC;
 import org.jacop.constraints.XgteqC;
@@ -32,7 +33,7 @@ import de.wwu.testtool.expressions.Term;
 import de.wwu.testtool.expressions.Variable;
 
 public class JaCoPTransformer {
-	private static final IntervalDomain DOMAIN_INTEGER = new IntervalDomain(-10, 20);
+	private static final IntervalDomain DOMAIN_INTEGER = new IntervalDomain(1, 9);
 
 	public static void transformAndImpose(ConstraintExpression ce, JacopMugglStore store) {
 		
@@ -202,6 +203,8 @@ public class JaCoPTransformer {
 		
 		ArrayDeque<Sum> pendingSums = new ArrayDeque<Sum>();
 		ArrayList<IntVar> termList = new ArrayList<IntVar>();
+		ArrayList<Integer> weightList = new ArrayList<Integer>();
+		boolean allWeightsOne = true;
 		
 		pendingSums.addLast(integerSum);
 		while (!pendingSums.isEmpty()) {
@@ -209,21 +212,75 @@ public class JaCoPTransformer {
 			if (currentSum.getLeft() instanceof Sum) {
 				pendingSums.addLast((Sum)currentSum.getLeft());
 			} else {
-				termList.add( normaliseIntegerTerm(currentSum.getLeft(), store) );
+				allWeightsOne = processTermOrSimpleProductAndTestWeightEqOne(store, 
+						termList, weightList, currentSum.getLeft());
 			}
 			if (currentSum.getRight() instanceof Sum) {
 				pendingSums.addLast((Sum)currentSum.getRight());
 			} else {
-				termList.add( normaliseIntegerTerm(currentSum.getRight(), store) );
+				allWeightsOne = processTermOrSimpleProductAndTestWeightEqOne(store, 
+						termList, weightList, currentSum.getRight());
 			}
 		}
 
 		// Compose and impose Sum constraint
 		IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
-		SumInt sumConstraint = new SumInt(store, termList, "==", intermediateVariable);
+		Constraint sumConstraint;
+		if (allWeightsOne) {
+			sumConstraint = new SumInt(store, termList, "==", intermediateVariable);
+		} else {
+			sumConstraint = new SumWeight(termList, weightList, intermediateVariable);
+		}
+		
 		store.impose(sumConstraint);
 		return intermediateVariable;
 		
+	}
+
+	private static boolean processTermOrSimpleProductAndTestWeightEqOne(JacopMugglStore store,
+			ArrayList<IntVar> termList, ArrayList<Integer> weightList, Term term) {
+		if (isSimpleProduct(term)) {
+			Product p = (Product)term;
+			
+			Term constantTerm;
+			Term variableTerm;
+			
+			if (p.getLeft().isConstant()) {
+				constantTerm = p.getLeft();
+				variableTerm = p.getRight();
+			} else {
+				constantTerm = p.getRight();
+				variableTerm = p.getLeft();
+			}
+			
+			int weight = ((IntConstant)constantTerm).getIntValue();
+			
+			termList.add( normaliseIntegerTerm(variableTerm, store) );
+			weightList.add( weight );
+			
+			return weight == 1;
+		} else {
+			termList.add( normaliseIntegerTerm(term, store) );
+			weightList.add( 1 );
+			return true;
+		}
+	}
+
+	private static boolean isSimpleProduct(Term term) {
+		if (!(term instanceof Product)) {
+			return false;
+		}
+				
+		Product p = (Product)term;
+		
+		boolean leftIsConstant = p.getLeft().isConstant();
+		boolean rightIsConstant = p.getRight().isConstant();
+		
+		if (!leftIsConstant && !rightIsConstant) {
+			return false;
+		}
+		
+		return true;
 	}
 
 	private static boolean isInteger(Term term) {
