@@ -75,25 +75,25 @@ public class BisectionSolver implements Solver{
 	    String selectedNumberFactoryName = configReader.getTextContent("NumberFactory/@selected", solverNode);
 	    String selectedFactoryClass = configReader.getTextContent("NumberFactory/NumberFactoryOption[attribute::name=\"" + selectedNumberFactoryName + "\"]/@class", solverNode);
 	    defaultNumberFactory = (NumberFactory)Class.forName(selectedFactoryClass).newInstance();
-	    timeout = Long.parseLong(configReader.getTextContent("//TesttoolConfiguration/SolverSystem/SolverList/Solver[attribute::class=\"de.wwu.testtool.solver.tsolver.bisection.BisectionSolver\"]/param[attribute::name=\"timeout\"]/@value"));
+	    timeout = Long.parseLong(configReader.getTextContent("//TesttoolConfiguration/SolverSystem/SolverList/Solver[attribute::class=\"de.wwu.testtool.solver.tsolver.BisectionSolver\"]/param[attribute::name=\"timeout\"]/@value"));
 	    if (timeout < 0)
 		timeout = 0;
-	    String value = configReader.getTextContent("//TesttoolConfiguration/SolverSystem/SolverList/Solver[attribute::class=\"de.wwu.testtool.solver.tsolver.bisection.BisectionSolver\"]/param[attribute::name=\"minFloat\"]/@value");
+	    String value = configReader.getTextContent("//TesttoolConfiguration/SolverSystem/SolverList/Solver[attribute::class=\"de.wwu.testtool.solver.tsolver.BisectionSolver\"]/param[attribute::name=\"minFloat\"]/@value");
 	    if (value == null || value.equals("-Float.MAX_VALUE"))
 		minFloat = -Float.MAX_VALUE;
 	    else
 		minFloat = Float.parseFloat(value);
-	    value = configReader.getTextContent("//TesttoolConfiguration/SolverSystem/SolverList/Solver[attribute::class=\"de.wwu.testtool.solver.tsolver.bisection.BisectionSolver\"]/param[attribute::name=\"maxFloat\"]/@value");
+	    value = configReader.getTextContent("//TesttoolConfiguration/SolverSystem/SolverList/Solver[attribute::class=\"de.wwu.testtool.solver.tsolver.BisectionSolver\"]/param[attribute::name=\"maxFloat\"]/@value");
 	    if (value == null || value.equals("Float.MAX_VALUE"))
 		minFloat = Float.MAX_VALUE;
 	    else
 		minFloat = Float.parseFloat(value);
-	    value = configReader.getTextContent("//TesttoolConfiguration/SolverSystem/SolverList/Solver[attribute::class=\"de.wwu.testtool.solver.tsolver.bisection.BisectionSolver\"]/param[attribute::name=\"minDouble\"]/@value");
+	    value = configReader.getTextContent("//TesttoolConfiguration/SolverSystem/SolverList/Solver[attribute::class=\"de.wwu.testtool.solver.tsolver.BisectionSolver\"]/param[attribute::name=\"minDouble\"]/@value");
 	    if (value == null || value.equals("-Double.MAX_VALUE"))
 		minDouble = -Double.MAX_VALUE;
 	    else
 		minDouble = Double.parseDouble(value);
-	    value = configReader.getTextContent("//TesttoolConfiguration/SolverSystem/SolverList/Solver[attribute::class=\"de.wwu.testtool.solver.tsolver.bisection.BisectionSolver\"]/param[attribute::name=\"maxDouble\"]/@value");
+	    value = configReader.getTextContent("//TesttoolConfiguration/SolverSystem/SolverList/Solver[attribute::class=\"de.wwu.testtool.solver.tsolver.BisectionSolver\"]/param[attribute::name=\"maxDouble\"]/@value");
 	    if (value == null || value.equals("Double.MAX_VALUE"))
 		maxDouble = Double.MAX_VALUE;
 	    else

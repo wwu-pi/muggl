@@ -102,7 +102,7 @@
       <!-- **********************
            ** Bisection Solver **
            ********************** -->
-      <Solver class="de.wwu.testtool.solver.tsolver.bisection.BisectionSolver"
+      <Solver class="de.wwu.testtool.solver.tsolver.BisectionSolver"
               enabled="yes"
               priority="6">
         <NumberFactory selected="Fraction">
