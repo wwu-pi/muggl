@@ -1,11 +1,13 @@
 package de.wwu.muggl.solvers.jacop;
 
+import java.lang.reflect.Field;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import org.jacop.constraints.Constraint;
 import org.jacop.constraints.SumInt;
 import org.jacop.constraints.SumWeight;
+import org.jacop.constraints.XeqC;
 import org.jacop.constraints.XeqY;
 import org.jacop.constraints.XgtC;
 import org.jacop.constraints.XgteqC;
@@ -13,6 +15,7 @@ import org.jacop.constraints.XltC;
 import org.jacop.constraints.XlteqC;
 import org.jacop.constraints.XmulCeqZ;
 import org.jacop.constraints.XmulYeqZ;
+import org.jacop.constraints.XneqC;
 import org.jacop.constraints.XneqY;
 import org.jacop.core.IntVar;
 import org.jacop.core.IntervalDomain;
@@ -33,7 +36,7 @@ import de.wwu.testtool.expressions.Term;
 import de.wwu.testtool.expressions.Variable;
 
 public class JaCoPTransformer {
-	private static final IntervalDomain DOMAIN_INTEGER = new IntervalDomain(1, 9);
+	private static final IntervalDomain DOMAIN_INTEGER = new IntervalDomain(-2, 13299);
 
 	public static void transformAndImpose(ConstraintExpression ce, JacopMugglStore store) {
 		
@@ -53,13 +56,7 @@ public class JaCoPTransformer {
 			throw new IllegalStateException("Both terms of the equation " + ce + " are constant. Why was this constraint added in the first place?");
 		}
 		
-		// Store whether sides will need to be switched, as constants may only appear as the right term in JaCoP.
-		// This implies mirroring the comparison for lt(e)/gt(e)
-		// Furthermore, non-constant constraints need to be normalised to lt(e) constraints.
-		boolean switchSides = left.isConstant() || ce instanceof GreaterOrEqual || ce instanceof GreaterThan;
 		boolean hasConstant = left.isConstant() || right.isConstant();
-
-		
 		boolean isInteger = isInteger(left) && isInteger(right);
 		
 		Constraint resultingConstraint;
@@ -68,6 +65,10 @@ public class JaCoPTransformer {
 			if (hasConstant) {
 				int constantValue = left.isConstant() ? ((IntConstant)left).getValue() : ((IntConstant)right).getValue();
 				Term variableTerm = left.isConstant() ? right : left;
+				
+				// Decide whether sides will need to be switched, as constants may only appear as the right term in JaCoP.
+				// This implies mirroring the comparison for lt(e)/gt(e)
+				boolean switchSides = left.isConstant();
 
 				if (ce instanceof LessOrEqual) {
 					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
@@ -87,12 +88,44 @@ public class JaCoPTransformer {
 					} else {
 						resultingConstraint = new XltC(termVar, constantValue);
 					}
+				} else if (ce instanceof GreaterOrEqual) {
+					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
+					// assert: termVar == variableTerm
+					
+					if (switchSides) { 
+						resultingConstraint = new XlteqC(termVar, constantValue);
+					} else {
+						resultingConstraint = new XgteqC(termVar, constantValue);
+					}
+				} else if (ce instanceof GreaterThan) {
+					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
+					// assert: termVar == variableTerm
+					
+					if (switchSides) { 
+						resultingConstraint = new XltC(termVar, constantValue);
+					} else {
+						resultingConstraint = new XgtC(termVar, constantValue);
+					}
+				} else if (ce instanceof NumericEqual) {
+					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
+					// assert: termVar == variableTerm
+					
+					resultingConstraint = new XeqC(termVar, constantValue);
+				} else if (ce instanceof NumericNotEqual) {
+					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
+					// assert: termVar == variableTerm
+					
+					resultingConstraint = new XneqC(termVar, constantValue);
 				} else {
 					// other type of equation with constant
 					throw new IllegalArgumentException("Unknown (with-constant, all-int) constraint type " + ce.getClass().getName());
 				}
 			} else {
 				// no constant, all int
+				
+				// Decide whether constraints need to be normalised to lt(e) constraints.
+				//boolean switchSides = ce instanceof GreaterOrEqual || ce instanceof GreaterThan;
+				
 				if (ce instanceof NumericEqual) {
 					IntVar leftTermVar = normaliseIntegerTerm(ce.getLeft(), store);
 					IntVar rightTermVar = normaliseIntegerTerm(ce.getRight(), store);
@@ -296,6 +329,38 @@ public class JaCoPTransformer {
 					isInteger( ((Product)term).getRight() );
 		}
 		throw new IllegalArgumentException("Unknown term type " + term.getClass().getName());
+	}
+	
+	/**
+	 * Gets ID of current JaCoP DFS instance. Used for conditional breakpoints.
+	 * Necessary, because ID value is protected. Therefore, this method uses
+	 * reflection to make the ID value visible if needed.
+	 * @return ID of current JaCoP DFS instance
+	 */
+	@SuppressWarnings("unused")
+	private static int checkDFSid() {
+		Field f;
+		try {
+			f = org.jacop.search.DepthFirstSearch.class.getDeclaredField("no");
+			f.setAccessible(true);
+			return f.getInt(null);
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Integer.MAX_VALUE;
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Integer.MAX_VALUE;
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Integer.MAX_VALUE;
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Integer.MAX_VALUE;
+		}
 	}
 	
 }
