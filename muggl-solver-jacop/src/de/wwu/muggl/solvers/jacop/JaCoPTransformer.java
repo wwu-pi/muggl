@@ -1,7 +1,6 @@
 package de.wwu.muggl.solvers.jacop;
 
 import java.lang.reflect.Field;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import org.jacop.constraints.Constraint;
@@ -17,10 +16,13 @@ import org.jacop.constraints.XmulCeqZ;
 import org.jacop.constraints.XmulYeqZ;
 import org.jacop.constraints.XneqC;
 import org.jacop.constraints.XneqY;
+import org.jacop.core.BoundDomain;
+import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
-import org.jacop.core.IntervalDomain;
 
+import de.wwu.testtool.expressions.BinaryOperation;
 import de.wwu.testtool.expressions.ConstraintExpression;
+import de.wwu.testtool.expressions.Difference;
 import de.wwu.testtool.expressions.GreaterOrEqual;
 import de.wwu.testtool.expressions.GreaterThan;
 import de.wwu.testtool.expressions.HasLeftAndRightTerms;
@@ -36,7 +38,7 @@ import de.wwu.testtool.expressions.Term;
 import de.wwu.testtool.expressions.Variable;
 
 public class JaCoPTransformer {
-	private static final IntervalDomain DOMAIN_INTEGER = new IntervalDomain(-2, 13299);
+	private static final IntDomain DOMAIN_INTEGER = new BoundDomain(IntDomain.MinInt,IntDomain.MaxInt);
 
 	public static void transformAndImpose(ConstraintExpression ce, JacopMugglStore store) {
 		
@@ -172,8 +174,8 @@ public class JaCoPTransformer {
 				store.addVariable((Variable)integerTerm, intVar);
 			}
 			return intVar;
-		} else if (integerTerm instanceof Sum) {
-			return normaliseIntegerSum((Sum)integerTerm, store);
+		} else if (integerTerm instanceof Sum || integerTerm instanceof Difference) {
+			return normaliseIntegerSumOrDifference((BinaryOperation)integerTerm, store);
 		} else if (integerTerm instanceof Product) {
 			return normaliseIntegerProduct((Product)integerTerm, store);
 		} else {
@@ -183,7 +185,7 @@ public class JaCoPTransformer {
 	}
 
 	/**
-	 * @param integerTerm
+	 * @param integerProduct
 	 * @param store
 	 * @return
 	 */
@@ -223,7 +225,7 @@ public class JaCoPTransformer {
 	 * @param store JaCoPStore used for storing the resulting constraint
 	 * @return One IntVar that is constrained to be equal to the Sum
 	 */
-	private static IntVar normaliseIntegerSum(Sum integerSum,
+	private static IntVar normaliseIntegerSumOrDifference(BinaryOperation integerSum,
 			JacopMugglStore store) {
 		// TODO faster handling of simple sums (XplusYeqZ)
 		//IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
@@ -234,27 +236,12 @@ public class JaCoPTransformer {
 		//store.impose(sumConstraint);
 		//return intermediateVariable;		
 		
-		ArrayDeque<Sum> pendingSums = new ArrayDeque<Sum>();
 		ArrayList<IntVar> termList = new ArrayList<IntVar>();
 		ArrayList<Integer> weightList = new ArrayList<Integer>();
 		boolean allWeightsOne = true;
 		
-		pendingSums.addLast(integerSum);
-		while (!pendingSums.isEmpty()) {
-			Sum currentSum = pendingSums.removeLast();
-			if (currentSum.getLeft() instanceof Sum) {
-				pendingSums.addLast((Sum)currentSum.getLeft());
-			} else {
-				allWeightsOne = processTermOrSimpleProductAndTestWeightEqOne(store, 
-						termList, weightList, currentSum.getLeft());
-			}
-			if (currentSum.getRight() instanceof Sum) {
-				pendingSums.addLast((Sum)currentSum.getRight());
-			} else {
-				allWeightsOne = processTermOrSimpleProductAndTestWeightEqOne(store, 
-						termList, weightList, currentSum.getRight());
-			}
-		}
+		allWeightsOne = normaliseIntegerSumRecursive(integerSum, store, termList,
+				weightList, false); // false, since the entire term is treated as positive for now.
 
 		// Compose and impose Sum constraint
 		IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
@@ -264,14 +251,56 @@ public class JaCoPTransformer {
 		} else {
 			sumConstraint = new SumWeight(termList, weightList, intermediateVariable);
 		}
+
+		System.out.println(sumConstraint.toString());
+		System.out.println(weightList.toString());
 		
 		store.impose(sumConstraint);
 		return intermediateVariable;
 		
 	}
 
+	/**
+	 * @param integerSum
+	 * @param store
+	 * @param termList
+	 * @param weightList
+	 * @param negate True if the entire term is to be treated as negative (e.g. right hand side of a difference) 
+	 * @return
+	 */
+	private static boolean normaliseIntegerSumRecursive(BinaryOperation integerSum,
+			JacopMugglStore store, ArrayList<IntVar> termList,
+			ArrayList<Integer> weightList, boolean negate) {
+		boolean leftAllWeightsEqOne;
+		boolean rightAllWeightsEqOne;
+		
+		if (integerSum.getLeft() instanceof Sum ||
+				integerSum.getLeft() instanceof Difference) {
+			leftAllWeightsEqOne = normaliseIntegerSumRecursive((BinaryOperation) integerSum.getLeft(), store, termList, weightList, negate);
+		} else {
+			leftAllWeightsEqOne = processTermOrSimpleProductAndTestWeightEqOne(store, 
+					termList, weightList, integerSum.getLeft(), negate); //TODO negation
+		}
+		
+		// Right hand side must be negative if EITHER entire term is negated XOR current term is a difference.
+		boolean negateRHS = negate ^ (integerSum instanceof Difference);
+		
+		if (integerSum.getRight() instanceof Sum ||
+				integerSum.getRight() instanceof Difference) {
+			rightAllWeightsEqOne = normaliseIntegerSumRecursive((BinaryOperation) integerSum.getRight(), store, termList, weightList, negateRHS);
+		} else {
+			rightAllWeightsEqOne = processTermOrSimpleProductAndTestWeightEqOne(store, 
+					termList, weightList, integerSum.getRight(), negateRHS); //TODO negation
+		}
+		
+		return leftAllWeightsEqOne && rightAllWeightsEqOne;
+	}
+
 	private static boolean processTermOrSimpleProductAndTestWeightEqOne(JacopMugglStore store,
-			ArrayList<IntVar> termList, ArrayList<Integer> weightList, Term term) {
+			ArrayList<IntVar> termList, ArrayList<Integer> weightList, Term term, boolean negate) {
+		
+		int weight;
+		
 		if (isSimpleProduct(term)) {
 			Product p = (Product)term;
 			
@@ -286,17 +315,21 @@ public class JaCoPTransformer {
 				variableTerm = p.getLeft();
 			}
 			
-			int weight = ((IntConstant)constantTerm).getIntValue();
-			
 			termList.add( normaliseIntegerTerm(variableTerm, store) );
-			weightList.add( weight );
 			
-			return weight == 1;
+			weight = ((IntConstant)constantTerm).getIntValue();
+			if (negate) { 
+				weight = -weight; 
+			}
+			weightList.add( weight );
 		} else {
 			termList.add( normaliseIntegerTerm(term, store) );
-			weightList.add( 1 );
-			return true;
+			
+			weight = negate ? -1 : 1;
+			weightList.add( weight );
 		}
+		
+		return weight == 1;
 	}
 
 	private static boolean isSimpleProduct(Term term) {
@@ -321,12 +354,9 @@ public class JaCoPTransformer {
 			return true;
 		} else if (term instanceof NumericVariable) {
 			return ((NumericVariable)term).isInteger();
-		} else if (term instanceof Sum) {
-			return isInteger( ((Sum)term).getLeft() ) && 
-					isInteger( ((Sum)term).getRight() );
-		} else if (term instanceof Product) {
-			return isInteger( ((Product)term).getLeft() ) && 
-					isInteger( ((Product)term).getRight() );
+		} else if (term instanceof BinaryOperation) {
+			return isInteger( ((BinaryOperation)term).getLeft() ) && 
+					isInteger( ((BinaryOperation)term).getRight() );
 		}
 		throw new IllegalArgumentException("Unknown term type " + term.getClass().getName());
 	}
