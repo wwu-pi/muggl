@@ -1,9 +1,13 @@
 package de.wwu.muggl.solvers.jacop;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
+import org.jacop.core.IntVar;
 import org.jacop.core.Store;
 import org.jacop.core.Var;
+import org.jacop.floats.core.FloatVar;
 
 import de.wwu.testtool.expressions.Variable;
 
@@ -27,6 +31,30 @@ public class JacopMugglStore extends Store {
 	public void addVariable(Variable mugglVariable, Var jacopVariable) {
 		mugglToJacopVariable.put(mugglVariable, jacopVariable);
 		jacopToMugglVariable.put(jacopVariable, mugglVariable);
+	}
+	
+	public IntVar[] getIntVariables() {
+		Collection<Var> values = mugglToJacopVariable.values();
+		ArrayList<IntVar> intVars = new ArrayList<IntVar>(mugglToJacopVariable.size()); 
+		for (Var v : values) {
+			if (v instanceof IntVar) {
+				intVars.add( (IntVar) v );
+			}
+		}
+		
+		return intVars.toArray(new IntVar[]{});
+	}
+	
+	public FloatVar[] getFloatVariables() {
+		Collection<Var> values = mugglToJacopVariable.values();
+		ArrayList<FloatVar> floatVars = new ArrayList<FloatVar>(mugglToJacopVariable.size()); 
+		for (Var v : values) {
+			if (v instanceof FloatVar) {
+				floatVars.add( (FloatVar) v );
+			}
+		}
+		
+		return floatVars.toArray(new FloatVar[]{});
 	}
 
 }
