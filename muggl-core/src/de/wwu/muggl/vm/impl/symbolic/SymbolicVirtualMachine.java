@@ -44,7 +44,6 @@ import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.expressions.ConstraintExpression;
 import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.Term;
-//import de.wwu.testtool.solver.SolverManagerOld;
 
 /**
  * This concrete class represents a virtual machine for the symbolic execution of java bytecode,
