@@ -127,10 +127,10 @@ public class JaCoPSolverManager implements SolverManager {
 		long startTime = System.nanoTime();
 		
 		//TODO correct var type? Note: BooleanVar extends IntVar!
-		IntVar[] vars = jacopStore.getIntVariables(); /* new IntVar[Math.min(jacopStore.size(), 8)];//jacopStore.size()];
-		for (int i = 0; i < jacopStore.size() && i < 8; i++) { //TODO replace 8 with actually interesting variables
+		IntVar[] vars = jacopStore.getIntVariables(); /* new IntVar[jacopStore.size()];
+		for (int i = 0; i < jacopStore.size(); i++) {
 			vars[i] = (IntVar)jacopStore.vars[i];
-		}*///
+		}/**///jacopStore.getIntVariables();
 		SelectChoicePoint<IntVar> select =
 			new SimpleSelect<IntVar>(vars,
 			new SmallestDomain<IntVar>(),
