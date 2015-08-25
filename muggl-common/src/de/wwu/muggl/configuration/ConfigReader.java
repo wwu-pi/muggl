@@ -357,6 +357,8 @@ public class ConfigReader {
 				options.symbArrayInitTestZeroLengthArray = loadDefaultValues ? Boolean.parseBoolean(defaultValue) : Boolean.parseBoolean(value);
 			} else if (name.equals("dynamicallyReplaceInstructionsWithOptimizedOnes")) {
 				options.dynReplaceInstWithOptimizedOnes = loadDefaultValues ? Boolean.parseBoolean(defaultValue) : Boolean.parseBoolean(value);
+			} else if (name.equals("solverManager")) {
+				options.solverManager = loadDefaultValues ? defaultValue : value;
 			} else {
 				// No match found - log that.
 				if (Globals.getInst().logger.isEnabledFor(Level.WARN)) Globals.getInst().logger.warn("Encountered a problem loading the current configuration from a file: Setting " + name + " could not be recognized and was ignored.");
@@ -549,6 +551,7 @@ public class ConfigReader {
 			out.write(generateNewEntry("symbolicArrayInitializationTestNull", String.valueOf(options.symbArrayInitTestNull), String.valueOf(Defaults.SYMB_ARRAY_INIT_TEST_NULL)));
 			out.write(generateNewEntry("symbolicArrayInitializationTestZeroLengthArray", String.valueOf(options.symbArrayInitTestZeroLengthArray), String.valueOf(Defaults.SYMB_ARRAY_INIT_TEST_ZERO_LENGTH_ARRAY)));
 			out.write(generateNewEntry("dynamicallyReplaceInstructionsWithOptimizedOnes", String.valueOf(options.dynReplaceInstWithOptimizedOnes), String.valueOf(Defaults.DYN_REPLACE_INSTR_WITH_OPTIMIZED_ONES)));
+			out.write(generateNewEntry("solverManager", String.valueOf(options.solverManager), String.valueOf(Defaults.SOLVER_MANAGER)));
 
 			// Finish.
 			out.write("</" + Globals.APP_NAME + "Configuration>\n");

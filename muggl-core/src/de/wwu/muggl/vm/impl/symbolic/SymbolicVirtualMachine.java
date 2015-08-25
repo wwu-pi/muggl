@@ -17,7 +17,6 @@ import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.solvers.SolverManager;
-import de.wwu.muggl.solvers.jacop.JaCoPSolverManager;
 import de.wwu.muggl.symbolic.flow.coverage.CoverageController;
 import de.wwu.muggl.symbolic.generating.Generator;
 import de.wwu.muggl.symbolic.searchAlgorithms.SearchAlgorithm;
@@ -45,6 +44,7 @@ import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.expressions.ConstraintExpression;
 import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.Term;
+//import de.wwu.testtool.solver.SolverManagerOld;
 
 /**
  * This concrete class represents a virtual machine for the symbolic execution of java bytecode,
@@ -177,7 +177,15 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 			throws InitializationException {
 		super(application, classLoader, classFile, initialMethod);
 		Options options = Options.getInst();
-		this.solverManager = new JaCoPSolverManager();
+		try {
+			this.solverManager = (SolverManager) Class.forName(options.solverManager).newInstance();
+		} catch (InstantiationException e) {
+			throw new InitializationException("Solver manager of class " + options.solverManager + " cannot be instantiated.");
+		} catch (IllegalAccessException e) {
+			throw new InitializationException("Solver manager of class " + options.solverManager + " cannot be accessed.");
+		} catch (ClassNotFoundException e) {
+			throw new InitializationException("Solver manager of class " + options.solverManager + " does not exist.");
+		}
 		this.searchAlgorithm = searchAlgorithm;
 		this.coverage = new CoverageController(this);
 		this.trackCoverage = options.useCFCoverage && options.useDUCoverage;

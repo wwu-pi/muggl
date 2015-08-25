@@ -899,7 +899,8 @@ public class SolutionProcessor {
 						fileContents.append("\r\n"
 							+ " * Only instructions that generate choice points have been counted.");
 				}
-				fileContents.append("\r\n");
+			fileContents.append("\r\n");
+			fileContents.append(" * Solver:                     " + this.vm.getSolverManager().getClass().getCanonicalName() + "\r\n");
 			if (this.vm.isFinalized() || this.vm.getAbortionCriterionMatched()) {
 				fileContents.append(" *\r\n"
 							 + " * Execution has been aborted before it was finished.");

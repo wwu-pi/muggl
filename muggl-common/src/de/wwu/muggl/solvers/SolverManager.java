@@ -4,7 +4,6 @@ import de.wwu.testtool.exceptions.SolverUnableToDecideException;
 import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.expressions.ConstraintExpression;
 import de.wwu.muggl.solvers.Solution;
-import de.wwu.testtool.solver.constraints.ComposedConstraint;
 
 /**
  * Should take care of:
