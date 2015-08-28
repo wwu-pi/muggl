@@ -1,6 +1,5 @@
 package de.wwu.muggl.solvers.jacop;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import org.jacop.constraints.Constraint;
@@ -9,9 +8,13 @@ import org.jacop.constraints.SumWeight;
 import org.jacop.constraints.XeqC;
 import org.jacop.constraints.XeqY;
 import org.jacop.constraints.XgtC;
+import org.jacop.constraints.XgtY;
 import org.jacop.constraints.XgteqC;
+import org.jacop.constraints.XgteqY;
 import org.jacop.constraints.XltC;
+import org.jacop.constraints.XltY;
 import org.jacop.constraints.XlteqC;
+import org.jacop.constraints.XlteqY;
 import org.jacop.constraints.XmulCeqZ;
 import org.jacop.constraints.XmulYeqZ;
 import org.jacop.constraints.XneqC;
@@ -29,6 +32,7 @@ import de.wwu.testtool.expressions.HasLeftAndRightTerms;
 import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.LessOrEqual;
 import de.wwu.testtool.expressions.LessThan;
+import de.wwu.testtool.expressions.NumericConstant;
 import de.wwu.testtool.expressions.NumericEqual;
 import de.wwu.testtool.expressions.NumericNotEqual;
 import de.wwu.testtool.expressions.NumericVariable;
@@ -38,7 +42,12 @@ import de.wwu.testtool.expressions.Term;
 import de.wwu.testtool.expressions.Variable;
 
 public class JaCoPTransformer {
-	private static final IntDomain DOMAIN_INTEGER = new BoundDomain(IntDomain.MinInt,IntDomain.MaxInt);
+	private static final int DOMAIN_INTEGER_DEPRECIATION =
+			10000;
+	
+	private static final IntDomain DOMAIN_INTEGER = 
+			new BoundDomain(IntDomain.MinInt/DOMAIN_INTEGER_DEPRECIATION,
+					IntDomain.MaxInt/DOMAIN_INTEGER_DEPRECIATION);
 
 	public static void transformAndImpose(ConstraintExpression ce, JacopMugglStore store) {
 		
@@ -65,82 +74,72 @@ public class JaCoPTransformer {
 		
 		if (isInteger) {
 			if (hasConstant) {
-				int constantValue = left.isConstant() ? ((IntConstant)left).getValue() : ((IntConstant)right).getValue();
+				// {{ Integer and constant
+				int constantValue = left.isConstant() ? ((NumericConstant)left).getIntValue() : ((NumericConstant)right).getIntValue();
 				Term variableTerm = left.isConstant() ? right : left;
 				
 				// Decide whether sides will need to be switched, as constants may only appear as the right term in JaCoP.
 				// This implies mirroring the comparison for lt(e)/gt(e)
 				boolean switchSides = left.isConstant();
 
+				IntVar termVar = normaliseIntegerTerm(variableTerm, store);
+				// assert: termVar == variableTerm
+				
 				if (ce instanceof LessOrEqual) {
-					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
-					// assert: termVar == variableTerm
-					
 					if (switchSides) { 
 						resultingConstraint = new XgteqC(termVar, constantValue);
 					} else {
 						resultingConstraint = new XlteqC(termVar, constantValue);
 					}
 				} else if (ce instanceof LessThan) {
-					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
-					// assert: termVar == variableTerm
-					
 					if (switchSides) { 
 						resultingConstraint = new XgtC(termVar, constantValue);
 					} else {
 						resultingConstraint = new XltC(termVar, constantValue);
 					}
 				} else if (ce instanceof GreaterOrEqual) {
-					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
-					// assert: termVar == variableTerm
-					
 					if (switchSides) { 
 						resultingConstraint = new XlteqC(termVar, constantValue);
 					} else {
 						resultingConstraint = new XgteqC(termVar, constantValue);
 					}
 				} else if (ce instanceof GreaterThan) {
-					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
-					// assert: termVar == variableTerm
-					
 					if (switchSides) { 
 						resultingConstraint = new XltC(termVar, constantValue);
 					} else {
 						resultingConstraint = new XgtC(termVar, constantValue);
 					}
 				} else if (ce instanceof NumericEqual) {
-					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
-					// assert: termVar == variableTerm
-					
 					resultingConstraint = new XeqC(termVar, constantValue);
 				} else if (ce instanceof NumericNotEqual) {
-					IntVar termVar = normaliseIntegerTerm(variableTerm, store);
-					// assert: termVar == variableTerm
-					
 					resultingConstraint = new XneqC(termVar, constantValue);
 				} else {
 					// other type of equation with constant
 					throw new IllegalArgumentException("Unknown (with-constant, all-int) constraint type " + ce.getClass().getName());
 				}
+				// }}
 			} else {
-				// no constant, all int
+				// {{ no constant, all int
 				
-				// Decide whether constraints need to be normalised to lt(e) constraints.
-				//boolean switchSides = ce instanceof GreaterOrEqual || ce instanceof GreaterThan;
+				IntVar leftTermVar = normaliseIntegerTerm(ce.getLeft(), store);
+				IntVar rightTermVar = normaliseIntegerTerm(ce.getRight(), store);
 				
 				if (ce instanceof NumericEqual) {
-					IntVar leftTermVar = normaliseIntegerTerm(ce.getLeft(), store);
-					IntVar rightTermVar = normaliseIntegerTerm(ce.getRight(), store);
-					
 					resultingConstraint = new XeqY(leftTermVar, rightTermVar);
 				} else if (ce instanceof NumericNotEqual) {
-					IntVar leftTermVar = normaliseIntegerTerm(ce.getLeft(), store);
-					IntVar rightTermVar = normaliseIntegerTerm(ce.getRight(), store);
-					
 					resultingConstraint = new XneqY(leftTermVar, rightTermVar);
+				} else if (ce instanceof LessThan) {
+					resultingConstraint = new XltY(leftTermVar, rightTermVar);
+				} else if (ce instanceof LessOrEqual) {
+					resultingConstraint = new XlteqY(leftTermVar, rightTermVar);
+				} else if (ce instanceof GreaterThan) {
+					resultingConstraint = new XgtY(leftTermVar, rightTermVar);
+				} else if (ce instanceof GreaterOrEqual) {
+					resultingConstraint = new XgteqY(leftTermVar, rightTermVar);
 				} else {
 					throw new IllegalArgumentException("Unknown (non-constant, all-int) constraint type " + ce.getClass().getName());
 				}
+				// }}
 			}
 			
 		} else {
@@ -155,9 +154,9 @@ public class JaCoPTransformer {
 	}
 
 	private static IntVar normaliseIntegerTerm(Term integerTerm, JacopMugglStore store) {
-		if (integerTerm instanceof IntConstant) {
+		if (integerTerm instanceof NumericConstant) {
 			// for a constant, just add a variable with a very restricted domain. Should save one constraint.
-			int constantValue = ((IntConstant)integerTerm).getIntValue();
+			int constantValue = ((NumericConstant)integerTerm).getIntValue();
 			return new IntVar(store, constantValue, constantValue);
 		} else if (integerTerm instanceof NumericVariable) {
 			if ( !((NumericVariable)integerTerm).isInteger() ) {
@@ -369,7 +368,7 @@ public class JaCoPTransformer {
 	 */
 	@SuppressWarnings("unused")
 	private static int checkDFSid() {
-		Field f;
+		java.lang.reflect.Field f;
 		try {
 			f = org.jacop.search.DepthFirstSearch.class.getDeclaredField("no");
 			f.setAccessible(true);
