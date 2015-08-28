@@ -22,6 +22,24 @@ import org.jacop.constraints.XneqY;
 import org.jacop.core.BoundDomain;
 import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
+import org.jacop.floats.constraints.PeqC;
+import org.jacop.floats.constraints.PeqQ;
+import org.jacop.floats.constraints.PgtC;
+import org.jacop.floats.constraints.PgtQ;
+import org.jacop.floats.constraints.PgteqC;
+import org.jacop.floats.constraints.PgteqQ;
+import org.jacop.floats.constraints.PltC;
+import org.jacop.floats.constraints.PltQ;
+import org.jacop.floats.constraints.PlteqC;
+import org.jacop.floats.constraints.PlteqQ;
+import org.jacop.floats.constraints.PneqC;
+import org.jacop.floats.constraints.PneqQ;
+import org.jacop.floats.constraints.XeqP;
+import org.jacop.floats.core.FloatDomain;
+import org.jacop.floats.core.FloatIntervalDomain;
+import org.jacop.floats.core.FloatVar;
+
+import de.wwu.testtool.expressions.TypeCast;
 
 import de.wwu.testtool.expressions.BinaryOperation;
 import de.wwu.testtool.expressions.ConstraintExpression;
@@ -48,6 +66,9 @@ public class JaCoPTransformer {
 	private static final IntDomain DOMAIN_INTEGER = 
 			new BoundDomain(IntDomain.MinInt/DOMAIN_INTEGER_DEPRECIATION,
 					IntDomain.MaxInt/DOMAIN_INTEGER_DEPRECIATION);
+
+	private static final FloatDomain DOMAIN_FLOAT = 
+			new FloatIntervalDomain(FloatDomain.MinFloat, FloatDomain.MaxFloat);
 
 	public static void transformAndImpose(ConstraintExpression ce, JacopMugglStore store) {
 		
@@ -144,13 +165,106 @@ public class JaCoPTransformer {
 			
 		} else {
 			// At least one variable is a float variable.
-			//TODO
-			throw new IllegalArgumentException("Unknown (non-int) constraint type " + ce.getClass().getName());
-			//TODO Special case: One is integer
+			if (hasConstant) {
+				// {{ Float and constant
+				double constantValue = left.isConstant() ? ((NumericConstant)left).getDoubleValue() : ((NumericConstant)right).getDoubleValue();
+				Term variableTerm = left.isConstant() ? right : left;
+				
+				// Decide whether sides will need to be switched, as constants may only appear as the right term in JaCoP.
+				// This implies mirroring the comparison for lt(e)/gt(e)
+				boolean switchSides = left.isConstant();
+
+				FloatVar termVar;
+				if (isInteger(ce.getLeft())) {
+					IntVar termInt = normaliseIntegerTerm(ce.getLeft(), store);
+					termVar = new FloatVar(store, DOMAIN_FLOAT);
+					store.impose( new XeqP(termInt, termVar) );
+				} else {
+					termVar = normaliseFloatTerm(ce.getLeft(), store);
+				}
+				
+				termVar = normaliseFloatTerm(variableTerm, store);
+				// assert: termVar == variableTerm
+
+				if (ce instanceof LessOrEqual) {
+					if (switchSides) { 
+						resultingConstraint = new PgteqC(termVar, constantValue);
+					} else {
+						resultingConstraint = new PlteqC(termVar, constantValue);
+					}
+				} else if (ce instanceof LessThan) {
+					if (switchSides) { 
+						resultingConstraint = new PgtC(termVar, constantValue);
+					} else {
+						resultingConstraint = new PltC(termVar, constantValue);
+					}
+				} else if (ce instanceof GreaterOrEqual) {
+					if (switchSides) { 
+						resultingConstraint = new PlteqC(termVar, constantValue);
+					} else {
+						resultingConstraint = new PgteqC(termVar, constantValue);
+					}
+				} else if (ce instanceof GreaterThan) {
+					if (switchSides) { 
+						resultingConstraint = new PltC(termVar, constantValue);
+					} else {
+						resultingConstraint = new PgtC(termVar, constantValue);
+					}
+				} else if (ce instanceof NumericEqual) {
+					resultingConstraint = new PeqC(termVar, constantValue);
+				} else if (ce instanceof NumericNotEqual) {
+					resultingConstraint = new PneqC(termVar, constantValue);
+				} else {
+					// other type of equation with constant
+					throw new IllegalArgumentException("Unknown (with-constant, floating-point) constraint type " + ce.getClass().getName());
+				}
+				// }}
+			} else {
+				// {{ no constant, with float
+
+				FloatVar leftTermVar;
+				FloatVar rightTermVar; 
+				if (isInteger(ce.getLeft())) {
+					IntVar leftTermInt = normaliseIntegerTerm(ce.getLeft(), store);
+					leftTermVar = new FloatVar(store, DOMAIN_FLOAT);
+					store.impose( new XeqP(leftTermInt, leftTermVar) );
+				} else {
+					leftTermVar = normaliseFloatTerm(ce.getLeft(), store);
+				}
+				if (isInteger(ce.getRight())) {
+					IntVar rightTermInt = normaliseIntegerTerm(ce.getRight(), store);
+					rightTermVar = new FloatVar(store, DOMAIN_FLOAT);
+					store.impose( new XeqP(rightTermInt, rightTermVar) );
+				} else {
+					rightTermVar = normaliseFloatTerm(ce.getRight(), store);
+				}
+				
+				if (ce instanceof NumericEqual) {
+					resultingConstraint = new PeqQ(leftTermVar, rightTermVar);
+				} else if (ce instanceof NumericNotEqual) {
+					resultingConstraint = new PneqQ(leftTermVar, rightTermVar);
+				} else if (ce instanceof LessThan) {
+					resultingConstraint = new PltQ(leftTermVar, rightTermVar);
+				} else if (ce instanceof LessOrEqual) {
+					resultingConstraint = new PlteqQ(leftTermVar, rightTermVar);
+				} else if (ce instanceof GreaterThan) {
+					resultingConstraint = new PgtQ(leftTermVar, rightTermVar);
+				} else if (ce instanceof GreaterOrEqual) {
+					resultingConstraint = new PgteqQ(leftTermVar, rightTermVar);
+				} else {
+					throw new IllegalArgumentException("Unknown (non-constant, floating-point) constraint type " + ce.getClass().getName());
+				}
+				// }}
+			}
 		}
 		
 		store.impose(resultingConstraint);
 		
+	}
+
+	private static FloatVar normaliseFloatTerm(Term floatTerm,
+			JacopMugglStore store) {
+		throw new IllegalArgumentException("Unknown float term type " + floatTerm.getClass().getName());
 	}
 
 	private static IntVar normaliseIntegerTerm(Term integerTerm, JacopMugglStore store) {
@@ -356,6 +470,8 @@ public class JaCoPTransformer {
 		} else if (term instanceof BinaryOperation) {
 			return isInteger( ((BinaryOperation)term).getLeft() ) && 
 					isInteger( ((BinaryOperation)term).getRight() );
+		} else if (term instanceof TypeCast) {
+			return Term.isIntegerType(((TypeCast)term).getType());
 		}
 		throw new IllegalArgumentException("Unknown term type " + term.getClass().getName());
 	}
