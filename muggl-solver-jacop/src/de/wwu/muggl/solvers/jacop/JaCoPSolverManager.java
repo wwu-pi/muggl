@@ -126,6 +126,10 @@ public class JaCoPSolverManager implements SolverManager {
 		listeners.fireGetSolutionStarted(this);
 		long startTime = System.nanoTime();
 		
+		if (jacopStore.level == 0) {
+			return new Solution();
+		}
+		
 		//TODO correct var type? Note: BooleanVar extends IntVar!
 		IntVar[] vars = jacopStore.getIntVariables(); /* new IntVar[jacopStore.size()];
 		for (int i = 0; i < jacopStore.size(); i++) {
@@ -202,6 +206,8 @@ public class JaCoPSolverManager implements SolverManager {
 
 		listeners.fireHasSolutionStarted(this);
 		long startTime = System.nanoTime();
+		
+		if (jacopStore.level == 0) return true;
 		
 		// "The result true only indicates that inconsistency cannot be found. In other
 		// words, since the finite domain solver is not complete it does not automatically mean
