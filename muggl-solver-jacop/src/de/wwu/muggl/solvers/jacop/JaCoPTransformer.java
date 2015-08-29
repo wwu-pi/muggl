@@ -365,9 +365,6 @@ public class JaCoPTransformer {
 			sumConstraint = new SumWeight(termList, weightList, intermediateVariable);
 		}
 
-		System.out.println(sumConstraint.toString());
-		System.out.println(weightList.toString());
-		
 		store.impose(sumConstraint);
 		return intermediateVariable;
 		
@@ -391,7 +388,7 @@ public class JaCoPTransformer {
 				integerSum.getLeft() instanceof Difference) {
 			leftAllWeightsEqOne = normaliseIntegerSumRecursive((BinaryOperation) integerSum.getLeft(), store, termList, weightList, negate);
 		} else {
-			leftAllWeightsEqOne = processTermOrSimpleProductAndTestWeightEqOne(store, 
+			leftAllWeightsEqOne = processIntegerTermOrSimpleProductAndTestWeightEqOne(store, 
 					termList, weightList, integerSum.getLeft(), negate); //TODO negation
 		}
 		
@@ -402,14 +399,14 @@ public class JaCoPTransformer {
 				integerSum.getRight() instanceof Difference) {
 			rightAllWeightsEqOne = normaliseIntegerSumRecursive((BinaryOperation) integerSum.getRight(), store, termList, weightList, negateRHS);
 		} else {
-			rightAllWeightsEqOne = processTermOrSimpleProductAndTestWeightEqOne(store, 
+			rightAllWeightsEqOne = processIntegerTermOrSimpleProductAndTestWeightEqOne(store, 
 					termList, weightList, integerSum.getRight(), negateRHS); //TODO negation
 		}
 		
 		return leftAllWeightsEqOne && rightAllWeightsEqOne;
 	}
 
-	private static boolean processTermOrSimpleProductAndTestWeightEqOne(JacopMugglStore store,
+	private static boolean processIntegerTermOrSimpleProductAndTestWeightEqOne(JacopMugglStore store,
 			ArrayList<IntVar> termList, ArrayList<Integer> weightList, Term term, boolean negate) {
 		
 		int weight;
