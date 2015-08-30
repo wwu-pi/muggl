@@ -1,5 +1,7 @@
 package de.wwu.muggl.vm;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Stack;
 
 import org.apache.log4j.Level;
@@ -296,6 +298,12 @@ public abstract class VirtualMachine extends Thread {
 				Globals.getInst().execLogger.error("Error during the execution, halting the virtual machine: " + this.errorMessage);
 		} catch (Exception e) {
 			this.errorMessage = "General exception of type " + e.getClass().getName() + ": " + e.getMessage();
+			// {{ add stack trace to string
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+			this.errorMessage += "\n" + sw.toString();
+			// }}
 			this.errorOccured = true;
 			this.nextStepReady = false;
 			if (!this.finalized) this.application.finalizeApplication();
