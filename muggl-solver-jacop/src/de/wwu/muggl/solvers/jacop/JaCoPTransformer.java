@@ -15,6 +15,7 @@ import org.jacop.constraints.XltC;
 import org.jacop.constraints.XltY;
 import org.jacop.constraints.XlteqC;
 import org.jacop.constraints.XlteqY;
+import org.jacop.constraints.XmodYeqZ;
 import org.jacop.constraints.XmulCeqZ;
 import org.jacop.constraints.XmulYeqZ;
 import org.jacop.constraints.XneqC;
@@ -32,8 +33,11 @@ import org.jacop.floats.constraints.PltC;
 import org.jacop.floats.constraints.PltQ;
 import org.jacop.floats.constraints.PlteqC;
 import org.jacop.floats.constraints.PlteqQ;
+import org.jacop.floats.constraints.PminusQeqR;
+import org.jacop.floats.constraints.PmulQeqR;
 import org.jacop.floats.constraints.PneqC;
 import org.jacop.floats.constraints.PneqQ;
+import org.jacop.floats.constraints.PplusQeqR;
 import org.jacop.floats.constraints.XeqP;
 import org.jacop.floats.core.FloatDomain;
 import org.jacop.floats.core.FloatIntervalDomain;
@@ -50,6 +54,7 @@ import de.wwu.testtool.expressions.HasLeftAndRightTerms;
 import de.wwu.testtool.expressions.IntConstant;
 import de.wwu.testtool.expressions.LessOrEqual;
 import de.wwu.testtool.expressions.LessThan;
+import de.wwu.testtool.expressions.Modulo;
 import de.wwu.testtool.expressions.NumericConstant;
 import de.wwu.testtool.expressions.NumericEqual;
 import de.wwu.testtool.expressions.NumericNotEqual;
@@ -61,7 +66,7 @@ import de.wwu.testtool.expressions.Variable;
 
 public class JaCoPTransformer {
 	private static final int DOMAIN_INTEGER_DEPRECIATION =
-			10000;
+			1000000;
 	
 	private static final IntDomain DOMAIN_INTEGER = 
 			new BoundDomain(IntDomain.MinInt/DOMAIN_INTEGER_DEPRECIATION,
@@ -264,6 +269,63 @@ public class JaCoPTransformer {
 
 	private static FloatVar normaliseFloatTerm(Term floatTerm,
 			JacopMugglStore store) {
+		if (floatTerm instanceof NumericConstant) {
+			// for a constant, just add a variable with a very restricted domain. Should save one constraint.
+			double constantValue = ((NumericConstant)floatTerm).getDoubleValue();
+			return new FloatVar(store, constantValue, constantValue);
+		} else if (floatTerm instanceof NumericVariable) {
+			FloatVar floatVar = (FloatVar) store.getVariable((Variable)floatTerm);
+			
+			if (floatVar == null) {
+				floatVar = new FloatVar(store, 
+					((NumericVariable)floatTerm).getInternalName(), 
+					DOMAIN_FLOAT);
+				// add to cache
+				store.addVariable((Variable)floatTerm, floatVar);
+			}
+			return floatVar;
+		} else if (floatTerm instanceof TypeCast) {
+			TypeCast cast = (TypeCast)floatTerm;
+			// implicit: this casts to from integer to float
+			
+			IntVar original = normaliseIntegerTerm(cast.getInternalTerm(), store);
+			FloatVar casted = new FloatVar(store, DOMAIN_FLOAT);
+			store.impose(new XeqP(original, casted));
+			return casted;
+		} else if (floatTerm instanceof Sum) {
+			// TODO handle one side is constant
+			Sum floatSum = (Sum) floatTerm;
+			FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
+			FloatVar lhs = normaliseFloatTerm(floatSum.getLeft(), store);
+			FloatVar rhs = normaliseFloatTerm(floatSum.getRight(), store);
+			store.impose(
+					new PplusQeqR(lhs, rhs, 
+							floatVar)
+					);
+			return floatVar;
+		} else if (floatTerm instanceof Difference) {
+			// TODO handle one side is constant
+			Difference floatDifference = (Difference) floatTerm;
+			FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
+			FloatVar lhs = normaliseFloatTerm(floatDifference.getLeft(), store);
+			FloatVar rhs = normaliseFloatTerm(floatDifference.getRight(), store);
+			store.impose(
+					new PminusQeqR(lhs, rhs, 
+							floatVar)
+					);
+			return floatVar;
+		} else if (floatTerm instanceof Product) {
+			// TODO handle one side is constant
+			Product floatProduct = (Product) floatTerm;
+			FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
+			FloatVar lhs = normaliseFloatTerm(floatProduct.getLeft(), store);
+			FloatVar rhs = normaliseFloatTerm(floatProduct.getRight(), store);
+			store.impose(
+					new PmulQeqR(lhs, rhs, 
+							floatVar)
+					);
+			return floatVar;
+		}
 		throw new IllegalArgumentException("Unknown float term type " + floatTerm.getClass().getName());
 	}
 
@@ -287,10 +349,24 @@ public class JaCoPTransformer {
 				store.addVariable((Variable)integerTerm, intVar);
 			}
 			return intVar;
+		} else if (integerTerm instanceof TypeCast) {
+			TypeCast cast = (TypeCast)integerTerm;
+			// implicit: this casts to from float to integer
+			
+			FloatVar original = normaliseFloatTerm(cast.getInternalTerm(), store);
+			IntVar casted = new IntVar(store, DOMAIN_INTEGER);
+			store.impose(new XeqP(casted, original));
+			return casted;
 		} else if (integerTerm instanceof Sum || integerTerm instanceof Difference) {
 			return normaliseIntegerSumOrDifference((BinaryOperation)integerTerm, store);
 		} else if (integerTerm instanceof Product) {
 			return normaliseIntegerProduct((Product)integerTerm, store);
+		} else if (integerTerm instanceof Modulo) {
+			IntVar lhs = normaliseIntegerTerm(((Modulo)integerTerm).getLeft(), store);
+			IntVar rhs = normaliseIntegerTerm(((Modulo)integerTerm).getRight(), store);
+			IntVar result = new IntVar(store, DOMAIN_INTEGER);
+			store.impose(new XmodYeqZ(lhs, rhs, result));
+			return result;
 		} else {
 			throw new IllegalArgumentException("Unknown integer term type " + integerTerm.getClass().getName());
 		}
