@@ -4,6 +4,11 @@ import org.apache.log4j.Logger;
 import org.jacop.core.Domain;
 import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
+import org.jacop.core.Var;
+import org.jacop.floats.core.FloatDomain;
+import org.jacop.floats.core.FloatVar;
+import org.jacop.floats.search.SmallestDomainFloat;
+import org.jacop.floats.search.SplitSelectFloat;
 import org.jacop.search.DepthFirstSearch;
 import org.jacop.search.IndomainMin;
 import org.jacop.search.Search;
@@ -21,6 +26,7 @@ import de.wwu.testtool.conf.SolverManagerConfig;
 import de.wwu.testtool.exceptions.SolverUnableToDecideException;
 import de.wwu.testtool.exceptions.TimeoutException;
 import de.wwu.testtool.expressions.ConstraintExpression;
+import de.wwu.testtool.expressions.DoubleConstant;
 import de.wwu.testtool.expressions.NumericConstant;
 import de.wwu.testtool.expressions.Variable;
 
@@ -37,7 +43,7 @@ public class JaCoPSolverManager implements SolverManager {
 	protected JacopMugglStore jacopStore;
 
 	private Logger logger;
-	
+
 	/**
 	 * Creates a new Solver Manager object and initializes it with a stream that
 	 * collects the logging informations if wanted.
@@ -50,7 +56,7 @@ public class JaCoPSolverManager implements SolverManager {
 			logger.debug("SolverManager started");
 
 		SolverManagerConfig solverConf = SolverManagerConfig.getInstance();
-		
+
 		jacopStore = new JacopMugglStore();
 
 		listeners = new SolverManagerListenerList();
@@ -58,9 +64,8 @@ public class JaCoPSolverManager implements SolverManager {
 			listeners.addListener(listener);
 			if (logger.isDebugEnabled())
 				logger.debug("SolverManager: added listener "
-					+ listener.getClass().getName());
+						+ listener.getClass().getName());
 		}
-
 
 	}
 
@@ -79,11 +84,11 @@ public class JaCoPSolverManager implements SolverManager {
 		jacopStore.setLevel(jacopStore.level + 1);
 		JaCoPTransformer.transformAndImpose(ce, jacopStore);
 
-		listeners.fireAddConstraint(this, ce, null); 
+		listeners.fireAddConstraint(this, ce, null);
 
 		// TODO use Muggl logging
 		if (logger.isDebugEnabled())
-				logger.debug("Add: ce: " + ce);
+			logger.debug("Add: ce: " + ce);
 		if (logger.isTraceEnabled()) {
 			logger.trace(jacopStore.toString());
 			logger.trace(jacopStore.toStringChangedEl());
@@ -116,67 +121,94 @@ public class JaCoPSolverManager implements SolverManager {
 	 * @see de.wwu.muggl.solvers.Solution#NOSOLUTION
 	 */
 	@Override
-	public Solution getSolution() throws SolverUnableToDecideException,
-			TimeoutException {
+	public Solution getSolution()
+			throws SolverUnableToDecideException, TimeoutException {
 
 		if (logger.isDebugEnabled())
-			logger.debug("getSolution"); 
-		
+			logger.debug("getSolution");
 
 		listeners.fireGetSolutionStarted(this);
 		long startTime = System.nanoTime();
-		
+
 		if (jacopStore.level == 0) {
 			return new Solution();
 		}
-		
-		//TODO correct var type? Note: BooleanVar extends IntVar!
-		IntVar[] vars = jacopStore.getIntVariables(); /* new IntVar[jacopStore.size()];
-		for (int i = 0; i < jacopStore.size(); i++) {
-			vars[i] = (IntVar)jacopStore.vars[i];
-		}/**///jacopStore.getIntVariables();
-		SelectChoicePoint<IntVar> select =
-			new SimpleSelect<IntVar>(vars,
-			new SmallestDomain<IntVar>(),
-			new IndomainMin<IntVar>());
 
-		Search<IntVar> label = new DepthFirstSearch<IntVar>();
-		boolean solutionFound = label.labeling(jacopStore, select);
+		IntVar[] vars = jacopStore.getIntVariables();
+		SelectChoicePoint<IntVar> select = new SimpleSelect<IntVar>(vars,
+				new SmallestDomain<IntVar>(), new IndomainMin<IntVar>());
+
+		FloatVar[] floatVars = jacopStore.getFloatVariables();
+		SplitSelectFloat<FloatVar> selectFloat = new SplitSelectFloat<FloatVar>(
+				jacopStore, floatVars, new SmallestDomainFloat<FloatVar>());
+
+		boolean solutionFound;
+		Search<?> search;
 		
+		if (vars.length > 0 && floatVars.length > 0) {
+			// Sequential search
+			// "The search works in sequence, that is first the parent is solved and **then** the child search is solved.
+			// There is backtracking between parent and child search.
+			// If, for example, the child search fails it backtracks to the parent search, and so on." (Kris Kuchcinski)
+
+			Search<IntVar> labelInt = new DepthFirstSearch<IntVar>();
+			Search<FloatVar> labelFloat = new DepthFirstSearch<FloatVar>();
+
+			labelFloat.setSelectChoicePoint(selectFloat);
+			labelInt.addChildSearch(labelFloat);
+			
+			solutionFound = labelInt.labeling(jacopStore, select) && labelInt.assignSolution();
+			search = labelInt;
+		} else if (vars.length > 0) {
+			// IntVars only
+			Search<IntVar> labelInt = new DepthFirstSearch<IntVar>();
+			solutionFound = labelInt.labeling(jacopStore, select) && labelInt.assignSolution();
+			search = labelInt;
+		} else {
+			// FloatVars only
+			Search<FloatVar> labelFloat = new DepthFirstSearch<FloatVar>();
+			solutionFound = labelFloat.labeling(jacopStore, selectFloat) && labelFloat.assignSolution();
+			search = labelFloat;
+		}
+		
+		
+
 		Solution result;
-		
-		if (!solutionFound || !label.assignSolution()) { // TODO is this assumption on labeling() correct?
+
+		if (!solutionFound) { 
 			result = Solution.NOSOLUTION;
 		} else {
 			result = new Solution();
-			//label.getSolutionListener().printAllSolutions();
-			Domain[] solution = label.getSolution();
-            for(int i = 0; i < solution.length; i++) {
-            	Variable variable = jacopStore.getVariable(vars[i]);
-            	if (variable == null) {
-            		continue;
-            	}
-            	System.out.print(vars[i].id() + " ");
-            	System.out.print(variable + " = ");
-            	System.out.println(solution[i]);
-            	
-            	result.addBinding(variable, 
-            			NumericConstant.getInstance(((IntDomain)solution[i]).min(), NumericConstant.INT)
-            			);
-            }
-			
+			// label.getSolutionListener().printAllSolutions();
+			Domain[] solution = search.getSolution();
+			Var[] variables = search.getVariables();
+			for (int i = 0; i < solution.length; i++) {
+				Variable variable = jacopStore.getVariable(variables[i]);
+				if (variable == null) {
+					continue;
+				}
+				System.out.print(variables[i].id() + " ");
+				System.out.print(variable + " = ");
+				System.out.println(solution[i]);
+
+				if (solution[i] instanceof IntDomain) {
+					result.addBinding(variable, NumericConstant.getInstance(
+						((IntDomain) solution[i]).min(), NumericConstant.INT));
+				} else {
+					result.addBinding(variable, DoubleConstant.getInstance(
+						((FloatDomain) solution[i]).min()));
+				}
+			}
+
 		}
-		listeners.fireGetSolutionFinished(this, result, System.nanoTime()
-				- startTime);
+		listeners.fireGetSolutionFinished(this, result,
+				System.nanoTime() - startTime);
 		if (logger.isDebugEnabled())
 			System.out.println("solution: " + result);
-		
+
 		return result;
 
-		
 	}
-
-
 
 	/**
 	 * Checks whether a solution exists for the system of constraints stored in
@@ -197,8 +229,8 @@ public class JaCoPSolverManager implements SolverManager {
 	 *             time limits before being able to decide about the given
 	 *             problem.
 	 */
-	public boolean hasSolution() throws SolverUnableToDecideException,
-			TimeoutException {
+	public boolean hasSolution()
+			throws SolverUnableToDecideException, TimeoutException {
 
 		// RafaC
 		if (logger.isDebugEnabled())
@@ -206,46 +238,40 @@ public class JaCoPSolverManager implements SolverManager {
 
 		listeners.fireHasSolutionStarted(this);
 		long startTime = System.nanoTime();
-		
-		if (jacopStore.level == 0) return true;
-		
-		// "The result true only indicates that inconsistency cannot be found. In other
-		// words, since the finite domain solver is not complete it does not automatically mean
+
+		if (jacopStore.level == 0)
+			return true;
+
+		// "The result true only indicates that inconsistency cannot be found.
+		// In other
+		// words, since the finite domain solver is not complete it does not
+		// automatically mean
 		// that the store is consistent."(JaCoP Guide, Ch. 2, p. 12)
 		boolean result = jacopStore.consistency();
-		
-		listeners.fireHasSolutionFinished(this, result , System.nanoTime()
-				- startTime);
-														if (logger.isDebugEnabled())
-															logger.debug(result);
+
+		listeners.fireHasSolutionFinished(this, result,
+				System.nanoTime() - startTime);
+		if (logger.isDebugEnabled())
+			logger.debug(result);
 		return result;
 
-		/*if (constraintStack.getSystemCount() == 0) {
-			listeners.fireHasSolutionFinished(this, true, System.nanoTime()
-					- startTime);
-														if (logger.isDebugEnabled())
-															logger.debug("true ");
-
-			return true;
-		}
-
-		int idx = constraintStack.getFirstNoncontradictorySystemIndex();
-		while (idx < constraintStack.getSystemCount()) {
-			if (hasSolution(idx)) {
-				listeners.fireHasSolutionFinished(this, true, System.nanoTime()
-						- startTime);
-														if (logger.isDebugEnabled())
-															logger.debug("true ");
-				return true;
-			}
-
-			idx++;
-		}
-		listeners.fireHasSolutionFinished(this, false, System.nanoTime()
-				- startTime);
-														if (logger.isDebugEnabled())
-															logger.debug("false");
-		return false;*/
+		/*
+		 * if (constraintStack.getSystemCount() == 0) {
+		 * listeners.fireHasSolutionFinished(this, true, System.nanoTime() -
+		 * startTime); if (logger.isDebugEnabled()) logger.debug("true ");
+		 * 
+		 * return true; }
+		 * 
+		 * int idx = constraintStack.getFirstNoncontradictorySystemIndex();
+		 * while (idx < constraintStack.getSystemCount()) { if
+		 * (hasSolution(idx)) { listeners.fireHasSolutionFinished(this, true,
+		 * System.nanoTime() - startTime); if (logger.isDebugEnabled())
+		 * logger.debug("true "); return true; }
+		 * 
+		 * idx++; } listeners.fireHasSolutionFinished(this, false,
+		 * System.nanoTime() - startTime); if (logger.isDebugEnabled())
+		 * logger.debug("false"); return false;
+		 */
 	}
 
 	/**
@@ -253,21 +279,22 @@ public class JaCoPSolverManager implements SolverManager {
 	 */
 	public void removeConstraint() {
 		if (jacopStore.level <= 0) {
-			throw new IllegalStateException("Trying to remove constraint when level is already 0");
+			throw new IllegalStateException(
+					"Trying to remove constraint when level is already 0");
 		}
 		jacopStore.removeLevel(jacopStore.level);
 		jacopStore.setLevel(jacopStore.level - 1);
-		
+
 		listeners.fireConstraintRemoved(this);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Remove constraint");
 		}
-		if (logger.isTraceEnabled()) {	
+		if (logger.isTraceEnabled()) {
 			logger.trace(jacopStore.toString());
 			logger.trace(jacopStore.toStringChangedEl());
 		}
-															
+
 	}
 
 	public void reset() {
@@ -278,9 +305,10 @@ public class JaCoPSolverManager implements SolverManager {
 			jacopStore.removeLevel(jacopStore.level);
 			jacopStore.setLevel(jacopStore.level - 1);
 		}
-		// afterwards, jacopStore.level is 0. 
+		// afterwards, jacopStore.level is 0.
 		// Assumption: Level is always raised before adding a constraint.
-		// Therefore, there are no constraints at level 0 that would need to be removed.
+		// Therefore, there are no constraints at level 0 that would need to be
+		// removed.
 	}
 
 	private void addShutdownHook() {

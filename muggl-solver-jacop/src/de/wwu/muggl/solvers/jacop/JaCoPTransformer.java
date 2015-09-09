@@ -65,15 +65,16 @@ import de.wwu.testtool.expressions.Term;
 import de.wwu.testtool.expressions.Variable;
 
 public class JaCoPTransformer {
-	private static final int DOMAIN_INTEGER_DEPRECIATION =
+	private static final int DOMAIN_DEPRECIATION =
 			1000000;
 	
 	private static final IntDomain DOMAIN_INTEGER = 
-			new BoundDomain(IntDomain.MinInt/DOMAIN_INTEGER_DEPRECIATION,
-					IntDomain.MaxInt/DOMAIN_INTEGER_DEPRECIATION);
+			new BoundDomain(IntDomain.MinInt/DOMAIN_DEPRECIATION,
+					IntDomain.MaxInt/DOMAIN_DEPRECIATION);
 
 	private static final FloatDomain DOMAIN_FLOAT = 
-			new FloatIntervalDomain(FloatDomain.MinFloat, FloatDomain.MaxFloat);
+			new FloatIntervalDomain(FloatDomain.MinFloat/DOMAIN_DEPRECIATION, 
+					FloatDomain.MaxFloat/DOMAIN_DEPRECIATION);
 
 	public static void transformAndImpose(ConstraintExpression ce, JacopMugglStore store) {
 		
