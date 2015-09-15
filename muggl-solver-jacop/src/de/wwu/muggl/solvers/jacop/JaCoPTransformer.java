@@ -3,6 +3,7 @@ package de.wwu.muggl.solvers.jacop;
 import java.util.ArrayList;
 
 import org.jacop.constraints.Constraint;
+import org.jacop.constraints.PrimitiveConstraint;
 import org.jacop.constraints.SumInt;
 import org.jacop.constraints.SumWeight;
 import org.jacop.constraints.XeqC;
@@ -59,6 +60,7 @@ import de.wwu.testtool.expressions.NumericConstant;
 import de.wwu.testtool.expressions.NumericEqual;
 import de.wwu.testtool.expressions.NumericNotEqual;
 import de.wwu.testtool.expressions.NumericVariable;
+import de.wwu.testtool.expressions.Or;
 import de.wwu.testtool.expressions.Product;
 import de.wwu.testtool.expressions.Sum;
 import de.wwu.testtool.expressions.Term;
@@ -79,25 +81,55 @@ public class JaCoPTransformer {
 	public static void transformAndImpose(ConstraintExpression ce, JacopMugglStore store) {
 		
 		if (ce instanceof HasLeftAndRightTerms) {
-			generateEquation((HasLeftAndRightTerms) ce, store);
+			imposeEquation((HasLeftAndRightTerms) ce, store);
+		} else if (ce instanceof Or) {
+			imposeDisjunction((Or)ce, store);
 		} else {
 			throw new IllegalArgumentException("Unknown constraint type " + ce.getClass().getName());
 		}
 	}
 
-	private static void generateEquation(HasLeftAndRightTerms ce, JacopMugglStore store) {
-		System.out.println("Transforming equation " + ce);
+	private static void imposeDisjunction(Or ce, JacopMugglStore store) {
+		ConstraintExpression e1 = ce.getE1();
+		ConstraintExpression e2 = ce.getE1();
+
+		PrimitiveConstraint consE1 = generateEquationConstraint((HasLeftAndRightTerms) e1, store);
+		PrimitiveConstraint consE2 = generateEquationConstraint((HasLeftAndRightTerms) e2, store);
+		
+		org.jacop.constraints.Or resultingConstraint = new org.jacop.constraints.Or(consE1, consE2);
+		store.impose(resultingConstraint);
+	}
+
+	private static void imposeEquation(HasLeftAndRightTerms ce, JacopMugglStore store) {
+		//System.out.println("Transforming equation " + ce);
 		Term left = ce.getLeft();
 		Term right = ce.getRight();
 		
 		if (left.isConstant() && right.isConstant()) { // sanity check (AND no JaCoP constraint would exist for this)
 			throw new IllegalStateException("Both terms of the equation " + ce + " are constant. Why was this constraint added in the first place?");
 		}
+
+		Constraint resultingConstraint = generateEquationConstraint(ce, store);
+		
+		store.impose(resultingConstraint);
+		
+	}
+
+	/**
+	 * @param ce
+	 * @param store
+	 * @param left
+	 * @param right
+	 * @param resultingConstraint
+	 * @return
+	 */
+	private static PrimitiveConstraint generateEquationConstraint(
+			HasLeftAndRightTerms ce, JacopMugglStore store) {
+		Term left = ce.getLeft();
+		Term right = ce.getRight();
 		
 		boolean hasConstant = left.isConstant() || right.isConstant();
 		boolean isInteger = isInteger(left) && isInteger(right);
-		
-		Constraint resultingConstraint;
 		
 		if (isInteger) {
 			if (hasConstant) {
@@ -114,32 +146,32 @@ public class JaCoPTransformer {
 				
 				if (ce instanceof LessOrEqual) {
 					if (switchSides) { 
-						resultingConstraint = new XgteqC(termVar, constantValue);
+						return new XgteqC(termVar, constantValue);
 					} else {
-						resultingConstraint = new XlteqC(termVar, constantValue);
+						return new XlteqC(termVar, constantValue);
 					}
 				} else if (ce instanceof LessThan) {
 					if (switchSides) { 
-						resultingConstraint = new XgtC(termVar, constantValue);
+						return new XgtC(termVar, constantValue);
 					} else {
-						resultingConstraint = new XltC(termVar, constantValue);
+						return new XltC(termVar, constantValue);
 					}
 				} else if (ce instanceof GreaterOrEqual) {
 					if (switchSides) { 
-						resultingConstraint = new XlteqC(termVar, constantValue);
+						return new XlteqC(termVar, constantValue);
 					} else {
-						resultingConstraint = new XgteqC(termVar, constantValue);
+						return new XgteqC(termVar, constantValue);
 					}
 				} else if (ce instanceof GreaterThan) {
 					if (switchSides) { 
-						resultingConstraint = new XltC(termVar, constantValue);
+						return new XltC(termVar, constantValue);
 					} else {
-						resultingConstraint = new XgtC(termVar, constantValue);
+						return new XgtC(termVar, constantValue);
 					}
 				} else if (ce instanceof NumericEqual) {
-					resultingConstraint = new XeqC(termVar, constantValue);
+					return new XeqC(termVar, constantValue);
 				} else if (ce instanceof NumericNotEqual) {
-					resultingConstraint = new XneqC(termVar, constantValue);
+					return new XneqC(termVar, constantValue);
 				} else {
 					// other type of equation with constant
 					throw new IllegalArgumentException("Unknown (with-constant, all-int) constraint type " + ce.getClass().getName());
@@ -152,17 +184,17 @@ public class JaCoPTransformer {
 				IntVar rightTermVar = normaliseIntegerTerm(ce.getRight(), store);
 				
 				if (ce instanceof NumericEqual) {
-					resultingConstraint = new XeqY(leftTermVar, rightTermVar);
+					return new XeqY(leftTermVar, rightTermVar);
 				} else if (ce instanceof NumericNotEqual) {
-					resultingConstraint = new XneqY(leftTermVar, rightTermVar);
+					return new XneqY(leftTermVar, rightTermVar);
 				} else if (ce instanceof LessThan) {
-					resultingConstraint = new XltY(leftTermVar, rightTermVar);
+					return new XltY(leftTermVar, rightTermVar);
 				} else if (ce instanceof LessOrEqual) {
-					resultingConstraint = new XlteqY(leftTermVar, rightTermVar);
+					return new XlteqY(leftTermVar, rightTermVar);
 				} else if (ce instanceof GreaterThan) {
-					resultingConstraint = new XgtY(leftTermVar, rightTermVar);
+					return new XgtY(leftTermVar, rightTermVar);
 				} else if (ce instanceof GreaterOrEqual) {
-					resultingConstraint = new XgteqY(leftTermVar, rightTermVar);
+					return new XgteqY(leftTermVar, rightTermVar);
 				} else {
 					throw new IllegalArgumentException("Unknown (non-constant, all-int) constraint type " + ce.getClass().getName());
 				}
@@ -194,32 +226,32 @@ public class JaCoPTransformer {
 
 				if (ce instanceof LessOrEqual) {
 					if (switchSides) { 
-						resultingConstraint = new PgteqC(termVar, constantValue);
+						return new PgteqC(termVar, constantValue);
 					} else {
-						resultingConstraint = new PlteqC(termVar, constantValue);
+						return new PlteqC(termVar, constantValue);
 					}
 				} else if (ce instanceof LessThan) {
 					if (switchSides) { 
-						resultingConstraint = new PgtC(termVar, constantValue);
+						return new PgtC(termVar, constantValue);
 					} else {
-						resultingConstraint = new PltC(termVar, constantValue);
+						return new PltC(termVar, constantValue);
 					}
 				} else if (ce instanceof GreaterOrEqual) {
 					if (switchSides) { 
-						resultingConstraint = new PlteqC(termVar, constantValue);
+						return new PlteqC(termVar, constantValue);
 					} else {
-						resultingConstraint = new PgteqC(termVar, constantValue);
+						return new PgteqC(termVar, constantValue);
 					}
 				} else if (ce instanceof GreaterThan) {
 					if (switchSides) { 
-						resultingConstraint = new PltC(termVar, constantValue);
+						return new PltC(termVar, constantValue);
 					} else {
-						resultingConstraint = new PgtC(termVar, constantValue);
+						return new PgtC(termVar, constantValue);
 					}
 				} else if (ce instanceof NumericEqual) {
-					resultingConstraint = new PeqC(termVar, constantValue);
+					return new PeqC(termVar, constantValue);
 				} else if (ce instanceof NumericNotEqual) {
-					resultingConstraint = new PneqC(termVar, constantValue);
+					return new PneqC(termVar, constantValue);
 				} else {
 					// other type of equation with constant
 					throw new IllegalArgumentException("Unknown (with-constant, floating-point) constraint type " + ce.getClass().getName());
@@ -246,26 +278,23 @@ public class JaCoPTransformer {
 				}
 				
 				if (ce instanceof NumericEqual) {
-					resultingConstraint = new PeqQ(leftTermVar, rightTermVar);
+					return new PeqQ(leftTermVar, rightTermVar);
 				} else if (ce instanceof NumericNotEqual) {
-					resultingConstraint = new PneqQ(leftTermVar, rightTermVar);
+					return new PneqQ(leftTermVar, rightTermVar);
 				} else if (ce instanceof LessThan) {
-					resultingConstraint = new PltQ(leftTermVar, rightTermVar);
+					return new PltQ(leftTermVar, rightTermVar);
 				} else if (ce instanceof LessOrEqual) {
-					resultingConstraint = new PlteqQ(leftTermVar, rightTermVar);
+					return new PlteqQ(leftTermVar, rightTermVar);
 				} else if (ce instanceof GreaterThan) {
-					resultingConstraint = new PgtQ(leftTermVar, rightTermVar);
+					return new PgtQ(leftTermVar, rightTermVar);
 				} else if (ce instanceof GreaterOrEqual) {
-					resultingConstraint = new PgteqQ(leftTermVar, rightTermVar);
+					return new PgteqQ(leftTermVar, rightTermVar);
 				} else {
 					throw new IllegalArgumentException("Unknown (non-constant, floating-point) constraint type " + ce.getClass().getName());
 				}
 				// }}
 			}
 		}
-		
-		store.impose(resultingConstraint);
-		
 	}
 
 	private static FloatVar normaliseFloatTerm(Term floatTerm,
