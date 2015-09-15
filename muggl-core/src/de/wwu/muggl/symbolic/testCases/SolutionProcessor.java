@@ -566,11 +566,12 @@ public class SolutionProcessor {
 								if (returnValue != null && returnValue instanceof Objectref) {
 									if (((Objectref) returnValue).getInitializedClass().getClassFile().getName().equals("java.lang.String")) {
 										Field field = ((Objectref) returnValue).getInitializedClass().getClassFile().getFieldByNameAndDescriptor("value", "[C");
-										Character[] characters = (Character[]) ((Objectref) returnValue).getField(field);
-										initializationStringForReferenceValue = "";
+										Arrayref characters = (Arrayref) ((Objectref) returnValue).getField(field);
+										initializationStringForReferenceValue = "\"";
 										for (int b = 0; b < characters.length; b++) {
-											initializationStringForReferenceValue += characters[b].toString();
+											initializationStringForReferenceValue += (char)((IntConstant)characters.getElement(b)).getIntValue();
 										}
+										initializationStringForReferenceValue += "\"";
 									} else {
 										// TODO: Recursively create object structures to initialize complex objects.
 									}
