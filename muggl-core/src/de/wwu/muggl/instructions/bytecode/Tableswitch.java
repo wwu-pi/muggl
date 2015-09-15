@@ -9,6 +9,7 @@ import de.wwu.muggl.vm.classfile.structures.attributes.NoMoreCodeBytesException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.testtool.expressions.IntConstant;
+import de.wwu.testtool.expressions.NumericConstant;
 import de.wwu.testtool.expressions.Term;
 
 /**
@@ -100,6 +101,10 @@ public class Tableswitch extends Switch implements Instruction {
 			int[] pcs = new int[length];
 			keys[0] = null;
 			pcs[0] = this.lineNumber + this.defaultValue;
+			for(int i = 0; i < this.offsets.length;i++) {
+				keys[i+1] = IntConstant.getInstance(this.low+i); 
+				pcs[i+1] = this.lineNumber + this.offsets[i];
+			}
 			IntConstant lowConstant = IntConstant.getInstance(this.low);
 			IntConstant highConstant = IntConstant.getInstance(this.high);
 
