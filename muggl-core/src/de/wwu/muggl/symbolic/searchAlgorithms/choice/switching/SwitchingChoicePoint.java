@@ -110,6 +110,10 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 		this.maximumSteps = pcs.length;
 		this.appliedState = false;
 
+		
+	}
+	
+	public void init() throws SymbolicExecutionException {
 		// Load an option.
 		boolean measureExecutionTime = Options.getInst().measureSymbolicExecutionTime;
 
@@ -152,7 +156,7 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 				throw new SymbolicExecutionException("The first term is neither less than, greater than or equal to the second one. This is impossible and hints to serious problems.");
 		}
 		// Save the execution time.
-		if (measureExecutionTime) ((SymbolicVirtualMachine) frame.getVm()).increaseTimeSolvingForChoicePointGeneration(System.nanoTime() - timeSolvingTemp);
+		if (measureExecutionTime) ((SymbolicVirtualMachine) this.frame.getVm()).increaseTimeSolvingForChoicePointGeneration(System.nanoTime() - timeSolvingTemp);
 	}
 
 	/**

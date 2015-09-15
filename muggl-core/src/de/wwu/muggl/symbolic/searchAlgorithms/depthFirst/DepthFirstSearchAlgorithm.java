@@ -28,6 +28,7 @@ import de.wwu.muggl.symbolic.searchAlgorithms.choice.fpComparison.DoubleComparis
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.fpComparison.FloatComparisonChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.longComparison.LongComparisonChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.switching.LookupswitchChoicePoint;
+import de.wwu.muggl.symbolic.searchAlgorithms.choice.switching.SwitchingChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.switching.TableswitchChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.ArrayRestore;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.FieldPut;
@@ -565,6 +566,8 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 					high,
 					this.currentChoicePoint);
 		}
+		// execute side effects that formerly resided in the constructor  
+		((SwitchingChoicePoint)this.currentChoicePoint).init(); 
 
 		// Apply the first value.
 		this.currentChoicePoint.applyStateChanges();
