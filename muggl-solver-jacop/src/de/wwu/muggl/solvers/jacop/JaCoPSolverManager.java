@@ -44,6 +44,8 @@ public class JaCoPSolverManager implements SolverManager {
 
 	private Logger logger;
 
+	private long totalConstraintsChecked = 0L;
+
 	/**
 	 * Creates a new Solver Manager object and initializes it with a stream that
 	 * collects the logging informations if wanted.
@@ -153,6 +155,8 @@ public class JaCoPSolverManager implements SolverManager {
 
 			Search<IntVar> labelInt = new DepthFirstSearch<IntVar>();
 			Search<FloatVar> labelFloat = new DepthFirstSearch<FloatVar>();
+			labelInt.setPrintInfo(false);
+			labelFloat.setPrintInfo(false);
 
 			labelFloat.setSelectChoicePoint(selectFloat);
 			labelInt.addChildSearch(labelFloat);
@@ -162,11 +166,13 @@ public class JaCoPSolverManager implements SolverManager {
 		} else if (vars.length > 0) {
 			// IntVars only
 			Search<IntVar> labelInt = new DepthFirstSearch<IntVar>();
+			labelInt.setPrintInfo(false);
 			solutionFound = labelInt.labeling(jacopStore, select) && labelInt.assignSolution();
 			search = labelInt;
 		} else {
 			// FloatVars only
 			Search<FloatVar> labelFloat = new DepthFirstSearch<FloatVar>();
+			labelFloat.setPrintInfo(false);
 			solutionFound = labelFloat.labeling(jacopStore, selectFloat) && labelFloat.assignSolution();
 			search = labelFloat;
 		}
@@ -187,9 +193,9 @@ public class JaCoPSolverManager implements SolverManager {
 				if (variable == null) {
 					continue;
 				}
-				System.out.print(variables[i].id() + " ");
+				/*System.out.print(variables[i].id() + " ");
 				System.out.print(variable + " = ");
-				System.out.println(solution[i]);
+				System.out.println(solution[i]);*/
 
 				if (solution[i] instanceof IntDomain) {
 					result.addBinding(variable, NumericConstant.getInstance(
@@ -203,8 +209,8 @@ public class JaCoPSolverManager implements SolverManager {
 		}
 		listeners.fireGetSolutionFinished(this, result,
 				System.nanoTime() - startTime);
-		if (logger.isDebugEnabled())
-			System.out.println("solution: " + result);
+		/*if (logger.isDebugEnabled())
+			System.out.println("solution: " + result);*/
 
 		return result;
 
@@ -231,14 +237,15 @@ public class JaCoPSolverManager implements SolverManager {
 	 */
 	public boolean hasSolution()
 			throws SolverUnableToDecideException, TimeoutException {
-
-		// RafaC
 		if (logger.isDebugEnabled())
 			logger.debug("hasSolution: ");
 
+		totalConstraintsChecked++;
+		
 		listeners.fireHasSolutionStarted(this);
 		long startTime = System.nanoTime();
 
+		
 		if (jacopStore.level == 0)
 			return true;
 
@@ -309,6 +316,7 @@ public class JaCoPSolverManager implements SolverManager {
 		// Assumption: Level is always raised before adding a constraint.
 		// Therefore, there are no constraints at level 0 that would need to be
 		// removed.
+		totalConstraintsChecked = 0;
 	}
 
 	private void addShutdownHook() {
@@ -333,7 +341,7 @@ public class JaCoPSolverManager implements SolverManager {
 	@Deprecated
 	@Override
 	public long getTotalConstraintsChecked() {
-		return jacopStore.numberConstraints();
+		return totalConstraintsChecked; //jacopStore.numberConstraints();
 	}
 
 	/**
@@ -342,6 +350,7 @@ public class JaCoPSolverManager implements SolverManager {
 	@Deprecated
 	@Override
 	public void resetCounter() {
+		totalConstraintsChecked = 0;
 	}
 
 }
