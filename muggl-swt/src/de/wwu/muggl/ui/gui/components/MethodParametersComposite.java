@@ -37,7 +37,7 @@ import de.wwu.muggl.ui.gui.windows.InputWindow;
 import de.wwu.muggl.ui.gui.windows.MethodParametersWindow;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
-import de.wwu.testtool.expressions.Constant;
+import de.wwu.muggl.solvers.expressions.Constant;
 
 /**
  * The Composite for the MethodParametersWindow. It offers most of its element and the

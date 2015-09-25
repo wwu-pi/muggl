@@ -15,26 +15,26 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 import de.wwu.muggl.configuration.Globals;
-import de.wwu.testtool.conf.TesttoolConfig;
-import de.wwu.testtool.exceptions.IncompleteSolutionException;
-import de.wwu.testtool.exceptions.IncorrectSolverException;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.*;
-import de.wwu.testtool.solver.HasSolutionInformation;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
+import de.wwu.muggl.solvers.exceptions.IncompleteSolutionException;
+import de.wwu.muggl.solvers.exceptions.IncorrectSolverException;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.*;
+import de.wwu.muggl.solvers.solver.HasSolutionInformation;
+import de.wwu.muggl.solvers.solver.Solver;
 import de.wwu.testtool.solver.SolverManagerNew;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
-import de.wwu.testtool.solver.constraints.Assignment;
-import de.wwu.testtool.solver.constraints.NumericConstraint;
-import de.wwu.testtool.solver.constraints.Polynomial;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
-import de.wwu.testtool.solver.constraints.Equation;
-import de.wwu.testtool.solver.constraints.SingleConstraint;
-import de.wwu.testtool.solver.tools.SubstitutionTable;
+import de.wwu.muggl.solvers.solver.constraints.Assignment;
+import de.wwu.muggl.solvers.solver.constraints.NumericConstraint;
+import de.wwu.muggl.solvers.solver.constraints.Polynomial;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.solver.constraints.Equation;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraint;
+import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
 import de.wwu.testtool.solver.tsolver.SimplexSolver;
 import de.wwu.testtool.solver.tsolver.SimplexSolverCL;
-import de.wwu.testtool.solver.tsolver.Solver;
 
 
 /**

@@ -1,8 +1,8 @@
 package de.wwu.muggl.instructions.general;
 
 import de.wwu.muggl.instructions.interfaces.control.JumpNever;
-import de.wwu.testtool.expressions.Sum;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Sum;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Abstract instruction with some concrete methods for the addition of two values.

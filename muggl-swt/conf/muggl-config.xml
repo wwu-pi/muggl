@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
-<!-- Written on Thursday, 04 September, 2014 10:15 AM -->
+<!-- Written on Friday, 25 September, 2015 3:03 PM -->
 <MugglConfiguration>
 	<setting name="javaHome">
 		<value>/usr/lib/jvm/java-6-openjdk-amd64/jre</value>
 		<default></default>
 	</setting>
 	<setting name="javaVersion">
-		<value>1.6.0_32</value>
+		<value>1.6.0_36</value>
 		<default></default>
 	</setting>
 	<setting name="classPathEntries" type="multi">
-		<value>/home/vincentvonhof/git/muggl/muggl.jar</value>
+		<value>/home/likewise-open/WIWI/j_dage01/workspace-muggl/SF100/1_tullibee/tullibee/com/ib/client/</value>
 		<default></default>
 	</setting>
 	<setting name="methodListHideInitClinit">
@@ -78,7 +78,7 @@
 		<default>true</default>
 	</setting>
 	<setting name="maximumExecutionTime">
-		<value>15</value>
+		<value>3600</value>
 		<default>60</default>
 	</setting>
 	<setting name="maximumLoopsToTake">
@@ -162,11 +162,11 @@
 		<default>5</default>
 	</setting>
 	<setting name="recentFilesPaths" type="multi">
-		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/preconditions/PreCond.class</value>
-		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/preconditions/InsertionSort.class</value>
-		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/preconditions/Average.class</value>
-		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/misc/SystemOutPrintlnAString.class</value>
-		<value>/home/vincentvonhof/git/muggl/muggl.jar|test/papers/generator/Paper201008.class</value>
+		<value>/home/likewise-open/WIWI/j_dage01/workspace-muggl/SF100/1_tullibee/tullibee/com/ib/client/TickType.class</value>
+		<value>/home/likewise-open/WIWI/j_dage01/workspace-muggl/SF100/1_tullibee/tullibee/com/ib/client/AnyWrapperMsgGenerator.class</value>
+		<value>/home/likewise-open/WIWI/j_dage01/workspace-muggl/SF100/1_tullibee/tullibee/com/ib/client/OrderState.class</value>
+		<value>/home/likewise-open/WIWI/j_dage01/workspace-muggl/SF100/1_tullibee/tullibee/com/ib/client/Contract.class</value>
+		<value>/home/likewise-open/WIWI/j_dage01/workspace-muggl/SF100/1_tullibee/tullibee/com/ib/client/EClientErrors.class</value>
 		<default></default>
 	</setting>
 	<setting name="rgb_fileInspection_ConstantClass" type="rgb">
@@ -278,11 +278,11 @@
 		<default>1</default>
 	</setting>
 	<setting name="symbolicArrayInitializationIncrementationStrategy">
-		<value>0</value>
+		<value>2</value>
 		<default>2</default>
 	</setting>
 	<setting name="symbolicArrayInitializationIncrementationStrategyLinearStepSize">
-		<value>1</value>
+		<value>3</value>
 		<default>1</default>
 	</setting>
 	<setting name="symbolicArrayInitializationTestNull">
@@ -296,5 +296,9 @@
 	<setting name="dynamicallyReplaceInstructionsWithOptimizedOnes">
 		<value>false</value>
 		<default>true</default>
+	</setting>
+	<setting name="solverManager">
+		<value>de.wwu.muggl.solvers.jacop.JaCoPSolverManager</value>
+		<default>de.wwu.muggl.solvers.jacop.JaCoPSolverManager</default>
 	</setting>
 </MugglConfiguration>

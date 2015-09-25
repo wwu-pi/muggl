@@ -8,9 +8,9 @@ import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.attributes.NoMoreCodeBytesException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.NumericConstant;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Implementation of the instruction  <code>tableswitch</code>.

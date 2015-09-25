@@ -5,7 +5,7 @@ import de.wwu.muggl.instructions.general.PushAbstract;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
-import de.wwu.testtool.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 
 /**
  * Implementation of the instruction  <code>bipush</code>.

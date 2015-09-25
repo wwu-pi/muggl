@@ -9,7 +9,7 @@ import org.jacop.core.Store;
 import org.jacop.core.Var;
 import org.jacop.floats.core.FloatVar;
 
-import de.wwu.testtool.expressions.Variable;
+import de.wwu.muggl.solvers.expressions.Variable;
 
 public class JacopMugglStore extends Store {
 	private HashMap<Variable, Var> mugglToJacopVariable;

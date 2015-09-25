@@ -12,9 +12,9 @@ import de.wwu.muggl.symbolic.searchAlgorithms.choice.conditionalJump.Conditional
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 
 /**
  * A ConditionalJumpChoicePointDepthFirst is a ChoicePoint for the depth first

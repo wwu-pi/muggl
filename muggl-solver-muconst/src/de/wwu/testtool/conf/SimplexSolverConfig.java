@@ -5,7 +5,9 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 
-import de.wwu.testtool.solver.numbers.NumberFactory;
+import de.wwu.muggl.solvers.conf.ConfigReader;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
+import de.wwu.muggl.solvers.solver.numbers.NumberFactory;
 import de.wwu.testtool.solver.tsolver.SimplexSolver;
 import de.wwu.testtool.solver.tsolver.SimplexSolverCL;
 

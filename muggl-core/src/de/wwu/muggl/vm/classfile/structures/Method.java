@@ -25,7 +25,7 @@ import de.wwu.muggl.vm.classfile.structures.attributes.AttributeSynthetic;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeUnknownSkipped;
 import de.wwu.muggl.vm.classfile.structures.attributes.elements.LocalVariableTable;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantUtf8;
-import de.wwu.testtool.expressions.Variable;
+import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * Representation of a method in classes. This class is a concrete implementation of the

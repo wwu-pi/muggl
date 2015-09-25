@@ -46,11 +46,11 @@ import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicFrame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * This class implements the depth first search algorithm.<br />

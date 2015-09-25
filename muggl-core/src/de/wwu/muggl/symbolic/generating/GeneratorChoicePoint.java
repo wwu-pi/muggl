@@ -7,7 +7,7 @@ import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElem
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.MugglToJavaConversion;
-import de.wwu.testtool.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 
 /**
  * The ChoicePoint is used aside with variable generators. Generators can be used to

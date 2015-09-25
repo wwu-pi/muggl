@@ -1,8 +1,8 @@
 package de.wwu.muggl.instructions.general;
 
 import de.wwu.muggl.instructions.interfaces.control.JumpNever;
-import de.wwu.testtool.expressions.NumericAnd;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.NumericAnd;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Abstract instruction with some concrete methods for the and operarion.

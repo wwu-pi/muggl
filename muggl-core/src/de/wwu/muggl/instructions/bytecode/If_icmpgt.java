@@ -4,9 +4,9 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.If_icmp;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.GreaterThan;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.GreaterThan;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Implementation of the instruction <code>if_icmpgt</code>.

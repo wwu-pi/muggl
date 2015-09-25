@@ -11,20 +11,20 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 import de.wwu.muggl.configuration.Globals;
-import de.wwu.testtool.conf.TesttoolConfig;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.*;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.*;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.testtool.solver.SolverManagerOld;
-import de.wwu.testtool.solver.constraints.Assignment;
-import de.wwu.testtool.solver.constraints.ComposedConstraint;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
-import de.wwu.testtool.solver.constraints.Equation;
-import de.wwu.testtool.solver.constraints.SingleConstraint;
-import de.wwu.testtool.solver.numbers.DoubleWrapper;
-import de.wwu.testtool.solver.tools.SubstitutionTable;
+import de.wwu.muggl.solvers.solver.constraints.Assignment;
+import de.wwu.muggl.solvers.solver.constraints.ComposedConstraint;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.solver.constraints.Equation;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraint;
+import de.wwu.muggl.solvers.solver.numbers.DoubleWrapper;
+import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
 
 /**
  * @author Marko Ernsting

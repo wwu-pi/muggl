@@ -5,7 +5,7 @@ import de.wwu.muggl.instructions.general.Const;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
-import de.wwu.testtool.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
 
 /**
  * Implementation of the instruction <code>lconst</code>.

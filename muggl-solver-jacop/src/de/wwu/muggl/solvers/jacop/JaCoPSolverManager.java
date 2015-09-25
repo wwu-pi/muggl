@@ -19,16 +19,16 @@ import org.jacop.search.SmallestDomain;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
-import de.wwu.muggl.solvers.jacop.listener.SolverManagerListener;
-import de.wwu.muggl.solvers.jacop.listener.SolverManagerListenerList;
-import de.wwu.testtool.conf.TesttoolConfig;
-import de.wwu.testtool.conf.SolverManagerConfig;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.NumericConstant;
-import de.wwu.testtool.expressions.Variable;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
+import de.wwu.muggl.solvers.conf.SolverManagerConfig;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muggl.solvers.solver.listener.SolverManagerListener;
+import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
 
 /**
  *

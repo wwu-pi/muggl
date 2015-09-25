@@ -10,14 +10,14 @@ import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElem
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.GreaterThan;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LessThan;
-import de.wwu.testtool.expressions.NumericEqual;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.GreaterThan;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LessThan;
+import de.wwu.muggl.solvers.expressions.NumericEqual;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * A LongComparisonChoicePoint is generated whenever the instruction lcmp is reached. The

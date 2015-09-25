@@ -10,7 +10,7 @@ import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Objectref;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Abstract instruction with a concrete method for arithmetic operations. Abstract instructions

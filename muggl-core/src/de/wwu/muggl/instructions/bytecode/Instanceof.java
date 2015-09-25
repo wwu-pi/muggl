@@ -17,7 +17,7 @@ import de.wwu.muggl.vm.execution.ExecutionAlgorithms;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
-import de.wwu.testtool.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 
 /**
  * Implementation of the instruction <code>instanceof</code>.

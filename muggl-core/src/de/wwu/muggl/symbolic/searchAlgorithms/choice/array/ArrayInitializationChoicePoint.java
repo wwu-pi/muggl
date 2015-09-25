@@ -15,9 +15,9 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
 
 /**
  * This class represents the ChoicePoint generated to represent the symbolic array generation strategy. It

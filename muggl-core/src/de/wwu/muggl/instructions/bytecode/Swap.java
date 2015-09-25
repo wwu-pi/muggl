@@ -8,7 +8,7 @@ import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Implementation of the instruction  <code>swap</code>.

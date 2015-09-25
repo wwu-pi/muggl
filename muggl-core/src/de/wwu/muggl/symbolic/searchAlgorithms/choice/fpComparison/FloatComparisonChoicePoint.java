@@ -3,9 +3,9 @@ package de.wwu.muggl.symbolic.searchAlgorithms.choice.fpComparison;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.testtool.expressions.FloatConstant;
-import de.wwu.testtool.expressions.NumericConstant;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * A FloatComparisonChoicePoint is generated whenever the instructions fcmpg or fcmpl are reached.

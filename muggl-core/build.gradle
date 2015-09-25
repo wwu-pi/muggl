@@ -1,10 +1,10 @@
 apply plugin: 'java'
 
 dependencies {
-	compile project(':muggl-solver-muconst')
-	compile project(':muggl-solver-jacop')
+	runtime project(':muggl-solver-muconst')
+	runtime project(':muggl-solver-jacop')
+	compile project(':muggl-solvers')
 	compile project(':muggl-common')
-	compile 'log4j:log4j:1.2.17'
 } 
 
 sourceSets {

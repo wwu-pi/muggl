@@ -15,7 +15,7 @@ import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.PrimitiveWrappingImpossibleException;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
-import de.wwu.testtool.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 
 /**
  * This class provides a cache for strings. It is required by the Java Language Specification,

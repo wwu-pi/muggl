@@ -1,13 +1,13 @@
 package de.wwu.muggl.instructions.general;
 
 import de.wwu.muggl.instructions.interfaces.control.JumpException;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.FloatConstant;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LongConstant;
-import de.wwu.testtool.expressions.Quotient;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.Quotient;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Abstract instruction with some concrete methods for the division of two values. Concrete

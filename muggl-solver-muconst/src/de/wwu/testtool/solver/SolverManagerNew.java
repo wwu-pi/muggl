@@ -2,16 +2,16 @@ package de.wwu.testtool.solver;
 
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
-import de.wwu.testtool.conf.SolverManagerConfig;
-import de.wwu.testtool.conf.TesttoolConfig;
-import de.wwu.testtool.exceptions.IncorrectSolverException;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.solver.constraints.ComposedConstraint;
-import de.wwu.testtool.solver.listener.SolverManagerListener;
-import de.wwu.testtool.solver.listener.SolverManagerListenerList;
-import de.wwu.testtool.solver.tools.SubstitutionTable;
+import de.wwu.muggl.solvers.conf.SolverManagerConfig;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
+import de.wwu.muggl.solvers.exceptions.IncorrectSolverException;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.solver.constraints.ComposedConstraint;
+import de.wwu.muggl.solvers.solver.listener.SolverManagerListener;
+import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
+import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
 
 /**
  * 

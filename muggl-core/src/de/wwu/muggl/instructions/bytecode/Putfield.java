@@ -23,7 +23,7 @@ import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Implementation of the instruction <code>putfield</code>.

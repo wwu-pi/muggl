@@ -3,8 +3,8 @@ package de.wwu.muggl.instructions.general;
 import de.wwu.muggl.instructions.interfaces.control.JumpNever;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.execution.ExecutionException;
-import de.wwu.testtool.expressions.Product;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Product;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Abstract instruction with some concrete methods for the multiplication of two values.

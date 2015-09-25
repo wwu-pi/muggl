@@ -3,8 +3,8 @@ package de.wwu.muggl.symbolic.generating.impl;
 import java.util.Random;
 
 import de.wwu.muggl.symbolic.generating.ArrayElementsGenerator;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * This ArrayElementsGenerator provides random constant Integer array elements.<br>

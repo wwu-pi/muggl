@@ -49,8 +49,8 @@
               enabled="yes"
               priority="2">
         <NumberFactory selected="Fraction">
-          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.testtool.solver.numbers.DoubleWrapper" />
-          <NumberFactoryOption name="Fraction" class="de.wwu.testtool.solver.numbers.Fraction" /> 
+          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.muggl.solvers.solver.numbers.DoubleWrapper" />
+          <NumberFactoryOption name="Fraction" class="de.wwu.muggl.solvers.solver.numbers.Fraction" /> 
         </NumberFactory>
 
       </Solver>
@@ -61,8 +61,8 @@
               enabled="yes"
               priority="1">
         <NumberFactory selected="DoubleWrapper">
-          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.testtool.solver.numbers.DoubleWrapper" />
-          <NumberFactoryOption name="Fraction" class="de.wwu.testtool.solver.numbers.Fraction" /> 
+          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.muggl.solvers.solver.numbers.DoubleWrapper" />
+          <NumberFactoryOption name="Fraction" class="de.wwu.muggl.solvers.solver.numbers.Fraction" /> 
         </NumberFactory>
         <param name="timeout" value="60000"/>
 	    <param name="useGomoryCuts" value="true"/>
@@ -84,8 +84,8 @@
               enabled="yes"
               priority="3">
         <NumberFactory selected="Fraction">
-          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.testtool.solver.numbers.DoubleWrapper" />
-          <NumberFactoryOption name="Fraction" class="de.wwu.testtool.solver.numbers.Fraction" /> 
+          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.muggl.solvers.solver.numbers.DoubleWrapper" />
+          <NumberFactoryOption name="Fraction" class="de.wwu.muggl.solvers.solver.numbers.Fraction" /> 
         </NumberFactory>
       </Solver>
       <!-- *************************
@@ -95,8 +95,8 @@
               enabled="no"
               priority="5">
         <NumberFactory selected="Fraction">
-          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.testtool.solver.numbers.DoubleWrapper" />
-          <NumberFactoryOption name="Fraction" class="de.wwu.testtool.solver.numbers.Fraction" /> 
+          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.muggl.solvers.solver.numbers.DoubleWrapper" />
+          <NumberFactoryOption name="Fraction" class="de.wwu.muggl.solvers.solver.numbers.Fraction" /> 
         </NumberFactory>
       </Solver>
       <!-- **********************
@@ -106,8 +106,8 @@
               enabled="yes"
               priority="6">
         <NumberFactory selected="Fraction">
-          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.testtool.solver.numbers.DoubleWrapper" />
-          <NumberFactoryOption name="Fraction" class="de.wwu.testtool.solver.numbers.Fraction" /> 
+          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.muggl.solvers.solver.numbers.DoubleWrapper" />
+          <NumberFactoryOption name="Fraction" class="de.wwu.muggl.solvers.solver.numbers.Fraction" /> 
         </NumberFactory>
         <param name="timeout" value="10000"/> <!-- ms -->
         <param name="minFloat" value="-10000">

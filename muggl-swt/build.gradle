@@ -5,7 +5,6 @@ dependencies {
 	compile project(':muggl-core')
 	compile project(':muggl-common')
 	compile 'junit:junit:4.+'
-	compile 'log4j:log4j:1.2.17'
 	compile 'org.eclipse.swt:org.eclipse.swt.gtk.linux.x86_64:4.3.2'
 }
 

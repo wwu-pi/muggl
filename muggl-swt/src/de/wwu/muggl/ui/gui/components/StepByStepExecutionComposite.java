@@ -73,8 +73,8 @@ import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
-import de.wwu.testtool.expressions.LongConstant;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * The composite for the StepByStepExecutionWindow. It offers most of its

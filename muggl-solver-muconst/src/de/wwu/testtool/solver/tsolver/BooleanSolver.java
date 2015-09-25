@@ -3,15 +3,16 @@ package de.wwu.testtool.solver.tsolver;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.wwu.testtool.exceptions.IncorrectSolverException;
-import de.wwu.testtool.expressions.BooleanConstant;
-import de.wwu.testtool.expressions.BooleanVariable;
-import de.wwu.testtool.solver.HasSolutionInformation;
+import de.wwu.muggl.solvers.exceptions.IncorrectSolverException;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.expressions.BooleanVariable;
+import de.wwu.muggl.solvers.solver.HasSolutionInformation;
+import de.wwu.muggl.solvers.solver.Solver;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
-import de.wwu.testtool.solver.constraints.NotConstraint;
-import de.wwu.testtool.solver.constraints.SingleConstraint;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.solver.constraints.NotConstraint;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraint;
 
 /**
  * Simple boolean sover for handling the purely boolean problems that

@@ -1,8 +1,8 @@
 package de.wwu.muggl.instructions.general;
 
 import de.wwu.muggl.instructions.interfaces.control.JumpNever;
-import de.wwu.testtool.expressions.Difference;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Difference;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Abstract instruction with some concrete methods for the substraction of two values.

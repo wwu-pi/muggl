@@ -111,8 +111,8 @@ public final class EasyWrapper extends Thread {
 		}
 		
 		// TODO Set a generator provider.
-		this.initialMethod.setArrayElementsGeneratorProvider(0,
-				new RandomConstantIntegerArrayElementsGeneratorProvider());
+		//this.initialMethod.setArrayElementsGeneratorProvider(0,
+		//		new RandomConstantIntegerArrayElementsGeneratorProvider());
 	}
 	
 	/**

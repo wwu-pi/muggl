@@ -20,8 +20,8 @@ import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.PrimitiveWrappingImpossibleException;
 import de.wwu.muggl.vm.initialization.StaticInitializationSupport;
-import de.wwu.testtool.expressions.Constant;
-import de.wwu.testtool.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Constant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 
 /**
  * This class provides for the conversion of objects from the java virtual machine implementation of

@@ -16,7 +16,7 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
-import de.wwu.testtool.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 
 /**
  * Implementation of the instruction  <code>aastore</code>.

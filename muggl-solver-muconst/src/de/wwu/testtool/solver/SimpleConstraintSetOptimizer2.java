@@ -1,16 +1,16 @@
 package de.wwu.testtool.solver;
 
-import de.wwu.testtool.expressions.BooleanConstant;
-import de.wwu.testtool.expressions.Variable;
-import de.wwu.testtool.solver.constraints.Assignment;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
-import de.wwu.testtool.solver.constraints.ConstraintSetTransformer;
-import de.wwu.testtool.solver.constraints.Equation;
-import de.wwu.testtool.solver.constraints.Polynomial;
-import de.wwu.testtool.solver.constraints.SingleConstraint;
-import de.wwu.testtool.solver.constraints.StrictInequation;
-import de.wwu.testtool.solver.constraints.WeakInequation;
-import de.wwu.testtool.solver.numbers.NumberWrapper;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muggl.solvers.solver.constraints.Assignment;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.solver.constraints.ConstraintSetTransformer;
+import de.wwu.muggl.solvers.solver.constraints.Equation;
+import de.wwu.muggl.solvers.solver.constraints.Polynomial;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraint;
+import de.wwu.muggl.solvers.solver.constraints.StrictInequation;
+import de.wwu.muggl.solvers.solver.constraints.WeakInequation;
+import de.wwu.muggl.solvers.solver.numbers.NumberWrapper;
 
 /**
  * Macht keine Weltbewegenden Sachen. Wahrscheinlich nur unnötiger Aufwand, da hohe

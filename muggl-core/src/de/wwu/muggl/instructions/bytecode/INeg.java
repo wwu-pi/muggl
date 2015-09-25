@@ -6,8 +6,8 @@ import de.wwu.muggl.instructions.general.Neg;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
 
 /**
  * Implementation of the instruction <code>ineg</code>.

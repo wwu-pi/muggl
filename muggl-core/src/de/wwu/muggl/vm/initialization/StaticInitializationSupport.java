@@ -1,11 +1,11 @@
 package de.wwu.muggl.vm.initialization;
 
 import de.wwu.muggl.configuration.Options;
-import de.wwu.testtool.expressions.BooleanConstant;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.FloatConstant;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
 
 /**
  * Provides static methods that are needed for initialization procedures.

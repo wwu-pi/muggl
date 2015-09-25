@@ -32,14 +32,14 @@ import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 import de.wwu.muggl.vm.support.CheckingArrayList;
-import de.wwu.testtool.expressions.BooleanConstant;
-import de.wwu.testtool.expressions.Constant;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.FloatConstant;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LongConstant;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.expressions.Variable;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.expressions.Constant;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * The SolutionProcessor stores information about the solutions found during the symbolic execution

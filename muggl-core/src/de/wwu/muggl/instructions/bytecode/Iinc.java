@@ -11,11 +11,11 @@ import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.Sum;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.expressions.Variable;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Sum;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * Implementation of the instruction <code>iinc</code>.

@@ -21,8 +21,8 @@ import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Objectref;
-import de.wwu.testtool.expressions.FloatConstant;
-import de.wwu.testtool.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 
 /**
  * Abstract instruction with some concrete methods for ldc instructions. These are used to push

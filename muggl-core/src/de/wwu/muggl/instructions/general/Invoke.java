@@ -30,10 +30,10 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.FloatConstant;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
 
 /**
  * Abstract instruction with some concrete methods for invocation instructions. Concrete

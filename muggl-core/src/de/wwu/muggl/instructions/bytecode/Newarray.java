@@ -20,8 +20,8 @@ import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Implementation of the instruction <code>newarray</code>.

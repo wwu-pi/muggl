@@ -4,9 +4,9 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.If;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.NumericEqual;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.NumericEqual;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Implementation of the instruction <code>ifeq</code>.

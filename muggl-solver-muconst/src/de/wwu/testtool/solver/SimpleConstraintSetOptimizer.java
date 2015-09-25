@@ -3,17 +3,17 @@ package de.wwu.testtool.solver;
 import java.util.Vector;
 
 import de.wwu.muggl.solvers.Solution;
-import de.wwu.testtool.expressions.BooleanConstant;
-import de.wwu.testtool.expressions.Constant;
-import de.wwu.testtool.expressions.Variable;
-import de.wwu.testtool.solver.constraints.Assignment;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
-import de.wwu.testtool.solver.constraints.ConstraintSetTransformer;
-import de.wwu.testtool.solver.constraints.Equation;
-import de.wwu.testtool.solver.constraints.NumericConstraint;
-import de.wwu.testtool.solver.constraints.Polynomial;
-import de.wwu.testtool.solver.constraints.SingleConstraint;
-import de.wwu.testtool.solver.numbers.NumberWrapper;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.expressions.Constant;
+import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muggl.solvers.solver.constraints.Assignment;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.solver.constraints.ConstraintSetTransformer;
+import de.wwu.muggl.solvers.solver.constraints.Equation;
+import de.wwu.muggl.solvers.solver.constraints.NumericConstraint;
+import de.wwu.muggl.solvers.solver.constraints.Polynomial;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraint;
+import de.wwu.muggl.solvers.solver.numbers.NumberWrapper;
 
 /**
  * @author Christoph

@@ -1,10 +1,10 @@
 package de.wwu.testtool.solver;
 
 import de.wwu.muggl.solvers.Solution;
-import de.wwu.testtool.exceptions.IncorrectSolverException;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.solver.constraints.ComposedConstraint;
+import de.wwu.muggl.solvers.exceptions.IncorrectSolverException;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.solver.constraints.ComposedConstraint;
 
 /**
  * This is an interface for ComposedConstraint Solvers.</BR></BR>

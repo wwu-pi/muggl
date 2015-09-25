@@ -1,8 +1,8 @@
 package de.wwu.muggl.instructions.general;
 
 import de.wwu.muggl.instructions.interfaces.control.JumpException;
-import de.wwu.testtool.expressions.Modulo;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Modulo;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Abstract instruction with some concrete methods for the calculation of the remainder of

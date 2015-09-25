@@ -5,9 +5,9 @@ import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.expressions.Variable;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * This abstract class is to be extended by all classes that offer static methods for typed instructions.

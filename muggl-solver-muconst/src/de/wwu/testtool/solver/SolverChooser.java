@@ -7,10 +7,11 @@ import org.apache.log4j.Logger;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.solvers.SolverManager;
-import de.wwu.testtool.conf.SolverManagerConfig;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.conf.SolverManagerConfig;
+import de.wwu.muggl.solvers.solver.Solver;
+import de.wwu.muggl.solvers.solver.SolverInfo;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.tsolver.BooleanSolver;
-import de.wwu.testtool.solver.tsolver.Solver;
 
 /**
  * The name says it all.

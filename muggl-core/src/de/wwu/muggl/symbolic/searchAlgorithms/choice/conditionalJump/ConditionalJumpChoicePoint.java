@@ -2,7 +2,7 @@ package de.wwu.muggl.symbolic.searchAlgorithms.choice.conditionalJump;
 
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.vm.Frame;
-import de.wwu.testtool.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 
 /**
  * A ConditionalJumpChoicePoint is generated whenever a conditional jump statement is reached.

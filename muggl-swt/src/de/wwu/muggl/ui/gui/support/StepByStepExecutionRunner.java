@@ -24,7 +24,7 @@ import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * The StepByStepExecutionRunner will fork into a new thread. It is the link between step by step

@@ -7,9 +7,9 @@ import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.execution.ExecutionException;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.expressions.TypeCast;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.TypeCast;
 
 /**
  * Implementation of the instruction <code>f2i</code>.

@@ -1,10 +1,10 @@
 package de.wwu.muggl.instructions.typed;
 
 import de.wwu.muggl.vm.classfile.structures.Method;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.NumericVariable;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.expressions.Variable;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * This class provides static methods to be accessed by instructions typed as a Short.
