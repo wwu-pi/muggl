@@ -152,8 +152,8 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 			}
 
 			// Check if we do not exceed the maximum possible number of steps.
-			if (!success && this.step == 3)
-				throw new SymbolicExecutionException("The first term is neither less than, greater than or equal to the second one. This is impossible and hints to serious problems.");
+			if (!success && this.step == this.maximumSteps)
+				throw new SymbolicExecutionException("Equations are violated. The term from stack cannot be fulfilled by any switch condition, including the default. This is impossible and hints to serious problems.");
 		}
 		// Save the execution time.
 		if (measureExecutionTime) ((SymbolicVirtualMachine) this.frame.getVm()).increaseTimeSolvingForChoicePointGeneration(System.nanoTime() - timeSolvingTemp);
