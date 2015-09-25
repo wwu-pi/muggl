@@ -315,7 +315,7 @@ public class JaCoPTransformer {
 			return floatVar;
 		} else if (floatTerm instanceof TypeCast) {
 			TypeCast cast = (TypeCast)floatTerm;
-			// implicit: this casts to from integer to float
+			// implicit: this casts from integer to float
 			
 			IntVar original = normaliseIntegerTerm(cast.getInternalTerm(), store);
 			FloatVar casted = new FloatVar(store, DOMAIN_FLOAT);
@@ -380,7 +380,7 @@ public class JaCoPTransformer {
 			return intVar;
 		} else if (integerTerm instanceof TypeCast) {
 			TypeCast cast = (TypeCast)integerTerm;
-			// implicit: this casts to from float to integer
+			// implicit: this casts from float to integer
 			
 			FloatVar original = normaliseFloatTerm(cast.getInternalTerm(), store);
 			IntVar casted = new IntVar(store, DOMAIN_INTEGER);
@@ -445,14 +445,6 @@ public class JaCoPTransformer {
 	 */
 	private static IntVar normaliseIntegerSumOrDifference(BinaryOperation integerSum,
 			JacopMugglStore store) {
-		// TODO faster handling of simple sums (XplusYeqZ)
-		//IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
-		//XplusYeqZ sumConstraint = new XplusYeqZ(
-		//		normaliseIntegerTerm(integerSum.getLeft(), store), 
-		//		normaliseIntegerTerm(integerSum.getRight(), store), 
-		//		intermediateVariable);
-		//store.impose(sumConstraint);
-		//return intermediateVariable;		
 		
 		ArrayList<IntVar> termList = new ArrayList<IntVar>();
 		ArrayList<Integer> weightList = new ArrayList<Integer>();
@@ -494,7 +486,7 @@ public class JaCoPTransformer {
 			leftAllWeightsEqOne = normaliseIntegerSumRecursive((BinaryOperation) integerSum.getLeft(), store, termList, weightList, negate);
 		} else {
 			leftAllWeightsEqOne = processIntegerTermOrSimpleProductAndTestWeightEqOne(store, 
-					termList, weightList, integerSum.getLeft(), negate); //TODO negation
+					termList, weightList, integerSum.getLeft(), negate);
 		}
 		
 		// Right hand side must be negative if EITHER entire term is negated XOR current term is a difference.
@@ -505,7 +497,7 @@ public class JaCoPTransformer {
 			rightAllWeightsEqOne = normaliseIntegerSumRecursive((BinaryOperation) integerSum.getRight(), store, termList, weightList, negateRHS);
 		} else {
 			rightAllWeightsEqOne = processIntegerTermOrSimpleProductAndTestWeightEqOne(store, 
-					termList, weightList, integerSum.getRight(), negateRHS); //TODO negation
+					termList, weightList, integerSum.getRight(), negateRHS);
 		}
 		
 		return leftAllWeightsEqOne && rightAllWeightsEqOne;
@@ -579,6 +571,7 @@ public class JaCoPTransformer {
 	}
 	
 	/**
+	 * DEBUGGING HELPER METHOD.
 	 * Gets ID of current JaCoP DFS instance. Used for conditional breakpoints.
 	 * Necessary, because ID value is protected. Therefore, this method uses
 	 * reflection to make the ID value visible if needed.
@@ -592,19 +585,15 @@ public class JaCoPTransformer {
 			f.setAccessible(true);
 			return f.getInt(null);
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return Integer.MAX_VALUE;
 		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return Integer.MAX_VALUE;
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return Integer.MAX_VALUE;
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return Integer.MAX_VALUE;
 		}

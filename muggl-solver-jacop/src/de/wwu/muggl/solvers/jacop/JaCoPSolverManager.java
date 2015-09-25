@@ -88,7 +88,6 @@ public class JaCoPSolverManager implements SolverManager {
 
 		listeners.fireAddConstraint(this, ce, null);
 
-		// TODO use Muggl logging
 		if (logger.isDebugEnabled())
 			logger.debug("Add: ce: " + ce);
 		if (logger.isTraceEnabled()) {
