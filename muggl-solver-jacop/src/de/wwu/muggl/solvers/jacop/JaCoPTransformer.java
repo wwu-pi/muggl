@@ -34,10 +34,13 @@ import org.jacop.floats.constraints.PltC;
 import org.jacop.floats.constraints.PltQ;
 import org.jacop.floats.constraints.PlteqC;
 import org.jacop.floats.constraints.PlteqQ;
+import org.jacop.floats.constraints.PminusCeqR;
 import org.jacop.floats.constraints.PminusQeqR;
+import org.jacop.floats.constraints.PmulCeqR;
 import org.jacop.floats.constraints.PmulQeqR;
 import org.jacop.floats.constraints.PneqC;
 import org.jacop.floats.constraints.PneqQ;
+import org.jacop.floats.constraints.PplusCeqR;
 import org.jacop.floats.constraints.PplusQeqR;
 import org.jacop.floats.constraints.XeqP;
 import org.jacop.floats.core.FloatDomain;
@@ -322,38 +325,85 @@ public class JaCoPTransformer {
 			store.impose(new XeqP(original, casted));
 			return casted;
 		} else if (floatTerm instanceof Sum) {
-			// TODO handle one side is constant
 			Sum floatSum = (Sum) floatTerm;
-			FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
-			FloatVar lhs = normaliseFloatTerm(floatSum.getLeft(), store);
-			FloatVar rhs = normaliseFloatTerm(floatSum.getRight(), store);
-			store.impose(
-					new PplusQeqR(lhs, rhs, 
-							floatVar)
-					);
-			return floatVar;
+			if (floatSum.getLeft().isConstant() || floatSum.getRight().isConstant()) {
+				// one term is constant
+				double constantValue = floatSum.getLeft().isConstant() ? ((NumericConstant)floatSum.getLeft()).getDoubleValue() : ((NumericConstant)floatSum.getRight()).getDoubleValue();
+				Term variableTerm = floatSum.getLeft().isConstant() ? floatSum.getRight() : floatSum.getLeft();
+				FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
+				FloatVar variableJaCoP = normaliseFloatTerm(variableTerm, store);
+				store.impose(
+						new PplusCeqR(variableJaCoP, constantValue, 
+								floatVar)
+						);
+				return floatVar;
+				
+			} else {
+				// no term is constant
+				FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
+				FloatVar lhs = normaliseFloatTerm(floatSum.getLeft(), store);
+				FloatVar rhs = normaliseFloatTerm(floatSum.getRight(), store);
+				store.impose(
+						new PplusQeqR(lhs, rhs, 
+								floatVar)
+						);
+				return floatVar;
+			}
 		} else if (floatTerm instanceof Difference) {
-			// TODO handle one side is constant
 			Difference floatDifference = (Difference) floatTerm;
-			FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
-			FloatVar lhs = normaliseFloatTerm(floatDifference.getLeft(), store);
-			FloatVar rhs = normaliseFloatTerm(floatDifference.getRight(), store);
-			store.impose(
-					new PminusQeqR(lhs, rhs, 
-							floatVar)
-					);
-			return floatVar;
+
+			if (floatDifference.getRight().isConstant()) {
+				// right term is constant
+				// Note: Only right may be constant, as there is only P-C=R -- no C-P=R or T+P=C!
+				// For achieving T-C=-P (only valid form of the equation that has a constant at second place),
+				// an additional constraint would be required to obtain -P.
+				// Consequently, this is not treated individually in order to avoid an additional special case.
+				double rhs = ((NumericConstant)floatDifference.getRight()).getDoubleValue();
+				Term lhs = floatDifference.getLeft();
+				FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
+				FloatVar variableJaCoP = normaliseFloatTerm(lhs, store);
+				store.impose(
+						new PminusCeqR(variableJaCoP, rhs, 
+								floatVar)
+						);
+				return floatVar;
+				
+			} else {
+				// no term or left term is constant
+				FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
+				FloatVar lhs = normaliseFloatTerm(floatDifference.getLeft(), store);
+				FloatVar rhs = normaliseFloatTerm(floatDifference.getRight(), store);
+				store.impose(
+						new PminusQeqR(lhs, rhs, 
+								floatVar)
+						);
+				return floatVar;
+			}
 		} else if (floatTerm instanceof Product) {
-			// TODO handle one side is constant
 			Product floatProduct = (Product) floatTerm;
-			FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
-			FloatVar lhs = normaliseFloatTerm(floatProduct.getLeft(), store);
-			FloatVar rhs = normaliseFloatTerm(floatProduct.getRight(), store);
-			store.impose(
-					new PmulQeqR(lhs, rhs, 
-							floatVar)
-					);
-			return floatVar;
+			if (floatProduct.getLeft().isConstant() || floatProduct.getRight().isConstant()) {
+				// one term is constant
+				double constantValue = floatProduct.getLeft().isConstant() ? ((NumericConstant)floatProduct.getLeft()).getDoubleValue() : ((NumericConstant)floatProduct.getRight()).getDoubleValue();
+				Term variableTerm = floatProduct.getLeft().isConstant() ? floatProduct.getRight() : floatProduct.getLeft();
+				FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
+				FloatVar variableJaCoP = normaliseFloatTerm(variableTerm, store);
+				store.impose(
+						new PmulCeqR(variableJaCoP, constantValue, 
+								floatVar)
+						);
+				return floatVar;
+				
+			} else {
+				// no term is constant
+				FloatVar floatVar = new FloatVar(store, DOMAIN_FLOAT);
+				FloatVar lhs = normaliseFloatTerm(floatProduct.getLeft(), store);
+				FloatVar rhs = normaliseFloatTerm(floatProduct.getRight(), store);
+				store.impose(
+						new PmulQeqR(lhs, rhs, 
+								floatVar)
+						);
+				return floatVar;
+			}
 		}
 		throw new IllegalArgumentException("Unknown float term type " + floatTerm.getClass().getName());
 	}
