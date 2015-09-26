@@ -47,13 +47,13 @@ public abstract class TypedInstruction {
 	 * used to check whether the fetched Object is an instance of the desired symbolic type.
 	 *
 	 * @return The int representation of the wrapping type, or -1 if there is no such type.
-	 * @see de.wwu.testtool.expressions.Expression#BYTE
-	 * @see de.wwu.testtool.expressions.Expression#CHAR
-	 * @see de.wwu.testtool.expressions.Expression#DOUBLE
-	 * @see de.wwu.testtool.expressions.Expression#FLOAT
-	 * @see de.wwu.testtool.expressions.Expression#INT
-	 * @see de.wwu.testtool.expressions.Expression#LONG
-	 * @see de.wwu.testtool.expressions.Expression#SHORT
+	 * @see de.wwu.muggl.solvers.expressions.Expression#BYTE
+	 * @see de.wwu.muggl.solvers.expressions.Expression#CHAR
+	 * @see de.wwu.muggl.solvers.expressions.Expression#DOUBLE
+	 * @see de.wwu.muggl.solvers.expressions.Expression#FLOAT
+	 * @see de.wwu.muggl.solvers.expressions.Expression#INT
+	 * @see de.wwu.muggl.solvers.expressions.Expression#LONG
+	 * @see de.wwu.muggl.solvers.expressions.Expression#SHORT
 	 */
 	public abstract int[] getDesiredSymbolicalTypes();
 

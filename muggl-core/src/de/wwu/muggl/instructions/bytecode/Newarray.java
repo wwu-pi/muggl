@@ -163,7 +163,7 @@ public class Newarray extends de.wwu.muggl.instructions.general.ObjectInitializa
 				// Generate a suitable Objectref.
 				try {
 					ReferenceValue referenceValue = frame.getVm().getAnObjectref(frame.getVm().getClassLoader().getClassAsClassFile(
-									"de.wwu.testtool.expressions.Term"));
+									"de.wwu.muggl.solvers.expressions.Term"));
 
 					// Generate and push the array.
 					ModifieableArrayref arrayref = new ModifieableArrayref(referenceValue, count);

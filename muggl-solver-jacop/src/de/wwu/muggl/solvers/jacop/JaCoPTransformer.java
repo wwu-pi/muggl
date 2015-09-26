@@ -51,12 +51,15 @@ import de.wwu.muggl.solvers.expressions.TypeCast;
 import de.wwu.muggl.solvers.expressions.BinaryOperation;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.solvers.expressions.Difference;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
 import de.wwu.muggl.solvers.expressions.GreaterOrEqual;
 import de.wwu.muggl.solvers.expressions.GreaterThan;
 import de.wwu.muggl.solvers.expressions.HasLeftAndRightTerms;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.LessOrEqual;
 import de.wwu.muggl.solvers.expressions.LessThan;
+import de.wwu.muggl.solvers.expressions.LongConstant;
 import de.wwu.muggl.solvers.expressions.Modulo;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.solvers.expressions.NumericEqual;
@@ -607,8 +610,10 @@ public class JaCoPTransformer {
 	}
 
 	private static boolean isInteger(Term term) {
-		if (term instanceof IntConstant) {
+		if (term instanceof IntConstant || term instanceof LongConstant) {
 			return true;
+		} else if (term instanceof DoubleConstant || term instanceof FloatConstant) {
+			return false;
 		} else if (term instanceof NumericVariable) {
 			return ((NumericVariable)term).isInteger();
 		} else if (term instanceof BinaryOperation) {

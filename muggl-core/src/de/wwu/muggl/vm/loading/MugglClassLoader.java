@@ -435,8 +435,8 @@ public class MugglClassLoader extends ClassLoader {
 
 	/**
 	 * Private method for the fifth attempt: finding a class in Muggl's running class path.
-	 * Especially relevant for executing Newarray symbolically, as it tries to resolve "de.wwu.testtool.expressions.Term",
-	 * which is part of another subproject.
+	 * Especially relevant for executing Newarray symbolically, as it tries to resolve "de.wwu.muggl.solvers.expressions.Term",
+	 * which is part of the `solvers` subproject.
 	 *
 	 * @param name The full name of the class to find.
 	 * @param path String array holding the ordered names of the packages the class belongs to.

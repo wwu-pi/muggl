@@ -104,6 +104,7 @@ public final class EasyWrapper extends Thread {
 									+ " This is not supported by this simple wrapper.");
 				}
 				this.initialMethod = method;
+				break; // just take the first found method
 			}
 		}
 		if (this.initialMethod == null) {

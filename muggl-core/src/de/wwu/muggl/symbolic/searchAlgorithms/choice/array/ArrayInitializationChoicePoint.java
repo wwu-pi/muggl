@@ -248,7 +248,7 @@ public class ArrayInitializationChoicePoint implements ChoicePoint {
 		
 		// Generate the first array reference.
 		try {
-			this.referenceValue = frame.getVm().getAnObjectref(frame.getVm().getClassLoader().getClassAsClassFile("de.wwu.testtool.expressions.Term"));
+			this.referenceValue = frame.getVm().getAnObjectref(frame.getVm().getClassLoader().getClassAsClassFile("de.wwu.muggl.solvers.expressions.Term"));
 		} catch (ClassFileException e) {
 			throw new SymbolicExecutionException("An internal class of this application's implementation could not be found. Please make sure de.wwu.testtool.* is on the class path.");
 		}

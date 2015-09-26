@@ -704,7 +704,7 @@ public class SolutionProcessor {
 						} else {
 							// Make sure the array to process contains constants only.
 							String nonArrayClassName = parameters[a].getClass().getCanonicalName().replace("[]", "");
-							if (nonArrayClassName.equals("de.wwu.testtool.expressions.Constant")) {
+							if (nonArrayClassName.equals("de.wwu.muggl.solvers.expressions.Constant")) {
 								testMethodStringBuilder.append("array" + arrayParameterPositions.size());
 								// Process an array.
 								arrayParameterPositions.add(a);
