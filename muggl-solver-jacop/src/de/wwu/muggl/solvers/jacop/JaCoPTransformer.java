@@ -218,17 +218,14 @@ public class JaCoPTransformer {
 				boolean switchSides = left.isConstant();
 
 				FloatVar termVar;
-				if (isInteger(ce.getLeft())) {
-					IntVar termInt = normaliseIntegerTerm(ce.getLeft(), store);
+				if (isInteger(variableTerm)) {
+					IntVar termInt = normaliseIntegerTerm(variableTerm, store);
 					termVar = new FloatVar(store, DOMAIN_FLOAT);
 					store.impose( new XeqP(termInt, termVar) );
 				} else {
-					termVar = normaliseFloatTerm(ce.getLeft(), store);
+					termVar = normaliseFloatTerm(variableTerm, store);
 				}
 				
-				termVar = normaliseFloatTerm(variableTerm, store);
-				// assert: termVar == variableTerm
-
 				if (ce instanceof LessOrEqual) {
 					if (switchSides) { 
 						return new PgteqC(termVar, constantValue);
