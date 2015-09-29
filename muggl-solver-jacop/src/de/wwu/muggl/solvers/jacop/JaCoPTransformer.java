@@ -71,6 +71,16 @@ import de.wwu.muggl.solvers.expressions.Sum;
 import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.solvers.expressions.Variable;
 
+/**
+ * JaCoPTransformer
+ * 
+ * Provides static transformation routines,
+ * manipulating the state of a JaCoPMugglStore.
+ * Entrypoint: {@link JaCoPTransformer#transformAndImpose(ConstraintExpression, JacopMugglStore)}.
+ * 
+ * @author Jan C. Dageförde, 2015.
+ *
+ */
 public class JaCoPTransformer {
 	private static final int DOMAIN_DEPRECIATION =
 			1000000;

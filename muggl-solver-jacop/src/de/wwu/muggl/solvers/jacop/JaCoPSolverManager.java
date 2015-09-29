@@ -31,7 +31,18 @@ import de.wwu.muggl.solvers.solver.listener.SolverManagerListener;
 import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
 
 /**
- *
+ * JaCoPSolverManager
+ * 
+ * Integrates the finite domain solver JaCoP into Muggl.
+ * 
+ * Works as a façade, providing a simple interface to the more complex
+ * Muggl-JaCoP-Solver subsystem.
+ * Furthermore, it works as an adapter, exposing a Muggl-specific interface
+ * for JaCoP-specific internals.
+ * 
+ * JaCoP is not included; instead, it is a binary dependency of this project.
+ * Refer to build.gradle for details.
+ * 
  * @author Jan C. Dageförde. 2015
  */
 public class JaCoPSolverManager implements SolverManager {
@@ -72,13 +83,12 @@ public class JaCoPSolverManager implements SolverManager {
 	}
 
 	/**
-	 * Adds a new constraint onto the top of the constraint stack.
+	 * Adds a new constraint the top of the constraint system.
+	 * Performs additional transformations in order to obtain JaCoP constraints.
 	 * 
 	 * @param ce
 	 *            the new constraint defined by an expression built by the
 	 *            virtual machine.
-	 * @return the transformed system of constraints that was added to the
-	 *         constraint stack.
 	 */
 	@Override
 	public void addConstraint(ConstraintExpression ce) {
@@ -184,7 +194,6 @@ public class JaCoPSolverManager implements SolverManager {
 			result = Solution.NOSOLUTION;
 		} else {
 			result = new Solution();
-			// label.getSolutionListener().printAllSolutions();
 			Domain[] solution = search.getSolution();
 			Var[] variables = search.getVariables();
 			for (int i = 0; i < solution.length; i++) {
@@ -192,9 +201,6 @@ public class JaCoPSolverManager implements SolverManager {
 				if (variable == null) {
 					continue;
 				}
-				/*System.out.print(variables[i].id() + " ");
-				System.out.print(variable + " = ");
-				System.out.println(solution[i]);*/
 
 				if (solution[i] instanceof IntDomain) {
 					result.addBinding(variable, NumericConstant.getInstance(
@@ -208,31 +214,22 @@ public class JaCoPSolverManager implements SolverManager {
 		}
 		listeners.fireGetSolutionFinished(this, result,
 				System.nanoTime() - startTime);
-		/*if (logger.isDebugEnabled())
-			System.out.println("solution: " + result);*/
-
 		return result;
 
 	}
 
 	/**
 	 * Checks whether a solution exists for the system of constraints stored in
-	 * the actual constraint stack by using the hasSolution methods of the
-	 * constraint solvers. This method may be a little bit faster when only an
-	 * assertion about the solvability of a system of constraints should be
-	 * calculated.
+	 * the current constraint set by using the consistency() method of the
+	 * JaCoP store. 
 	 * 
-	 * @return <i>true</i> if any solution for the given problem exists,
+	 * @return <i>true</i> if a solution for the given problem exists,
 	 *         <i>false</i> if definitively no solution satisfies the
 	 *         constraints.
 	 * @throws SolverUnableToDecideException
-	 *             if the used solvers are not able to decide whether a solution
-	 *             exists or not or are not able to find an existing solution
-	 *             instance.
+	 *             never; declaration is mandated by the interface
 	 * @throws TimeoutException
-	 *             if the used algorithms stop because of reaching the specified
-	 *             time limits before being able to decide about the given
-	 *             problem.
+	 *             never; declaration is mandated by the interface
 	 */
 	public boolean hasSolution()
 			throws SolverUnableToDecideException, TimeoutException {
@@ -261,27 +258,11 @@ public class JaCoPSolverManager implements SolverManager {
 			logger.debug(result);
 		return result;
 
-		/*
-		 * if (constraintStack.getSystemCount() == 0) {
-		 * listeners.fireHasSolutionFinished(this, true, System.nanoTime() -
-		 * startTime); if (logger.isDebugEnabled()) logger.debug("true ");
-		 * 
-		 * return true; }
-		 * 
-		 * int idx = constraintStack.getFirstNoncontradictorySystemIndex();
-		 * while (idx < constraintStack.getSystemCount()) { if
-		 * (hasSolution(idx)) { listeners.fireHasSolutionFinished(this, true,
-		 * System.nanoTime() - startTime); if (logger.isDebugEnabled())
-		 * logger.debug("true "); return true; }
-		 * 
-		 * idx++; } listeners.fireHasSolutionFinished(this, false,
-		 * System.nanoTime() - startTime); if (logger.isDebugEnabled())
-		 * logger.debug("false"); return false;
-		 */
 	}
 
 	/**
 	 * Removes the lastly added constraint from the constraint stack.
+	 * Uses JaCoP's backtracking mechanism to achieve this.
 	 */
 	public void removeConstraint() {
 		if (jacopStore.level <= 0) {
@@ -303,6 +284,9 @@ public class JaCoPSolverManager implements SolverManager {
 
 	}
 
+	/**
+	 * reset all constraints and statistics and start over with nothing.
+	 */
 	public void reset() {
 		if (logger.isDebugEnabled())
 			logger.debug("Reset");
