@@ -8,7 +8,7 @@ In order to **run** the system:
 - Install Gradle (2.4+ tested).
 - Edit the file `gradle.properties` to reflect the path to an installation of OpenJDK 6.
 - In the root directory that you cloned, enter `gradle run`. Muggl is then compiled and started.
-- tested on jdk6; 7 and 8 currently not supported
+- tested on jdk6 (7 and 8 currently not supported) `sudo apt-get install openjdk-6-jdk`
 
 In order to **generate an eclipse project** for development and execution:
 - In the root directory that you cloned, enter `gradle eclipse`. Metadata for all project is generated in accordance with the settings of the build script.
