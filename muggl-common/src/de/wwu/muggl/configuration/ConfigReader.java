@@ -26,6 +26,8 @@ import org.eclipse.swt.graphics.RGB;
 public class ConfigReader {
 	private static final int BUFFER_BYTES = 1024;
 	
+	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	
 	/**
 	 * Protected default constructor.
 	 */
@@ -86,16 +88,16 @@ public class ConfigReader {
 		}
 
 		// Check the header.
-		if (contents.contains("<?xml version=\"1.0\"?>\n")) {
-			contents = contents.substring(contents.indexOf("<?xml version=\"1.0\"?>\n") + 24);
+		if (contents.contains("<?xml version=\"1.0\"?>"+LINE_SEPARATOR)) {
+			contents = contents.substring(contents.indexOf("<?xml version=\"1.0\"?>"+LINE_SEPARATOR) + 24);
 		} else {
 			if (Globals.getInst().logger.isEnabledFor(Level.WARN))
 				Globals.getInst().logger.warn("Loading the current configuration from a file failed. It does not seem to be a valid xml file.");
 			return false;
 		}
 
-		if (contents.contains("<" + Globals.APP_NAME + "Configuration>\n")) {
-			contents = contents.substring(contents.indexOf("<" + Globals.APP_NAME + "Configuration>\n") + Globals.APP_NAME.length() + 16);
+		if (contents.contains("<" + Globals.APP_NAME + "Configuration>"+LINE_SEPARATOR)) {
+			contents = contents.substring(contents.indexOf("<" + Globals.APP_NAME + "Configuration>"+LINE_SEPARATOR) + Globals.APP_NAME.length() + 16);
 		} else {
 			if (Globals.getInst().logger.isEnabledFor(Level.WARN))
 				Globals.getInst().logger.warn("Loading the current configuration from a file failed. It does not seem to be a valid " + Globals.APP_NAME + " configuration file.");
@@ -103,8 +105,8 @@ public class ConfigReader {
 		}
 
 		// Check the footer.
-		if (contents.contains("</" + Globals.APP_NAME + "Configuration>\n")) {
-			contents = contents.substring(0, contents.indexOf("</" + Globals.APP_NAME + "Configuration>\n"));
+		if (contents.contains("</" + Globals.APP_NAME + "Configuration>"+LINE_SEPARATOR)) {
+			contents = contents.substring(0, contents.indexOf("</" + Globals.APP_NAME + "Configuration>"+LINE_SEPARATOR));
 		} else {
 			if (Globals.getInst().logger.isEnabledFor(Level.WARN))
 				Globals.getInst().logger.warn("Loading the current configuration from a file failed. It does not seem to be a valid " + Globals.APP_NAME + " configuration file.");
@@ -484,9 +486,9 @@ public class ConfigReader {
 			SimpleDateFormat df = new SimpleDateFormat("EEEE, dd MMMM, yyyy h:mm a", Locale.ENGLISH);
 
 			// Open a new file and write the header.
-			out.write("<?xml version=\"1.0\"?>\n");
-			out.write("<!-- Written on " + df.format(new Date()) + " -->\n");
-			out.write("<" + Globals.APP_NAME + "Configuration>\n");
+			out.write("<?xml version=\"1.0\"?>"+LINE_SEPARATOR);
+			out.write("<!-- Written on " + df.format(new Date()) + " -->"+LINE_SEPARATOR);
+			out.write("<" + Globals.APP_NAME + "Configuration>"+LINE_SEPARATOR);
 
 			// Write the settings.
 			out.write(generateNewEntry("javaHome", String.valueOf(options.javaHome), ""));
@@ -554,7 +556,7 @@ public class ConfigReader {
 			out.write(generateNewEntry("solverManager", String.valueOf(options.solverManager), String.valueOf(Defaults.SOLVER_MANAGER)));
 
 			// Finish.
-			out.write("</" + Globals.APP_NAME + "Configuration>\n");
+			out.write("</" + Globals.APP_NAME + "Configuration>"+LINE_SEPARATOR);
 			out.close();
 			return true;
 		} catch (IOException e) {
@@ -571,10 +573,10 @@ public class ConfigReader {
 	 * @return The entry as a String.
 	 */
 	private static String generateNewEntry(String name, String value, String defaultValue) {
-		return "\t<setting name=\"" + name + "\">\n"
-			+ "\t\t<value>" + value + "</value>\n"
-			+ "\t\t<default>" + defaultValue + "</default>\n"
-			+ "\t</setting>\n";
+		return "\t<setting name=\"" + name + "\">"+LINE_SEPARATOR
+			+ "\t\t<value>" + value + "</value>"+LINE_SEPARATOR
+			+ "\t\t<default>" + defaultValue + "</default>"+LINE_SEPARATOR
+			+ "\t</setting>"+LINE_SEPARATOR;
 	}
 
 	/**
@@ -585,13 +587,13 @@ public class ConfigReader {
 	 * @return The entry as a String.
 	 */
 	private static String generateNewArrayListEntry(String name, List<String> value, String defaultValue) {
-		String entry = "\t<setting name=\"" + name + "\" type=\"multi\">\n";
+		String entry = "\t<setting name=\"" + name + "\" type=\"multi\">"+LINE_SEPARATOR;
 		Iterator<String> iterator = value.iterator();
 		while (iterator.hasNext()) {
-			entry += "\t\t<value>" + iterator.next() + "</value>\n";
+			entry += "\t\t<value>" + iterator.next() + "</value>"+LINE_SEPARATOR;
 		}
-		entry += "\t\t<default>" + defaultValue + "</default>\n"
-		+ "\t</setting>\n";
+		entry += "\t\t<default>" + defaultValue + "</default>"+LINE_SEPARATOR
+		+ "\t</setting>"+LINE_SEPARATOR;
 
 		return entry;
 	}
@@ -606,13 +608,13 @@ public class ConfigReader {
 	 */
 	@SuppressWarnings("unused")
 	private static String generateNewArrayEntry(String name, String[] value, String defaultValue) {
-		String entry = "\t<setting name=\"" + name + "\" type=\"multi\">\n";
+		String entry = "\t<setting name=\"" + name + "\" type=\"multi\">"+LINE_SEPARATOR;
 		for (int a = 0; a < value.length; a++) {
 			if (value[a] != null)
-				entry += "\t\t<value>" + value[a] + "</value>\n";
+				entry += "\t\t<value>" + value[a] + "</value>"+LINE_SEPARATOR;
 		}
-		entry += "\t\t<default>" + defaultValue + "</default>\n"
-		+ "\t</setting>\n";
+		entry += "\t\t<default>" + defaultValue + "</default>"+LINE_SEPARATOR
+		+ "\t</setting>"+LINE_SEPARATOR;
 
 		return entry;
 	}
@@ -626,14 +628,14 @@ public class ConfigReader {
 	 * @return The entry as a String.
 	 */
 	private static String generateNewEntry(String name, RGB rgb, RGB rgbDefault) {
-		return "\t<setting name=\"" + name + "\" type=\"rgb\">\n"
-			+ "\t\t<value name=\"red\">" + rgb.red + "</value>\n"
-			+ "\t\t<value name=\"green\">" + rgb.green + "</value>\n"
-			+ "\t\t<value name=\"blue\">" + rgb.blue + "</value>\n"
-			+ "\t\t<value name=\"default red\">" + rgbDefault.red + "</value>\n"
-			+ "\t\t<value name=\"default green\">" + rgbDefault.green + "</value>\n"
-			+ "\t\t<value name=\"default blue\">" + rgbDefault.blue + "</value>\n"
-			+ "\t</setting>\n";
+		return "\t<setting name=\"" + name + "\" type=\"rgb\">"+LINE_SEPARATOR
+			+ "\t\t<value name=\"red\">" + rgb.red + "</value>"+LINE_SEPARATOR
+			+ "\t\t<value name=\"green\">" + rgb.green + "</value>"+LINE_SEPARATOR
+			+ "\t\t<value name=\"blue\">" + rgb.blue + "</value>"+LINE_SEPARATOR
+			+ "\t\t<value name=\"default red\">" + rgbDefault.red + "</value>"+LINE_SEPARATOR
+			+ "\t\t<value name=\"default green\">" + rgbDefault.green + "</value>"+LINE_SEPARATOR
+			+ "\t\t<value name=\"default blue\">" + rgbDefault.blue + "</value>"+LINE_SEPARATOR
+			+ "\t</setting>"+LINE_SEPARATOR;
 	}
 
 }
