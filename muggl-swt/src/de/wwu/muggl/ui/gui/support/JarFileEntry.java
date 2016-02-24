@@ -69,8 +69,7 @@ public class JarFileEntry {
 		    			// Does this entry contain any subdirectories or jar-files beneath it?
 		    			String subDirectories = entry.getName().substring(preLength + slashPos);
 						if (subDirectories.length() > 0
-								&& (subDirectories.contains("/") || (subDirectories.length() > 4 && subDirectories
-										.endsWith(".jar")))) {
+								&& (subDirectories.contains("/") || isArchive(subDirectories))) {
 							TreeItem item = directoryItemMapping.get(fileName);
 		    				if (item != null && item.getItemCount() == 0) {
 		    					new TreeItem(item, 0);
@@ -139,6 +138,20 @@ public class JarFileEntry {
 	 */
 	public String getFileName() {
 		return this.fileName;
+	}
+
+	/**
+	 * Checks whether a given file name represents a jar, ear or war archive.
+	 * @param filename
+	 * @return true if a filename corresponds to a Java archive. 
+	 */
+	public static boolean isArchive(String filename) {
+		if (! (filename.length() > 4)) {
+			return false;
+		}
+		
+		String substring = filename.toLowerCase();
+		return substring.endsWith(".ear") || substring.endsWith(".jar") || substring.endsWith(".war");
 	}
 
 }

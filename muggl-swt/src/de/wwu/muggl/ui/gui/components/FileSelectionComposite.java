@@ -1038,7 +1038,7 @@ public class FileSelectionComposite extends Composite {
 	    		TreeItem item = this.directoryTree.getSelection()[0];
 	    		while (item != null) {
 	    			String addToPath = item.getText();
-	    			if (addToPath.toLowerCase().endsWith(".jar")) {
+	    			if (JarFileEntry.isArchive(addToPath)) {
 	    				addToPath += "|";
 	    			} else {
 	    				addToPath += "/";
@@ -1252,7 +1252,7 @@ public class FileSelectionComposite extends Composite {
 		    		for (int a = 0; a < files.length; a++) {
 		    			newItems.add(files[a]);
 		    		}
-	    		} else if (file.isFile() && file.getName().length() > 4 && file.getName().endsWith(".jar")) {
+	    		} else if (file.isFile() && JarFileEntry.isArchive(file.getName())) {
 	    			// A jar-file cannot be refreshed at this point. It needs special treatment. First record all opened paths.
 	    			ArrayList<String> openedPaths = new ArrayList<String>();
 	    			collectPaths(item.getItems(), "", openedPaths, true);
@@ -1309,7 +1309,8 @@ public class FileSelectionComposite extends Composite {
 	    			if (subFiles != null) {
 		    			for (int b = 0; b < subFiles.length; b++) {
 							if (subFiles[b].isDirectory()
-									|| (subFiles[b].isFile() && subFiles[b].getName().length() > 4 && subFiles[b].getName().substring(subFiles[b].getName().length() - 4).equals(".jar"))) {
+									|| ( subFiles[b].isFile() && JarFileEntry.isArchive(subFiles[b].getName()) )
+									) {
 		    					hasSubEntries = true;
 		    					break;
 		    				}
@@ -1319,11 +1320,9 @@ public class FileSelectionComposite extends Composite {
 	    			// Is expanding desired?
 	    			if (hasSubEntries) new TreeItem(itemNew, 0);
 				} else if (file.isFile()) {
-					String filename = file.getName();
-					int filenameLength = filename.length();
-					if (filenameLength > 4 && filename.substring(filename.length() - 4).equals(".jar")) {
+					if (JarFileEntry.isArchive(file.getName())) {
 		    			TreeItem itemNew = new TreeItem(item, 0, index);
-		    			itemNew.setText(filename);
+		    			itemNew.setText(file.getName());
 		    			itemNew.setData(file);
 		    			new TreeItem(itemNew, 0);
 					}
@@ -1361,8 +1360,7 @@ public class FileSelectionComposite extends Composite {
 	    			if (subFiles != null) {
 		    			for (int b = 0; b < subFiles.length; b++) {
 		    				if (subFiles[b].isDirectory()
-		    						|| (subFiles[b].isFile() && subFiles[b].getName().length() > 4
-		    						&& subFiles[b].getName().substring(subFiles[b].getName().length() - 4).equals(".jar"))) {
+		    						|| JarFileEntry.isArchive(subFiles[b].getName())) {
 		    					hasSubEntries = true;
 		    					break;
 		    				}
@@ -1538,7 +1536,8 @@ public class FileSelectionComposite extends Composite {
 		    			if (subFiles != null) {
 			    			for (int b = 0; b < subFiles.length; b++) {
 			    				if (subFiles[b].isDirectory()
-			    						|| (subFiles[b].isFile() && subFiles[b].getName().length() > 4 && subFiles[b].getName().substring(subFiles[b].getName().length() - 4).equals(".jar"))) {
+			    						|| (subFiles[b].isFile() && 
+			    								JarFileEntry.isArchive(subFiles[b].getName()) )) {
 			    					hasSubEntries = true;
 			    					break;
 			    				}
@@ -1549,8 +1548,7 @@ public class FileSelectionComposite extends Composite {
 		    			if (hasSubEntries) new TreeItem(item, 0);
 	    			} else if (files[a].isFile()) {
 	    				String filename = files[a].getName();
-	    				int filenameLength = filename.length();
-	    				if (filenameLength > 4 && filename.substring(filename.length() - 4).equals(".jar"))
+	    				if (JarFileEntry.isArchive(filename))
 	    				{
 			    			TreeItem item = new TreeItem(root, 0);
 			    			item.setText(filename);
@@ -1560,9 +1558,7 @@ public class FileSelectionComposite extends Composite {
 	    			}
 	    		}
     		} else if (file.isFile()) { // Jar-file.
-    			String filename = file.getName();
-    			int filenameLength = filename.length();
-    			if (filenameLength > 4 && filename.substring(filename.length() - 4).equals(".jar")) {
+    			if (JarFileEntry.isArchive(file.getName())) {
     				try {
     					JarFile jarfile = new JarFile(file);
     					JarFileEntry jfe = new JarFileEntry(jarfile, "", getFileListArray());
@@ -1584,8 +1580,8 @@ public class FileSelectionComposite extends Composite {
 	 */
 	public void openFileDirectly() {
 		FileDialog fileDialog = new FileDialog(this.shell, SWT.OPEN);
-		String[] extensions = {"*.class", "*.jar"};
-		String[] names = {"Class file (*.class)", "Jar archive (*.jar)"};
+		String[] extensions = {"*.class", "*.jar", "*.war", "*.ear"};
+		String[] names = {"Class file (*.class)", "Jar archive (*.jar)", "War archive (*.war)", "Ear archive (*.ear)"};
 		fileDialog.setFilterExtensions(extensions);
 		fileDialog.setFilterNames(names);
 		String path = fileDialog.open();
@@ -1594,7 +1590,7 @@ public class FileSelectionComposite extends Composite {
 			path = path.replace("\\\\", "\\");
 
 			// different handling of class and jar files
-			if ((path.length() > 4 && path.substring(path.length() - 4).equals(".jar")) || (path.length() > 6 && path.substring(path.length() - 6).equals(".class")))
+			if (JarFileEntry.isArchive(path) || (path.length() > 6 && path.substring(path.length() - 6).equals(".class")))
 			{
 				// Browse through the directory tree.
 				browseTroughTheDirectoryTree(path, null);
@@ -1621,7 +1617,7 @@ public class FileSelectionComposite extends Composite {
 		// Reached the file or final directory?
 		if (slashPos == -1 && barPos == -1) {
 			// Jar or class file?
-			if (path.length() > 4 && path.substring(path.length() - 4).equals(".jar")) {
+			if (JarFileEntry.isArchive(path)) {
 				TreeItem[] items = item.getItems();
 				// Now the last entry should match this TreeItem.
 				for (int a = 0; a < items.length; a++) {

@@ -500,8 +500,11 @@ public class MugglClassLoader extends ClassLoader {
 	 * @return true, if the file appears to be a jar file, false otherwise.
 	 */
 	private boolean isJarFile(String filename) {
-		if (filename.length() > 4 && filename.substring(filename.length() - 4).equals(".jar")) return true;
-		return false;
+		if (!(filename.length() > 4 )) {
+			return false;
+		}
+		String fn = filename.toLowerCase();
+		return fn.endsWith(".ear") || fn.endsWith(".jar") || fn.endsWith(".war");
 	}
 
 	/**
