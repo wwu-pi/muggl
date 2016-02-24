@@ -1420,7 +1420,7 @@ public class FileSelectionComposite extends Composite {
 	 */
 	protected void loadMethods(String className, boolean refresh) throws ClassFileException {
 		// If nothing changed and there was no refresh requested, the following can be skipped.
-		if (this.currentClass == null || !(this.currentClassPackage + className).equals(this.currentClass.getName() + ".class") || refresh)
+		if (refresh || this.currentClass == null || !(this.currentClassPackage + className).equals(this.currentClass.getName() + ".class") )
 		{
 			// Check if the method has not changed.
 			String selectedMethodSignature = null;
