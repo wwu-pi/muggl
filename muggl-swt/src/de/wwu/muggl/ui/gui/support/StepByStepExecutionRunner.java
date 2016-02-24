@@ -3,6 +3,7 @@ package de.wwu.muggl.ui.gui.support;
 import org.apache.log4j.Level;
 import org.eclipse.swt.SWT;
 
+import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
@@ -443,7 +444,7 @@ public class StepByStepExecutionRunner extends Thread {
 		this.continueExecution = true;
 		this.notAborted = true;
 		int stepsExecuted = 0;
-		long sleepingMiliseconds = (long) (this.executeEvery * StaticGuiSupport.MILLIS_SECOND_D);
+		long sleepingMiliseconds = (long) (this.executeEvery * TimeSupport.MILLIS_SECOND_D);
 
 		// Outer loop - do not abort it until the execution is really finished.
 		while (this.notAborted) {
@@ -506,7 +507,7 @@ public class StepByStepExecutionRunner extends Thread {
 						wait();
 					}
 				}
-				sleepingMiliseconds = (long) (this.executeEvery * StaticGuiSupport.MILLIS_SECOND_D); // Might have changed.
+				sleepingMiliseconds = (long) (this.executeEvery * TimeSupport.MILLIS_SECOND_D); // Might have changed.
 			}  catch (InterruptedException e) {
 				this.stepByStepExecutionComposite.drawMessageBoxForExecutionRunner(
 						"Error", e.getClass().getName() + ": "

@@ -15,10 +15,10 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Level;
 
+import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.solvers.Solution;
-import de.wwu.muggl.ui.gui.support.StaticGuiSupport;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
@@ -882,7 +882,7 @@ public class SolutionProcessor {
 				+ " * \r\n"
 				+ " * Important settings for this run:\r\n"
 				+ " * Search algorithm:            " + this.vm.getSearchAlgorithm().getName() + "\r\n"
-				+ " * Time Limit:                  " + StaticGuiSupport.computeRunningTime(Options.getInst().maximumExecutionTime * 1000, false) + "\r\n"
+				+ " * Time Limit:                  " + TimeSupport.computeRunningTime(Options.getInst().maximumExecutionTime * 1000, false) + "\r\n"
 				+ " * Maximum loop cycles to take: ");
 			if (Options.getInst().maximumLoopsToTake == -1) {
 				fileContents.append("infinite");

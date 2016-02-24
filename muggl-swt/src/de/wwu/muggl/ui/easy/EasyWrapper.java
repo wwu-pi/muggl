@@ -9,10 +9,10 @@ import java.io.IOException;
 
 import org.apache.log4j.Level;
 
+import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.ConfigReader;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
-import de.wwu.muggl.symbolic.generating.impl.RandomConstantIntegerArrayElementsGeneratorProvider;
 import de.wwu.muggl.ui.gui.support.StaticGuiSupport;
 import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -142,7 +142,7 @@ public final class EasyWrapper extends Thread {
 		while (!isFinished()) {
 			// Check if the maximum execution time has been reached.
 			if (this.maximumExecutionTime != -1) {
-				if (System.currentTimeMillis() - this.timeStarted > this.maximumExecutionTime * StaticGuiSupport.MILLIS_SECOND) {
+				if (System.currentTimeMillis() - this.timeStarted > this.maximumExecutionTime * TimeSupport.MILLIS_SECOND) {
 					((SymbolicVirtualMachine) this.application.getVirtualMachine()).setAbortionCriterionMatched(true);
 					((SymbolicVirtualMachine) this.application.getVirtualMachine()).setAbortionCriterionMatchedMessage("The time limit has been reached.");
 
