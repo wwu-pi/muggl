@@ -1,5 +1,10 @@
 package de.wwu.muggl.common;
 
+/**
+ * Helper class providing static methods that deal with time.
+ *  
+ * @author Jan Dageförde
+ */
 public class TimeSupport {
 
 	// Constants.
