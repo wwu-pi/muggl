@@ -511,8 +511,25 @@ public class FileSelectionComposite extends Composite {
 		    			File file = (File) object;
 			    		File[] files = file.listFiles();
 			    		if (files == null || files.length == 0) {
-			    			changeFileListEnabled(false);
-			    			return;
+			    			if (JarFileEntry.isArchive(file.getName())) {
+			    				try {
+			    					JarFile jarfile = new JarFile(file);
+			    					JarFileEntry jfe = new JarFileEntry(jarfile, "", getFileListArray());
+			    					jfe.expandClassFiles(getFileList());
+			    					if (getFileList().getItemCount() > 0) {
+			    		    			getFileList().setEnabled(true);
+			    		    		} else {
+			    		    			changeFileListEnabled(false);
+			    		    			
+			    		    		}
+			    				} catch (IOException e) {
+			    					StaticGuiSupport.showMessageBox(FileSelectionComposite.this.shell, "Could not load classes in the jar file's root due to an I/O error.", SWT.OK | SWT.ICON_ERROR);
+			    				}
+			    				return;
+			    			} else {
+				    			changeFileListEnabled(false);
+				    			return;
+			    			}
 			    		}
 			    		for (int a = 0; a < files.length; a++) {
 			    			if (files[a].isFile()) {
@@ -1437,7 +1454,8 @@ public class FileSelectionComposite extends Composite {
 				while (iterator.hasNext()) {
 					Object[] object = iterator.next();
 					if (((String) object[0]).equals(className)) {
-						this.currentClass = this.classLoader.getClassAsClassFile(this.currentClassPackage + className, refresh);
+						String pkg = this.currentClassPackage == null ? "" : this.currentClassPackage;
+						this.currentClass = this.classLoader.getClassAsClassFile(pkg + className, refresh);
 						break;
 					}
 				}
@@ -1708,6 +1726,7 @@ public class FileSelectionComposite extends Composite {
 			} else if (data instanceof File && ((File) data).isFile()) {
 				// It is just a single file, so add the path to it.
 				newEntry =  ((File) data).getPath();
+				this.currentClassPackage = "";
 			} else {
 				// Try to find out if we are somewhere in a structure with a root dir "bin". Otherwise just add the current dir.
 				String fullPath = "";

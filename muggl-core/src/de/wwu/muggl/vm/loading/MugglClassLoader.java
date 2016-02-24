@@ -358,6 +358,10 @@ public class MugglClassLoader extends ClassLoader {
 	 */
 	private ClassFile getClassFromProjectPath(String name, String[] path, String className)
 			throws ClassFileException, IOException {
+		if (path.length == 0) {
+			path = new String[]{""};
+		}
+		
 		if (isJarFile(this.classPathEntries[0])) {
 			return getFromJarFile(new JarFile(new File(this.classPathEntries[0])),
 					name.replace(".", "/") + ".class");
@@ -419,6 +423,9 @@ public class MugglClassLoader extends ClassLoader {
 	private ClassFile getClassFromClasspath(String name, String[] path, String className)
 			throws ClassFileException, IOException {
 		String nameForJarFileSearch = name.replace(".", "/") + ".class";
+		if (path.length == 0) {
+			path = new String[]{""};
+		}
 		for (int a = 1; a < this.classPathEntries.length; a++) {
 			if (isJarFile(this.classPathEntries[a])) {
 				ClassFile classFile = getFromJarFile(
