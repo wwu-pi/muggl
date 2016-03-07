@@ -667,7 +667,8 @@ public class ClassFile {
 
 			// Check if this name matches the file name.
 			String path = this.fullPath.replace("\\", "/");
-			String className = path.substring(path.lastIndexOf("/") + 1);
+			String className = path.substring(path.lastIndexOf("|") + 1); // strip away surrounding java archives (if any) 
+			className = className.substring(className.lastIndexOf("/") + 1); // strip away parent directories (if any)
 			className = className.substring(0, className.indexOf("."));
 			String name = this.name.substring(this.name.lastIndexOf(".") + 1);
 			/*

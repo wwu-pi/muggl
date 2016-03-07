@@ -358,6 +358,10 @@ public class MugglClassLoader extends ClassLoader {
 	 */
 	private ClassFile getClassFromProjectPath(String name, String[] path, String className)
 			throws ClassFileException, IOException {
+		if (path.length == 0) {
+			path = new String[]{""};
+		}
+		
 		if (isJarFile(this.classPathEntries[0])) {
 			return getFromJarFile(new JarFile(new File(this.classPathEntries[0])),
 					name.replace(".", "/") + ".class");
@@ -419,6 +423,9 @@ public class MugglClassLoader extends ClassLoader {
 	private ClassFile getClassFromClasspath(String name, String[] path, String className)
 			throws ClassFileException, IOException {
 		String nameForJarFileSearch = name.replace(".", "/") + ".class";
+		if (path.length == 0) {
+			path = new String[]{""};
+		}
 		for (int a = 1; a < this.classPathEntries.length; a++) {
 			if (isJarFile(this.classPathEntries[a])) {
 				ClassFile classFile = getFromJarFile(
@@ -500,8 +507,11 @@ public class MugglClassLoader extends ClassLoader {
 	 * @return true, if the file appears to be a jar file, false otherwise.
 	 */
 	private boolean isJarFile(String filename) {
-		if (filename.length() > 4 && filename.substring(filename.length() - 4).equals(".jar")) return true;
-		return false;
+		if (!(filename.length() > 4 )) {
+			return false;
+		}
+		String fn = filename.toLowerCase();
+		return fn.endsWith(".ear") || fn.endsWith(".jar") || fn.endsWith(".war");
 	}
 
 	/**
