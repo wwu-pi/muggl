@@ -5,22 +5,23 @@ import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import de.wwu.testtool.conf.ConfigReader;
-import de.wwu.testtool.exceptions.IncompleteSolutionException;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.expressions.BooleanConstant;
-import de.wwu.testtool.expressions.Constant;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.FloatConstant;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LongConstant;
-import de.wwu.testtool.expressions.Variable;
-import de.wwu.testtool.solver.HasSolutionInformation;
-import de.wwu.testtool.solver.Solution;
-import de.wwu.testtool.solver.SolverManager;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
-import de.wwu.testtool.solver.constraints.SingleConstraint;
+import de.wwu.muggl.solvers.conf.ConfigReader;
+import de.wwu.muggl.solvers.exceptions.IncompleteSolutionException;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.expressions.Constant;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muggl.solvers.solver.HasSolutionInformation;
+import de.wwu.muggl.solvers.solver.Solver;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraint;
 
 
 /**

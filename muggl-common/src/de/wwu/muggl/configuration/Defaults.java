@@ -277,5 +277,9 @@ final class Defaults {
 	 * @see Options#dynReplaceInstWithOptimizedOnes
 	 */
 	public static final boolean DYN_REPLACE_INSTR_WITH_OPTIMIZED_ONES = true;
+	/**
+	 * @see Options#solverManager
+	 */
+	public static final String SOLVER_MANAGER = "de.wwu.muggl.solvers.jacop.JaCoPSolverManager";
 	
 }

@@ -10,8 +10,8 @@ import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.threading.Monitor;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * The class represents an abstract instruction with some concrete methods. It is the super class for

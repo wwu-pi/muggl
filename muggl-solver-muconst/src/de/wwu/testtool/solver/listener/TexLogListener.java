@@ -7,13 +7,13 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.log4j.Logger;
 
-import de.wwu.testtool.conf.ConfigReader;
-import de.wwu.testtool.conf.TesttoolConfig;
-import de.wwu.testtool.solver.Solution;
-import de.wwu.testtool.solver.SolverManager;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
-import de.wwu.testtool.solver.tsolver.Solver;
-import de.wwu.testtool.tools.StringFormater;
+import de.wwu.muggl.solvers.conf.ConfigReader;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
+import de.wwu.muggl.solvers.solver.Solver;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.solver.tools.StringFormater;
 
 /**
  * @author Christoph Lembeck

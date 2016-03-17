@@ -1,22 +1,24 @@
 package de.wwu.testtool.solver;
 
-import de.wwu.testtool.conf.SolverManagerConfig;
-import de.wwu.testtool.conf.TesttoolConfig;
-import de.wwu.testtool.exceptions.IncorrectSolverException;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.solver.constraints.ComposedConstraint;
-import de.wwu.testtool.solver.listener.SolverManagerListener;
-import de.wwu.testtool.solver.listener.SolverManagerListenerList;
-import de.wwu.testtool.solver.tools.SubstitutionTable;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
+import de.wwu.muggl.solvers.conf.SolverManagerConfig;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
+import de.wwu.muggl.solvers.exceptions.IncorrectSolverException;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.solver.constraints.ComposedConstraint;
+import de.wwu.muggl.solvers.solver.listener.SolverManagerListener;
+import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
+import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
 
 /**
  * 
  * @author Marko Ernsting
  *
  */
-public class SolverManagerNew implements SolverManager {
+public class SolverManagerNew implements SolverManager, MuconstSolverManager {
 
     private SolverManagerListenerList listeners = new SolverManagerListenerList();
     private ComposedConstraintSolver composedConstraintSolver;
@@ -35,7 +37,7 @@ public class SolverManagerNew implements SolverManager {
     }
     
     @Override
-    public ComposedConstraint addConstraint(ConstraintExpression ce) {
+    public void addConstraint(ConstraintExpression ce) {
 	ComposedConstraint cc = ce.convertToComposedConstraint(substitutionTable);
 	substitutionTable.signalStackElementAdded();
 	
@@ -49,7 +51,7 @@ public class SolverManagerNew implements SolverManager {
 	
 	listeners.fireAddConstraint(this, ce, cc);
 	
-	return cc;
+	//return cc;
     }
 
     @Override

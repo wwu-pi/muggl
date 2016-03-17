@@ -1,11 +1,11 @@
 package de.wwu.muggl.symbolic.generating.impl;
 
 import de.wwu.muggl.symbolic.generating.ArrayElementsGenerator;
-import de.wwu.testtool.expressions.Difference;
-import de.wwu.testtool.expressions.NumericConstant;
-import de.wwu.testtool.expressions.NumericVariable;
-import de.wwu.testtool.expressions.Sum;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Difference;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.Sum;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * This ArrayElementsGenerator provides ordered array elements.<br>

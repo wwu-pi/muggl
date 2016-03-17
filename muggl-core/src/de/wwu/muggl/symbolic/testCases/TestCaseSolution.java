@@ -7,20 +7,20 @@ import java.util.Set;
 import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.ObjectComparator;
-import de.wwu.testtool.expressions.BooleanConstant;
-import de.wwu.testtool.expressions.Constant;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.FloatConstant;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LongConstant;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.expressions.Variable;
-import de.wwu.testtool.solver.Solution;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.expressions.Constant;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * This class represents a solution found by the symbolic virtual machine. It holds

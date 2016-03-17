@@ -14,8 +14,8 @@ import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
 
 /**
  * This concrete class represents a virtual machine for the logic execution of java bytecode. It

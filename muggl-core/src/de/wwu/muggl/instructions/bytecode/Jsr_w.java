@@ -6,7 +6,7 @@ import de.wwu.muggl.instructions.interfaces.data.StackPush;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
-import de.wwu.testtool.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 
 /**
  * Implementation of the instruction <code>jsr_w</code>.

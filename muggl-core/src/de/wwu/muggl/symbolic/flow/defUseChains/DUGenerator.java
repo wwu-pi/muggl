@@ -10,6 +10,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
+import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
@@ -43,7 +44,6 @@ import de.wwu.muggl.symbolic.flow.defUseChains.structures.ObjectAttributeCandida
 import de.wwu.muggl.symbolic.flow.defUseChains.structures.StackPosition;
 import de.wwu.muggl.symbolic.flow.defUseChains.structures.StaticAttribute;
 import de.wwu.muggl.symbolic.flow.defUseChains.structures.Use;
-import de.wwu.muggl.ui.gui.support.StaticGuiSupport;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
@@ -134,7 +134,7 @@ class DUGenerator {
 		stack.push(new DUGenerationBranch(this.initialMethod, 0));
 		long startTime = System.currentTimeMillis(); // TODO
 		while (!stack.isEmpty()) {
-			if (System.currentTimeMillis() - startTime > 2 * StaticGuiSupport.MILLIS_SECOND) { // TODO
+			if (System.currentTimeMillis() - startTime > 2 * TimeSupport.MILLIS_SECOND) { // TODO
 				//System.out.println("too long!" + this.defUseChainsMap.get(this.initialMethod).getDefUseChains().size());
 				break;
 			}

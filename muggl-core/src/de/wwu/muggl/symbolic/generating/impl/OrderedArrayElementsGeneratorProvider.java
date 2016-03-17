@@ -2,8 +2,8 @@ package de.wwu.muggl.symbolic.generating.impl;
 
 import de.wwu.muggl.symbolic.generating.ArrayElementsGenerator;
 import de.wwu.muggl.symbolic.generating.ArrayElementsGeneratorProvider;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
 
 /**
  * This GeneratorProvider for an OrderedArrayElementsGenerator.

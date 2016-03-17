@@ -18,7 +18,7 @@ import de.wwu.muggl.vm.execution.MugglToJavaConversion;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.ModifieableArrayref;
-import de.wwu.testtool.expressions.Variable;
+import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * Abstract instruction with some concrete methods for instructions that load elements

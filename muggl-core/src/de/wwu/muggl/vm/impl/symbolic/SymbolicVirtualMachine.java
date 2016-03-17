@@ -16,6 +16,7 @@ import de.wwu.muggl.instructions.general.Load;
 import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.symbolic.flow.coverage.CoverageController;
 import de.wwu.muggl.symbolic.generating.Generator;
 import de.wwu.muggl.symbolic.searchAlgorithms.SearchAlgorithm;
@@ -38,13 +39,11 @@ import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.solver.SolverManager;
-import de.wwu.testtool.solver.SolverManagerOld;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * This concrete class represents a virtual machine for the symbolic execution of java bytecode,
@@ -177,7 +176,15 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 			throws InitializationException {
 		super(application, classLoader, classFile, initialMethod);
 		Options options = Options.getInst();
-		this.solverManager = new SolverManagerOld();
+		try {
+			this.solverManager = (SolverManager) Class.forName(options.solverManager).newInstance();
+		} catch (InstantiationException e) {
+			throw new InitializationException("Solver manager of class " + options.solverManager + " cannot be instantiated.");
+		} catch (IllegalAccessException e) {
+			throw new InitializationException("Solver manager of class " + options.solverManager + " cannot be accessed.");
+		} catch (ClassNotFoundException e) {
+			throw new InitializationException("Solver manager of class " + options.solverManager + " does not exist.");
+		}
 		this.searchAlgorithm = searchAlgorithm;
 		this.coverage = new CoverageController(this);
 		this.trackCoverage = options.useCFCoverage && options.useDUCoverage;

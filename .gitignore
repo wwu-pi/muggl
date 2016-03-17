@@ -1,9 +1,5 @@
 *.class
 
-# Conf
-conf/
-conf/*
-
 # Binaries
 bin/
 
@@ -15,9 +11,10 @@ muggl-swt/log/*.html
 *.war
 *.ear
 
-# Eclipse (classpath swt problem)
+# Eclipse
 .settings/
 .classpath
+.project
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion
 

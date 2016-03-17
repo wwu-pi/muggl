@@ -1,7 +1,7 @@
 package de.wwu.muggl.symbolic.generating.impl;
 
 import de.wwu.muggl.symbolic.generating.Generator;
-import de.wwu.testtool.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 
 /**
  * This Generator provides a sequence of IntConstant objects at which each value is succeeded by one

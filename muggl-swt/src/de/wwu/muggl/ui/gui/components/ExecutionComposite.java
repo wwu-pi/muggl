@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 
+import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.ui.gui.GUIException;
 import de.wwu.muggl.ui.gui.support.EscKeyListener;
@@ -243,9 +244,9 @@ public class ExecutionComposite extends Composite {
 				String executeEveryString = ((Combo) e.widget).getText();
 				String dimension = executeEveryString.substring(executeEveryString.length() - 1);
 				String time = executeEveryString.substring(0, executeEveryString.length() - 2);
-				int timeInt = (int) (Double.parseDouble(time) * StaticGuiSupport.MILLIS_SECOND);
-				if (dimension.equals("m")) timeInt *= StaticGuiSupport.SECONDS_MINUTE;
-				else if (dimension.equals("h")) timeInt *= StaticGuiSupport.SECONDS_HOUR;
+				int timeInt = (int) (Double.parseDouble(time) * TimeSupport.MILLIS_SECOND);
+				if (dimension.equals("m")) timeInt *= TimeSupport.SECONDS_MINUTE;
+				else if (dimension.equals("h")) timeInt *= TimeSupport.SECONDS_HOUR;
 				getExecutionRunner().setRefreshEvery(timeInt);
 			}
 		});

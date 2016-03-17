@@ -8,19 +8,19 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 import de.wwu.testtool.conf.SimplexSolverConfig;
-import de.wwu.testtool.conf.TesttoolConfig;
-import de.wwu.testtool.exceptions.IncompleteSolutionException;
-import de.wwu.testtool.exceptions.IncorrectSolverException;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.solver.Solution;
-import de.wwu.testtool.solver.constraints.NumericConstraint;
-import de.wwu.testtool.solver.constraints.Polynomial;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
+import de.wwu.muggl.solvers.exceptions.IncompleteSolutionException;
+import de.wwu.muggl.solvers.exceptions.IncorrectSolverException;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.solver.Solver;
+import de.wwu.muggl.solvers.solver.constraints.NumericConstraint;
+import de.wwu.muggl.solvers.solver.constraints.Polynomial;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
 import de.wwu.testtool.solver.tsolver.EliminationSolver;
 import de.wwu.testtool.solver.tsolver.SimplexSolver;
 import de.wwu.testtool.solver.tsolver.SimplexSolverCL;
-import de.wwu.testtool.solver.tsolver.Solver;
 import de.wwu.testtool.test.DiplomaThesisProblems;
 
 /**

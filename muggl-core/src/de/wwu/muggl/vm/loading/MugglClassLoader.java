@@ -229,7 +229,14 @@ public class MugglClassLoader extends ClassLoader {
 				return classFile;
 			}
 
-			// Fifth attempt: Find in lib/solving.jar.
+			// Fifth attempt: find in Muggl's class path.
+			classFile = getClassFromMugglClasspath(name, path, className);
+			if (classFile != null) {
+				addToClassCache(classFile);
+				return classFile;
+			}
+
+			// Sixth attempt: Find in lib/solving.jar.
 			try {
 				File file = new File(Globals.BASE_DIRECTORY + "/lib/solving.jar");
 				JarFile jarFile = new JarFile(file);
@@ -351,6 +358,10 @@ public class MugglClassLoader extends ClassLoader {
 	 */
 	private ClassFile getClassFromProjectPath(String name, String[] path, String className)
 			throws ClassFileException, IOException {
+		if (path.length == 0) {
+			path = new String[]{""};
+		}
+		
 		if (isJarFile(this.classPathEntries[0])) {
 			return getFromJarFile(new JarFile(new File(this.classPathEntries[0])),
 					name.replace(".", "/") + ".class");
@@ -412,6 +423,9 @@ public class MugglClassLoader extends ClassLoader {
 	private ClassFile getClassFromClasspath(String name, String[] path, String className)
 			throws ClassFileException, IOException {
 		String nameForJarFileSearch = name.replace(".", "/") + ".class";
+		if (path.length == 0) {
+			path = new String[]{""};
+		}
 		for (int a = 1; a < this.classPathEntries.length; a++) {
 			if (isJarFile(this.classPathEntries[a])) {
 				ClassFile classFile = getFromJarFile(
@@ -419,6 +433,39 @@ public class MugglClassLoader extends ClassLoader {
 				if (classFile != null) return classFile;
 			} else {
 				ClassFile classFile = searchClassInDirectory(new File(this.classPathEntries[a]), 0,
+						path, className);
+				if (classFile != null) return classFile;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Private method for the fifth attempt: finding a class in Muggl's running class path.
+	 * Especially relevant for executing Newarray symbolically, as it tries to resolve "de.wwu.muggl.solvers.expressions.Term",
+	 * which is part of the `solvers` subproject.
+	 *
+	 * @param name The full name of the class to find.
+	 * @param path String array holding the ordered names of the packages the class belongs to.
+	 * @param className The name of the class without any package information, but with a trailing
+	 *        ".class".
+	 * @return A ClassFile in case of success, null otherwise.
+	 * @throws ClassFileException Thrown on fatal errors loading or parsing a class file.
+	 * @throws IOException Thrown on fatal problems reading or writing to the file system.
+	 */
+	private ClassFile getClassFromMugglClasspath(String name, String[] path, String className)
+			throws ClassFileException, IOException {
+		String nameForJarFileSearch = name.replace(".", "/") + ".class";
+		
+		String[] mugglClassPath = System.getProperty("java.class.path").split(":");
+		
+		for (String entry : mugglClassPath) {
+			if (isJarFile(entry)) {
+				ClassFile classFile = getFromJarFile(
+						new JarFile(new File(entry)), nameForJarFileSearch);
+				if (classFile != null) return classFile;
+			} else {
+				ClassFile classFile = searchClassInDirectory(new File(entry), 0,
 						path, className);
 				if (classFile != null) return classFile;
 			}
@@ -460,8 +507,11 @@ public class MugglClassLoader extends ClassLoader {
 	 * @return true, if the file appears to be a jar file, false otherwise.
 	 */
 	private boolean isJarFile(String filename) {
-		if (filename.length() > 4 && filename.substring(filename.length() - 4).equals(".jar")) return true;
-		return false;
+		if (!(filename.length() > 4 )) {
+			return false;
+		}
+		String fn = filename.toLowerCase();
+		return fn.endsWith(".ear") || fn.endsWith(".jar") || fn.endsWith(".war");
 	}
 
 	/**

@@ -1,7 +1,7 @@
 package de.wwu.muggl.symbolic.generating.impl;
 
 import de.wwu.muggl.symbolic.generating.Generator;
-import de.wwu.testtool.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
 
 /**
  * This Generator provides a sequence of DoubleConstant objects at which each value is succeeded by

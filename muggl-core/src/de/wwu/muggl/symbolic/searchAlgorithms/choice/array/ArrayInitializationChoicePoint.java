@@ -15,9 +15,9 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
 
 /**
  * This class represents the ChoicePoint generated to represent the symbolic array generation strategy. It
@@ -248,7 +248,7 @@ public class ArrayInitializationChoicePoint implements ChoicePoint {
 		
 		// Generate the first array reference.
 		try {
-			this.referenceValue = frame.getVm().getAnObjectref(frame.getVm().getClassLoader().getClassAsClassFile("de.wwu.testtool.expressions.Term"));
+			this.referenceValue = frame.getVm().getAnObjectref(frame.getVm().getClassLoader().getClassAsClassFile("de.wwu.muggl.solvers.expressions.Term"));
 		} catch (ClassFileException e) {
 			throw new SymbolicExecutionException("An internal class of this application's implementation could not be found. Please make sure de.wwu.testtool.* is on the class path.");
 		}

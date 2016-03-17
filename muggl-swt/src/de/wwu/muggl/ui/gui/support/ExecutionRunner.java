@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Level;
 import org.eclipse.swt.SWT;
 
+import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.symbolic.flow.coverage.CGCoverage;
@@ -148,7 +149,7 @@ public class ExecutionRunner extends Thread {
 				while (this.isStarted) {
 					// Check if the maximum execution time has been reached.
 					if (options.maximumExecutionTime != -1) {
-						if (System.currentTimeMillis() - this.timeStarted - this.pauseTimeTotal > options.maximumExecutionTime * StaticGuiSupport.MILLIS_SECOND) {
+						if (System.currentTimeMillis() - this.timeStarted - this.pauseTimeTotal > options.maximumExecutionTime * TimeSupport.MILLIS_SECOND) {
 							// If the mode is symbolical, store information that the execution was stopped.
 							if (options.symbolicMode) {
 								((SymbolicVirtualMachine) this.application.getVirtualMachine()).setAbortionCriterionMatched(true);
@@ -304,15 +305,15 @@ public class ExecutionRunner extends Thread {
 				// Gather general statistics.
 				VirtualMachine vm = this.application.getVirtualMachine();
 				long miliSecondsRun = System.currentTimeMillis() - this.timeStarted - this.pauseTimeTotal;
-				long secondsRun = Math.round(((double) miliSecondsRun) / StaticGuiSupport.MILLIS_SECOND);
+				long secondsRun = Math.round(((double) miliSecondsRun) / TimeSupport.MILLIS_SECOND);
 				String generalStatistics = "Statistical information:\n"
-					+ "Execution time:\t\t\t\t\t\t\t" + StaticGuiSupport.computeRunningTime(miliSecondsRun, true) + "\n"
+					+ "Execution time:\t\t\t\t\t\t\t" + TimeSupport.computeRunningTime(miliSecondsRun, true) + "\n"
 					+ "Maximum running time:\t\t\t\t\t";
 				long maximumExecutionTime = options.maximumExecutionTime;
 				if (maximumExecutionTime == -1) {
 					generalStatistics += "no limit";
 				} else {
-					generalStatistics += StaticGuiSupport.computeRunningTime(maximumExecutionTime * StaticGuiSupport.MILLIS_SECOND, false);
+					generalStatistics += TimeSupport.computeRunningTime(maximumExecutionTime * TimeSupport.MILLIS_SECOND, false);
 				}
 				
 				if (options.symbolicMode) {
@@ -430,31 +431,31 @@ public class ExecutionRunner extends Thread {
 							long[] executionTimeInformation = ((SymbolicVirtualMachine) vm).getExecutionTimeInformation();
 							double percentage = ((double) executionTimeInformation[0]) / ((double) miliSecondsRun);
 							percentage = (Math.round(percentage * 10000)) / (double) 100;
-							information += "...instruction execution:\t\t\t\t\t" + StaticGuiSupport.computeRunningTime(executionTimeInformation[0], false) + "\n"
+							information += "...instruction execution:\t\t\t\t\t" + TimeSupport.computeRunningTime(executionTimeInformation[0], false) + "\n"
 								+ "Percentage of total running time:\t\t\t" + percentage + "%\n";
 							percentage = ((double) executionTimeInformation[1]) / ((double) miliSecondsRun);
 							percentage = (Math.round(percentage * 10000)) / (double) 100;
-							information += "...loop detection:\t\t\t\t\t\t\t" + StaticGuiSupport.computeRunningTime(executionTimeInformation[1], false) + "\n"
+							information += "...loop detection:\t\t\t\t\t\t\t" + TimeSupport.computeRunningTime(executionTimeInformation[1], false) + "\n"
 								+ "Percentage of total running time:\t\t\t" + percentage + "%\n";
 							percentage = ((double) executionTimeInformation[2]) / ((double) miliSecondsRun);
 							percentage = (Math.round(percentage * 10000)) / (double) 100;
-							information += "...coverage checking:\t\t\t\t\t\t" + StaticGuiSupport.computeRunningTime(executionTimeInformation[2], false) + "\n"
+							information += "...coverage checking:\t\t\t\t\t\t" + TimeSupport.computeRunningTime(executionTimeInformation[2], false) + "\n"
 								+ "Percentage of total running time:\t\t\t" + percentage + "%\n\n";
 							percentage = ((double) executionTimeInformation[3]) / ((double) miliSecondsRun);
 							percentage = (Math.round(percentage * 10000)) / (double) 100;
-							information += "...choice point generation:\t\t\t\t" + StaticGuiSupport.computeRunningTime(executionTimeInformation[3], false) + "\n"
+							information += "...choice point generation:\t\t\t\t" + TimeSupport.computeRunningTime(executionTimeInformation[3], false) + "\n"
 								+ "Percentage of total running time:\t\t\t" + percentage + "%\n";
 							percentage = ((double) executionTimeInformation[4]) / ((double) miliSecondsRun);
 							percentage = (Math.round(percentage * 10000)) / (double) 100;
-							information += "...solving:\t\t\t\t\t\t\t\t\t" + StaticGuiSupport.computeRunningTime(executionTimeInformation[4], false) + "\n"
+							information += "...solving:\t\t\t\t\t\t\t\t\t" + TimeSupport.computeRunningTime(executionTimeInformation[4], false) + "\n"
 								+ "Percentage of total running time:\t\t\t" + percentage + "%\n";
 							percentage = ((double) executionTimeInformation[5]) / ((double) miliSecondsRun);
 							percentage = (Math.round(percentage * 10000)) / (double) 100;
-							information += "...backtracking:\t\t\t\t\t\t\t" + StaticGuiSupport.computeRunningTime(executionTimeInformation[5], false) + "\n"
+							information += "...backtracking:\t\t\t\t\t\t\t" + TimeSupport.computeRunningTime(executionTimeInformation[5], false) + "\n"
 								+ "Percentage of total running time:\t\t\t" + percentage + "%\n";
 							percentage = ((double) executionTimeInformation[6]) / ((double) miliSecondsRun);
 							percentage = (Math.round(percentage * 10000)) / 100;
-							information += "...solution generation:\t\t\t\t\t" + StaticGuiSupport.computeRunningTime(executionTimeInformation[6], false) + "\n"
+							information += "...solution generation:\t\t\t\t\t" + TimeSupport.computeRunningTime(executionTimeInformation[6], false) + "\n"
 								+ "Percentage of total running time:\t\t\t" + percentage + "%\n\n";
 							long aggregatedExecutionTimes = executionTimeInformation[0] + executionTimeInformation[1]
 							                              + executionTimeInformation[2] + executionTimeInformation[3]
@@ -462,7 +463,7 @@ public class ExecutionRunner extends Thread {
 							                              + executionTimeInformation[6];
 							percentage = ((double) aggregatedExecutionTimes) / ((double) miliSecondsRun);
 							percentage = (Math.round(percentage * 10000)) / 100;
-							information += "...all measured actions:\t\t\t\t\t" + StaticGuiSupport.computeRunningTime(aggregatedExecutionTimes, false) + "\n"
+							information += "...all measured actions:\t\t\t\t\t" + TimeSupport.computeRunningTime(aggregatedExecutionTimes, false) + "\n"
 								+ "Percentage of total running time:\t\t\t" + percentage + "%\n";
 	
 	
@@ -527,10 +528,10 @@ public class ExecutionRunner extends Thread {
 			information += "Now generating test cases...\n\n";
 		} else {
 			long miliSecondsRun = System.currentTimeMillis() - this.timeStarted - this.pauseTimeTotal;
-			information += "Total running time:\t\t\t\t" + StaticGuiSupport.computeRunningTime(miliSecondsRun, true) + "\n";
+			information += "Total running time:\t\t\t\t" + TimeSupport.computeRunningTime(miliSecondsRun, true) + "\n";
 		}
 		long miliSecondsRun = System.currentTimeMillis() - this.testCasesTimeStarted;
-			information += "Elimination time:\t\t\t\t\t" + StaticGuiSupport.computeRunningTime(miliSecondsRun, true) + "\n";
+			information += "Elimination time:\t\t\t\t\t" + TimeSupport.computeRunningTime(miliSecondsRun, true) + "\n";
 		if (!finished) {
 			information += "Current step:\t\t\t\t\t\t";
 			if (!solutionProcessor.hasFinishedDeletingRedudancy()) {

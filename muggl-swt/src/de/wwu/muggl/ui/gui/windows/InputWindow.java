@@ -20,11 +20,11 @@ import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.ui.gui.support.EscKeyListener;
 import de.wwu.muggl.ui.gui.support.StaticGuiSupport;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
-import de.wwu.testtool.expressions.BooleanConstant;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.FloatConstant;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
 
 /**
  * Providing the small input window for the altering the values of primitive

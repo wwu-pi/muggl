@@ -6,7 +6,7 @@ import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionAlgorithms;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
-import de.wwu.testtool.expressions.Variable;
+import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * This class provides static methods to be accessed by instructions typed as a reference.

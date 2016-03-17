@@ -3,22 +3,22 @@ package de.wwu.testtool.test;
 import java.util.ArrayList;
 import java.util.Random;
 
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.GreaterOrEqual;
-import de.wwu.testtool.expressions.GreaterThan;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LessOrEqual;
-import de.wwu.testtool.expressions.LessThan;
-import de.wwu.testtool.expressions.NumericConstant;
-import de.wwu.testtool.expressions.NumericVariable;
-import de.wwu.testtool.expressions.Product;
-import de.wwu.testtool.expressions.Sum;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.solver.constraints.SingleConstraint;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
-import de.wwu.testtool.solver.tools.SubstitutionTable;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.GreaterOrEqual;
+import de.wwu.muggl.solvers.expressions.GreaterThan;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LessOrEqual;
+import de.wwu.muggl.solvers.expressions.LessThan;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.Product;
+import de.wwu.muggl.solvers.expressions.Sum;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraint;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
 
 // not made to inner classes of DiplomaThesisProblems out of convenience 
 enum Variable {INT, DOUBLE};

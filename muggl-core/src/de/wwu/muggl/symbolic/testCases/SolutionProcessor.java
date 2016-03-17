@@ -15,9 +15,10 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Level;
 
+import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
-import de.wwu.muggl.ui.gui.support.StaticGuiSupport;
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
@@ -31,15 +32,14 @@ import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 import de.wwu.muggl.vm.support.CheckingArrayList;
-import de.wwu.testtool.expressions.BooleanConstant;
-import de.wwu.testtool.expressions.Constant;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.FloatConstant;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LongConstant;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.expressions.Variable;
-import de.wwu.testtool.solver.Solution;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.expressions.Constant;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * The SolutionProcessor stores information about the solutions found during the symbolic execution
@@ -566,11 +566,12 @@ public class SolutionProcessor {
 								if (returnValue != null && returnValue instanceof Objectref) {
 									if (((Objectref) returnValue).getInitializedClass().getClassFile().getName().equals("java.lang.String")) {
 										Field field = ((Objectref) returnValue).getInitializedClass().getClassFile().getFieldByNameAndDescriptor("value", "[C");
-										Character[] characters = (Character[]) ((Objectref) returnValue).getField(field);
-										initializationStringForReferenceValue = "";
+										Arrayref characters = (Arrayref) ((Objectref) returnValue).getField(field);
+										initializationStringForReferenceValue = "\"";
 										for (int b = 0; b < characters.length; b++) {
-											initializationStringForReferenceValue += characters[b].toString();
+											initializationStringForReferenceValue += (char)((IntConstant)characters.getElement(b)).getIntValue();
 										}
+										initializationStringForReferenceValue += "\"";
 									} else {
 										// TODO: Recursively create object structures to initialize complex objects.
 									}
@@ -703,7 +704,7 @@ public class SolutionProcessor {
 						} else {
 							// Make sure the array to process contains constants only.
 							String nonArrayClassName = parameters[a].getClass().getCanonicalName().replace("[]", "");
-							if (nonArrayClassName.equals("de.wwu.testtool.expressions.Constant")) {
+							if (nonArrayClassName.equals("de.wwu.muggl.solvers.expressions.Constant")) {
 								testMethodStringBuilder.append("array" + arrayParameterPositions.size());
 								// Process an array.
 								arrayParameterPositions.add(a);
@@ -881,7 +882,7 @@ public class SolutionProcessor {
 				+ " * \r\n"
 				+ " * Important settings for this run:\r\n"
 				+ " * Search algorithm:            " + this.vm.getSearchAlgorithm().getName() + "\r\n"
-				+ " * Time Limit:                  " + StaticGuiSupport.computeRunningTime(Options.getInst().maximumExecutionTime * 1000, false) + "\r\n"
+				+ " * Time Limit:                  " + TimeSupport.computeRunningTime(Options.getInst().maximumExecutionTime * 1000, false) + "\r\n"
 				+ " * Maximum loop cycles to take: ");
 			if (Options.getInst().maximumLoopsToTake == -1) {
 				fileContents.append("infinite");
@@ -899,7 +900,8 @@ public class SolutionProcessor {
 						fileContents.append("\r\n"
 							+ " * Only instructions that generate choice points have been counted.");
 				}
-				fileContents.append("\r\n");
+			fileContents.append("\r\n");
+			fileContents.append(" * Solver:                     " + this.vm.getSolverManager().getClass().getCanonicalName() + "\r\n");
 			if (this.vm.isFinalized() || this.vm.getAbortionCriterionMatched()) {
 				fileContents.append(" *\r\n"
 							 + " * Execution has been aborted before it was finished.");

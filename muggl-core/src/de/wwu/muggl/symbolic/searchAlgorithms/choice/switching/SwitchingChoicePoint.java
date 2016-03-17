@@ -4,18 +4,18 @@ import java.util.Stack;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.NumericEqual;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.solver.SolverManager;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.NumericEqual;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * A SwitchingChoicePoint is generated whenever one the instructions lookupswitch or tableswitch are
@@ -110,6 +110,10 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 		this.maximumSteps = pcs.length;
 		this.appliedState = false;
 
+		
+	}
+	
+	public void init() throws SymbolicExecutionException {
 		// Load an option.
 		boolean measureExecutionTime = Options.getInst().measureSymbolicExecutionTime;
 
@@ -152,7 +156,7 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 				throw new SymbolicExecutionException("Equations are violated. The term from stack cannot be fulfilled by any switch condition, including the default. This is impossible and hints to serious problems.");
 		}
 		// Save the execution time.
-		if (measureExecutionTime) ((SymbolicVirtualMachine) frame.getVm()).increaseTimeSolvingForChoicePointGeneration(System.nanoTime() - timeSolvingTemp);
+		if (measureExecutionTime) ((SymbolicVirtualMachine) this.frame.getVm()).increaseTimeSolvingForChoicePointGeneration(System.nanoTime() - timeSolvingTemp);
 	}
 
 	/**

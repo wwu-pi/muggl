@@ -535,6 +535,13 @@ public final class Options {
 	 * Log to a HTML file.
 	 */
 	private boolean htmlLogging;
+
+	/**
+	 * Qualified name of the solver manager that is to be used. 
+	 * Needs to implement the interface de.wwu.muggl.solvers.SolverManager.
+	 * @see de.wwu.muggl.solvers.SolverManager 
+	 */
+	public String solverManager;
 	
 	// Singleton.
 	private static final Options OPTIONS = new Options();
@@ -612,6 +619,7 @@ public final class Options {
 		this.symbArrayInitTestZeroLengthArray = Defaults.SYMB_ARRAY_INIT_TEST_ZERO_LENGTH_ARRAY;
 		this.dynReplaceInstWithOptimizedOnes = Defaults.DYN_REPLACE_INSTR_WITH_OPTIMIZED_ONES;
 		this.htmlLogging = Defaults.HTML_LOGGING;
+		this.solverManager = Defaults.SOLVER_MANAGER;
 	}
 
 	/**

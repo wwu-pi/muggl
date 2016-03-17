@@ -14,6 +14,7 @@ import de.wwu.muggl.instructions.general.CompareFp;
 import de.wwu.muggl.instructions.general.GeneralInstructionWithOtherBytes;
 import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
+import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.symbolic.flow.coverage.CGCoverageTrailElement;
 import de.wwu.muggl.symbolic.flow.coverage.DUCoverageTrailElement;
 import de.wwu.muggl.symbolic.generating.Generator;
@@ -27,6 +28,7 @@ import de.wwu.muggl.symbolic.searchAlgorithms.choice.fpComparison.DoubleComparis
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.fpComparison.FloatComparisonChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.longComparison.LongComparisonChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.switching.LookupswitchChoicePoint;
+import de.wwu.muggl.symbolic.searchAlgorithms.choice.switching.SwitchingChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.switching.TableswitchChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.ArrayRestore;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.FieldPut;
@@ -44,12 +46,11 @@ import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicFrame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.solver.SolverManager;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * This class implements the depth first search algorithm.<br />
@@ -565,6 +566,8 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 					high,
 					this.currentChoicePoint);
 		}
+		// execute side effects that formerly resided in the constructor  
+		((SwitchingChoicePoint)this.currentChoicePoint).init(); 
 
 		// Apply the first value.
 		this.currentChoicePoint.applyStateChanges();

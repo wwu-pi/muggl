@@ -9,29 +9,30 @@ import java.util.Vector;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import de.wwu.testtool.conf.TesttoolConfig;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
 import de.wwu.testtool.conf.SimplexSolverConfig;
-import de.wwu.testtool.exceptions.IncorrectSolverException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.Expression;
-import de.wwu.testtool.expressions.FloatConstant;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LongConstant;
-import de.wwu.testtool.expressions.NumericConstant;
-import de.wwu.testtool.expressions.NumericVariable;
-import de.wwu.testtool.expressions.Term;
-import de.wwu.testtool.expressions.Variable;
-import de.wwu.testtool.solver.HasSolutionInformation;
-import de.wwu.testtool.solver.Solution;
-import de.wwu.testtool.solver.SolverManager;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
-import de.wwu.testtool.solver.constraints.Monomial;
-import de.wwu.testtool.solver.constraints.NumericConstraint;
-import de.wwu.testtool.solver.constraints.Polynomial;
-import de.wwu.testtool.solver.constraints.SingleConstraint;
-import de.wwu.testtool.solver.numbers.NumberFactory;
-import de.wwu.testtool.solver.numbers.NumberWrapper;
+import de.wwu.muggl.solvers.exceptions.IncorrectSolverException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muggl.solvers.solver.HasSolutionInformation;
+import de.wwu.muggl.solvers.solver.Solver;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.solver.constraints.Monomial;
+import de.wwu.muggl.solvers.solver.constraints.NumericConstraint;
+import de.wwu.muggl.solvers.solver.constraints.Polynomial;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraint;
+import de.wwu.muggl.solvers.solver.numbers.NumberFactory;
+import de.wwu.muggl.solvers.solver.numbers.NumberWrapper;
 import de.wwu.testtool.tools.RandomSingleton;
 import de.wwu.testtool.tools.Timer;
 
@@ -171,7 +172,7 @@ public class SimplexSolverCL implements Solver{
      * @throws IncorrectSolverException if the solver is not able to handle the
      * actual set of constraints.
      * @throws TimeoutException 
-     * @see de.wwu.testtool.solver.Solution#NOSOLUTION
+     * @see de.wwu.muggl.solvers.Solution#NOSOLUTION
      */
     public Solution getSolution() throws IncorrectSolverException, TimeoutException {
 	if (texLogger.isDebugEnabled()) texLogger.debug("TEX: getsolution\\\\");

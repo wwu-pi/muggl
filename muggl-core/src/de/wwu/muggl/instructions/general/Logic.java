@@ -5,7 +5,7 @@ import java.util.Stack;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.StackPush;
 import de.wwu.muggl.vm.Frame;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Abstract instruction with a concrete method for logic operations. Abstract instructions

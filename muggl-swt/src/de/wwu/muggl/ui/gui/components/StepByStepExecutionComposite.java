@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 
+import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
@@ -73,8 +74,8 @@ import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
-import de.wwu.testtool.expressions.LongConstant;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * The composite for the StepByStepExecutionWindow. It offers most of its
@@ -1342,11 +1343,11 @@ public class StepByStepExecutionComposite extends Composite {
 								"Cannot start execution. The time between the execution of two steps must be a decimal value between 0 and " + Integer.MAX_VALUE + ". Please enter a valid value and try again.",
 								SWT.OK | SWT.ICON_WARNING);
 				return;
-			} else if (executeEvery < ((double) Globals.MIN_SLEEP_BETWEEN_STEPS) / StaticGuiSupport.MILLIS_SECOND) {
+			} else if (executeEvery < ((double) Globals.MIN_SLEEP_BETWEEN_STEPS) / TimeSupport.MILLIS_SECOND) {
 				StaticGuiSupport.showMessageBox(
 								this.shell,
 								"Warning",
-								"Cannot start execution. The time between the execution of two steps must be at least " + (((double) Globals.MIN_SLEEP_BETWEEN_STEPS) / StaticGuiSupport.MILLIS_SECOND) + ". Lower values might lead to errors, since the gui cannot generate the output as fast as it would be needed. Please enter a valid value and try again.\n\nTo speed up execution, consider to enable the visual skipping of method invocations. This will increase performance vastly. See the options for details.",
+								"Cannot start execution. The time between the execution of two steps must be at least " + (((double) Globals.MIN_SLEEP_BETWEEN_STEPS) / TimeSupport.MILLIS_SECOND) + ". Lower values might lead to errors, since the gui cannot generate the output as fast as it would be needed. Please enter a valid value and try again.\n\nTo speed up execution, consider to enable the visual skipping of method invocations. This will increase performance vastly. See the options for details.",
 								SWT.OK | SWT.ICON_WARNING);
 				return;
 			}

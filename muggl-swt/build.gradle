@@ -1,15 +1,12 @@
+
 apply plugin: 'java'
 apply plugin: 'application'
 
-repositories {
-    mavenCentral()
-    maven { url 'https://raw.githubusercontent.com/maven-eclipse/swt-repo/master/' }
-}
-
 dependencies {
-	compile 'junit:junit:4.+'
 	compile project(':muggl-core')
 	compile project(':muggl-common')
+	compile 'junit:junit:4.+'
+	compile 'org.eclipse.swt:org.eclipse.swt.'+getSwtArch()+':'+getSwtVersion()
 }
 
 sourceSets {

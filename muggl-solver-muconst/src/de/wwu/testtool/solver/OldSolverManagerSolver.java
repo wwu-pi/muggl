@@ -2,22 +2,25 @@ package de.wwu.testtool.solver;
 
 import org.apache.log4j.Logger;
 
-import de.wwu.testtool.conf.SolverManagerConfig;
-import de.wwu.testtool.conf.TesttoolConfig;
-import de.wwu.testtool.exceptions.IncorrectSolverException;
-import de.wwu.testtool.exceptions.SolverUnableToDecideException;
-import de.wwu.testtool.exceptions.TimeoutException;
-import de.wwu.testtool.expressions.BooleanConstant;
-import de.wwu.testtool.solver.constraints.Assignment;
-import de.wwu.testtool.solver.constraints.ComposedConstraint;
-import de.wwu.testtool.solver.constraints.ConstraintStack;
-import de.wwu.testtool.solver.constraints.ConstraintSystem;
-import de.wwu.testtool.solver.constraints.SingleConstraint;
-import de.wwu.testtool.solver.constraints.SingleConstraintSet;
-import de.wwu.testtool.solver.listener.SolverManagerListener;
-import de.wwu.testtool.solver.listener.SolverManagerListenerList;
-import de.wwu.testtool.solver.tools.SubstitutionTable;
-import de.wwu.testtool.solver.tsolver.Solver;
+import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.SolverManager;
+import de.wwu.muggl.solvers.conf.SolverManagerConfig;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
+import de.wwu.muggl.solvers.exceptions.IncorrectSolverException;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.solver.HasSolutionInformation;
+import de.wwu.muggl.solvers.solver.Solver;
+import de.wwu.muggl.solvers.solver.constraints.Assignment;
+import de.wwu.muggl.solvers.solver.constraints.ComposedConstraint;
+import de.wwu.muggl.solvers.solver.constraints.ConstraintStack;
+import de.wwu.muggl.solvers.solver.constraints.ConstraintSystem;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraint;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
+import de.wwu.muggl.solvers.solver.listener.SolverManagerListener;
+import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
+import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
 
 public class OldSolverManagerSolver implements ComposedConstraintSolver {
     
@@ -84,7 +87,7 @@ public class OldSolverManagerSolver implements ComposedConstraintSolver {
      * @throws TimeoutException if the used algorithms stop because of reaching
      * the specified time limits before being able to decide about the given
      * problem.
-     * @see de.wwu.testtool.solver.Solution#NOSOLUTION
+     * @see de.wwu.muggl.solvers.Solution#NOSOLUTION
      */
     @Override
     public Solution getSolution() throws SolverUnableToDecideException, TimeoutException{
@@ -124,7 +127,7 @@ public class OldSolverManagerSolver implements ComposedConstraintSolver {
      * @throws TimeoutException if the used algorithms stop because of reaching
      * the specified time limits before being able to decide about the given
      * problem.
-     * @see de.wwu.testtool.solver.Solution#NOSOLUTION
+     * @see de.wwu.muggl.solvers.Solution#NOSOLUTION
      */
     private Solution getSolution(int idx) throws SolverUnableToDecideException, TimeoutException{
 	long startTime = System.nanoTime();

@@ -3,12 +3,12 @@ package de.wwu.muggl.symbolic.searchAlgorithms.choice.switching;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.testtool.expressions.ConstraintExpression;
-import de.wwu.testtool.expressions.GreaterThan;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.LessThan;
-import de.wwu.testtool.expressions.Or;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.GreaterThan;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LessThan;
+import de.wwu.muggl.solvers.expressions.Or;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * A TableswitchChoicePoint is generated whenever one the instruction tableswitch is reached and the

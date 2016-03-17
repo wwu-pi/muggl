@@ -5,7 +5,7 @@ import java.util.Stack;
 import de.wwu.muggl.configuration.MugglException;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.Frame;
-import de.wwu.testtool.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 
 /**
  * Interface for choice points. It defines methods to be implemented by any choice point used in

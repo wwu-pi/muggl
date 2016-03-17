@@ -3,9 +3,9 @@ package de.wwu.muggl.symbolic.searchAlgorithms.choice.switching;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.NumericEqual;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.NumericEqual;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * A LookupswitchChoicePoint is generated whenever one the instruction lookupswitch is reached and

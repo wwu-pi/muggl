@@ -8,8 +8,8 @@ import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantDouble;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantLong;
-import de.wwu.testtool.expressions.DoubleConstant;
-import de.wwu.testtool.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
 
 /**
  * Implementation of the instruction <code>ldc2_w</code>.

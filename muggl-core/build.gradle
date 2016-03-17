@@ -1,12 +1,9 @@
 apply plugin: 'java'
 
-repositories {
-    mavenCentral()
-    maven { url 'https://raw.githubusercontent.com/maven-eclipse/swt-repo/master/' }
-}
-
 dependencies {
-	compile project(':muggl-solver-muconst')
+	runtime project(':muggl-solver-muconst')
+	runtime project(':muggl-solver-jacop')
+	compile project(':muggl-solvers')
 	compile project(':muggl-common')
 } 
 

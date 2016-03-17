@@ -20,7 +20,7 @@ import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.ModifieableArrayref;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Implementation of the instruction <code>putstatic</code>.
@@ -99,7 +99,7 @@ public class Putstatic extends Put implements Instruction {
 					// Unexpected exception: value is not assignment compatible to the expected type.
 					throw new ExecutionException("Cannot write a value that is not assignment compatible to " + type + ".");
 				}
-			} else if (value instanceof Arrayref && ((Arrayref) value).getReferenceValue().getName().startsWith("de.wwu.testtool.expressions.Term")) {
+			} else if (value instanceof Arrayref && ((Arrayref) value).getReferenceValue().getName().startsWith("de.wwu.muggl.solvers.expressions.Term")) {
 				// Value is an array of term objects. Does it have a represented type?
 				if (value instanceof ModifieableArrayref && ((ModifieableArrayref) value).getRepresentedType() != null) {
 					// Get its representated type and do the type checking with it.

@@ -20,8 +20,8 @@ import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
-import de.wwu.testtool.expressions.IntConstant;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Implementation of the instruction <code>newarray</code>.
@@ -163,7 +163,7 @@ public class Newarray extends de.wwu.muggl.instructions.general.ObjectInitializa
 				// Generate a suitable Objectref.
 				try {
 					ReferenceValue referenceValue = frame.getVm().getAnObjectref(frame.getVm().getClassLoader().getClassAsClassFile(
-									"de.wwu.testtool.expressions.Term"));
+									"de.wwu.muggl.solvers.expressions.Term"));
 
 					// Generate and push the array.
 					ModifieableArrayref arrayref = new ModifieableArrayref(referenceValue, count);

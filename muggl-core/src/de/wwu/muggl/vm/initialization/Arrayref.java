@@ -1,7 +1,7 @@
 package de.wwu.muggl.vm.initialization;
 
 import de.wwu.muggl.vm.execution.ExecutionAlgorithms;
-import de.wwu.testtool.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * This class represents a reference to an array. It stores information about
