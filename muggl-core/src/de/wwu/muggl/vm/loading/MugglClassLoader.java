@@ -529,7 +529,7 @@ public class MugglClassLoader extends ClassLoader {
 		File[] files = directory.listFiles();
 		for (int a = 0; a < files.length; a++) {
 			// No more deepening, we either get the file in this directory, or it is not there.
-			if (pathPos == path.length) {
+			if (pathPos == path.length || path[pathPos].equals("")) {
 				if (files[a].isFile() && files[a].getName().equals(className)) return new ClassFile(this, files[a]);
 			} else if (files[a].isDirectory() && files[a].getName().equals(path[pathPos])) {
 				// recursive deepening
