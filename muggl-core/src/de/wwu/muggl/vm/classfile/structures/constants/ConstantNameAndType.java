@@ -92,7 +92,7 @@ public class ConstantNameAndType extends Constant {
 	 */
 	@Override
 	public String getValue() {
-		return ((ConstantUtf8) this.classFile.getConstantPool()[this.nameIndex]).getValue() + " " + ((ConstantUtf8) this.classFile.getConstantPool()[this.nameIndex]).getValue();
+		return ((ConstantUtf8) this.classFile.getConstantPool()[this.nameIndex]).getValue() + ":" + ((ConstantUtf8) this.classFile.getConstantPool()[this.descriptorIndex]).getValue();
 	}
 
 	/**
