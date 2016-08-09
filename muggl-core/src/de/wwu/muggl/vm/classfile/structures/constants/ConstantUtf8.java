@@ -58,7 +58,7 @@ public class ConstantUtf8 extends Constant {
 
 	/**
 	 * Get the length of this constant.
-	 * @return The length (number if bytes) of this constant as an int.
+	 * @return The length (number in bytes) of this constant as an int.
 	 */
 	public int getLength() {
 		return this.length;
