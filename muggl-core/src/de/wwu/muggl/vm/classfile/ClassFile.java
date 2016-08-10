@@ -19,6 +19,7 @@ import de.wwu.muggl.vm.classfile.structures.Attribute;
 import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
+import de.wwu.muggl.vm.classfile.structures.attributes.AttributeBootstrapMethods;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeDeprecated;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeInnerClasses;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeInvisibleAnnotations;
@@ -32,7 +33,10 @@ import de.wwu.muggl.vm.classfile.structures.constants.ConstantFieldref;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantFloat;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantInteger;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantInterfaceMethodref;
+import de.wwu.muggl.vm.classfile.structures.constants.ConstantInvokeDynamic;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantLong;
+import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodHandle;
+import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodType;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodref;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantNameAndType;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantString;
@@ -48,7 +52,6 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * it provides methods to access the complete data structure of a class file.
  * 
  * @author Tim Majchrzak
- * @version 1.0.0, 2011-01-15
  */
 public class ClassFile {
 	// Constants for the constant_pool.
@@ -95,7 +98,20 @@ public class ClassFile {
 	/**
 	 * The CONSTANT_Utf8 with a byte value of 1.
 	 */
-	public static final byte	CONSTANT_UTF8				= 1;
+	public static final byte	CONSTANT_UTF8				= 1;	
+	/**
+	 * The CONSTANT_MethodHandle with a byte value of 15 (Java 7)
+	 */
+	public static final byte CONSTANT_METHODHANDLE			= 15;
+	/**
+	 * The CONSTANT_MethodType with a byte value of 16 (Java 7)
+	 */
+	public static final byte CONSTANT_METHODTYPE			= 16;
+
+	/**
+	 * The CONSTANT_InvokeDynamic with a byte value of 18 (Java 8)
+	 */
+	public static final byte	CONSTANT_INVOKEDYNAMIC		= 18;
 
 	/*
 	 * Access flag constants. Only subsets of them are used for classes, fields, methods etc., which
@@ -525,6 +541,9 @@ public class ClassFile {
 			// Fill the constant_pool with data. This is delegated to other classes.
 			this.constantPool = new Constant[this.constantPoolCount];
 			for (int a = 1; a < this.constantPoolCount; a++) {
+				if (Globals.getInst().logger.isTraceEnabled())
+					Globals.getInst().logger.trace("Parsing: Const #" + a);
+
 				byte tag = this.dis.readByte();
 				switch (tag) {
 					case CONSTANT_CLASS:
@@ -562,8 +581,17 @@ public class ClassFile {
 					case CONSTANT_UTF8:
 						this.constantPool[a] = new ConstantUtf8(this);
 						break;
+					case CONSTANT_METHODHANDLE:
+						this.constantPool[a] = new ConstantMethodHandle(this);
+						break;
+					case CONSTANT_METHODTYPE:
+						this.constantPool[a] = new ConstantMethodType(this);
+						break;
+					case CONSTANT_INVOKEDYNAMIC:
+						this.constantPool[a] = new ConstantInvokeDynamic(this);
+						break;						
 					default:
-						throw new ClassFileException("Encountered an unknown Constant - halting.");
+						throw new ClassFileException("Encountered an unknown Constant (" + tag + ") - halting.");
 				}
 			}
 			if (Globals.getInst().logger.isDebugEnabled())
@@ -798,6 +826,8 @@ public class ClassFile {
 				} else if (attributeName.equals("RuntimeInvisibleAnnotations")) {
 					this.attributes[a] = new AttributeRuntimeInvisibleAnnotations(this,
 							attributeNameIndex);
+				} else if (attributeName.equals("BootstrapMethods")) {
+					this.attributes[a] = new AttributeBootstrapMethods(this, attributeNameIndex);
 				} else {
 					if (Globals.getInst().logger.isDebugEnabled())
 						Globals.getInst().logger
