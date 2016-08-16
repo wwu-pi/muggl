@@ -80,7 +80,7 @@ public abstract class ConstantFieldInterfaceMethod extends Constant {
 	 */
 	@Override
 	public String getValue() {
-		return ((ConstantClass) this.classFile.getConstantPool()[this.classIndex]).getStringValue() + " " + ((ConstantNameAndType) this.classFile.getConstantPool()[this.nameAndTypeIndex]).getStringValue();
+		return ((ConstantClass) this.classFile.getConstantPool()[this.classIndex]).getStringValue() + "." + ((ConstantNameAndType) this.classFile.getConstantPool()[this.nameAndTypeIndex]).getStringValue();
 	}
 
 	/**
