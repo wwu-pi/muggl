@@ -18,6 +18,10 @@ allprojects {
 	    maven { url 'https://raw.githubusercontent.com/maven-eclipse/swt-repo/master/' }
 		flatDir { dirs '../lib' }
 	}
+
+	dependencies {
+            testCompile "junit:junit:4.+"
+	}
 }
 
 def static getSwtVersion(){

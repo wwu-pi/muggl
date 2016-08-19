@@ -9,6 +9,8 @@ dependencies {
 
 sourceSets {
 	main.java.srcDir "src"
+	test.java.srcDir "junit"
+	test.resources.srcDir "junit-res"
 }
 
 eclipse.jdt.file {
