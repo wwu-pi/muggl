@@ -45,7 +45,9 @@ public class Checkcast extends CheckcastInstanceof implements Instruction, JumpE
 	public void execute(Frame frame) throws ExecutionException {
 		try {
 			Stack<Object> stack = frame.getOperandStack();
-			ReferenceValue objectref = (ReferenceValue) stack.peek(); // Peek - the operand stack stays unchanged (or is discarded completely in case of a ClassCastException).
+			// there might be primitive types on the stack, such as java.lang.integer and not only ReferenceValues
+			// the contract and implementation with checkForAssignmentCompatibility says that you can pass an object, takes care.
+			Object objectref = stack.peek(); // Peek - the operand stack stays unchanged (or is discarded completely in case of a ClassCastException).
 			Object constant = frame.getConstantPool()[this.otherBytes[0] << ONE_BYTE | this.otherBytes[1]];
 
 			// Unexpected exception: the element from the constant_pool is no ConstantClass.
@@ -57,7 +59,7 @@ public class Checkcast extends CheckcastInstanceof implements Instruction, JumpE
 			ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
 			if (objectref != null && !ea.checkForAssignmentCompatibility(objectref, castingToClassName, frame.getVm(), false)) {
 				// Checking of cast failed. Throw a ClassCastException exception.
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ClassCastException", objectref.getInitializedClass()
+				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ClassCastException", ((ReferenceValue) objectref).getInitializedClass()
 						.getClassFile().getName()
 						+ " cannot be cast to " + castingToClassName));
 			}
