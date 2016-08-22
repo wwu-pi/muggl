@@ -243,7 +243,7 @@ public class BytecodeParser {
 				case 0xb7: return new Invokespecial(code);
 				case 0xb8: return optimize ? new InvokestaticReplacer(code) : new Invokestatic(code);
 				case 0xb9: return new Invokeinterface(code);
-				case 0xba: return new Xxxunusedxxx();
+				case 0xba: return new Invokedynamic(code);
 				case 0xbb: return new New(code);
 				case 0xbc: return new Newarray(code);
 				case 0xbd: return new Anewarray(code);
