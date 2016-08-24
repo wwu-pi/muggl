@@ -45,7 +45,7 @@ public class ExecutionWindow implements ShellWindow {
 			this.parentShell = parentShell;
 			this.display = Display.getDefault();
 			if (createShell(parentShell, classLoader, classFile, method))
-			this.shell.open();
+				this.shell.open();
 
 			// Now make the parent shell invisible.
 			parentShell.setVisible(false);

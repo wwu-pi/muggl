@@ -14,13 +14,12 @@ import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
-
 /**
  * @author Max Schulze
  *
  */
 public class Java8ClassFileParsing {
-	
+
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -28,21 +27,27 @@ public class Java8ClassFileParsing {
 	public void setUp() throws Exception {
 		Globals.getInst().changeLogLevel(Level.ALL);
 	}
+
 	/**
-	 * Test method for {@link de.wwu.muggl.vm.loading.MugglClassLoader#MugglClassLoader(java.lang.String[])}.
-	 * Only tests correct parsing of binary .class files
-	 * This test fails if you class File uses features Muggl cannot understand, i.e. new java bytecode instructions
-	 * ( via Exceptions )
-	 * @throws ClassFileException 
+	 * Test method for
+	 * {@link de.wwu.muggl.vm.loading.MugglClassLoader#MugglClassLoader(java.lang.String[])}.
+	 * Only tests correct parsing of binary .class files This test fails if you
+	 * class File uses features Muggl cannot understand, i.e. new java bytecode
+	 * instructions ( via Exceptions )
+	 * 
+	 * @throws ClassFileException
 	 */
 	@Test
-	public final void testMugglClassLoaderWithJava8Binary() throws ClassFileException {
-		  MugglClassLoader classLoader = new MugglClassLoader(new String[]{"./"});
-		  ClassFile classFile = classLoader.getClassAsClassFile("junit-res/binary/openjdk/one/eight/zero/ninetyone/CountWordLength.class", true);
+	public final void testMugglClassLoaderWithJava8Binary()
+			throws ClassFileException {
+		MugglClassLoader classLoader = new MugglClassLoader(
+				new String[] { "./" });
+		ClassFile classFile = classLoader.getClassAsClassFile(
+				"junit-res/binary/openjdk/one/eight/zero/ninetyone/CountWordLength.class",
+				true);
 
-		  // small side-test
-		  assertEquals(52, classFile.getMajorVersion());
+		// small side-test
+		assertEquals(52, classFile.getMajorVersion());
 	}
-
 
 }
