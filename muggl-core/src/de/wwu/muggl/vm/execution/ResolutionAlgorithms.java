@@ -122,7 +122,7 @@ public class ResolutionAlgorithms {
 		try {
 			method = classFile.getMethodByNameAndDescriptor(nameAndType[0], nameAndType[1]);
 		} catch (MethodResolutionError e) {
-			if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("Looking up of " + nameAndType[1] + " in class " + nameAndType[0] + " unsuccessfull. Trying its super classes.");
+			if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("Looking up of " + nameAndType[0] + " in class " + classFile.getClassName() + " unsuccessfull. Trying its super classes.");
 			// Unsuccessful - trying the super classes recursively.
 			while (classFile.getSuperClass() != 0) {
 				classFile = this.classLoader.getClassAsClassFile(classFile.getConstantPool()[classFile.getSuperClass()].getStringValue());

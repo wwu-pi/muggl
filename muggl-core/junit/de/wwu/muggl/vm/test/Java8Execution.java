@@ -13,8 +13,8 @@ import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
+import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
-import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
@@ -59,14 +59,14 @@ public class Java8Execution {
 				classFile.getName(), method);
 		application.start();
 
-        synchronized(application){
-            try{
-                //System.out.println("Waiting for b to complete...");
-                application.wait();
-            }catch(InterruptedException e){
-                e.printStackTrace();
-            }
-        }
+		synchronized (application) {
+			try {
+				// System.out.println("Waiting for b to complete...");
+				application.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 
 		// Find out if execution finished successfully.
 		if (application.errorOccured()) {
@@ -74,37 +74,46 @@ public class Java8Execution {
 			fail("Execution did not finish successfully. The reason is:\n"
 					+ application.fetchError());
 		} else {
-			// Normal execution finished.
-			String information = "Execution finished.\n\n";
 			if (application.getHasAReturnValue()) {
 				Object object = application.getReturnedObject();
 				if (object == null) {
-					information += "A null reference was returned.";
 				} else {
-					information += "An object of type "
-							+ object.getClass().getName()
-							+ " was returned. Its' toString()-Method said: "
-							+ object.toString();
 				}
 			} else if (application.getThrewAnUncaughtException()) {
-				// Throwable throwable = (Throwable)
-				// this.application.getReturnedObject();
 				Objectref objectref = (Objectref) application
 						.getReturnedObject();
-				 
-//				 if (objectref.getName().contentEquals("java.lang.IncompatibleClassChangeError")) {
-//					 Object obj = application.getReturnedObject();
-//					 java.lang.Error ref = (java.lang.Error) objectref.getInitializedClass().getClass();
-//					 System.out.println(ref.getStackTrace());
-//				 }
-				 
-				// objectref.getField(field);
-				// Extract the message
-				fail(information + "An uncaught exception was thrown: "
-						+ objectref.getName() + " " + objectref.toString()
-						+ objectref.getInitializedClass().getClass());
+
+				ClassFile throwableClassFile = objectref.getInitializedClass()
+						.getClassFile();
+				Field detailMessageField = throwableClassFile
+						.getFieldByName("detailMessage", true);
+				ClassFile stringClassFile = application.getVirtualMachine()
+						.getClassLoader()
+						.getClassAsClassFile("java.lang.String");
+				Field stringValueField = stringClassFile
+						.getFieldByNameAndDescriptor("value", "[C");
+				Objectref stringObjectref = (Objectref) objectref
+						.getField(detailMessageField);
+				String message;
+				if (stringObjectref == null) {
+					message = "null";
+				} else {
+					Arrayref arrayref = (Arrayref) stringObjectref
+							.getField(stringValueField);
+
+					// Convert it.
+					char[] characters = new char[arrayref.length];
+					for (int a = 0; a < arrayref.length; a++) {
+						characters[a] = (Character) arrayref.getElement(a);
+					}
+					message = new String(characters);
+				}
+
+				fail("Uncaught exception, no suitable exception handler: "
+						+ throwableClassFile.getName().replace("/", ".") + " ("
+						+ message + ")");
+
 			} else {
-				information += "There was no return value.";
 			}
 		}
 	}
