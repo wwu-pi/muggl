@@ -2,17 +2,20 @@ package de.wwu.muggl.vm.test;
 
 import static org.junit.Assert.*;
 
+import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
+import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.Objectref;
@@ -24,9 +27,11 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  *
  */
 public class BugInvokevirtualParentInterfaces {
+	MugglClassLoader classLoader;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		Globals.getInst().changeLogLevel(Level.TRACE);
 	}
 
 	@AfterClass
@@ -35,6 +40,8 @@ public class BugInvokevirtualParentInterfaces {
 
 	@Before
 	public void setUp() throws Exception {
+		classLoader = new MugglClassLoader(
+				new String[] { "./", "./junit-res/" });
 	}
 
 	@After
@@ -44,15 +51,10 @@ public class BugInvokevirtualParentInterfaces {
 	@Test
 	public final void testApplicationMugglVMRunBugInvokevirtualParentInterface()
 			throws ClassFileException, InitializationException {
-		MugglClassLoader classLoader = new MugglClassLoader(
-				new String[] { "./", "./junit-res/"});
+
 		ClassFile classFile = classLoader.getClassAsClassFile(
-		//		"junit-res/binary/openjdk/one/eight/zero/ninetyone/buginvokevirtual/MyType.class",
 				"binary.openjdk.one.eight.zero.ninetyone.buginvokevirtual.MyType",
 				true);
-		
-		
-
 
 		Method method = classFile.getMethodByNameAndDescriptor("forTesting",
 				"(Ljava/lang/Integer;)Ljava/lang/String;");
@@ -120,6 +122,34 @@ public class BugInvokevirtualParentInterfaces {
 			} else {
 			}
 		}
+	}
+
+	/**
+	 * Should find the class in the parent interface and NOT throw an
+	 * NoSuchMethodError
+	 * 
+	 * This is the same problem as the default method stream() ( in an parent interface )
+	 * 
+	 * @throws ClassFileException
+	 * @throws InitializationException
+	 * @throws NoSuchMethodError
+	 */
+	@Test
+	public final void testApplicationMugglVMRunMethodResolutionParentInterfaces()
+			throws ClassFileException, InitializationException,
+			NoSuchMethodError {
+
+		final ClassFile classFile = classLoader.getClassAsClassFile(
+				"binary.openjdk.one.eight.zero.ninetyone.buginvokevirtual.MyType$MySecondType",
+				true);
+
+		ResolutionAlgorithms resolAlg = new ResolutionAlgorithms(classLoader);
+
+		final String[] nameAndType = new String[] { "defaultInMyInterface",
+				"()Ljava/lang/String;" };
+
+		resolAlg.resolveMethod(classFile, nameAndType);
+
 	}
 
 }

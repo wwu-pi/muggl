@@ -787,7 +787,7 @@ public class ClassFile {
 				Globals.getInst().logger.debug("Parsing: Read the methods");
 			this.attributeCount = this.dis.readUnsignedShort();
 			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing:Read attributes_count: "
+				Globals.getInst().logger.debug("Parsing: Read attributes_count: "
 						+ this.attributeCount);
 			// Read the methods. This is delegated to other classes.
 			this.attributes = new Attribute[this.attributeCount];
@@ -839,7 +839,7 @@ public class ClassFile {
 					Globals.getInst().logger.debug("Parsing: Read the attributes");
 			}
 			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing completed successfully.");
+				Globals.getInst().logger.debug("Parsing completed successfully for " + name);
 		} catch (ClassFileException e) {
 			if (Globals.getInst().logger.isEnabledFor(Level.WARN))
 				Globals.getInst().logger.warn("Parsing class " + this.name
