@@ -16,6 +16,7 @@ import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.PrimitiveWrappingImpossibleException;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.util.HostEnvironment;
 
 /**
  * This class provides a cache for strings. It is required by the Java Language Specification,
@@ -113,10 +114,13 @@ public class StringCache {
 			throw new InitializationException(
 					"Fatal problem constructing the StringCache: Cannot load class java.lang.Character.");
 		}
-		this.stringCountField = this.stringClassFile.getFieldByNameAndDescriptor("count", "I");
 		this.stringHashField = this.stringClassFile.getFieldByNameAndDescriptor("hash", "I");
-		this.stringOffsetField = this.stringClassFile.getFieldByNameAndDescriptor("offset", "I");
 		this.stringValueField = this.stringClassFile.getFieldByNameAndDescriptor("value", "[C");
+		if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 6) {
+			// These private properties are inexistent since Java SE 7.
+			this.stringCountField = this.stringClassFile.getFieldByNameAndDescriptor("count", "I");
+			this.stringOffsetField = this.stringClassFile.getFieldByNameAndDescriptor("offset", "I");
+		}
 		this.root = new StringCacheEntry(this, provideStringReference(new char[0]));
 	}
 
@@ -140,10 +144,13 @@ public class StringCache {
 		// Pre-cache objects.
 		this.stringClassFile = stringClassFile;
 		this.characterClassFile = characterClassFile;
-		this.stringCountField = this.stringClassFile.getFieldByNameAndDescriptor("count", "I");
 		this.stringHashField = this.stringClassFile.getFieldByNameAndDescriptor("hash", "I");
-		this.stringOffsetField = this.stringClassFile.getFieldByNameAndDescriptor("offset", "I");
 		this.stringValueField = this.stringClassFile.getFieldByNameAndDescriptor("value", "[C");
+		if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 6) {
+			// These private properties are inexistent since Java SE 7.
+			this.stringCountField = this.stringClassFile.getFieldByNameAndDescriptor("count", "I");
+			this.stringOffsetField = this.stringClassFile.getFieldByNameAndDescriptor("offset", "I");
+		}
 		this.root = new StringCacheEntry(this, provideStringReference(new char[0]));
 	}
 
@@ -242,14 +249,20 @@ public class StringCache {
 		// Put the fields.
 		stringInitializedClass.putField(this.stringValueField, arrayref);
 		if (symbolicalMode) {
-			stringInitializedClass.putField(this.stringOffsetField, IntConstant.getInstance(0));
-			stringInitializedClass.putField(this.stringCountField,
-					IntConstant.getInstance(charArray.length));
+			if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 6) {
+				// These private properties are inexistent since Java SE 7.
+				stringInitializedClass.putField(this.stringOffsetField, IntConstant.getInstance(0));
+				stringInitializedClass.putField(this.stringCountField,
+						IntConstant.getInstance(charArray.length));
+			}
 			stringInitializedClass.putField(this.stringHashField,
 					IntConstant.getInstance(getHashCode(charArray)));
 		} else {
-			stringInitializedClass.putField(this.stringOffsetField, 0);
-			stringInitializedClass.putField(this.stringCountField, charArray.length);
+			if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 6) {
+				// These private properties are inexistent since Java SE 7.
+				stringInitializedClass.putField(this.stringOffsetField, 0);
+				stringInitializedClass.putField(this.stringCountField, charArray.length);
+			}
 			stringInitializedClass.putField(this.stringHashField, getHashCode(charArray));
 		}
 		return stringInitializedClass;
