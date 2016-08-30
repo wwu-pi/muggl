@@ -6,6 +6,7 @@ apply plugin: 'java'
 version = '1.0'
 
 allprojects {	
+	apply plugin: 'java' // required for adding JUnit 4 dep
 	apply plugin: 'eclipse'
 	apply plugin: 'maven'
 	group = 'de.wwu.muggl'
@@ -17,6 +18,10 @@ allprojects {
 	    mavenCentral()
 	    maven { url 'https://raw.githubusercontent.com/maven-eclipse/swt-repo/master/' }
 		flatDir { dirs '../lib' }
+	}
+
+	dependencies {
+            testCompile "junit:junit:4.+"
 	}
 }
 
