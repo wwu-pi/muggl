@@ -116,8 +116,8 @@ public class StringCache {
 		}
 		this.stringHashField = this.stringClassFile.getFieldByNameAndDescriptor("hash", "I");
 		this.stringValueField = this.stringClassFile.getFieldByNameAndDescriptor("value", "[C");
-		if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 7) {
-			// These private properties are inexistent since Java SE 8.
+		if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 6) {
+			// These private properties are inexistent since Java SE 7.
 			this.stringCountField = this.stringClassFile.getFieldByNameAndDescriptor("count", "I");
 			this.stringOffsetField = this.stringClassFile.getFieldByNameAndDescriptor("offset", "I");
 		}
@@ -146,8 +146,8 @@ public class StringCache {
 		this.characterClassFile = characterClassFile;
 		this.stringHashField = this.stringClassFile.getFieldByNameAndDescriptor("hash", "I");
 		this.stringValueField = this.stringClassFile.getFieldByNameAndDescriptor("value", "[C");
-		if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 7) {
-			// These private properties are inexistent since Java SE 8.
+		if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 6) {
+			// These private properties are inexistent since Java SE 7.
 			this.stringCountField = this.stringClassFile.getFieldByNameAndDescriptor("count", "I");
 			this.stringOffsetField = this.stringClassFile.getFieldByNameAndDescriptor("offset", "I");
 		}
@@ -249,8 +249,8 @@ public class StringCache {
 		// Put the fields.
 		stringInitializedClass.putField(this.stringValueField, arrayref);
 		if (symbolicalMode) {
-			if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 7) {
-				// These private properties are inexistent since Java SE 8.
+			if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 6) {
+				// These private properties are inexistent since Java SE 7.
 				stringInitializedClass.putField(this.stringOffsetField, IntConstant.getInstance(0));
 				stringInitializedClass.putField(this.stringCountField,
 						IntConstant.getInstance(charArray.length));
@@ -258,8 +258,8 @@ public class StringCache {
 			stringInitializedClass.putField(this.stringHashField,
 					IntConstant.getInstance(getHashCode(charArray)));
 		} else {
-			if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 7) {
-				// These private properties are inexistent since Java SE 8.
+			if (HostEnvironment.getMajor() == 1 && HostEnvironment.getMinor() <= 6) {
+				// These private properties are inexistent since Java SE 7.
 				stringInitializedClass.putField(this.stringOffsetField, 0);
 				stringInitializedClass.putField(this.stringCountField, charArray.length);
 			}
