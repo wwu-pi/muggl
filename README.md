@@ -9,7 +9,7 @@ In order to **run** the system:
 - In the root directory that you cloned, enter `./gradlew run`. Muggl is then compiled and started.
 
 In order to **generate an eclipse project** for development and execution:
-- In the root directory that you cloned, enter `gradle eclipse`. Metadata for all project is generated in accordance with the settings of the build script.
+- In the root directory that you cloned, enter `./gradlew eclipse`. Metadata for all project is generated in accordance with the settings of the build script.
 - Check that the `conf` folder is in the `muggl-swt` directory.
 
 In order to create a **deployable jar** file:
