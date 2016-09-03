@@ -63,4 +63,12 @@ public class AttributeBootstrapMethods extends Attribute {
 		return "attribute_bootstrap_methods";
 	}
 
+	public int getNumBootstrapMethods() {
+		return numBootstrapMethods;
+	}
+
+	public BootstrapMethod[] getBootstrapMethods() {
+		return bootstrapMethods;
+	}
+
 }
