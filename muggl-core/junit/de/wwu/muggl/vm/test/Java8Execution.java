@@ -2,12 +2,14 @@ package de.wwu.muggl.vm.test;
 
 import static org.junit.Assert.*;
 
+import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -27,6 +29,8 @@ public class Java8Execution {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		Globals.getInst().changeLogLevel(Level.INFO);
+		Globals.getInst().execLogger.setLevel(Level.ALL);
 	}
 
 	@AfterClass

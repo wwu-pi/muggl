@@ -134,7 +134,7 @@ public class BugInvokevirtualParentInterfaces {
 	 * @throws InitializationException
 	 * @throws NoSuchMethodError
 	 */
-	@Test
+	//@Test
 	public final void testApplicationMugglVMRunMethodResolutionParentInterfaces()
 			throws ClassFileException, InitializationException,
 			NoSuchMethodError {
@@ -148,8 +148,8 @@ public class BugInvokevirtualParentInterfaces {
 		final String[] nameAndType = new String[] { "defaultInMyInterface",
 				"()Ljava/lang/String;" };
 
-		resolAlg.resolveMethod(classFile, nameAndType);
-
+		Method method = resolAlg.resolveMethod(classFile, nameAndType);
+		assertEquals(false, method.isAccAbstract());
 	}
 
 }
