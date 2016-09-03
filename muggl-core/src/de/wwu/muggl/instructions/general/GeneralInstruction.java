@@ -220,7 +220,7 @@ public abstract class GeneralInstruction {
 			Monitor monitor = frame.getMonitor();
 			if (monitor == null)
 				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.IllegalMonitorStateException",
-						"No monitor has been entered for this method."));
+						"No monitor has been entered for this method " + getName()));
 			try {
 				monitor.monitorExit();
 			} catch (IllegalMonitorStateException e) {
