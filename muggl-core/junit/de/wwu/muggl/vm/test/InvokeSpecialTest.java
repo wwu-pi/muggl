@@ -28,7 +28,7 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class InvokeDynamicTest {
+public class InvokeSpecialTest {
 	MugglClassLoader classLoader;
 
 	@BeforeClass
@@ -59,7 +59,7 @@ public class InvokeDynamicTest {
 	public final void testApplicationMugglParseClassFileBootstrapMethod()
 			throws ClassFileException, InitializationException {
 		ClassFile classFile = classLoader
-				.getClassAsClassFile("binary.openjdk.one.eight.zero.ninetyone.invokedynamic.LambdaDemoMinimal", true);
+				.getClassAsClassFile("binary.openjdk.one.eight.zero.ninetyone.invokespecial.LambdaDemoMinimal", true);
 
 		for (Attribute attrib : classFile.getAttributes()) {
 			if (attrib instanceof AttributeBootstrapMethods) {
@@ -74,14 +74,12 @@ public class InvokeDynamicTest {
 	}
 
 	@Test
-	public final void testApplicationMugglVMRunInvokeDynamic() throws ClassFileException, InitializationException {
+	public final void testApplicationMugglVMRunInvokeSpecial() throws ClassFileException, InitializationException {
 
 		ClassFile classFile = classLoader
-				.getClassAsClassFile("binary.openjdk.one.eight.zero.ninetyone.invokedynamic.LambdaDemoMinimal", true);
+				.getClassAsClassFile("binary.openjdk.one.eight.zero.ninetyone.invokespecial.LambdaDemoMinimal", true);
 
-		Method method = classFile.getMethodByNameAndDescriptor("main", "([Ljava/lang/String;)V");
-
-		method.setPredefinedParameters((Object[]) new String[] {});
+		Method method = classFile.getMethodByNameAndDescriptor("executeTest", "()V");
 
 		Application application = new Application(classLoader, classFile.getName(), method);
 		application.start();

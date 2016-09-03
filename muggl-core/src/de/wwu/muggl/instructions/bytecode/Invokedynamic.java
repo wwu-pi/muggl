@@ -194,7 +194,7 @@ public class Invokedynamic extends Invoke implements Instruction {
 		Constant constant = constantPool[index];
 		if (!(constant instanceof ConstantInterfaceMethodref))
 			throw new ExecutionException(
-					"Error while executing instruction " + getName()
+					"3Error while executing instruction " + getName()
 							+ ": Expected runtime constant pool item at index to be a symbolic reference to a method.");
 
 		/*
@@ -259,8 +259,8 @@ public class Invokedynamic extends Invoke implements Instruction {
 	protected String[] getNameAndType(Constant constant) throws ExecutionException {
 		if (!(constant instanceof ConstantInterfaceMethodref)) {
 			throw new ExecutionException(
-					"Error while executing instruction " + getName()
-						+ ": Expected runtime constant pool item at index "
+					"1Error while executing instruction " + getName()
+						+ ": Expected runtime constant pool item at index " + constant.getStringValue()
 						+ "to be a symbolic reference to a method.");
 		}
 		
@@ -280,8 +280,8 @@ public class Invokedynamic extends Invoke implements Instruction {
 	protected ClassFile getMethodClassFile(Constant constant, MugglClassLoader classLoader) throws ClassFileException, ExecutionException {
 		if (!(constant instanceof ConstantInterfaceMethodref)) {
 			throw new ExecutionException(
-					"Error while executing instruction " + getName()
-						+ ": Expected runtime constant pool item at index "
+					"2Error while executing instruction " + getName()
+						+ ": Expected runtime constant pool item at index " + constant.getValue()
 						+ "to be a symbolic reference to a method.");
 		}
 		
