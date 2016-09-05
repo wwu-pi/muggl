@@ -1027,5 +1027,17 @@ public class Method extends FieldMethod {
 		return getFullName();
 	}
 
+	public boolean isSignaturePolymorphic() {
+		// shortcut from the JVM spec §2.9
+		// "In Java SE 8, the only signature polymorphic methods are the invoke and invokeExact
+		// methods of the class java.lang.invoke.MethodHandle ."
+		if ((getName().equalsIgnoreCase("invoke") || getName().equalsIgnoreCase("invokeExact"))
+				&& this.getClassFile().getName().equalsIgnoreCase("java.lang.invoke.MethodHandle")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 
 }
