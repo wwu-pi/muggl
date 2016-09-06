@@ -74,7 +74,7 @@ public class Monitorexit extends Monitor implements Instruction {
 	 */
 	@Override
 	public String getName() {
-		return "monitorenter";
+		return "monitorexit";
 	}
 
 	/**

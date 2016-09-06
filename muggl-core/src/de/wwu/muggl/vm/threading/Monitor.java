@@ -42,13 +42,13 @@ public class Monitor {
 		this.timesEntered--;
 
 		// If the counter becomes zero, release the monitor.
-		if (this.timesEntered == 0) releseMonitor();
+		if (this.timesEntered == 0) releaseMonitor();
 	}
 
 	/**
 	 * Release the monitor.
 	 */
-	private void releseMonitor() {
+	private void releaseMonitor() {
 
 	}
 
