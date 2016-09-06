@@ -4,8 +4,8 @@
 bin/
 
 # Contents of log/
-muggl-swt/log/*.html
-muggl-core/log/*.html
+muggl-swt/log/
+muggl-core/log/
 
 # Package Files #
 *.jar
