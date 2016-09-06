@@ -62,11 +62,11 @@ public class InnerClass extends ClassFileStructure {
 		}
 		this.innerClassAccessFlags = classFile.getDis().readUnsignedShort();
 		parseAccessFlags();
-		if (Globals.getInst().logger.isTraceEnabled()) {
+		if (Globals.getInst().parserLogger.isTraceEnabled()) {
 			if (this.innerNameIndex != 0) {
-				Globals.getInst().logger.trace("Parsing: Read a inner class with name \"" + ((ConstantUtf8) this.classFile.getConstantPool()[this.innerNameIndex]).getValue() + "\"");
+				Globals.getInst().parserLogger.trace("Parsing: Read a inner class with name \"" + ((ConstantUtf8) this.classFile.getConstantPool()[this.innerNameIndex]).getValue() + "\"");
 			} else {
-				Globals.getInst().logger.trace("Parsing: Read a inner class with an unknown name.");
+				Globals.getInst().parserLogger.trace("Parsing: Read a inner class with an unknown name.");
 			}
 		}
 	}

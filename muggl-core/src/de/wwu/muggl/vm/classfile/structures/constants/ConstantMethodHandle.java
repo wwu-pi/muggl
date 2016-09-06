@@ -33,8 +33,8 @@ public class ConstantMethodHandle extends Constant {
 		this.referenceKind = classFile.getDis().readByte();
 		this.referenceIndex = classFile.getDis().readUnsignedShort();
 		checkIndexIntoTheConstantPool(this.referenceIndex);
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger
 					.trace("Parsing: Read new Constant: Method Handle, reference_kind is "
 							+ getReferenceKind() + ", reference_index is "
 							+ getReferenceIndex());

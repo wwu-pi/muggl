@@ -27,7 +27,7 @@ public class AttributeDeprecated extends Attribute {
 		if (!this.classFile.getConstantPool()[this.attributeNameIndex].getStringValue().equals("Deprecated")) {
 			throw new ClassFileException("Encountered a corrupt class file: attribute_name_index of an attribute_deprecated must be \"Deprecated\".");
 		}
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read the Attribute \"Deprecated\"");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read the Attribute \"Deprecated\"");
 	}
 
 	/**

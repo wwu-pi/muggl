@@ -38,7 +38,7 @@ public class AttributeRuntimeVisibleParameterAnnotation extends Attribute {
 			this.parameterAnnotations[a] = new ParameterAnnotation(classFile);
 		}
 		
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read the Attribute \"RuntimeVisibleParameterAnnotation\"");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read the Attribute \"RuntimeVisibleParameterAnnotation\"");
 	}
 	
 	/**

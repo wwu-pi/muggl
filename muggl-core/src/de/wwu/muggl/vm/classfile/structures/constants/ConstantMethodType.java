@@ -35,8 +35,8 @@ public class ConstantMethodType extends Constant {
 		super(classFile);
 		this.descriptorIndex = classFile.getDis().readUnsignedShort();
 		checkIndexIntoTheConstantPool(this.descriptorIndex);
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger
 					.trace("Parsing: Read new Constant: MethodType, descriptor_index is "
 							+ getDescriptorIndex());
 	}

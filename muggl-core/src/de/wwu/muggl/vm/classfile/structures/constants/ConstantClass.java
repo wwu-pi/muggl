@@ -27,7 +27,7 @@ public class ConstantClass extends Constant {
 		super(classFile);
 		this.nameIndex = classFile.getDis().readUnsignedShort();
 		checkIndexIntoTheConstantPool(this.nameIndex);
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read new Constant: Class, name_index is " + getNameIndex());
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read new Constant: Class, name_index is " + getNameIndex());
 	}
 
 	/**

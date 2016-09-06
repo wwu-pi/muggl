@@ -47,8 +47,8 @@ public class AttributeBootstrapMethods extends Attribute {
 		for (int a = 0; a < this.numBootstrapMethods; a++) {
 			this.bootstrapMethods[a] = new BootstrapMethod(classFile);
 		}
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger
 					.trace("Parsing: Read the Attribute \"BootstrapMethods\" with "
 							+ numBootstrapMethods + " bootstrap methods");
 	}

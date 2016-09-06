@@ -33,7 +33,7 @@ public class AttributeUnknownSkipped extends Attribute {
 		for (int a = 0; a < this.attributeLength; a++) {
 			this.bytes[a] = classFile.getDis().readByte();
 		}
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read the byte of an unknown attribute");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read the byte of an unknown attribute");
 	}
 
 	/**

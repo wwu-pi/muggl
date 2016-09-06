@@ -38,8 +38,8 @@ public class ConstantInvokeDynamic extends Constant {
 		// FIXME: value index into the bootstrap_method array
 		this.nameAndTypeIndex = classFile.getDis().readUnsignedShort();
 		checkIndexIntoTheConstantPool(this.nameAndTypeIndex);
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger
 					.trace("Parsing: Read new Constant: InvokeDynamic, bootstrap_name_and_type_index is "
 							+ getBootstrapMethodAttrIndex()
 							+ ", name_and_type_index is "

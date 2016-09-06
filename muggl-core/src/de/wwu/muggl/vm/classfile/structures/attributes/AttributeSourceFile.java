@@ -34,7 +34,7 @@ public class AttributeSourceFile extends Attribute {
 		if (classFile.getConstantPool()[this.sourcefileIndex].getTag() != ClassFile.CONSTANT_UTF8) {
 			throw new ClassFileException("Encountered a corrupt class file: sourcefile_index of an attribute_source_file should point to a CONSTANT_Utf8_info.");
 		}
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read the Attribute \"SourceFile\"");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read the Attribute \"SourceFile\"");
 	}
 
 	/**

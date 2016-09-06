@@ -49,8 +49,8 @@ public abstract class AttributeRuntimeAnnotationsAbstract extends Attribute {
 			this.annotations[a] = new Annotation(classFile);
 		}
 
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger.trace("Parsing: Read the Attribute \"" + this.nameCamelCase
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger.trace("Parsing: Read the Attribute \"" + this.nameCamelCase
 					+ "\"");
 	}
 	

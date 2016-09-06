@@ -32,7 +32,7 @@ public class AttributeLocalVariableTable extends Attribute {
 		if (!this.classFile.getConstantPool()[this.attributeNameIndex].getStringValue().equals("LocalVariableTable")) {
 			throw new ClassFileException("Encountered a corrupt class file: attribute_name_index of an attribute_local_variable_table must be \"LocalVariableTable\".");
 		}
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Reading the Attribute \"LocalVariableTable\"");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Reading the Attribute \"LocalVariableTable\"");
 		this.localVariableTableLength = classFile.getDis().readUnsignedShort();
 		if (this.localVariableTableLength < 0) throw new ClassFileException("Encountered a corrupt class file: local_variable_table_length of an attribute_local_variable_table must not be negative.");
 		this.localVariableTable = new LocalVariableTable[this.localVariableTableLength];

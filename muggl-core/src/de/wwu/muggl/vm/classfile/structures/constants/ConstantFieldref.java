@@ -22,7 +22,7 @@ public class ConstantFieldref extends ConstantFieldInterfaceMethod {
 	 */
 	public ConstantFieldref(ClassFile classFile) throws ClassFileException, IOException {
 		super(classFile);
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read new Constant: Field, class_index is " + getClassIndex() + ", name_and_type_index is " + getNameAndTypeIndex());
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read new Constant: Field, class_index is " + getClassIndex() + ", name_and_type_index is " + getNameAndTypeIndex());
 	}
 
 	/**

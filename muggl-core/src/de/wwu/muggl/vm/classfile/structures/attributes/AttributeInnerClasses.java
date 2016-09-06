@@ -31,7 +31,7 @@ public class AttributeInnerClasses extends Attribute {
 		if (!this.classFile.getConstantPool()[this.attributeNameIndex].getStringValue().equals("InnerClasses")) {
 			throw new ClassFileException("Encountered a corrupt class file: attribute_name_index of an attribute_inner_classes must be \"InnerClasses\".");
 		}
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Reading the Attribute \"InnerClasses\"");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Reading the Attribute \"InnerClasses\"");
 		this.numberOfClasses = classFile.getDis().readUnsignedShort();
 		if (this.numberOfClasses < 0) throw new ClassFileException("Encountered a corrupt class file: number_of_classes of an attribute_inner_classes must not be negative.");
 		this.classes = new InnerClass[this.numberOfClasses];

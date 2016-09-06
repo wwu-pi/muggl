@@ -50,8 +50,8 @@ public abstract class AttributeRuntimeParameterAnnotationsAbstract extends Attri
 			this.parameterAnnotations[a] = new ParameterAnnotation(classFile);
 		}
 
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger
 					.trace("Parsing: Read the Attribute \"\" + this.nameCamelCase + \"\"");
 	}
 	

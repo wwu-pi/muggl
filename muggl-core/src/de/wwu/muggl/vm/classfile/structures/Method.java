@@ -122,7 +122,7 @@ public class Method extends FieldMethod {
 		} else if (attributeName.equals("AnnotationDefault")) {
 			this.attributes[a] = new AttributeAnnotationDefault(this.classFile, attributeNameIndex);
 		} else {
-	if (Globals.getInst().logger.isDebugEnabled()) Globals.getInst().logger.debug("Parsing: Encountered an unknown attribute \"" + attributeName + "\"");
+	if (Globals.getInst().parserLogger.isDebugEnabled()) Globals.getInst().parserLogger.debug("Parsing: Encountered an unknown attribute \"" + attributeName + "\"");
     		this.attributes[a] = new AttributeUnknownSkipped(this.classFile, attributeNameIndex);
     	}
 	}

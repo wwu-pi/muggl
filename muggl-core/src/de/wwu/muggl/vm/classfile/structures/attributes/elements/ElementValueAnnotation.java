@@ -29,8 +29,8 @@ public class ElementValueAnnotation extends ElementValue {
 	ElementValueAnnotation(ClassFile classFile, char tag) throws IOException, ClassFileException {
 		super(classFile, tag);
 		this.annotation = new Annotation(classFile);
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger
 					.trace("Parsing: Read an annotation type element_value of type \"" + this.tag
 							+ "\".");
 	}

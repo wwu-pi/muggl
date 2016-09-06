@@ -49,8 +49,8 @@ public class BootstrapMethod extends ClassFileStructure {
 			throw new ClassFileException(
 					"Encountered a corrupt class file: bootstrap_method_ref of a bootstrap_method should point to a CONSTANT_MethodHandle.");
 		}
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger
 					.trace("Parsing: Read a bootstrap_method. MethodRef "
 							+ this.bootstrapMethodRef + " arguments: "
 							+ Arrays.stream(bootstrapArguments)

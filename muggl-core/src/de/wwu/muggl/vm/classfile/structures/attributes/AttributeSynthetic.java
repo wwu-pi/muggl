@@ -27,7 +27,7 @@ public class AttributeSynthetic extends Attribute {
 		if (!this.classFile.getConstantPool()[this.attributeNameIndex].getStringValue().equals("Synthetic")) {
 			throw new ClassFileException("Encountered a corrupt class file: attribute_name_index of an attribute_synthetic must be \"Synthetic\".");
 		}
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read the Attribute \"Synthetic\"");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read the Attribute \"Synthetic\"");
 	}
 
 	/**

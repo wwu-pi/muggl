@@ -50,7 +50,7 @@ public class ExceptionTable extends ClassFileStructure {
 		if (this.catchType != 0 && classFile.getConstantPool()[this.catchType].getTag() != ClassFile.CONSTANT_CLASS) {
 			throw new ClassFileException("Encountered a corrupt class file: catch_type of an attribute should point to a CONSTANT_Class_info.");
 		}
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read a exception table entry with catch_type " + getCatchTypeClassName() + ".");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read a exception table entry with catch_type " + getCatchTypeClassName() + ".");
 	}
 
 	/**

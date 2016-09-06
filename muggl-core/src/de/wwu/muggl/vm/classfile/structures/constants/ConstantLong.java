@@ -23,7 +23,7 @@ public class ConstantLong extends ConstantLongDouble {
 	public ConstantLong(ClassFile classFile) throws IOException {
 		super(classFile);
 		this.value = classFile.getDis().readLong();
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read new Constant: Double");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read new Constant: Double");
 	}
 
 	/**

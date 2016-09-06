@@ -32,7 +32,7 @@ public class AttributeLineNumberTable extends Attribute {
 		if (!this.classFile.getConstantPool()[this.attributeNameIndex].getStringValue().equals("LineNumberTable")) {
 			throw new ClassFileException("Encountered a corrupt class file: attribute_name_index of an attribute_line_number_table must be \"LineNumberTable\".");
 		}
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Reading the Attribute \"LineNumberTable\"");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Reading the Attribute \"LineNumberTable\"");
 		this.lineNumberTableLength = classFile.getDis().readUnsignedShort();
 		if (this.lineNumberTableLength < 0) throw new ClassFileException("Encountered a corrupt class file: line_number_table_length of an attribute_line_number_table must not be negative.");
 		this.lineNumberTable = new LineNumberTable[this.lineNumberTableLength];

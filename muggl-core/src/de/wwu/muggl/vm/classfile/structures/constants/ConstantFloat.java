@@ -23,7 +23,7 @@ public class ConstantFloat extends ConstantIntegerFloat {
 	public ConstantFloat(ClassFile classFile) throws IOException {
 		super(classFile);
 		this.value = classFile.getDis().readFloat();
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read new Constant: Float");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read new Constant: Float");
 	}
 
 	/**

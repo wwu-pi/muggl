@@ -137,6 +137,17 @@ public final class Globals {
 	 * TRACE: Very detailed information about steps being taken by the JacopSolver
 	 */
 	public final Logger jacopLogger;
+	
+	/**
+	 * Parser Logger:
+	 * FATAL: Error in the virtual machine which forces halting of the application.
+	 * ERROR: Error in the virtual machine which forces halting of the virtual machine.
+	 * WARN: Unexpected condition which needs handling (possibly resulting in a halting of the virtual machine).
+	 * INFO: General information, probably success in finishing some task.
+	 * DEBUG: Detailed information about what will be or was done.
+	 * TRACE: Very detailed information about what will be or was done.
+	 */
+	public final Logger parserLogger;
 
 	/**
 	 * Symbolic Execution Logger:
@@ -201,6 +212,7 @@ public final class Globals {
 		this.solverLogger = Logger.getLogger(APP_NAME + " solver");
 		this.symbolicExecLogger = Logger.getLogger(APP_NAME + " symbolic execution");
 		this.jacopLogger = Logger.getLogger(APP_NAME + " JaCoP solver");
+		this.parserLogger = Logger.getLogger(APP_NAME + "  class parser");
 
 		// Finally start logging.
 		try {
@@ -214,6 +226,7 @@ public final class Globals {
 			this.solverLogger.addAppender(this.fileAppender);
 			this.symbolicExecLogger.addAppender(this.fileAppender);
 			this.jacopLogger.addAppender(this.fileAppender);
+			this.parserLogger.addAppender(this.fileAppender);
 		} catch (IOException e) {
 			System.out.println("Fatal error: Could not initialize logging due to an I/O error. Halting.");
 			System.exit(1);
@@ -227,6 +240,7 @@ public final class Globals {
 		this.loggers.add(this.solverLogger);
 		this.loggers.add(this.symbolicExecLogger);
 		this.loggers.add(this.jacopLogger);
+		this.loggers.add(this.parserLogger);
 
 		// Set the basic level for logging.
 		Iterator<Logger> iterator = this.loggers.iterator();

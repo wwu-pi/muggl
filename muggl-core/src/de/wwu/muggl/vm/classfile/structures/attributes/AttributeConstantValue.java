@@ -50,7 +50,7 @@ this.classFile.getConstantPool()[this.constantvalueIndex] instanceof ConstantLon
 				)) {
 			throw new ClassFileException("Class File invalid: constantvalue_index for attribute has an invalid value");
 		}
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read the Attribute \"ConstantValue\"");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read the Attribute \"ConstantValue\"");
 	}
 
 	/**

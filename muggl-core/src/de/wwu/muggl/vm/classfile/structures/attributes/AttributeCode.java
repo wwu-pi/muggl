@@ -93,7 +93,7 @@ public class AttributeCode extends Attribute {
 		// This attribute might have attributes itself.
 		this.attributes = new Attribute[this.attributeCount];
 
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Reading the attribute_code with name \"" + ((ConstantUtf8) this.classFile.getConstantPool()[this.attributeNameIndex]).getValue() + "\" with " + this.attributeCount + " attributes");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Reading the attribute_code with name \"" + ((ConstantUtf8) this.classFile.getConstantPool()[this.attributeNameIndex]).getValue() + "\" with " + this.attributeCount + " attributes");
         for (int a = 0; a < this.attributeCount; a++) {
         	int subAttributeNameIndex = classFile.getDis().readUnsignedShort();
         	checkIndexIntoTheConstantPool(subAttributeNameIndex);
@@ -110,7 +110,7 @@ public class AttributeCode extends Attribute {
         	} else if (attributeName.equals("LocalVariableTable")) {
         		this.attributes[a] = new AttributeLocalVariableTable(classFile, subAttributeNameIndex, this);
         	} else {
-        		if (Globals.getInst().logger.isDebugEnabled()) Globals.getInst().logger.debug("Parsing attribute_code: Encountered an unknown attribute \"" + attributeName + "\"");
+        		if (Globals.getInst().parserLogger.isDebugEnabled()) Globals.getInst().parserLogger.debug("Parsing attribute_code: Encountered an unknown attribute \"" + attributeName + "\"");
         		this.attributes[a] = new AttributeUnknownSkipped(classFile, subAttributeNameIndex);
         	}
         }

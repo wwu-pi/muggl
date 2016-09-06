@@ -512,21 +512,21 @@ public class ClassFile {
 		try {
 			// From now on read step by step, never setting the pointer in the DataInputStream back.
 			this.magic = this.dis.readInt();
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read magic: 0x"
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read magic: 0x"
 						+ Integer.toHexString(this.magic).toUpperCase());
 			if (this.magic != CAFEBABE) {
 				throw new ClassFileException("Invalid class file.");
 			}
 			this.minorVersion = this.dis.readUnsignedShort();
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read minor_version: " + this.minorVersion);
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read minor_version: " + this.minorVersion);
 			this.majorVersion = this.dis.readUnsignedShort();
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read major_version: " + this.majorVersion);
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read major_version: " + this.majorVersion);
 			this.constantPoolCount = this.dis.readUnsignedShort();
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read constant_pool_count: "
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read constant_pool_count: "
 						+ this.constantPoolCount);
 			if (this.constantPoolCount < 1) {
 				throw new ClassFileException(
@@ -541,8 +541,8 @@ public class ClassFile {
 			// Fill the constant_pool with data. This is delegated to other classes.
 			this.constantPool = new Constant[this.constantPoolCount];
 			for (int a = 1; a < this.constantPoolCount; a++) {
-				if (Globals.getInst().logger.isTraceEnabled())
-					Globals.getInst().logger.trace("Parsing: Const #" + a);
+//				if (Globals.getInst().logger.isTraceEnabled())
+//					Globals.getInst().logger.trace("Parsing: Const #" + a);
 
 				byte tag = this.dis.readByte();
 				switch (tag) {
@@ -594,8 +594,8 @@ public class ClassFile {
 						throw new ClassFileException("Encountered an unknown Constant (" + tag + ") - halting.");
 				}
 			}
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read constant_pool entries.");
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read constant_pool entries.");
 
 			// Verify that every constant_pool entry has the correct Constant_UTF8_info for its
 			// name_index.
@@ -676,18 +676,18 @@ public class ClassFile {
 				}
 			}
 
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Verified constant_pool entries.");
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Verified constant_pool entries.");
 
 			this.accessFlags = this.dis.readUnsignedShort();
 			parseAccessFlags();
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read access_flags: " + this.accessFlags
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read access_flags: " + this.accessFlags
 						+ " (" + getPrefix() + ")");
 
 			this.thisClass = this.dis.readUnsignedShort();
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read this_class: " + this.thisClass + " ("
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read this_class: " + this.thisClass + " ("
 						+ this.constantPool[this.thisClass].toString() + ")");
 			checkIndexIntoTheConstantPool(this.thisClass, false);
 
@@ -710,17 +710,17 @@ public class ClassFile {
 
 			// Continue reading the class file.
 			this.superClass = this.dis.readUnsignedShort();
-			if (Globals.getInst().logger.isDebugEnabled()) {
+			if (Globals.getInst().parserLogger.isDebugEnabled()) {
 				checkIndexIntoTheConstantPool(this.superClass, true);
 				String superClass = "no super class";
 				if (this.superClass != 0)
 					superClass = this.constantPool[this.superClass].toString();
-				Globals.getInst().logger.debug("Parsing: Read super_class: " + this.superClass
+				Globals.getInst().parserLogger.debug("Parsing: Read super_class: " + this.superClass
 						+ " (" + superClass + ")");
 			}
 			this.interfacesCount = this.dis.readUnsignedShort();
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read interfaces_count: "
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read interfaces_count: "
 						+ this.interfacesCount);
 			if (this.interfacesCount < 0) {
 				throw new ClassFileException(
@@ -741,11 +741,11 @@ public class ClassFile {
 									+ " does not point to a CONSTANT_Class_info.");
 				}
 			}
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read the interfaces");
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read the interfaces");
 			this.fieldsCount = this.dis.readUnsignedShort();
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read fields_count: " + this.fieldsCount);
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read fields_count: " + this.fieldsCount);
 			// Read the Fields. This is delegated to other classes.
 			this.fields = new Field[this.fieldsCount];
 			if (this.fieldsCount < 0) {
@@ -760,8 +760,8 @@ public class ClassFile {
 			for (int a = 0; a < this.fieldsCount; a++) {
 				this.fields[a] = new Field(this);
 			}
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read the fields");
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read the fields");
 			this.methodsCount = this.dis.readUnsignedShort();
 			if (this.methodsCount < 0) {
 				throw new ClassFileException(
@@ -772,8 +772,8 @@ public class ClassFile {
 						"Encountered a corrupt class file: methods_count must not be greater than 65535"
 								+ Limitations.MAX_METHODS_COUNT + ".");
 			}
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read method_count: " + this.methodsCount);
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read method_count: " + this.methodsCount);
 			// Read the methods. This is delegated to other classes.
 			this.methods = new Method[this.methodsCount];
 			if (this.methodsCount < 0) {
@@ -783,11 +783,11 @@ public class ClassFile {
 			for (int a = 0; a < this.methodsCount; a++) {
 				this.methods[a] = new Method(this);
 			}
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read the methods");
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read the methods");
 			this.attributeCount = this.dis.readUnsignedShort();
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing: Read attributes_count: "
+			if (Globals.getInst().parserLogger.isDebugEnabled())
+				Globals.getInst().parserLogger.debug("Parsing: Read attributes_count: "
 						+ this.attributeCount);
 			// Read the methods. This is delegated to other classes.
 			this.attributes = new Attribute[this.attributeCount];
@@ -829,17 +829,17 @@ public class ClassFile {
 				} else if (attributeName.equals("BootstrapMethods")) {
 					this.attributes[a] = new AttributeBootstrapMethods(this, attributeNameIndex);
 				} else {
-					if (Globals.getInst().logger.isDebugEnabled())
-						Globals.getInst().logger
+					if (Globals.getInst().parserLogger.isDebugEnabled())
+						Globals.getInst().parserLogger
 								.debug("Parsing: Encountered an unknown attribute \""
 										+ attributeName + "\"");
 					this.attributes[a] = new AttributeUnknownSkipped(this, attributeNameIndex);
 				}
-				if (Globals.getInst().logger.isDebugEnabled())
-					Globals.getInst().logger.debug("Parsing: Read the attributes");
+				if (Globals.getInst().parserLogger.isDebugEnabled())
+					Globals.getInst().parserLogger.debug("Parsing: Read the attributes");
 			}
 			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing completed successfully for " + name);
+				Globals.getInst().logger.debug("Parsing completed successfully for " + getName());
 		} catch (ClassFileException e) {
 			if (Globals.getInst().logger.isEnabledFor(Level.WARN))
 				Globals.getInst().logger.warn("Parsing class " + this.name

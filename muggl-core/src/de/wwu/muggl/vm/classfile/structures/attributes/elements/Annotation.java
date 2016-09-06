@@ -40,8 +40,8 @@ public class Annotation extends ClassFileStructure {
 		for (int a = 0; a < this.numElementValuePairs; a++) {
 			this.elementValuesPairs[a] = new ElementValuePair(classFile);
 		}
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger.trace("Parsing: Read an annotation.");
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger.trace("Parsing: Read an annotation.");
 	}
 
 	/**

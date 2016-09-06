@@ -40,7 +40,7 @@ public class AttributeExceptions extends Attribute {
 				throw new ClassFileException("Encountered a corrupt class file: Each entry of the exception_index_table of an attribute_exception should point to a CONSTANT_Class_info.");
 			}
 		}
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read the Attribute \"Exceptions\" ("  + this.numberOfExceptions + " entries in the exception_table)");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read the Attribute \"Exceptions\" ("  + this.numberOfExceptions + " entries in the exception_table)");
 	}
 
 	/**

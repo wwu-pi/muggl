@@ -42,8 +42,8 @@ public class ElementValueEnum extends ElementValue {
 					"Encountered a corrupt class file: const_name_index of a value_entry should point to a CONSTANT_Utf8_info.");
 		}
 		
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger.trace("Parsing: Read an enum type element_value of type \""
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger.trace("Parsing: Read an enum type element_value of type \""
 					+ this.tag + "\".");
 	}
 	

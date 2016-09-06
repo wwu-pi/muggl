@@ -40,8 +40,8 @@ public class ElementValuePrimitive extends ElementValue {
 					"Encountered a corrupt class file: element value tag and constant_pool entry type at constant_value_index do not match.");
 		}
 		
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger
 					.trace("Parsing: Read an primitive type or String element_value of type \""
 							+ this.tag + "\".");
 	}

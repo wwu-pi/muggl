@@ -88,7 +88,7 @@ public abstract class FieldMethod extends ClassFileStructure  {
 			throw new ClassFileException("Encountered a corrupt class file: descriptor_index of a Field should point to a CONSTANT_Utf8_info.");
 		}
 		this.attributeCount = classFile.getDis().readUnsignedShort();
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Reading the " + getFieldMethod() + " \"" + ((ConstantUtf8) this.classFile.getConstantPool()[this.nameIndex]).getStringValue() + "\" with " + this.attributeCount + " attributes");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Reading the " + getFieldMethod() + " \"" + ((ConstantUtf8) this.classFile.getConstantPool()[this.nameIndex]).getStringValue() + "\" with " + this.attributeCount + " attributes");
 		if (this.attributeCount < 0) {
 			throw new ClassFileException("Encountered a corrupt class file: attribute_count of a " + getName() + " is less than zero.");
 		}

@@ -30,7 +30,7 @@ public class ConstantNameAndType extends Constant {
 		checkIndexIntoTheConstantPool(this.nameIndex);
 		this.descriptorIndex = classFile.getDis().readUnsignedShort();
 		checkIndexIntoTheConstantPool(this.descriptorIndex);
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read new Constant: NameAndType, name_index is " + getNameIndex() + ", descriptor_index is " + getDescriptorIndex());
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read new Constant: NameAndType, name_index is " + getNameIndex() + ", descriptor_index is " + getDescriptorIndex());
 	}
 
 	/**

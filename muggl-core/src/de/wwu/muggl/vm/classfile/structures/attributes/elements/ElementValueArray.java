@@ -35,8 +35,8 @@ public class ElementValueArray extends ElementValue {
 			this.elementValues[a] = ElementValue.getElementValue(classFile);
 		}
 		
-		if (Globals.getInst().logger.isTraceEnabled())
-			Globals.getInst().logger.trace("Parsing: Read an array type element_value of type \""
+		if (Globals.getInst().parserLogger.isTraceEnabled())
+			Globals.getInst().parserLogger.trace("Parsing: Read an array type element_value of type \""
 					+ this.tag + "\".");
 	}
 	

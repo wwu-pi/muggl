@@ -33,7 +33,7 @@ public class LineNumberTable extends ClassFileStructure {
 		if (this.startPC >= code.getCodeLength()) throw new ClassFileException("Encountered a corrupt class file: start_pc of a line_number table must be a valid index into the code.");
 		this.lineNumber = classFile.getDis().readUnsignedShort();
 		if (this.lineNumber < 0) throw new ClassFileException("Encountered a corrupt class file: line_number of a line_number table must not be negative.");
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read a line number entry");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read a line number entry");
 	}
 
 	/**

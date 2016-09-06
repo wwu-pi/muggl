@@ -48,7 +48,7 @@ public class LocalVariableTable extends ClassFileStructure {
 			throw new ClassFileException("Encountered a corrupt class file: descriptor_index of an local_variable_table should point to a CONSTANT_Utf8_info.");
 		}
 		this.index = classFile.getDis().readUnsignedShort();
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read a local variable table entry with name " + getName() + ".");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read a local variable table entry with name " + getName() + ".");
 	}
 
 	/**

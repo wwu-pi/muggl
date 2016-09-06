@@ -35,7 +35,7 @@ public class AttributeAnnotationDefault extends Attribute {
 		}
 		this.defaultValue = ElementValue.getElementValue(classFile);
 	
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read the Attribute \"AnnotationDefault\"");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read the Attribute \"AnnotationDefault\"");
 	}
 	
 	/**

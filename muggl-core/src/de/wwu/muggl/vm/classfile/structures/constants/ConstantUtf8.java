@@ -32,7 +32,7 @@ public class ConstantUtf8 extends Constant {
 		for (int a = 0; a < this.length; a++) {
 			this.bytes[a] = classFile.getDis().readByte();
 		}
-		if (Globals.getInst().logger.isTraceEnabled()) Globals.getInst().logger.trace("Parsing: Read new Constant: Utf8, bytes to String is \"" + getValue() + "\"");
+		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read new Constant: Utf8, bytes to String is \"" + getValue() + "\"");
 	}
 
 	/**
