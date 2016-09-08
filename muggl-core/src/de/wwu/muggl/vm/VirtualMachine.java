@@ -355,7 +355,7 @@ public abstract class VirtualMachine extends Thread {
 		}
 		if (!this.finalized) this.application.executionHasFinished();
 		if (!this.errorOccured && Globals.getInst().execLogger.isInfoEnabled())
-			Globals.getInst().execLogger.info("Execution in the virtual machine finished successful.");
+			Globals.getInst().execLogger.info("Execution in the virtual machine finished successfully.");
 	}
 
 	/**
@@ -412,7 +412,8 @@ public abstract class VirtualMachine extends Thread {
 				} else {
 					frame = (Frame) object;
 				}
-				if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("Continuing operation with the next frame (" + frame.getMethod().getPackageAndName() + ").");
+				if (Globals.getInst().execLogger.isTraceEnabled()) 
+					Globals.getInst().execLogger.trace("Continuing operation with the next frame (" + frame.getMethod().getPackageAndName() + ").");
 			}
 
 			// Enable stepping once the frame of the initially invoked method is reached.
@@ -912,7 +913,7 @@ public abstract class VirtualMachine extends Thread {
 				message = "";
 			}
 			throw new ExceptionInInitializerError(
-					"Class initialization failed since an uncaught exception was thrown: " + type
+					"Class (" + method.getClassFile().getName() + ") initialization failed since an uncaught exception was thrown: " + type
 							+ " (" + message + ")");
 		} catch (ExecutionException e) {
 			throw new ExceptionInInitializerError(
