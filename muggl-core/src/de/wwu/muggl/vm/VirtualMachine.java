@@ -881,7 +881,7 @@ public abstract class VirtualMachine extends Thread {
 				// Stop it here, we are back!
 				if (frame.equals(savedFrame)) break;
 
-				if (Globals.getInst().execLogger.isTraceEnabled() && !frame.getMethod().equals(method)) Globals.getInst().execLogger.trace("Continuing operation with the next frame (" + frame.getMethod().getPackageAndName() + "). It has been invoked by the static initializer of " + method.getClassFile().getName() + ".");
+				if (!frame.getMethod().equals(method)) Globals.getInst().execLogger.trace("Continuing operation with the next frame (" + frame.getMethod().getPackageAndName() + "). Invoked by the static initializer of " + method.getClassFile().getName() + ".");
 
 				// start execution of this frame
 				changeCurrentFrame(frame);
