@@ -216,7 +216,7 @@ public abstract class GeneralInstruction {
 	 * @throws VmRuntimeException Thrown in case of an illegal monitor state, wrapping an IllegalMonitorStateException.
 	 */
 	public void ifSynchronizedExitMonitor(Frame frame) throws VmRuntimeException {
-		if (frame.getMethod().isAccSynchronized()) {
+		if (false && frame.getMethod().isAccSynchronized()) {
 			Monitor monitor = frame.getMonitor();
 			if (monitor == null)
 				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.IllegalMonitorStateException",
