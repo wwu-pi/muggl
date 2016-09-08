@@ -17,19 +17,18 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class Java8Execution {
+public class BugIntegerCacheMonitor {
+	MugglClassLoader classLoader;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.INFO);
-		Globals.getInst().execLogger.setLevel(Level.ALL);
+		Globals.getInst().changeLogLevel(Level.TRACE);
+		Globals.getInst().parserLogger.setLevel(Level.ERROR);
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 	}
-
-	private MugglClassLoader classLoader;
 
 	@Before
 	public void setUp() throws Exception {
@@ -41,10 +40,11 @@ public class Java8Execution {
 	}
 
 	@Test
-	public final void testApplicationMugglClassLoaderStringMethod()
+	public final void testMonitor()
 			throws ClassFileException, InitializationException, InterruptedException {
+		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
+				"binary.openjdk.one.eight.zero.ninetyone.buginvokevirtual.IntegerCache", "execute");
 
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader, "binary.openjdk.one.eight.zero.ninetyone.CountWordLength",
-				"counting", "(I)J", (Object[]) new Integer[] { 2 });
 	}
+
 }
