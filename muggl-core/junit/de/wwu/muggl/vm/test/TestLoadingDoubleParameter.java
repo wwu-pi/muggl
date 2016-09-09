@@ -23,6 +23,7 @@ public class TestLoadingDoubleParameter {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		Globals.getInst().changeLogLevel(Level.ALL);
+		Globals.getInst().parserLogger.setLevel(Level.ERROR);
 	}
 
 	@AfterClass

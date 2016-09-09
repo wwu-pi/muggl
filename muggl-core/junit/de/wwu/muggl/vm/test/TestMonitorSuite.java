@@ -13,11 +13,13 @@ import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 /**
+ * Executes different test related to synchronized keywords of methods,
+ * and synchronized(object) {} blocks in Code.
  * 
  * @author Max Schulze
  *
  */
-public class BugMonitor {
+public class TestMonitorSuite {
 	MugglClassLoader classLoader;
 
 	@BeforeClass
