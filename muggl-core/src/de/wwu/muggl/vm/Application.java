@@ -117,9 +117,8 @@ public class Application extends Thread {
 						Globals.getInst().execLogger
 								.info("The execution process failed with an InterruptedException as the Application was finalized.");
 				} else {
-					if (Globals.getInst().execLogger.isInfoEnabled())
-						Globals.getInst().execLogger
-								.info("Waiting for the next virtual machine to start failed with an InterruptedException (probably the execution was aborted). Now checking if another virtual machine is ready, stopping otherwise.");
+					Globals.getInst().execLogger.warn(
+							"Waiting for the next virtual machine to start failed with an InterruptedException (probably the execution was aborted). Now checking if another virtual machine is ready, stopping otherwise.");
 				}
 			}
 		} while (this.vmHasChanged);

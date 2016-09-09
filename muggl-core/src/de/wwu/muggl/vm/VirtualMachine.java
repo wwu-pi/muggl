@@ -248,8 +248,7 @@ public abstract class VirtualMachine extends Thread {
 			// Halt the virtual machine. Do not mark that an error has occurred, though.
 			this.nextStepReady = false;
 			if (!this.finalized) this.application.finalizeApplication();
-			if (Globals.getInst().execLogger.isInfoEnabled())
-				Globals.getInst().execLogger.info("An runtime exception was not caught by the executed application. Halting the virtual machine.");
+			Globals.getInst().execLogger.error("An runtime exception was not caught by the executed application. Halting the virtual machine.");
 		} catch (StackOverflowError e) {
 			this.errorMessage = "Stack overflow error: " + e.getMessage();
 			this.errorOccured = true;
@@ -442,7 +441,9 @@ public abstract class VirtualMachine extends Thread {
 	protected void executeFrame(boolean allowStepping) throws ExecutionException, InterruptedException, InvalidInstructionInitialisationException {
 		this.executedFrames++;
 		Method method = this.currentFrame.getMethod();
-		if (Globals.getInst().execLogger.isDebugEnabled()) Globals.getInst().execLogger.debug("Executing method " + method.getName());
+		Globals.getInst().execLogger
+				.debug("Executing method " + method.getName() + " (" + this.currentFrame.getOperandStack() + ")");
+
 		Instruction[] instructions = method.getInstructionsAndOtherBytes();
 		this.currentFrame.setActive(true);
 		while (this.currentFrame.isActive() && this.pc < instructions.length) {
@@ -651,6 +652,9 @@ public abstract class VirtualMachine extends Thread {
 	 * @return An exception to to used in the runtime system.
 	 */
 	public Objectref generateExc(String typeString, String message) {
+		// marker for debug logs for easier finding of where an exception originated
+		Globals.getInst().execLogger.info("generating a new exception " + typeString + "(" + message+")");
+
 		return this.throwableGenerator.getException(typeString, message);
 	}
 
@@ -881,7 +885,10 @@ public abstract class VirtualMachine extends Thread {
 				// Stop it here, we are back!
 				if (frame.equals(savedFrame)) break;
 
-				if (!frame.getMethod().equals(method)) Globals.getInst().execLogger.trace("Continuing operation with the next frame (" + frame.getMethod().getPackageAndName() + "). Invoked by the static initializer of " + method.getClassFile().getName() + ".");
+				if (!frame.getMethod().equals(method))
+					Globals.getInst().execLogger.trace("Continuing operation with the next frame ("
+							+ frame.getMethod().getPackageAndName() + "). Invoked by the static initializer of "
+							+ method.getClassFile().getName() + ".");
 
 				// start execution of this frame
 				changeCurrentFrame(frame);

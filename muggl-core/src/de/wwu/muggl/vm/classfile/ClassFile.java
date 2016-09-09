@@ -838,8 +838,7 @@ public class ClassFile {
 				if (Globals.getInst().parserLogger.isDebugEnabled())
 					Globals.getInst().parserLogger.debug("Parsing: Read the attributes");
 			}
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug("Parsing completed successfully for " + getName());
+			Globals.getInst().parserLogger.debug("Parsing completed successfully for " + getName());
 		} catch (ClassFileException e) {
 			if (Globals.getInst().logger.isEnabledFor(Level.WARN))
 				Globals.getInst().logger.warn("Parsing class " + this.name

@@ -1,5 +1,7 @@
 package de.wwu.muggl.vm.exceptions;
 
+import org.apache.log4j.Level;
+
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.vm.Frame;
@@ -181,7 +183,7 @@ public class ExceptionHandler {
 	 */
 	private void abortExecution() throws ExecutionException, NoExceptionHandlerFoundException {
 		// Generate a message for logging.
-		if (Globals.getInst().execLogger.isDebugEnabled()) {
+		if (Globals.getInst().execLogger.isEnabledFor(Level.WARN)) {
 			try {
 				ClassFile throwableClassFile = this.objectref.getInitializedClass().getClassFile();
 				Field detailMessageField = throwableClassFile.getFieldByName("detailMessage", true);
@@ -255,7 +257,7 @@ public class ExceptionHandler {
 						+ "exception handler was found. Uncaught exception: "
 						+ this.classname.replace("/", ".")
 						+ " (" + message + ")";
-				Globals.getInst().execLogger.debug(logMessage);
+				Globals.getInst().execLogger.warn(logMessage);
 
 			} catch (ClassFileException e) {
 				throw new ExecutionException(
