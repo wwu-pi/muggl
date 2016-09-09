@@ -39,8 +39,16 @@ public class BugMonitorHashTableEmpty {
 	public void tearDown() throws Exception {
 	}
 
+	/**
+	 * Will look if a newly initialized HashTable is empty. The function .isEmpty is synchronized so this test will fail
+	 * if there are problems with monitor support
+	 * 
+	 * @throws ClassFileException
+	 * @throws InitializationException
+	 * @throws InterruptedException
+	 */
 	@Test
-	public final void testApplicationMugglVMRunBugInvokevirtualParentInterface()
+	public final void testApplicationMugglVMRunHashTableEmpty()
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
 				"binary.openjdk.one.eight.zero.ninetyone.buginvokevirtual.HashTableEmpty", "execute");
