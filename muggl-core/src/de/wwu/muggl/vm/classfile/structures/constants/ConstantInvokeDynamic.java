@@ -33,9 +33,10 @@ public class ConstantInvokeDynamic extends Constant {
 	public ConstantInvokeDynamic(ClassFile classFile)
 			throws ClassFileException, IOException {
 		super(classFile);
+		// We should check if this points to an entry in the BootstrapMethods table,
+		// but it is probably not read by now.
 		this.bootstrapMethodAttrIndex = classFile.getDis().readUnsignedShort();
 
-		// FIXME: value index into the bootstrap_method array
 		this.nameAndTypeIndex = classFile.getDis().readUnsignedShort();
 		checkIndexIntoTheConstantPool(this.nameAndTypeIndex);
 		if (Globals.getInst().parserLogger.isTraceEnabled())

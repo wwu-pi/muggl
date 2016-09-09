@@ -48,6 +48,7 @@ import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeAnnotationDefault;
+import de.wwu.muggl.vm.classfile.structures.attributes.AttributeBootstrapMethods;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeConstantValue;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeExceptions;
@@ -59,6 +60,7 @@ import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeParameter
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeSourceFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeUnknownSkipped;
 import de.wwu.muggl.vm.classfile.structures.attributes.elements.Annotation;
+import de.wwu.muggl.vm.classfile.structures.attributes.elements.BootstrapMethod;
 import de.wwu.muggl.vm.classfile.structures.attributes.elements.ElementValue;
 import de.wwu.muggl.vm.classfile.structures.attributes.elements.ElementValueAnnotation;
 import de.wwu.muggl.vm.classfile.structures.attributes.elements.ElementValueArray;
@@ -734,6 +736,21 @@ public class ClassInspectionComposite extends Composite {
 				furtherInfos = constantPool[attribute.getAttributeNameIndex()].getStringValue()
 						+ " with " + ((AttributeUnknownSkipped) attribute).getBytes().length
 						+ " bytes";
+			} else if (attribute instanceof AttributeBootstrapMethods) {
+				furtherInfos = " (" + ((AttributeBootstrapMethods) attribute).getNumBootstrapMethods() + ")";
+				BootstrapMethod[] bootsMethods = ((AttributeBootstrapMethods) attribute).getBootstrapMethods();
+				for (int b = 0; b < bootsMethods.length; b++) {
+					TreeItem subItem = new TreeItem(item, 0);
+					subItem.setText(b + ": " + constantPool[bootsMethods[b].getBootstrapMethodRef()].getStringValue());
+
+					TreeItem subArgItem = new TreeItem(subItem, 0);
+					subArgItem.setText("Method Arguments (" + bootsMethods[b].getNumBootstrapArguments() + ")");
+
+					for (int bootstrapArg : bootsMethods[b].getBootstrapArguments()) {
+						TreeItem subArgValItem = new TreeItem(subArgItem, 0);
+						subArgValItem.setText(constantPool[bootstrapArg].getStringValue());
+					}
+				}
 			}
     		String text = StaticGuiSupport.getFormatedIndexNumberByMaximumNumber(a, attributes.length, true) + attributes[a].getStructureName();
     		if (furtherInfos.length() > 0) {
