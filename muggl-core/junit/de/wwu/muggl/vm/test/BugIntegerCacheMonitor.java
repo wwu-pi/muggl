@@ -14,6 +14,13 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 /**
  * 
+ * Initialization of the IntegerCache calls sun.misc.VM.getSavedProperty(String key) which in the original rt.jar does a
+ * check if systems' properties are empty (which they are in muggl at this time of writing). It will then emit a
+ * IllegalStateException("Should be non-empty if initialized").
+ * 
+ * To cirumvent this as a dirty fix, there is a patched VM.java in muggl-core/sun/misc that does not do this check and
+ * hence these checks here should pass.
+ * 
  * @author Max Schulze
  *
  */
@@ -22,7 +29,7 @@ public class BugIntegerCacheMonitor {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.TRACE);
+		// Globals.getInst().changeLogLevel(Level.TRACE);
 		Globals.getInst().parserLogger.setLevel(Level.ERROR);
 	}
 
@@ -40,11 +47,23 @@ public class BugIntegerCacheMonitor {
 	}
 
 	@Test
-	public final void testMonitor()
-			throws ClassFileException, InitializationException, InterruptedException {
+	public final void testIntegerEquality() throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
 				"binary.openjdk.one.eight.zero.ninetyone.buginvokevirtual.IntegerCache", "execute");
 
+	}
+
+	@Test
+	public final void testGetVMProperty() throws ClassFileException, InitializationException, InterruptedException {
+		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				"binary.openjdk.one.eight.zero.ninetyone.buginvokevirtual.IntegerCache", "tryGetProperty",
+				"()Ljava/lang/String;", null);
+	}
+
+	@Test
+	public final void testGetVMProperties() throws ClassFileException, InitializationException, InterruptedException {
+		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
+				"binary.openjdk.one.eight.zero.ninetyone.buginvokevirtual.IntegerCache", "listSystemProperties");
 	}
 
 }
