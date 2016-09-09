@@ -185,10 +185,11 @@ public class ExceptionHandler {
 			try {
 				ClassFile throwableClassFile = this.objectref.getInitializedClass().getClassFile();
 				Field detailMessageField = throwableClassFile.getFieldByName("detailMessage", true);
+				Objectref stringObjectref = (Objectref) this.objectref.getField(detailMessageField);
+								
 				ClassFile stringClassFile = this.frame.getVm().getClassLoader()
 						.getClassAsClassFile("java.lang.String");
 				Field stringValueField = stringClassFile.getFieldByNameAndDescriptor("value", "[C");
-				Objectref stringObjectref = (Objectref) this.objectref.getField(detailMessageField);
 				String message;
 				if (stringObjectref == null) {
 					message = "null";
@@ -207,6 +208,48 @@ public class ExceptionHandler {
 					}
 					message = new String(characters);
 				}
+				
+				/*
+				 *          final String exceptionMsg =
+              "Exception thrown from " + element.getMethodName()
+            + " in class " + element.getClassName() + " [on line number "
+            + element.getLineNumber() + " of file " + element.getFileName() + "]";
+
+				 */
+				//detailMessage is currently the only field filled with info?
+//				Field stackTraceField = throwableClassFile.getFieldByName("stackTrace", true);
+//				
+//				
+//				ClassFile stackTraceElementClassFile = this.frame.getVm().getClassLoader()
+//						.getClassAsClassFile("java.lang.StackTraceElement");
+//				Arrayref stackTraceObjectref = (Arrayref) this.objectref.getField(stackTraceField);
+//				
+//				Field stackTraceMethodNameField = stackTraceElementClassFile.getFieldByName("methodName", true);
+//				
+//				String stackTraceMessage = "";
+//				for (int i = 0; i < stackTraceObjectref.length; i++) {
+//					Objectref stackTraceElement =(Objectref) stackTraceObjectref.getElement(i);
+//					
+//					Objectref stringObjectref1 = (Objectref) stackTraceElement.getField(stackTraceMethodNameField);
+//					
+//					if (stringObjectref1 == null) {
+//						stackTraceMessage = "null";
+//					} else {
+//						Arrayref arrayref = (Arrayref) stringObjectref1.getField(stringValueField);
+//		
+//						// Convert it.
+//						boolean symbolicalMode = Options.getInst().symbolicMode;
+//						char[] characters = new char[arrayref.length];
+//						for (int a = 0; a < arrayref.length; a++) {
+//							if (symbolicalMode) {
+//								characters[a] = (char) ((IntConstant) arrayref.getElement(a)).getIntValue();
+//							} else {
+//								characters[a] = (Character) arrayref.getElement(a);
+//							}
+//						}
+//						stackTraceMessage = new String(characters);
+//					}
+//				}				
 
 				String logMessage = "The executed application threw an exception but no suitable "
 						+ "exception handler was found. Uncaught exception: "

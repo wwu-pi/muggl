@@ -96,6 +96,8 @@ public class ThrowableGenerator {
 				"detailMessage", true);
 		objectref.putField(detailMessageField, stringObjectref);
 		
+		// TODO mxs Exceptions mit StackTrace ausbauen
+
 		// Return the object reference.
 		return objectref;
 	}
