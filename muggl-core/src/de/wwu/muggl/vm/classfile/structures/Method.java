@@ -259,8 +259,6 @@ public class Method extends FieldMethod {
 			}
 			if (this.accNative)
 				throw new ClassFileException("An interface method must not have the ACC_NATIVE flag set.");
-			if (this.accBridge)
-				throw new ClassFileException("An interface method must not have the ACC_BRIDGE flag set.");
 			if (this.accSynchronized)
 				throw new ClassFileException("An interface method must not have the ACC_SYNCHRONIZED flag set.");
 			if (this.accFinal)
