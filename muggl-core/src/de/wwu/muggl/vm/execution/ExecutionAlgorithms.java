@@ -123,12 +123,28 @@ public class ExecutionAlgorithms {
 			int arrayDimensions = 0;
 			boolean targetIsPrimitiveType = false;
 
-			// Check if the target type is an array.
+			// Check if the target type is an array. ex: char[]
 			while (targetString.contains("[]")) {
 				arrayDimensions++;
 				targetString = targetString.substring(0, targetString.length() - 2);
 			}
+			
+			// target might also be [Ljava/util/HashMap$Node;
+			if (targetString.contains("[")) {
+				while (targetString.contains("[")) {
+					arrayDimensions++;
+					targetString = targetString.substring(1);
+				}
 
+				// If there were any "[", drop the "L" as well.
+				if (arrayDimensions > 0) {
+					targetString = targetString.substring(1);
+					// Probably there is a ";" at the end. Drop it.
+					if (targetString.endsWith(";"))
+						targetString = targetString.substring(0, targetString.length() - 1);
+				}
+			}
+			
 			// Check if target is a primitive type.
 			if (targetString.equals("boolean"))  {
 				if (arrayDimensions == 0) {
