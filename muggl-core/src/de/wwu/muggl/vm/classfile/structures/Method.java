@@ -251,6 +251,8 @@ public class Method extends FieldMethod {
 					throw new ClassFileException("An interface method must have its ACC_PUBLIC flag set.");
 				if (!this.accAbstract)
 					throw new ClassFileException("An interface method must have its ACC_ABSTRACT flag set.");
+				if (this.accPrivate)
+					throw new ClassFileException("An interface method must not have the ACC_PRIVATE flag set.");
 			} else {
 				if (this.accPublic == this.accPrivate) // XNOR a b
 					throw new ClassFileException(
@@ -263,12 +265,8 @@ public class Method extends FieldMethod {
 				throw new ClassFileException("An interface method must not have the ACC_SYNCHRONIZED flag set.");
 			if (this.accFinal)
 				throw new ClassFileException("An interface method must not have the ACC_FINAL flag set.");
-			if (this.accStatic)
-				throw new ClassFileException("An interface method must not have the ACC_STATIC flag set.");
 			if (this.accProtected)
 				throw new ClassFileException("An interface method must not have the ACC_PROTECTED flag set.");
-			if (this.accPrivate)
-				throw new ClassFileException("An interface method must not have the ACC_PRIVATE flag set.");
 		}
 		if (getName().equals("<init>")) {
 			if (this.accAbstract)
