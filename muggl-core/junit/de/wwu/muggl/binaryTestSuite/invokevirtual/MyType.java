@@ -77,6 +77,10 @@ public class MyType<T> {
 		return Boolean.valueOf(in);
 	}
 	
+	public static boolean booleanTest2(boolean in) {
+		return in ^ true;
+	}
+	
 	public static int intNoBoxing(int in) {
 		return in + 4;
 	}

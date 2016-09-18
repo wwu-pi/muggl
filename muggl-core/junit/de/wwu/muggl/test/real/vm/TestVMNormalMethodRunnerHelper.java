@@ -8,9 +8,12 @@ import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
+import de.wwu.muggl.vm.execution.ConversionException;
+import de.wwu.muggl.vm.execution.MugglToJavaConversion;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.Objectref;
+import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 /**
@@ -42,7 +45,6 @@ public class TestVMNormalMethodRunnerHelper {
 			fail("Execution did not finish successfully. The reason is:\n" + application.fetchError());
 		} else {
 			if (application.getHasAReturnValue()) {
-				Object object = application.getReturnedObject();
 				return;
 			} else if (application.getThrewAnUncaughtException()) {
 				Objectref objectref = (Objectref) application.getReturnedObject();
@@ -99,8 +101,17 @@ public class TestVMNormalMethodRunnerHelper {
 			application.finalize();
 		} else {
 			if (application.getHasAReturnValue()) {
+				// native type or wrapped?
 				Object object = application.getReturnedObject();
-				return object;
+				if (object instanceof ReferenceValue) {
+					try {
+						return new MugglToJavaConversion(application.getVirtualMachine()).toJava(object);
+					} catch (ConversionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else
+					return object;
 			} else if (application.getThrewAnUncaughtException()) {
 				Objectref objectref = (Objectref) application.getReturnedObject();
 
@@ -115,7 +126,7 @@ public class TestVMNormalMethodRunnerHelper {
 					message = "null";
 				} else {
 					Arrayref arrayref = (Arrayref) stringObjectref.getField(stringValueField);
-
+					
 					// Convert it.
 					char[] characters = new char[arrayref.length];
 					for (int a = 0; a < arrayref.length; a++) {

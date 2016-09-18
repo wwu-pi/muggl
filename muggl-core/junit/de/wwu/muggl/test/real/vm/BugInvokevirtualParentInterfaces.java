@@ -53,7 +53,7 @@ public class BugInvokevirtualParentInterfaces {
 						"(Ljava/lang/Integer;)Ljava/lang/String;", (Object[]) new Integer[] { 2 }));
 
 	}
-	
+
 	/**
 	 * Should find the class in the parent interface and NOT throw an NoSuchMethodError
 	 * 
@@ -63,7 +63,7 @@ public class BugInvokevirtualParentInterfaces {
 	 * @throws InitializationException
 	 * @throws NoSuchMethodError
 	 */
-	 @Test
+	@Test
 	public final void testApplicationMugglVMRunMethodResolutionParentInterfaces()
 			throws ClassFileException, InitializationException, NoSuchMethodError {
 
