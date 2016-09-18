@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -526,6 +527,7 @@ public class MugglClassLoader extends ClassLoader {
 	 */
 	private ClassFile searchClassInDirectory(File directory, int pathPos, String[] path,
 			String className) throws ClassFileException, IOException {
+		if (directory == null || directory.listFiles() == null) return null;
 		File[] files = directory.listFiles();
 		for (int a = 0; a < files.length; a++) {
 			// No more deepening, we either get the file in this directory, or it is not there.
