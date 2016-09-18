@@ -32,7 +32,7 @@ public class Monitorenter extends Monitor implements Instruction {
 
 			// Runtime exception: objectref is null.
 			if (objectref == null) {
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
+				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException", "monitorenter"));
 			}
 
 			// Fetch the monitor associated with the object and enter it.

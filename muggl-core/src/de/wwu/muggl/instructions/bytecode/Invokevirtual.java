@@ -200,14 +200,14 @@ public class Invokevirtual extends Invoke implements Instruction {
 
 		// Has the method been selected?
 		if (selectedMethod == null)
-			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.AbstractMethodError", "Error while getting method " + method.getName() + " to be invoked with "
-					+ getName() + ""));
+			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.AbstractMethodError",
+					"Error while getting method " + method.getName() + " to be invoked with " + getName() + ""));
 		method = selectedMethod;
 
 		// Is it abstract?
 		if (method.isAccAbstract())
-			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.AbstractMethodError", "The method " + method.getName() + " to be invoked with "
-					+ getName() + " must not be abstract."));
+			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.AbstractMethodError",
+					"The method " + method.getName() + " to be invoked with " + getName() + " must not be abstract."));
 
 		// Return the selected method.
 		return method;

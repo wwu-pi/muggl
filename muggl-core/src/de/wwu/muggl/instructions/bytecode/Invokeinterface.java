@@ -78,7 +78,7 @@ public class Invokeinterface extends Invoke implements Instruction {
 		parameters[0] = objectref;
 
 		// Runtime exception: objectref is null.
-		if (objectref == null) throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
+		if (objectref == null) throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException", "checkstatic Invokeinterface" +  nameAndType[0]+" "+nameAndType[1]));
 
 		// Unexpected exception: objectref is not a constant_class.
 		if (!(objectref instanceof Objectref)) throw new ExecutionException("Objectref must be a reference to a Class.");

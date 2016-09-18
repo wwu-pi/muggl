@@ -106,7 +106,7 @@ public class Getfield extends Get implements Instruction {
 		// Runtime exception: objectref is null.
 		if (objectref == null)
 			throw new VmRuntimeException(frame.getVm()
-					.generateExc("java.lang.NullPointerException"));
+					.generateExc("java.lang.NullPointerException","getfield"));
 
 		// Fetch the class of objectref.
 		ClassFile objectrefClassFile = objectref.getInitializedClass().getClassFile();

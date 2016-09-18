@@ -61,7 +61,7 @@ public class Invokespecial extends Invoke implements Instruction {
 		parameters[0] = objectref;
 
 		// Runtime exception: objectref is null.
-		if (objectref == null) throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
+		if (objectref == null) throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException", "invokespecial"));
 
 		// Unexpected exception: objectref is not a constant_class.
 		if (!(objectref instanceof Objectref)) throw new ExecutionException("Objectref must be a reference to a Class.");

@@ -173,7 +173,7 @@ public class Putfield extends Put implements Instruction {
 		if (field.isAccStatic()) throw new VmRuntimeException(frame.getVm().generateExc("java.lang.IncompatibleClassChangeError", "The field accessed by instruction " + getName() + " must not be static."));
 
 		// Runtime exception: objectref is null.
-		if (objectref == null) throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
+		if (objectref == null) throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException", "putfield"));
 
 		// Fetch the class of objectref.
 		ClassFile objectrefClassFile = objectref.getInitializedClass().getClassFile();
