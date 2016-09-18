@@ -12,6 +12,7 @@ import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodref;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
+import de.wwu.muggl.vm.execution.BoxingConversion;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
@@ -20,8 +21,7 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
 /**
  * Implementation of the instruction <code>invokevirtual</code>.
  *
- * @author Tim Majchrzak
- * @version 1.0.0, 2010-03-10
+ * @author Tim Majchrzak, Max Schulze
  */
 public class Invokevirtual extends Invoke implements Instruction {
 
@@ -63,12 +63,19 @@ public class Invokevirtual extends Invoke implements Instruction {
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the class or interface initialization method.");
 
+		Object rawRefVAl = frame.getOperandStack().pop();
+		ReferenceValue objectref = null ;
+		if (rawRefVAl instanceof ReferenceValue) {
 		// Fetch the object reference to invoke the method on.
-		ReferenceValue objectref = (ReferenceValue) frame.getOperandStack().pop();
+		objectref = (ReferenceValue) rawRefVAl;
+		} else {
+			objectref = BoxingConversion.Boxing(frame.getVm(), rawRefVAl);
+		}
 		parameters[0] = objectref;
 
 		// Runtime exception: objectref is null.
-		if (objectref == null) throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
+		if (objectref == null) 
+			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException", "checkStaticMethod in Invokevirtual " + nameAndType[0]+ " "+ nameAndType[1]));
 
 		// Unexpected exception: objectref is not a constant_class.
 		//if (!(objectref instanceof Objectref)) throw new ExecutionException("Objectref must be a reference to a Class.");

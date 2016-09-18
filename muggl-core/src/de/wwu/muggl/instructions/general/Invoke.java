@@ -318,10 +318,31 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 	 */
 	protected abstract void checkAccess(Frame frame, Method method, ClassFile objectrefClassFile)
 			throws ClassFileException, VmRuntimeException;
+	
+	/**
+	 * Check if the method is neither an instance initialization method, nor the class or interface initialization
+	 * method
+	 * 
+	 * @param method
+	 * @throws ExecutionException
+	 */
+	protected void checkNoInstanceInit(Method method) throws ExecutionException {
+		// The method must be neither the instance initializer nor the static initializer.
+		if (method.getName().equals("<init>"))
+			throw new ExecutionException("Error while executing instruction " + getName()
+					+ ": The Method must not be the instance initialization method.");
+		if (method.getName().equals("<clinit>"))
+			throw new ExecutionException("Error while executing instruction " + getName()
+					+ ": The Method must not be the class or interface initialization method.");
+	}
 
 	/**
 	 * If required by the instruction, select the actual method for invocation and perform final
 	 * checks on it.
+	 * 
+	 * Example: objectrefClassFile is type HashMap
+	 * Method is put
+	 * methodClassFile is map ("put" is abstract in there)
 	 *
 	 * @param frame The currently executed frame.
 	 * @param method The resolved method.
