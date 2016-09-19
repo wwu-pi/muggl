@@ -1433,6 +1433,21 @@ public class ClassFile {
 		throw new MethodResolutionError("Method " + name + " could not be resolved for class "
 				+ getName() + ".");
 	}
+	
+	/**
+	 * Same as getMethodByNameAndDescriptor except that it throws no exception but returns null.
+	 * @param name
+	 * @param descriptor
+	 * @return
+	 */
+	public Method getMethodByNameAndDescriptorOrNull(String name, String descriptor) {
+		for (int a = 0; a < this.methodsCount; a++) {
+			if (this.methods[a].getName().equals(name)
+					&& this.methods[a].getDescriptor().equals(descriptor)) return this.methods[a];
+		}
+		return null;
+	}
+
 
 	/**
 	 * Find the <clinit>-Method, if there is any.
