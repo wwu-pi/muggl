@@ -407,7 +407,7 @@ public final class Globals {
 			((HTMLLayoutEscapeOption) layout).setTitle(APP_NAME + " Logfile");
 		} else {
 			 layout = new PatternLayout();
-			 ((PatternLayout) layout).setConversionPattern("%d{ABSOLUTE} %5p %c{1}:%L - %m%n");
+			 ((PatternLayout) layout).setConversionPattern("%d{ABSOLUTE} %5p %c{1} %C{1}:%L \t - %m%n");		 
 		}
 		return layout;
 	}
