@@ -2,7 +2,9 @@ package de.wwu.muggl.vm;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Stack;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Level;
 
@@ -498,10 +500,15 @@ public abstract class VirtualMachine extends Thread {
 			// Save the pc.
 			int pc = this.pc;
 
+			// avoid log pollution with certain filters
+			
+			String[] dontLogInstructions = new String[]{"java.util.HashMap.putVal","java.lang.Integer.<clinit>"};						
+			if (Arrays.stream(dontLogInstructions)
+					.noneMatch(i -> this.currentFrame.method.getPackageAndName().equalsIgnoreCase(i))) {
+				Globals.getInst().executionInstructionLogger.trace(this.currentFrame.method.getPackageAndName() + " Line " + this.pc
+						+ ": Executing " + instructions[this.pc].getNameWithOtherBytes());
+			}
 			// Execute the instruction.
-			if (Globals.getInst().execLogger.isTraceEnabled())
-				Globals.getInst().execLogger.trace("Line " + this.pc + ": Executing "
-						+ instructions[this.pc].getNameWithOtherBytes());
 			executeInstruction(instructions[pc]);
 
 			// Jumped too far?
