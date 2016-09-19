@@ -443,8 +443,9 @@ public abstract class VirtualMachine extends Thread {
 	protected void executeFrame(boolean allowStepping) throws ExecutionException, InterruptedException, InvalidInstructionInitialisationException {
 		this.executedFrames++;
 		Method method = this.currentFrame.getMethod();
-		Globals.getInst().execLogger
-				.debug("Executing method " + method.getName() + " (" + this.currentFrame.getOperandStack() + ")");
+		
+		Globals.getInst().executionInstructionLogger
+				.debug(method.getPackageAndName() + " (op: " + this.currentFrame.getOperandStack() + ", localvar: " + this.currentFrame.getLocalVariables() + " pc: " + this.pc + ")");
 
 		Instruction[] instructions = method.getInstructionsAndOtherBytes();
 		this.currentFrame.setActive(true);
