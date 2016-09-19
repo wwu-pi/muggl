@@ -58,6 +58,7 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 	 */
 	@Override
 	public String toString() {
+		// FIXME mxs: Objectref could output the value it is representing as well
 		return "Reference of " + this.staticReference.getClassFile().getName() + " (id: " + this.instantiationNumber + ")";
 	}
 
