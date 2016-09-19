@@ -244,10 +244,19 @@ public class Method extends FieldMethod {
 				throw new ClassFileException("An abstract method must not have its ACC_SYNCHRONIZED flag set.");
 		}
 		if (this.classFile.isAccInterface()) {
-			if (!this.accPublic)
-				throw new ClassFileException("An interface method must have its ACC_PUBLIC flag set.");
-			if (!this.accAbstract)
-				throw new ClassFileException("An interface method must have its ACC_ABSTRACT flag set.");
+			if (Integer.valueOf(52).compareTo(this.classFile.getMajorVersion()) < 0) {
+				// In a class file whose version number is less than 52.0, each method of an
+				// interface must have its ACC_PUBLIC and ACC_ABSTRACT flags set
+				if (!this.accPublic)
+					throw new ClassFileException("An interface method must have its ACC_PUBLIC flag set.");
+				if (!this.accAbstract)
+					throw new ClassFileException("An interface method must have its ACC_ABSTRACT flag set.");
+			} else {
+				if (this.accPublic == this.accPrivate) // XNOR a b
+					throw new ClassFileException(
+							"An interface method in a class file whose version number is 52.0 or above, must have exactly one of its ACC_PUBLIC("
+									+ this.accPublic + ") and ACC_PRIVATE(" + this.accPrivate + ") flags set.");
+			}
 			if (this.accNative)
 				throw new ClassFileException("An interface method must not have the ACC_NATIVE flag set.");
 			if (this.accBridge)
