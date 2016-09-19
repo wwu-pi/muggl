@@ -215,6 +215,13 @@ public class MugglClassLoader extends ClassLoader {
 				addToClassCache(classFile);
 				return classFile;
 			}
+			// FIXME: mxs done for overwriting system libs
+			// Fourth attempt: find in the class path.
+			classFile = getClassFromClasspath(name, path, className);
+			if (classFile != null) {
+				addToClassCache(classFile);
+				return classFile;
+			}
 
 			// Third attempt: find in the java environments libraries.
 			classFile = getJavaEnvironmentClass(name.replace(".", "/") + ".class");
@@ -223,12 +230,6 @@ public class MugglClassLoader extends ClassLoader {
 				return classFile;
 			}
 
-			// Fourth attempt: find in the class path.
-			classFile = getClassFromClasspath(name, path, className);
-			if (classFile != null) {
-				addToClassCache(classFile);
-				return classFile;
-			}
 
 			// Fifth attempt: find in Muggl's class path.
 			classFile = getClassFromMugglClasspath(name, path, className);
