@@ -661,7 +661,15 @@ public abstract class VirtualMachine extends Thread {
 	 */
 	public Objectref generateExc(String typeString, String message) {
 		// marker for debug logs for easier finding of where an exception originated
-		Globals.getInst().execLogger.info("generating a new exception " + typeString + "(" + message+")");
+		Globals.getInst().execLogger.info("generating a new exception " + typeString + "(" + message + ")");
+		Globals.getInst().execLogger.debug("at " + this.currentFrame.method.getPackageAndName() + " pc:"
+				+ currentFrame.getPc() + " line:" + currentFrame.method.getLineNumberForPC(currentFrame.getPc()));
+		Frame curF = currentFrame;
+		while (curF.invokedBy != null) {
+			curF = curF.invokedBy;
+			Globals.getInst().execLogger.debug("\t at " + curF.method.getPackageAndName() + " pc:" + curF.getPc()
+					+ " line:" + curF.method.getLineNumberForPC(curF.getPc()));
+		}
 
 		return this.throwableGenerator.getException(typeString, message);
 	}

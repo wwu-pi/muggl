@@ -1,7 +1,7 @@
 package de.wwu.muggl.vm.classfile.structures;
 
 import java.io.IOException;
-
+import java.util.Arrays;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.interfaces.Instruction;
@@ -16,6 +16,7 @@ import de.wwu.muggl.vm.classfile.structures.attributes.AttributeAnnotationDefaul
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeDeprecated;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeExceptions;
+import de.wwu.muggl.vm.classfile.structures.attributes.AttributeLineNumberTable;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeLocalVariableTable;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeInvisibleAnnotations;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeInvisibleParameterAnnotations;
@@ -1021,6 +1022,20 @@ public class Method extends FieldMethod {
 	@Override
 	public String toString() {
 		return getFullName();
+	}
+
+	/**
+	 * Find the correct attribute and return the lineNumber for the given PC
+	 * @param pc Program Counter to Search for
+	 * @return line number or null
+	 */
+	public Integer getLineNumberForPC(final int pc) {
+		return Arrays.stream(attributes).filter(x -> x instanceof AttributeCode).findFirst()
+				.map(y -> Arrays.stream(((AttributeCode) y).getAttributes())
+						.filter(x -> x instanceof AttributeLineNumberTable).findFirst()
+						.map(x -> ((AttributeLineNumberTable) x).getLineNumberForPC(pc)).orElse(null))
+				.orElse(null);
+
 	}
 
 	public boolean isSignaturePolymorphic() {
