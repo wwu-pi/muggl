@@ -15,6 +15,15 @@ public class Boxing {
 		return "" + boxBoolean2(in);
 	}
 
+	public static String boxint() {
+		return boxint2(340);
+	}
+
+	public static String boxint2(int in) {
+		Object test = in;
+		return test.toString();
+	}
+
 	// shoud produce an ireturn instruction at the end
 	public static boolean boxBoolean2(boolean in) {
 		return in;
@@ -32,6 +41,13 @@ public class Boxing {
 	public static String boxPlaceholder(Boolean in) {
 		return (new Boxing()).new Placeholder<Boolean>(in).getTString();
 	}
+	
+	public static String boxPlaceholderint() {
+		int test = 599;
+		
+		return (new Boxing()).new Placeholder<Integer>(599).getTString();
+	}
+
 
 	public class Placeholder<T> {
 		private final T t;
