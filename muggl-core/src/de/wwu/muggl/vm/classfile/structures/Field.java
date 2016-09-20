@@ -7,6 +7,7 @@ import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeConstantValue;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeDeprecated;
+import de.wwu.muggl.vm.classfile.structures.attributes.AttributeFreeField;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeInvisibleAnnotations;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeVisibleAnnotations;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeSynthetic;
@@ -70,6 +71,8 @@ public class Field extends FieldMethod {
     		this.attributes[a] = new AttributeConstantValue(this.classFile, attributeNameIndex);
     	} else if (attributeName.equals("Synthetic")) {
     		this.attributes[a] = new AttributeSynthetic(this.classFile, attributeNameIndex);
+    	} else if (attributeName.equals("FreeField")) {
+    		this.attributes[a] = new AttributeFreeField(this.classFile, attributeNameIndex);
     	} else if (attributeName.equals("Deprecated")) {
     		this.attributes[a] = new AttributeDeprecated(this.classFile, attributeNameIndex);
 		} else if (attributeName.equals("RuntimeVisibleAnnotations")) {

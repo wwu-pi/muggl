@@ -20,6 +20,7 @@ import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeDeprecated;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeExceptions;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeLineNumberTable;
+import de.wwu.muggl.vm.classfile.structures.attributes.AttributeFreeVariables;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeLocalVariableTable;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeInvisibleAnnotations;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeInvisibleParameterAnnotations;
@@ -136,6 +137,8 @@ public class Method extends FieldMethod {
 					attributeNameIndex);
 		} else if (attributeName.equals("AnnotationDefault")) {
 			this.attributes[a] = new AttributeAnnotationDefault(this.classFile, attributeNameIndex);
+		} else if (attributeName.equals("FreeVariables")) {
+    		this.attributes[a] = new AttributeFreeVariables(this.classFile, attributeNameIndex);
 		} else {
 	if (Globals.getInst().parserLogger.isDebugEnabled()) Globals.getInst().parserLogger.debug("Parsing: Encountered an unknown attribute \"" + attributeName + "\"");
     		this.attributes[a] = new AttributeUnknownSkipped(this.classFile, attributeNameIndex);
