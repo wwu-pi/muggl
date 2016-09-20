@@ -1436,6 +1436,9 @@ public class ClassFile {
 	 * @see #getTopLevelPackageName()
 	 */
 	public String getPackageName() {
+		if (this.name.lastIndexOf(".") == -1) {
+			return "";
+		}
 		return this.name.substring(0, this.name.lastIndexOf("."));
 	}
 
