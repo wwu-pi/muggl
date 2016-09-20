@@ -32,12 +32,16 @@ public abstract class TypedInstruction {
 	public abstract String getDesiredType();
 
 	/**
-	 * Check if the objectref is of the desired type.
+	 * Check if the objectref is one of the desired types.
 	 * @param objectref The objectref to check.
 	 * @return true, if the objectref is the desired type, false otherwise.
 	 */
 	public boolean checkDesiredType(String objectref) {
-		if (objectref.equals(getDesiredType())) return true;
+		for (String type : getDesiredTypes()) {
+			if (objectref.equals(type)) {
+				return true;
+			}
+		}
 		return false;
 	}
 
