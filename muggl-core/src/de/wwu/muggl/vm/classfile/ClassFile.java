@@ -55,26 +55,12 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  */
 public class ClassFile {
 	// Constants for the constant_pool.
+	// openjdk equivalence in openjdk/jdk/src/share/javavm/export/classfile_constants.h
+	// and openjdk/hotspot/src/share/vm/prims/jvm.h 
 	/**
-	 * The CONSTANT_Class with a byte value of 7.
+	 * The CONSTANT_Utf8 with a byte value of 1.
 	 */
-	public static final byte	CONSTANT_CLASS				= 7;
-	/**
-	 * The CONSTANT_Fieldref with a byte value of 9.
-	 */
-	public static final byte	CONSTANT_FIELDREF			= 9;
-	/**
-	 * The CONSTANT_Methodref with a byte value of 10.
-	 */
-	public static final byte	CONSTANT_METHODREF			= 10;
-	/**
-	 * The CONSTANT_InterfaceMethodref with a byte value of 11.
-	 */
-	public static final byte	CONSTANT_INTERFACEMETHODREF	= 11;
-	/**
-	 * The CONSTANT_String with a byte value of 9.
-	 */
-	public static final byte	CONSTANT_STRING				= 8;
+	public static final byte	CONSTANT_UTF8				= 1;	
 	/**
 	 * The CONSTANT_Integer with a byte value of 3.
 	 */
@@ -92,22 +78,37 @@ public class ClassFile {
 	 */
 	public static final byte	CONSTANT_DOUBLE				= 6;
 	/**
+	 * The CONSTANT_Class with a byte value of 7.
+	 */
+	public static final byte	CONSTANT_CLASS				= 7;
+	/**
+	 * The CONSTANT_String with a byte value of 8.
+	 */
+	public static final byte	CONSTANT_STRING				= 8;
+	/**
+	 * The CONSTANT_Fieldref with a byte value of 9.
+	 */
+	public static final byte	CONSTANT_FIELDREF			= 9;
+	/**
+	 * The CONSTANT_Methodref with a byte value of 10.
+	 */
+	public static final byte	CONSTANT_METHODREF			= 10;
+	/**
+	 * The CONSTANT_InterfaceMethodref with a byte value of 11.
+	 */
+	public static final byte	CONSTANT_INTERFACEMETHODREF	= 11;
+	/**
 	 * The CONSTANT_NameAndType with a byte value of 12.
 	 */
 	public static final byte	CONSTANT_NAMEANDTYPE		= 12;
 	/**
-	 * The CONSTANT_Utf8 with a byte value of 1.
-	 */
-	public static final byte	CONSTANT_UTF8				= 1;	
-	/**
 	 * The CONSTANT_MethodHandle with a byte value of 15 (Java 7)
 	 */
-	public static final byte CONSTANT_METHODHANDLE			= 15;
+	public static final byte	CONSTANT_METHODHANDLE		= 15;
 	/**
 	 * The CONSTANT_MethodType with a byte value of 16 (Java 7)
 	 */
-	public static final byte CONSTANT_METHODTYPE			= 16;
-
+	public static final byte	CONSTANT_METHODTYPE			= 16;
 	/**
 	 * The CONSTANT_InvokeDynamic with a byte value of 18 (Java 8)
 	 */
@@ -196,21 +197,25 @@ public class ClassFile {
 	 */
 	public static final byte	T_BOOLEAN					= 4;
 	/**
-	 * The T_BYTE with a byte value of 8.
-	 */
-	public static final byte	T_BYTE						= 8;
-	/**
 	 * The T_CHAR with a byte value of 5.
 	 */
 	public static final byte	T_CHAR						= 5;
+	/**
+	 * The T_FLOAT with a byte value of 6.
+	 */
+	public static final byte	T_FLOAT						= 6;
 	/**
 	 * The T_DOUBLE with a byte value of 7.
 	 */
 	public static final byte	T_DOUBLE					= 7;
 	/**
-	 * The T_FLOAT with a byte value of 6.
+	 * The T_BYTE with a byte value of 8.
 	 */
-	public static final byte	T_FLOAT						= 6;
+	public static final byte	T_BYTE						= 8;
+	/**
+	 * The T_SHORT with a byte value of 9.
+	 */
+	public static final byte	T_SHORT						= 9;
 	/**
 	 * The T_INT with a byte value of 10.
 	 */
@@ -219,10 +224,6 @@ public class ClassFile {
 	 * The T_LONG with a byte value of 11.
 	 */
 	public static final byte	T_LONG						= 11;
-	/**
-	 * The T_SHORT with a byte value of 9.
-	 */
-	public static final byte	T_SHORT						= 9;
 
 	// The magic number.
 	/**
