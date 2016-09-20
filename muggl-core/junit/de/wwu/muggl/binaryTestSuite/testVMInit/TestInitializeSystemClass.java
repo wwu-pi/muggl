@@ -42,11 +42,13 @@ public class TestInitializeSystemClass {
 		Properties p = System.getProperties();
 		int i = 0;
 		if (p != null) {
+			System.out.println("size: " + p.size());
+			
 			Enumeration<Object> keys = p.keys();
 			while (keys.hasMoreElements()) {
 				String key = (String) keys.nextElement();
 				String value = (String) p.get(key);
-				System.out.println(key + ": " + value);
+				System.out.println(i + ") " + key + ": " + value);
 				i++;
 			}
 		}
