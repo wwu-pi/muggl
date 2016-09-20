@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
 
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.CountingFileAppender;
 import org.apache.log4j.HTMLLayoutEscapeOption;
 import org.apache.log4j.Layout;
@@ -236,6 +237,15 @@ public final class Globals {
 			this.fileAppender.setMaximumEventsToLog(Options.getInst().maximumLogEntries);
 			this.fileAppender.setName("File appender (to " + this.currentLogfile + ")");
 
+			// log to console as well
+			ConsoleAppender appender = new ConsoleAppender();
+			appender.setWriter(new PrintWriter(System.out));
+			appender.setLayout(new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN));
+			appender.setName("stdout");
+			this.logger.addAppender(appender);
+			this.execLogger.addAppender(appender);
+			this.parserLogger.addAppender(appender);
+			this.executionInstructionLogger.addAppender(appender);
 			
 			this.executionInstructionLogger.addAppender(this.fileAppender);
 			this.logger.addAppender(this.fileAppender);
