@@ -397,6 +397,10 @@ public class NativeWrapper {
 			
 			// Special handling was successful!
 			return true;
+		} else if (methodClassFile.getName().equals("java.lang.Object") && method.getName().equals("notifyAll")) {
+			// TODO monitor implementation of notifyAll
+			// consider that done, baby!
+			return true;
 		}
 
 		// Arriving here means no special handling was possible.
