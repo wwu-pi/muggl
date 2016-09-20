@@ -187,8 +187,12 @@ public class MugglClassLoader extends ClassLoader {
 					}
 
 					// Do not add it - we already have it! It just has to be returned.
-					if (Globals.getInst().logger.isTraceEnabled())
-						Globals.getInst().logger.trace("The already cached class " + name + " has been loaded.");
+					final String testfor = name;
+					Globals.getInst().logBasedOnWhiteBlacklist(testfor).ifPresent(x -> {
+						if (x)
+							Globals.getInst().logger.trace("The already cached class " + testfor + " has been loaded.");
+					});
+						
 					return classFile;
 				}
 			}

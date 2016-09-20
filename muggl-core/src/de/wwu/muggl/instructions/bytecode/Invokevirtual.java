@@ -64,6 +64,11 @@ public class Invokevirtual extends Invoke implements Instruction {
 					+ ": The Method must not be the class or interface initialization method.");
 
 		Object rawRefVAl = frame.getOperandStack().pop();
+		
+		// Runtime exception: objectref is null.
+		if (rawRefVAl == null) 
+			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException", "checkStaticMethod in Invokevirtual " + nameAndType[0]+ " "+ nameAndType[1]));
+		
 		ReferenceValue objectref = null ;
 		if (rawRefVAl instanceof ReferenceValue) {
 		// Fetch the object reference to invoke the method on.
@@ -73,9 +78,6 @@ public class Invokevirtual extends Invoke implements Instruction {
 		}
 		parameters[0] = objectref;
 
-		// Runtime exception: objectref is null.
-		if (objectref == null) 
-			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException", "checkStaticMethod in Invokevirtual " + nameAndType[0]+ " "+ nameAndType[1]));
 
 		// Unexpected exception: objectref is not a constant_class.
 		//if (!(objectref instanceof Objectref)) throw new ExecutionException("Objectref must be a reference to a Class.");

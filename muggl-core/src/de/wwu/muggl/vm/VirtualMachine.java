@@ -181,7 +181,7 @@ public abstract class VirtualMachine extends Thread {
 	 */
 	@Override
 	public void run() {
-		if (Globals.getInst().execLogger.isInfoEnabled()) Globals.getInst().execLogger.info("Starting a virtual machine (thread #" + this.getId() + ")");
+		Globals.getInst().execLogger.info("Starting a virtual machine (thread #" + this.getId() + ")");
 		try {
 			// Preparations for the initial frame.
 			Object[] predefinedParameters = this.initialMethod.getPredefinedParameters();
@@ -413,8 +413,10 @@ public abstract class VirtualMachine extends Thread {
 				} else {
 					frame = (Frame) object;
 				}
-				if (Globals.getInst().execLogger.isTraceEnabled()) 
-					Globals.getInst().execLogger.trace("Continuing operation with the next frame (" + frame.getMethod().getPackageAndName() + ").");
+				if (!frame.isHiddenFrame() && Globals.getInst()
+						.logBasedOnWhiteBlacklist(frame.getMethod().getPackageAndName()).orElse(true))
+					Globals.getInst().execLogger.trace("Continuing operation with the next frame ("
+							+ frame.getMethod().getPackageAndName() + ").");
 			}
 
 			// Enable stepping once the frame of the initially invoked method is reached.
@@ -444,8 +446,11 @@ public abstract class VirtualMachine extends Thread {
 		this.executedFrames++;
 		Method method = this.currentFrame.getMethod();
 		
-		Globals.getInst().executionInstructionLogger
-				.debug(method.getPackageAndName() + " (op: " + this.currentFrame.getOperandStack() + ", localvar: " + this.currentFrame.getLocalVariables() + " pc: " + this.pc + ")");
+		if (!this.currentFrame.isHiddenFrame()
+				&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
+			Globals.getInst().executionInstructionLogger
+					.debug(method.getPackageAndName() + " (op: " + this.currentFrame.getOperandStack() + ", localvar: "
+							+ this.currentFrame.getLocalVariables() + " pc: " + this.pc + ")");
 
 		Instruction[] instructions = method.getInstructionsAndOtherBytes();
 		this.currentFrame.setActive(true);
@@ -502,13 +507,11 @@ public abstract class VirtualMachine extends Thread {
 			int pc = this.pc;
 
 			// avoid log pollution with certain filters
-			
-			String[] dontLogInstructions = new String[]{"java.util.HashMap.putVal","java.lang.Integer.<clinit>"};						
-			if (Arrays.stream(dontLogInstructions)
-					.noneMatch(i -> this.currentFrame.method.getPackageAndName().equalsIgnoreCase(i))) {
-				Globals.getInst().executionInstructionLogger.trace(this.currentFrame.method.getPackageAndName() + " Line " + this.pc
-						+ ": Executing " + instructions[this.pc].getNameWithOtherBytes());
-			}
+			if (!currentFrame.isHiddenFrame() && Globals.getInst()
+					.logBasedOnWhiteBlacklist(this.currentFrame.method.getPackageAndName()).orElse(true))
+				Globals.getInst().executionInstructionLogger.trace(this.currentFrame.method.getPackageAndName()
+						+ " Line " + this.pc + ": Executing " + instructions[this.pc].getNameWithOtherBytes());
+
 			// Execute the instruction.
 			executeInstruction(instructions[pc]);
 
@@ -660,15 +663,15 @@ public abstract class VirtualMachine extends Thread {
 	 * @return An exception to to used in the runtime system.
 	 */
 	public Objectref generateExc(String typeString, String message) {
-		// marker for debug logs for easier finding of where an exception originated
-		Globals.getInst().execLogger.info("generating a new exception " + typeString + "(" + message + ")");
+		// marker for debug logs for easier finding of where an exception originated		
+		Globals.getInst().execLogger.info("generating a new exception " + typeString + "(" + message + ") in muggl at: " + Thread.currentThread().getStackTrace()[0].toString());
 		Globals.getInst().execLogger.debug("at " + this.currentFrame.method.getPackageAndName() + " pc:"
 				+ currentFrame.getPc() + " line:" + currentFrame.method.getLineNumberForPC(currentFrame.getPc()));
 		Frame curF = currentFrame;
 		while (curF.invokedBy != null) {
 			curF = curF.invokedBy;
 			Globals.getInst().execLogger.debug("\t at " + curF.method.getPackageAndName() + " pc:" + curF.getPc()
-					+ " line:" + curF.method.getLineNumberForPC(curF.getPc()));
+					+ " line or line before!:" + curF.method.getLineNumberForPC(curF.getPc()));
 		}
 
 		return this.throwableGenerator.getException(typeString, message);
@@ -861,7 +864,11 @@ public abstract class VirtualMachine extends Thread {
 			// Method allowed?
 			if (!method.getName().equals("<clinit>")) throw new ExceptionInInitializerError("Only a method with signature <clinit> might be used for class initialization.");
 
-			if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("Now executing the static initializer of " + method.getClassFile().getName() + ".");
+			Boolean parentFrameIsHidden = currentFrame.isHiddenFrame();
+			if (!currentFrame.isHiddenFrame()
+					&& Globals.getInst().logBasedOnWhiteBlacklist(method.getClassFile().getName()).orElse(true))
+				Globals.getInst().execLogger
+						.trace("Now executing the static initializer of " + method.getClassFile().getName() + ".");
 
 			// Save the current data.
 			int savedPC = getPc();
@@ -901,11 +908,13 @@ public abstract class VirtualMachine extends Thread {
 				// Stop it here, we are back!
 				if (frame.equals(savedFrame)) break;
 
-				if (!frame.getMethod().equals(method))
+				if (!frame.getMethod().equals(method) && !frame.isHiddenFrame() && Globals.getInst()
+						.logBasedOnWhiteBlacklist(frame.getMethod().getPackageAndName()).orElse(true))
 					Globals.getInst().execLogger.trace("Continuing operation with the next frame ("
 							+ frame.getMethod().getPackageAndName() + "). Invoked by the static initializer of "
 							+ method.getClassFile().getName() + ".");
 
+				frame.setHiddenFrame(parentFrameIsHidden);
 				// start execution of this frame
 				changeCurrentFrame(frame);
 				this.pc = this.currentFrame.getPc();
@@ -924,7 +933,7 @@ public abstract class VirtualMachine extends Thread {
 				this.returnFromCurrentExecution = true;
 			}
 
-			if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("Execution of the static initializer of " + method.getClassFile().getName() + " finished. Returning to the normal program flow.");
+			if (!currentFrame.isHiddenFrame()) Globals.getInst().execLogger.trace("Execution of the static initializer of " + method.getClassFile().getName() + " finished. Returning to the normal program flow.");
 		} catch (NoExceptionHandlerFoundException e) {
 			Objectref objectref = e.getUncaughtThrowable();
 			String type = objectref.getInitializedClass().getClassFile().getClassName();

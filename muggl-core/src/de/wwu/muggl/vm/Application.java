@@ -57,8 +57,7 @@ public class Application extends Thread {
 		}
 		this.finalized = false;
 		this.cleanedUp = false;
-		if (Globals.getInst().logger.isDebugEnabled())
-			Globals.getInst().logger.debug("New application set up successfully.");
+		Globals.getInst().logger.debug("New application set up successfully.");
 	}
 
 	/**

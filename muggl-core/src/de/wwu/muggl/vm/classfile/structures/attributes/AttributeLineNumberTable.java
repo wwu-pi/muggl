@@ -87,7 +87,7 @@ public class AttributeLineNumberTable extends Attribute {
 	 * @return the line number in the source file or null
 	 */
 	public Integer getLineNumberForPC(int pc) {
-		return Arrays.stream(lineNumberTable).filter(i -> i.getStartPC() < pc)
+		return Arrays.stream(lineNumberTable).filter(i -> i.getStartPC() <= pc)
 				.max((x, y) -> Integer.compare(x.getStartPC(), y.getStartPC())).map(x -> x.getLineNumber())
 				.orElse(null);
 	}

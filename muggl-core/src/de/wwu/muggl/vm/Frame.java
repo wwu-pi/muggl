@@ -45,6 +45,12 @@ public class Frame {
 	 * Indicator whether this frame is currently active i.e. executed.
 	 */
 	protected boolean active;
+	
+	/**
+	 * If the frame is hidden, i.e. it executes System-Management tasks
+	 * or special bytecode behaviour (i.e. invokevirtual)
+	 */
+	private boolean hiddenFrame = false;
 	// Private fields.
 	private int pc;
 	private Monitor monitor;
@@ -66,6 +72,7 @@ public class Frame {
 		this.operandStack = new Stack<Object>();
 		this.constantPool = constantPool;
 		this.localVariables = new Object[method.getCodeAttribute().getMaxLocals()];
+		if (invokedBy != null) this.hiddenFrame = invokedBy.hiddenFrame;
 		/*
 		 * Any non filled local variables should not be null, as this would be a value worth looking
 		 * at. Instead it gets a UndefinedValue reference.
@@ -257,6 +264,19 @@ public class Frame {
 	public String toString() {
 		return "Frame for " + this.method.getFullNameWithParameterTypesAndNames() + " at pc "
 				+ this.pc + ".";
+	}
+
+	/**
+	 * Whether this frame is a system management/hidden frame and should be hidden from the user
+	 * 
+	 * @return
+	 */
+	public boolean isHiddenFrame() {
+		return hiddenFrame;
+	}
+
+	public void setHiddenFrame(boolean hiddenFrame) {
+		this.hiddenFrame = hiddenFrame;
 	}
 
 }

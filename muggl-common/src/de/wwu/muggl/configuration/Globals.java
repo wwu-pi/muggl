@@ -160,6 +160,15 @@ public final class Globals {
 	 */
 	public final Logger symbolicExecLogger;
 
+	/**
+	 * Per-Package options for logging.
+	 * white & blacklist take string start so imaging <entry>*
+	 * whitelist overwrites blacklist
+	 */
+	public final List<String> logPackageBlacklist = Arrays.asList("java.util.", "java.lang.");
+	public final List<String> logPackageWhitelist = Arrays.asList("java.util.HashMap.putVal",
+			"java.lang.Integer.<clinit>");
+
 	// Private logging fields.
 	private String staticLogFileNamePartBeginning;
 	private String staticLogFileNamePartEnd;
@@ -422,6 +431,24 @@ public final class Globals {
 		if (Options.getInst().getHtmlLogging()) {
 			HTMLLayoutEscapeOption.escapeMessages = value;
 		}
+	}
+	
+	/**
+	 * Test if the teststring matches any entries in logging white & blacklist
+	 * 
+	 * @param teststring
+	 * @return an empty optional if no match, that is no decision, true or false if logging explicitely (not) wished
+	 */
+	public Optional<Boolean> logBasedOnWhiteBlacklist(final String teststring) {
+		// Standard is no decision is taken by this function
+		Optional<Boolean> log = Optional.empty();
+
+		if (logPackageBlacklist.stream().anyMatch(i -> teststring.startsWith(i)))
+			log = Optional.of(false);
+
+		if (logPackageWhitelist.stream().anyMatch(i -> teststring.startsWith(i)))
+			log = Optional.of(true);
+		return log;
 	}
 
 }

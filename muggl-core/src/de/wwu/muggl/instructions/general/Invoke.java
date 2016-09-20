@@ -220,9 +220,10 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 						} else {
 							throw new ForwardingUnsuccessfulException("No wrapping handler for the native method was found.");
 						}
-						if (Globals.getInst().execLogger.isDebugEnabled())
-							Globals.getInst().execLogger.debug(
-									"Forwarded the native method " + method.getName() + " to a wrapper.");
+						if (!frame.isHiddenFrame()
+								&& Globals.getInst().logBasedOnWhiteBlacklist(method.getName()).orElse(true))
+							Globals.getInst().execLogger
+									.debug("Forwarded the native method " + method.getName() + " to a wrapper.");
 
 						// Release the monitor if it is synchronized.
 						if (method.isAccSynchronized()) {
@@ -238,7 +239,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 					}
 				} catch (ForwardingUnsuccessfulException e) {
 					// Ignore it, but log it.
-					if (Globals.getInst().execLogger.isEnabledFor(Level.WARN))
+					if (!frame.isHiddenFrame())
 						Globals.getInst().execLogger.warn(
 								"Forwarding of the native method " + method.getName()
 								+ " was not successfull. The reason is: " + e.getMessage());
@@ -249,11 +250,11 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 				 */
 				if (Options.getInst().assumeNativeReturnValuesToBeZeroNull) {
 					pushZeroOrNull(stack, method, symbolic);
-					if (Globals.getInst().execLogger.isDebugEnabled())
+					if (!frame.isHiddenFrame())
 						Globals.getInst().execLogger.debug(
 								"Assume a null/zero value for the native method " + method.getName() + ".");
 				} else {
-					if (Globals.getInst().execLogger.isInfoEnabled())
+					if (!frame.isHiddenFrame())
 						Globals.getInst().execLogger.info(
 								"Skipping the native method " + method.getName() + ".");
 				}
