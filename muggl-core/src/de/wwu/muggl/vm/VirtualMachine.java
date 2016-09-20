@@ -192,7 +192,10 @@ public abstract class VirtualMachine extends Thread {
 				createAndPushFrame(null, initMethod, arguments);
 				Frame systemStartupFrame = (Frame) this.stack.peek();
 				systemStartupFrame.setHiddenFrame(true);
+				Boolean stepByStep = this.stepByStepMode;
+				this.stepByStepMode = false;
 				runMainLoop(systemStartupFrame);
+				this.stepByStepMode = stepByStep;
 				Globals.getInst().execLogger.debug("Terminated java.lang.System.initializeSystemClass()");
 			}
 			// Preparations for the initial frame.
