@@ -1,4 +1,5 @@
 package de.wwu.muggl.binaryTestSuite;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -10,7 +11,9 @@ import java.util.Collection;
 public class CountWordLength {
 
 	public static long counting(int filterLength) {
-		Collection<String> myList = Arrays.asList("Hello", "Java");
+		// this internally uses a HashMap
+		//Collection<String> myList = Arrays.asList("Hello", "Java");
+		Collection<String> myList = new ArrayList<String>() {{ add("Hello"); add("Java");}};
 		
 		long countLongStrings = myList.stream().filter(element -> element.length() > filterLength).count();
 

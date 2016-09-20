@@ -1,5 +1,7 @@
 package de.wwu.muggl.test.real.instructions;
 
+import static org.junit.Assert.*;
+
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -43,18 +45,25 @@ public class TestSharedSecrets {
 	@Test
 	public final void testInvokeStaticGetValues()
 			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("1234",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(),
+						"getMySuperClass", "()Ljava/lang/String;", null));
+
+	}
+
+//	@Test
+	public final void testGetSuperclass() throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(), "getValues");
 
 	}
-	
-	@Test
-	public final void testGetUnsafe()
-			throws ClassFileException, InitializationException, InterruptedException {
+
+	// @Test
+	public final void testGetUnsafe() throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(), "unsafer");
 
 	}
-	
 
 }

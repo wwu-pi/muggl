@@ -4,8 +4,7 @@ import sun.misc.SharedSecrets;
 import sun.misc.Unsafe;
 
 /**
- * Get the Enum values WITHOUT REFLECTION, but the internal SharedSecrets
- * "Magic"... -.-
+ * Get the Enum values WITHOUT REFLECTION, but the internal SharedSecrets "Magic"... -.-
  * 
  * @author max
  *
@@ -14,10 +13,16 @@ public enum MySharedSecrets {
 	THINGY, BOB;
 
 	public static void getValues() {
-		System.out
-				.println(SharedSecrets.getJavaLangAccess().getEnumConstantsShared(MySharedSecrets.class)[0].toString());
+		MySharedSecrets[] test = SharedSecrets.getJavaLangAccess().getEnumConstantsShared(MySharedSecrets.class);
+
+		System.out.println(test.length);
 	}
 
+	// superClass needed by children of getEnumConstantsShared
+	// at  java.lang.Class.isEnum Line 12: Executing invokevirtual  0 73
+	public static String getMySuperClass() {
+		return MySharedSecrets.class.getSuperclass().getName();
+	}
 	
 	// you will likely get a security exception if you call this.
 	// Does not matter in the test cases
