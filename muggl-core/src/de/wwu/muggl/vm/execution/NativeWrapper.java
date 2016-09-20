@@ -565,10 +565,11 @@ public class NativeWrapper {
 						Arrayref characters = (Arrayref) stringObjectref.getField(stringValueField);
 
 						// Build the String.
-						stringValue = "";
+						StringBuffer sb = new StringBuffer(characters.length);
 						for (int a = 0; a < characters.length; a++) {
-							stringValue += characters.getElement(a).toString();
+							sb.append((char)((IntConstant)characters.getElement(a)).getValue());
 						}
+						stringValue = sb.toString();
 					}
 
 					// Get the information what kind of PrintStream is wrapped here.
