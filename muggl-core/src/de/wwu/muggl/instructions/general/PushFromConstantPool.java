@@ -230,6 +230,7 @@ public abstract class PushFromConstantPool extends GeneralInstructionWithOtherBy
 			Field field = classFile.getFieldByName("name");
 			Object stringReference;
 			stringReference = vm.getStringCache().getStringObjectref(value);
+			objectref.setDebugHelperString("ref to " + value);
 			objectref.putField(field, stringReference);
 			return objectref;
 		} catch (IllegalAccessError e) {

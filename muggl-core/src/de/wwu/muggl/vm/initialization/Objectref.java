@@ -22,6 +22,11 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 	private long instantiationNumber;
 
 	/**
+	 * to aid debugging, because this objectref has no reference to VM which would be needed,
+	 * to have a classloader, to extract the "name" field. So store some debug info (primitive value, class name) here
+	 */
+	private String debugHelperString;
+	/**
 	 * Private constructor to get concrete instances of an initialized class. These instances
 	 * have a reference to the InitializedClass, which keeps control of the static
 	 * fields. The concrete instance itself keeps control of instance fields.
@@ -58,8 +63,9 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 	 */
 	@Override
 	public String toString() {
-		// FIXME mxs: Objectref could output the value it is representing as well
-		return "Reference of " + this.staticReference.getClassFile().getName() + " (id: " + this.instantiationNumber + ")";
+		String dbghint = (debugHelperString != null) ? " dbghint: " + this.debugHelperString : "";
+		return "Reference of " + this.staticReference.getClassFile().getName() + " (id: " + this.instantiationNumber
+				+ dbghint + ")";
 	}
 
 	/**
@@ -185,6 +191,14 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 	 */
 	public Hashtable<Field, Object> getFields() {
 		return this.fields;
+	}
+
+	public String getDebugHelperString() {
+		return debugHelperString;
+	}
+
+	public void setDebugHelperString(String debugHelperString) {
+		this.debugHelperString = debugHelperString;
 	}
 
 }

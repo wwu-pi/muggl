@@ -180,7 +180,7 @@ public class StringCache {
 			objectref = provideStringReference(characters);
 			this.root.put(characters, objectref);
 		}
-
+		objectref.setDebugHelperString(String.valueOf(characters));
 		// Whatever happened, at this point we have the object reference ready.
 		return objectref;
 	}
