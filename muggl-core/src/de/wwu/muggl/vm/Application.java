@@ -10,7 +10,6 @@ import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.execution.ExecutionException;
-import de.wwu.muggl.vm.impl.logic.LogicVirtualMachine;
 import de.wwu.muggl.vm.impl.real.RealVirtualMachine;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.InitializationException;
@@ -25,8 +24,8 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @version 1.0.0, 2010-07-15
  */
 public class Application extends Thread {
-	private MugglClassLoader classLoader;
-	private VirtualMachine virtualMachine;
+	protected MugglClassLoader classLoader;
+	protected VirtualMachine virtualMachine;
 	private boolean executionFinished = false;
 	private boolean vmHasChanged = false;
 	private boolean vmIsInitalizing = true;
@@ -49,11 +48,7 @@ public class Application extends Thread {
 		this.classLoader = classLoader;
 		ClassFile classFile = this.classLoader.getClassAsClassFile(initialClassName);
 		if (Options.getInst().symbolicMode) {
-			if (Options.getInst().logicMode) {
-				this.virtualMachine = new LogicVirtualMachine(this, this.classLoader, classFile, method);
-			} else {
-				this.virtualMachine = new SymbolicVirtualMachine(this, this.classLoader, classFile, method);
-			}
+			this.virtualMachine = new SymbolicVirtualMachine(this, this.classLoader, classFile, method);
 		} else {
 			this.virtualMachine = new RealVirtualMachine(this, this.classLoader, classFile, method);
 		}
@@ -78,11 +73,7 @@ public class Application extends Thread {
 		this.classLoader = new MugglClassLoader(classPathEntries);
 		ClassFile classFile = this.classLoader.getClassAsClassFile(initialClassName);
 		if (Options.getInst().symbolicMode) {
-			if (Options.getInst().logicMode) {
-				this.virtualMachine = new LogicVirtualMachine(this, this.classLoader, classFile, classFile.getMethods()[initialMethodNumber]);
-			} else {
-				this.virtualMachine = new SymbolicVirtualMachine(this, this.classLoader, classFile, classFile.getMethods()[initialMethodNumber]);
-			}
+			this.virtualMachine = new SymbolicVirtualMachine(this, this.classLoader, classFile, classFile.getMethods()[initialMethodNumber]);
 		} else {
 			this.virtualMachine = new RealVirtualMachine(this, this.classLoader, classFile, classFile.getMethods()[initialMethodNumber]);
 		}
