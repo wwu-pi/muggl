@@ -66,7 +66,7 @@ public class Invokestatic extends Invoke implements Instruction {
 					"Error while executing instruction " + getName()
 							+ ": The Method must be static."));
 
-		// Unexpected exception: the method is not static.
+		// Unexpected exception: the method is not abstract.
 		if (method.isAccAbstract())
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be abstract.");

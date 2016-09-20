@@ -2,9 +2,13 @@ package de.wwu.muggl.configuration;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 import java.util.Vector;
 
 import org.apache.log4j.CountingFileAppender;
@@ -160,14 +164,16 @@ public final class Globals {
 	 */
 	public final Logger symbolicExecLogger;
 
+	public final Logger executionInstructionLogger;
+	
 	/**
-	 * Per-Package options for logging.
-	 * white & blacklist take string start so imaging <entry>*
-	 * whitelist overwrites blacklist
+	 * Per-Package options for logging. white & blacklist take string start so imaging <entry>* whitelist overwrites
+	 * blacklist
 	 */
-	public final List<String> logPackageBlacklist = Arrays.asList("java.util.", "java.lang.");
-	public final List<String> logPackageWhitelist = Arrays.asList("java.util.HashMap.putVal",
-			"java.lang.Integer.<clinit>");
+	public static final List<String> logPackageBlacklist = Arrays.asList("java.util.", "java.lang.",
+			"java.lang.Integer.");
+	public static final List<String> logPackageWhitelist = Arrays.asList("java.util.HashMap.putVal", "java.lang.Class",
+			"java.lang.Enum");
 
 	// Private logging fields.
 	private String staticLogFileNamePartBeginning;
@@ -221,7 +227,8 @@ public final class Globals {
 		this.solverLogger = Logger.getLogger(APP_NAME + " solver");
 		this.symbolicExecLogger = Logger.getLogger(APP_NAME + " symbolic execution");
 		this.jacopLogger = Logger.getLogger(APP_NAME + " JaCoP solver");
-		this.parserLogger = Logger.getLogger(APP_NAME + "  class parser");
+		this.parserLogger = Logger.getLogger(APP_NAME + " class parser");
+		this.executionInstructionLogger = Logger.getLogger(APP_NAME + " instr det");
 
 		// Finally start logging.
 		try {
@@ -229,6 +236,8 @@ public final class Globals {
 			this.fileAppender.setMaximumEventsToLog(Options.getInst().maximumLogEntries);
 			this.fileAppender.setName("File appender (to " + this.currentLogfile + ")");
 
+			
+			this.executionInstructionLogger.addAppender(this.fileAppender);
 			this.logger.addAppender(this.fileAppender);
 			this.execLogger.addAppender(this.fileAppender);
 			this.guiLogger.addAppender(this.fileAppender);
@@ -250,6 +259,7 @@ public final class Globals {
 		this.loggers.add(this.symbolicExecLogger);
 		this.loggers.add(this.jacopLogger);
 		this.loggers.add(this.parserLogger);
+		this.loggers.add(this.executionInstructionLogger);
 
 		// Set the basic level for logging.
 		Iterator<Logger> iterator = this.loggers.iterator();

@@ -221,10 +221,10 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 							throw new ForwardingUnsuccessfulException("No wrapping handler for the native method was found.");
 						}
 						if (!frame.isHiddenFrame()
-								&& Globals.getInst().logBasedOnWhiteBlacklist(method.getName()).orElse(true))
+								&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
 							Globals.getInst().execLogger
-									.debug("Forwarded the native method " + method.getName() + " to a wrapper.");
-
+									.debug("Forwarded the native method " + method.getPackageAndName() + " to a wrapper.");
+						
 						// Release the monitor if it is synchronized.
 						if (method.isAccSynchronized()) {
 							if (this.hasObjectrefParameter == 1) {
@@ -233,6 +233,11 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 								frame.getVm().getMonitorForStaticInvocation(methodClassFile).monitorExit();
 							}
 						}
+						if (!frame.isHiddenFrame()
+								&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
+							Globals.getInst().executionInstructionLogger
+									.debug("upon return: (op: " + frame.getOperandStack() + ", localvar: "
+				 							+ frame.getLocalVariables() + " pc: " + frame.getPc() + ")");
 
 						// Finished.
 						return;
@@ -241,7 +246,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 					// Ignore it, but log it.
 					if (!frame.isHiddenFrame())
 						Globals.getInst().execLogger.warn(
-								"Forwarding of the native method " + method.getName()
+								"Forwarding of the native method " + method.getPackageAndName()
 								+ " was not successfull. The reason is: " + e.getMessage());
 				}
 				/*
@@ -252,11 +257,11 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 					pushZeroOrNull(stack, method, symbolic);
 					if (!frame.isHiddenFrame())
 						Globals.getInst().execLogger.debug(
-								"Assume a null/zero value for the native method " + method.getName() + ".");
+								"Assume a null/zero value for the native method " + method.getPackageAndName() + ".");
 				} else {
 					if (!frame.isHiddenFrame())
 						Globals.getInst().execLogger.info(
-								"Skipping the native method " + method.getName() + ".");
+								"Skipping the native method " + method.getPackageAndName() + ".");
 				}
 
 				// Release the monitor if it is synchronized.

@@ -145,7 +145,7 @@ public class InvokestaticQuickNative extends InvokestaticQuickAbstract {
 				}
 				if (Globals.getInst().execLogger.isDebugEnabled())
 					Globals.getInst().execLogger.debug(
-							"Forwarded the native method " + method.getName() + " to a wrapper.");
+							"Forwarded the native method " + method.getPackageAndName() + " to a wrapper.");
 
 				// Release the monitor if it is synchronized.
 				if (super.accSynchronized) {
