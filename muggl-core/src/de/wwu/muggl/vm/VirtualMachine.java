@@ -183,6 +183,18 @@ public abstract class VirtualMachine extends Thread {
 	public void run() {
 		Globals.getInst().execLogger.info("Starting a virtual machine (thread #" + this.getId() + ")");
 		try {
+			{
+				// FIXME mxs: is this the right place for init?
+				ClassFile initClassF = this.classLoader.getClassAsClassFile("java.lang.System");
+				Method initMethod = initClassF.getMethodByNameAndDescriptor("initializeSystemClass", "()V");
+				// method is static - no parameters
+				Object[] arguments = new Object[0];
+				createAndPushFrame(null, initMethod, arguments);
+				Frame systemStartupFrame = (Frame) this.stack.peek();
+				systemStartupFrame.setHiddenFrame(true);
+				runMainLoop(systemStartupFrame);
+				Globals.getInst().execLogger.debug("Terminated java.lang.System.initializeSystemClass()");
+			}
 			// Preparations for the initial frame.
 			Object[] predefinedParameters = this.initialMethod.getPredefinedParameters();
 			Object[] arguments = null;
