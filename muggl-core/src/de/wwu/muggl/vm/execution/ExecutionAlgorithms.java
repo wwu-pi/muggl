@@ -97,7 +97,7 @@ public class ExecutionAlgorithms {
 							|| name.equals("java.lang.Character") || name.equals("java.lang.Short")
 							|| name.equals("java.lang.Integer") || name.equals("java.lang.Double")
 							|| name.equals("java.lang.Float") || name.equals("java.lang.Long")))
-						throw new ExecutionException("The check for assigment compatibility failed unexpected as only the wrapper classes of java.lang might be wrapped into ReferenceValues for the assignment compatibility check.");
+						throw new ExecutionException("The check for assigment compatibility failed unexpectedly as only the wrapper classes of java.lang might be wrapped into ReferenceValues for the assignment compatibility check.");
 
 					// Get the Objectref
 					source = this.classLoader.getClassAsClassFile(name).getAPrimitiveWrapperObjectref(vm);
@@ -110,10 +110,10 @@ public class ExecutionAlgorithms {
 						}
 					}
 				} catch (ClassFileException e) {
-					throw new ExecutionException("The check for assigment compatibility failed unexpected since a class could not be loaded due to a ClasNotFoundException with the message " + e.getMessage() + ".");
+					throw new ExecutionException("The check for assigment compatibility failed unexpectedly since a class could not be loaded due to a " + e.getClass().getName() + " with the message " + e.getMessage() + ".");
 				} catch (ExceptionInInitializerError e) {
 					e.printStackTrace();
-					throw new ExecutionException("The check for assigment compatibility failed unexpected with an ExceptionInInitializerError with the message " + e.getMessage() + ".");
+					throw new ExecutionException("The check for assigment compatibility failed unexpectedly with an ExceptionInInitializerError with the message " + e.getMessage() + ".");
 				}
 			}
 		}
@@ -196,7 +196,7 @@ public class ExecutionAlgorithms {
 				}
 			}
 		} catch (ClassFileException e) {
-			throw new ExecutionException("The check for assigment compatibility failed unexpected since a class could not be loaded due to a ClasNotFoundException with the message " + e.getMessage() + ".");
+			throw new ExecutionException("The check for assigment compatibility failed unexpectedly since a class could not be loaded due to a " + e.getClass().getName() + " with the message " + e.getMessage() + ".");
 		}
 
 		// Invoke checkForAssignmentCompatibilityReferenceValue source, ReferenceValue target).
@@ -252,7 +252,7 @@ public class ExecutionAlgorithms {
 				return isClassOrSubclassOf(sourceClassFile, targetClassFile);
 			}
 		} catch (ClassFileException e) {
-			if (Globals.getInst().execLogger.isDebugEnabled()) Globals.getInst().execLogger.debug("The check for assigment compatibility failed unexpected since a class could not be loaded due to a ClasNotFoundException with the message " + e.getMessage() + ".");
+			if (Globals.getInst().execLogger.isDebugEnabled()) Globals.getInst().execLogger.debug("The check for assigment compatibility failed unexpectedly since a class could not be loaded due to a " + e.getClass().getName() + " with the message " + e.getMessage() + ".");
 			return false;
 		}
 	}
