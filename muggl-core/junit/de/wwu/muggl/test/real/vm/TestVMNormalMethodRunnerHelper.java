@@ -84,6 +84,7 @@ public class TestVMNormalMethodRunnerHelper {
 		ClassFile classFile = classLoader.getClassAsClassFile(classFileName, true);
 
 		Method method = classFile.getMethodByNameAndDescriptor(methodName, methodDescriptor);
+
 		if (args != null)
 			method.setPredefinedParameters(args);
 
@@ -103,6 +104,8 @@ public class TestVMNormalMethodRunnerHelper {
 			if (application.getHasAReturnValue()) {
 				// native type or wrapped?
 				Object object = application.getReturnedObject();
+				if (object == null)
+					return object;
 				if (object instanceof ReferenceValue) {
 					try {
 						return new MugglToJavaConversion(application.getVirtualMachine()).toJava(object);
@@ -110,8 +113,29 @@ public class TestVMNormalMethodRunnerHelper {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				} else
-					return object;
+				} else {
+					// possibly to some extending / boxing becuase of ireturn statements that could be meant for a
+					// different type
+					if (object.getClass().getName().equals("java.lang.Integer")) {
+						switch (method.getReturnType()) {
+						case "java.lang.Boolean":
+						case "boolean":
+							return (((Integer) object).intValue() != 1);
+						case "java.lang.Byte":
+						case "byte":
+							return ((Integer) object).byteValue();
+						case "java.lang.Short":
+						case "short":
+							return ((Integer) object).shortValue();
+						case "java.lang.Character":
+						case "char":
+							return (char) ((Integer) object).intValue();
+						default:
+							return object;
+						}
+					}
+				}
+
 			} else if (application.getThrewAnUncaughtException()) {
 				Objectref objectref = (Objectref) application.getReturnedObject();
 
@@ -126,7 +150,7 @@ public class TestVMNormalMethodRunnerHelper {
 					message = "null";
 				} else {
 					Arrayref arrayref = (Arrayref) stringObjectref.getField(stringValueField);
-					
+
 					// Convert it.
 					char[] characters = new char[arrayref.length];
 					for (int a = 0; a < arrayref.length; a++) {
@@ -141,7 +165,8 @@ public class TestVMNormalMethodRunnerHelper {
 			} else {
 			}
 		}
-		
+
 		return null;
 	}
+
 }
