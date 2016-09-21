@@ -40,7 +40,7 @@ public class IntegerInstruction extends TypedInstruction {
 	 * for java.lang.Byte, .Short, and .Char use sign-extension.
 	 * @param value The object that needs to be extended.
 	 * @param type The type of the object, which determines the extension strategy.
-	 * @return The extended value.
+	 * @return The value, extended to Integer.
 	 */
 	@Override
 	protected Object extendValue(Object value, String type) {
@@ -63,7 +63,7 @@ public class IntegerInstruction extends TypedInstruction {
 	 * truncated to a byte, short, char, or boolean.
 	 * @param value The object that needs to be truncated.
 	 * @param type The type of the object, which determines the truncation strategy.
-	 * @return The truncated value.
+	 * @return The value, truncated to the type indicated by `type'.
 	 */
 	@Override
 	protected Object truncateValue(Object value, String type) {

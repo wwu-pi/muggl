@@ -80,7 +80,7 @@ public abstract class TypedInstruction {
 	 * Validate the value and extend if it necessary.
 	 *
 	 * @param value The (probably extended) value to check.
-	 * @return true, if value is of one of the desired types, false otherwise.
+	 * @return an object containing the extended value if there is an applicable type.
 	 * @throws ExecutionException If the supplied value does not match the expected type, an
 	 *         ExecutionException is thrown.
 	 */

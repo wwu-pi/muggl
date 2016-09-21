@@ -796,6 +796,10 @@ public class MugglToJavaConversion {
 							} else {
 								toInsert = toJava(toInsert);
 							}
+							
+							if (toInsert instanceof java.lang.Integer) {
+								toInsert = truncateInteger(toInsert, objectField.getType());
+							}
 
 							// Ensure accessibility.
 							objectField.setAccessible(true);
@@ -826,6 +830,27 @@ public class MugglToJavaConversion {
 				// Not found the field?
 				if (!insertedSuccessfully) throw new NoSuchFieldException(field.getName());
 			}
+		}
+	}
+
+	private Object truncateInteger(Object value, Class<?> type) {
+		// null stays null
+		if (value == null) {
+			return null;
+		}
+		
+		// Change representation of integer values, if applicable
+		switch (type.getName()) {
+		case "java.lang.Boolean": case "boolean":
+			return ((Integer) value).intValue() == 1 ? Boolean.TRUE : Boolean.FALSE;
+		case "java.lang.Byte": case "byte":
+			return ((Integer) value).byteValue();
+		case "java.lang.Short": case "short":
+			return ((Integer) value).shortValue();
+		case "java.lang.Character": case "char":
+			return (char) ((Integer) value).intValue();
+		default: 
+			return value;
 		}
 	}
 

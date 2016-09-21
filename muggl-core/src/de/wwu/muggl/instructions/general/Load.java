@@ -93,7 +93,7 @@ public abstract class Load extends GeneralInstructionWithOtherBytes implements L
 			if (localVariables[localVariable] != null && !this.typedInstruction.checkDesiredType(localVariables[localVariable].getClass().getName()))
 				throw new ExecutionException("Could not load local variable #" + localVariable + ": Expected " + this.typedInstruction.getDesiredType() + ", got " + localVariables[localVariable].getClass() + ".");
 
-			frame.getOperandStack().push(localVariables[localVariable]);
+			frame.getOperandStack().push(typedInstruction.validateAndExtendValue(localVariables[localVariable]));
 		} catch (ExecutionException e) {
 			executionFailed(e);
 		}
