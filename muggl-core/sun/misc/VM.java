@@ -253,8 +253,8 @@ public class VM {
      *
      */
     public static String getSavedProperty(String key) {
-        if (savedProps.isEmpty())
-            throw new IllegalStateException("Should be non-empty if initialized");
+//        if (savedProps.isEmpty())
+//            throw new IllegalStateException("Should be non-empty if initialized");
 
         return savedProps.getProperty(key);
     }
