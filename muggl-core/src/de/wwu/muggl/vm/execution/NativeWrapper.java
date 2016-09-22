@@ -567,7 +567,11 @@ public class NativeWrapper {
 						// Build the String.
 						StringBuffer sb = new StringBuffer(characters.length);
 						for (int a = 0; a < characters.length; a++) {
-							sb.append((char)((IntConstant)characters.getElement(a)).getValue());
+							if (characters.getElement(a) instanceof IntConstant) {
+								sb.append( (char)((IntConstant)characters.getElement(a)).getValue() );
+							} else {
+								sb.append( characters.getElement(a).toString() );
+							}
 						}
 						stringValue = sb.toString();
 					}
