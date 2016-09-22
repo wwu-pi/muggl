@@ -72,4 +72,7 @@ public class LineNumberTable extends ClassFileStructure {
 		return this.startPC;
 	}
 
+	public String toString() {
+		return "line " + this.lineNumber + ":" + this.startPC;
+	}
 }

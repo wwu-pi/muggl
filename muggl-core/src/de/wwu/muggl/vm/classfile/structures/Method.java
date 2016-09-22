@@ -2,6 +2,8 @@ package de.wwu.muggl.vm.classfile.structures;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
+
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.interfaces.Instruction;
@@ -1029,13 +1031,20 @@ public class Method extends FieldMethod {
 	 * @param pc Program Counter to Search for
 	 * @return line number or null
 	 */
-	public Integer getLineNumberForPC(final int pc) {
-		return Arrays.stream(attributes).filter(x -> x instanceof AttributeCode).findFirst()
-				.map(y -> Arrays.stream(((AttributeCode) y).getAttributes())
-						.filter(x -> x instanceof AttributeLineNumberTable).findFirst()
-						.map(x -> ((AttributeLineNumberTable) x).getLineNumberForPC(pc)).orElse(null))
-				.orElse(null);
-
+	public Optional<Integer> getLineNumberForPC(final int pc) {
+ 
+		Optional<Attribute> attrib = Arrays.stream(attributes).filter(x -> x instanceof AttributeCode).findFirst();
+		if(attrib.isPresent()) {
+			Optional<Attribute> attribLNT =  Arrays.stream(((AttributeCode) attrib.get()).getAttributes())
+					.filter(x -> x instanceof AttributeLineNumberTable).findFirst();
+			if(attribLNT.isPresent()) {
+				return ((AttributeLineNumberTable) attribLNT.get()).getLineNumberForPC(pc);
+				
+			}
+			
+		}
+				
+		return Optional.empty();
 	}
 
 	public boolean isSignaturePolymorphic() {

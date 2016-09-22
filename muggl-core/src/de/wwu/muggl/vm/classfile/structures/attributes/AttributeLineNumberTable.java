@@ -3,6 +3,7 @@ package de.wwu.muggl.vm.classfile.structures.attributes;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -86,10 +87,20 @@ public class AttributeLineNumberTable extends Attribute {
 	 * @param pc the Program Counter you are lookin at
 	 * @return the line number in the source file or null
 	 */
-	public Integer getLineNumberForPC(int pc) {
-		return Arrays.stream(lineNumberTable).filter(i -> i.getStartPC() <= pc)
-				.max((x, y) -> Integer.compare(x.getStartPC(), y.getStartPC())).map(x -> x.getLineNumber())
-				.orElse(null);
+	public Optional<Integer> getLineNumberForPC(int pc) {
+		LineNumberTable lineNumber = null;
+		for (LineNumberTable lnEntry : lineNumberTable) {
+			if (lineNumber == null || (Integer.compare(lnEntry.getStartPC(), pc) <= 0
+					&& lnEntry.getStartPC() > lineNumber.getStartPC())) {
+				lineNumber = lnEntry;
+			}
+		}
+
+		if (lineNumber == null) {
+			return Optional.empty();
+		} else
+			return Optional.of(lineNumber.getLineNumber());
+
 	}
 
 }

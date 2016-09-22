@@ -681,12 +681,12 @@ public abstract class VirtualMachine extends Thread {
 		// marker for debug logs for easier finding of where an exception originated		
 		Globals.getInst().execLogger.info("generating a new exception " + typeString + "(" + message + ") in muggl at: " + Thread.currentThread().getStackTrace()[0].toString());
 		Globals.getInst().execLogger.debug("at " + this.currentFrame.method.getPackageAndName() + " pc:"
-				+ currentFrame.getPc() + " line:" + currentFrame.method.getLineNumberForPC(currentFrame.getPc()));
+				+ currentFrame.getPc() + " line:" + currentFrame.method.getLineNumberForPC(currentFrame.getPc()).orElse(-1));
 		Frame curF = currentFrame;
 		while (curF.invokedBy != null) {
 			curF = curF.invokedBy;
 			Globals.getInst().execLogger.debug("\t at " + curF.method.getPackageAndName() + " pc:" + curF.getPc()
-					+ " line or line before!:" + curF.method.getLineNumberForPC(curF.getPc()));
+					+ " line or line before!:" + curF.method.getLineNumberForPC(curF.getPc()).orElse(-1));
 		}
 
 		return this.throwableGenerator.getException(typeString, message);
@@ -948,7 +948,8 @@ public abstract class VirtualMachine extends Thread {
 				this.returnFromCurrentExecution = true;
 			}
 
-			if (!currentFrame.isHiddenFrame()) Globals.getInst().execLogger.trace("Execution of the static initializer of " + method.getClassFile().getName() + " finished. Returning to the normal program flow.");
+			if (!currentFrame.isHiddenFrame()) 
+				Globals.getInst().execLogger.trace("Execution of the static initializer of " + method.getClassFile().getName() + " finished. Returning to the normal program flow.");
 		} catch (NoExceptionHandlerFoundException e) {
 			Objectref objectref = e.getUncaughtThrowable();
 			String type = objectref.getInitializedClass().getClassFile().getClassName();
