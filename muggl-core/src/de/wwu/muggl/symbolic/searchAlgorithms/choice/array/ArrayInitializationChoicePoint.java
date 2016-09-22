@@ -328,7 +328,13 @@ public class ArrayInitializationChoicePoint implements ChoicePoint {
 			// Fill up the array with variables.
 			if (this.preparedArray != null) {
 				this.preparedArray.disableTypeChecking();
-				this.preparedArray.setRepresentedTypeAsAPrimitiveWrapper("java.lang.Integer");
+				try {
+					this.preparedArray.setRepresentedTypeAsAPrimitiveWrapper(
+							this.frame.getVm().getClassLoader().
+							getClassAsClassFile("java.lang.Integer").getTheInitializedClass(frame.getVm()));
+				} catch (ClassFileException e) {
+					e.printStackTrace();
+				}
 
 				for (int a = 0; a < this.preparedArray.length; a++) {
 					Object element;

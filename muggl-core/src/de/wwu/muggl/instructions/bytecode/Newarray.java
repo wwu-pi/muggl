@@ -17,6 +17,7 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
+import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -164,11 +165,13 @@ public class Newarray extends de.wwu.muggl.instructions.general.ObjectInitializa
 				try {
 					ReferenceValue referenceValue = frame.getVm().getAnObjectref(frame.getVm().getClassLoader().getClassAsClassFile(
 									"de.wwu.muggl.solvers.expressions.Term"));
+					InitializedClass initializedClass = frame.getVm().getClassLoader().
+							getClassAsClassFile(representedType).getTheInitializedClass(frame.getVm());
 
 					// Generate and push the array.
 					ModifieableArrayref arrayref = new ModifieableArrayref(referenceValue, count);
 					arrayref.disableTypeChecking();
-					arrayref.setRepresentedTypeAsAPrimitiveWrapper(representedType);
+					arrayref.setRepresentedTypeAsAPrimitiveWrapper(initializedClass);
 					frame.getOperandStack().push(arrayref);
 				} catch (ClassFileException e) {
 					// It is almost impossible that this happens.

@@ -18,7 +18,7 @@ package de.wwu.muggl.vm.initialization;
  */
 public class ModifieableArrayref extends Arrayref {
 	private boolean typeCheckingDisabled;
-	private String representedType;
+	private InitializedClass representedTypeInitializedClass;
 	private boolean representedTypeIsAPrimitiveWrapper;
 
 	/**
@@ -29,7 +29,7 @@ public class ModifieableArrayref extends Arrayref {
 	 */
 	public ModifieableArrayref(ReferenceValue referenceValue, int length) {
 		super(referenceValue, length);
-		this.representedType = null;
+		this.representedTypeInitializedClass = null;
 		this.representedTypeIsAPrimitiveWrapper = false;
 	}
 
@@ -41,6 +41,7 @@ public class ModifieableArrayref extends Arrayref {
 	public ModifieableArrayref(ReferenceValue referenceValue, int[] dimensionCount) {
 		super(referenceValue, dimensionCount);
 		this.typeCheckingDisabled = false;
+		this.representedTypeInitializedClass = null;
 		this.representedTypeIsAPrimitiveWrapper = false;
 	}
 
@@ -105,7 +106,7 @@ public class ModifieableArrayref extends Arrayref {
 	public Arrayref clone() {
 		ModifieableArrayref arrayref = new ModifieableArrayref(this.referenceValue, this.length);
 		if (this.typeCheckingDisabled) arrayref.disableTypeChecking();
-		arrayref.representedType = this.representedType;
+		arrayref.representedTypeInitializedClass = this.representedTypeInitializedClass;
 		for (int a = 0; a < this.length; a++) {
 			Object element = this.elements[a];
 			if (this.referenceValue.isArray())
@@ -121,7 +122,10 @@ public class ModifieableArrayref extends Arrayref {
 	 * @return The fully qualified name of the type; or null, if none has been set.
 	 */
 	public String getRepresentedType() {
-		return this.representedType;
+		if (this.representedTypeInitializedClass == null) {
+			return null;
+		}
+		return this.representedTypeInitializedClass.getClassFile().getName();
 	}
 
 	/**
@@ -134,8 +138,8 @@ public class ModifieableArrayref extends Arrayref {
 	 *
 	 * @param type The fully qualified name of the type.
 	 */
-	public void setRepresentedType(String type) {
-		this.representedType = type;
+	public void setRepresentedTypeInitializedClass(InitializedClass ic) {
+		this.representedTypeInitializedClass = ic;
 	}
 
 	/**
@@ -146,10 +150,10 @@ public class ModifieableArrayref extends Arrayref {
 	 *
 	 * An example for a fully qualified name: java.lang.Integer
 	 *
-	 * @param type The fully qualified name of the type.
+	 * @param initializedClass The fully qualified name of the type.
 	 */
-	public void setRepresentedTypeAsAPrimitiveWrapper(String type) {
-		this.representedType = type;
+	public void setRepresentedTypeAsAPrimitiveWrapper(InitializedClass initializedClass) {
+		this.representedTypeInitializedClass = initializedClass;
 		this.representedTypeIsAPrimitiveWrapper = true;
 	}
 
@@ -160,6 +164,33 @@ public class ModifieableArrayref extends Arrayref {
 	 */
 	public boolean isRepresentedTypeIsAPrimitiveWrapper() {
 		return this.representedTypeIsAPrimitiveWrapper;
+	}
+
+	@Override
+	/**
+	 * In case of a ModifieableArrayref, the value array only consists of de.wwu.muggl.solvers.expressions.Term elements.
+	 * However, their actual type is supposed to be represented by the `representedType' field.
+	 * Information on whether this is a primitive type is stored in `representedTypeIsAPrimitiveWrapper'. Therefore,
+	 * we should check that instead of the Arrayref's value.
+	 * 
+	 * Execution of this method is delegated to isRepresentedTypeIsAPrimitiveWrapper.
+	 *  
+	 * @return true, if the representedType is a wrapper for a primitive type
+	 */
+	public boolean isPrimitive() {
+		return this.isRepresentedTypeIsAPrimitiveWrapper();
+	}
+
+	/* Get an initialized class of the represented type if any, or otherwise that of the value (supertype).
+	 * @see de.wwu.muggl.vm.initialization.Arrayref#getInitializedClass()
+	 */
+	@Override
+	public InitializedClass getInitializedClass() {
+		if (this.representedTypeInitializedClass == null) {
+			return super.getInitializedClass();
+		} else {
+			return this.representedTypeInitializedClass;
+		}
 	}
 
 }
