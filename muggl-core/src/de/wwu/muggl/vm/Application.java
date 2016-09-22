@@ -29,8 +29,17 @@ public class Application extends Thread {
 	private boolean executionFinished = false;
 	private boolean vmHasChanged = false;
 	private boolean vmIsInitalizing = true;
-	private boolean finalized;
-	private boolean cleanedUp;
+	private boolean finalized = false;
+	private boolean cleanedUp = false;
+	
+
+	/**
+	 * Unused constructor - just to enable subclasses to provide their own constructors.
+	 * DO NOT USE. (unless in subclasses)  
+	 */
+	protected Application() {
+		// DO NOT USE
+	}
 
 	/**
 	 * Basic constructor.
