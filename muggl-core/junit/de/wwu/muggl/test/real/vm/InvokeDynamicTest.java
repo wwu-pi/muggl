@@ -2,6 +2,8 @@ package de.wwu.muggl.test.real.vm;
 
 import static org.junit.Assert.*;
 
+import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -10,17 +12,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
-import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Attribute;
-import de.wwu.muggl.vm.classfile.structures.Field;
-import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeBootstrapMethods;
-import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
-import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
-import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 /**
@@ -59,11 +55,11 @@ public class InvokeDynamicTest {
 	public final void testApplicationMugglParseClassFileBootstrapMethod()
 			throws ClassFileException, InitializationException {
 		ClassFile classFile = classLoader.getClassAsClassFile(
-				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemoMinimal.class.getCanonicalName(), true);
+				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.class.getCanonicalName(), true);
 
 		for (Attribute attrib : classFile.getAttributes()) {
 			if (attrib instanceof AttributeBootstrapMethods) {
-				assertEquals(1, ((AttributeBootstrapMethods) attrib).getNumBootstrapMethods());
+				assertEquals(2, ((AttributeBootstrapMethods) attrib).getNumBootstrapMethods());
 				assertEquals(3,
 						((AttributeBootstrapMethods) attrib).getBootstrapMethods()[0].getNumBootstrapArguments());
 
@@ -73,12 +69,31 @@ public class InvokeDynamicTest {
 
 	}
 
-	@Test
-	public final void testApplicationMugglVMRunInvokeDynamic()
+	// @Test
+	public final void testlambdaSugarRunnable()
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemoMinimal.class.getCanonicalName(), "main",
-				"([Ljava/lang/String;)V", (Object[]) null);
+				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.METHOD_lambdaSugarRunnable,
+				MethodType.methodType(void.class).toMethodDescriptorString(), null);
+	}
+
+	@Test
+	public final void testGenerateLambdaMetafactoryManual()
+			throws ClassFileException, InitializationException, InterruptedException {
+		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.METHOD_GenerateLambdaMetafactoryManual,
+				MethodType.methodType(void.class).toMethodDescriptorString(), null);
+	}
+
+	@Test
+	public final void testlambdaMetafactoryAuto()
+			throws ClassFileException, InitializationException, InterruptedException {
+		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.METHOD_lambdaMetafactoryAuto,
+				MethodType.methodType(void.class).toMethodDescriptorString(), null);
 	}
 
 }
