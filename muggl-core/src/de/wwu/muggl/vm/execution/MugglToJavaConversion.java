@@ -416,6 +416,7 @@ public class MugglToJavaConversion {
 
 		// Cache the result. This has to be done before inserting the fields to avoid infinite loops.
 		this.javaMugglMapping.put(object, objectref);
+		// TODO why not also add the combo (objectref, object) to mugglJavaMapping ?
 
 		// Insert the fields.
 		copyFieldFromObject(object, objectref, false);
@@ -853,7 +854,7 @@ public class MugglToJavaConversion {
 		 * Check if the object is a reference of java.lang.class. Class instances are nasty. Ignore
 		 * possible changed - they will most likely not be needed anyway.
 		 */
-		if (object.getClass().getName().equals("java.lang.Class"))
+ 		if (object.getClass().getName().equals("java.lang.Class"))
 			return;
 
 		// Work through all declared fields and non-private fields of super-classes.
