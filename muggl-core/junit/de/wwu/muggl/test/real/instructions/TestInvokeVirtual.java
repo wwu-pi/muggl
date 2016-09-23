@@ -1,5 +1,7 @@
 package de.wwu.muggl.test.real.instructions;
 
+import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -40,12 +42,23 @@ public class TestInvokeVirtual {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
-	public final void testApplicationMugglVMInvokeVirtualExecution1()
+	// @Test
+	public final void testApplicationMugglVMInvokeVirtualExecutionStatic1()
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),
-				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_findStaticInvokeExact, "()V", null);
+				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_findStaticInvokeExact,
+				MethodType.methodType(void.class).toMethodDescriptorString(), null);
+
+	}
+
+	// @Test
+	public final void testApplicationMugglVMTestBoolean()
+			throws ClassFileException, InitializationException, InterruptedException {
+		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_testBoolean,
+				MethodType.methodType(void.class).toMethodDescriptorString(), null);
 
 	}
 
@@ -54,16 +67,18 @@ public class TestInvokeVirtual {
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),
-				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_findVirtualInvokeExact, "()V", null);
+				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_findVirtualInvokeExact,
+				MethodType.methodType(void.class).toMethodDescriptorString(), null);
 
 	}
 
-	@Test
+	// @Test
 	public final void testApplicationMugglVMInvokeVirtualExecution3()
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),
-				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_testWithBootstrap, "()V", null);
+				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_testWithBootstrap,
+				MethodType.methodType(void.class).toMethodDescriptorString(), null);
 
 	}
 
