@@ -34,6 +34,7 @@ public enum MySharedSecrets {
 
 	public static void main(String[] args) {
 		MySharedSecrets.getValues();
+		System.out.println(getMySuperClass());
 
 	}
 

@@ -2,6 +2,8 @@ package de.wwu.muggl.test.real.instructions;
 
 import static org.junit.Assert.*;
 
+import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -45,10 +47,10 @@ public class TestSharedSecrets {
 	@Test
 	public final void testInvokeStaticGetValues()
 			throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals("1234",
+		assertEquals("java.lang.Enum",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(),
-						"getMySuperClass", "()Ljava/lang/String;", null));
+						"getMySuperClass", MethodType.methodType(String.class).toMethodDescriptorString(), null));
 
 	}
 
