@@ -36,6 +36,14 @@ public class InstructionsType {
 		return (short) (test1 * -1);
 	}
 
+	public final static String METHOD_bytecompifeq = "bytecompifeq";
+
+	// ifne on byte (via integer)
+	public static boolean bytecompifeq() {
+		byte byte1 = 6;
+		return (byte1 == 0) ? true : false;
+	}
+
 	public static void main(String[] args) {
 		System.out.println(byte_imul());
 		System.out.println(char_iinc());

@@ -84,4 +84,15 @@ public class TestInstructionsTypeSupport {
 
 	}
 
+	@Test
+	public final void testVMshort_bytecompifeq() throws ClassFileException, InitializationException,
+			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
+
+		assertTrue(!(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.InstructionsType.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.InstructionsType.METHOD_bytecompifeq,
+				MethodType.methodType(boolean.class).toMethodDescriptorString(), null));
+
+	}
+
 }

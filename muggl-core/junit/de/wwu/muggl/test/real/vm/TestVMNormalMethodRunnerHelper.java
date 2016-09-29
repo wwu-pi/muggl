@@ -121,7 +121,7 @@ public class TestVMNormalMethodRunnerHelper {
 						switch (method.getReturnType()) {
 						case "java.lang.Boolean":
 						case "boolean":
-							return (((Integer) object).intValue() != 1);
+							return (((Integer) object).intValue() == 1);
 						case "java.lang.Byte":
 						case "byte":
 							return ((Integer) object).byteValue();
@@ -135,6 +135,7 @@ public class TestVMNormalMethodRunnerHelper {
 							return object;
 						}
 					}
+					return object;
 				}
 
 			} else if (application.getThrewAnUncaughtException()) {

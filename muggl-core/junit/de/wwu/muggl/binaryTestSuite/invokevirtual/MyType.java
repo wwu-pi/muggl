@@ -78,6 +78,7 @@ public class MyType<T> {
 	}
 	
 	public static boolean booleanTest2(boolean in) {
+		// XOR
 		return in ^ true;
 	}
 	

@@ -41,13 +41,14 @@ public class Boxing {
 	public static String boxPlaceholder(Boolean in) {
 		return (new Boxing()).new Placeholder<Boolean>(in).getTString();
 	}
-	
-	public static String boxPlaceholderint() {
-		int test = 599;
-		
-		return (new Boxing()).new Placeholder<Integer>(599).getTString();
+
+	public static String boxPlaceholderChar(char in) {
+		return (new Boxing()).new Placeholder<Character>(in).getTString();
 	}
 
+	public static String boxPlaceholderint() {
+		return (new Boxing()).new Placeholder<Integer>(599).getTString();
+	}
 
 	public class Placeholder<T> {
 		private final T t;

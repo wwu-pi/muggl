@@ -2,6 +2,8 @@ package de.wwu.muggl.test.real.vm;
 
 import static org.junit.Assert.*;
 
+import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -24,7 +26,7 @@ public class TestVMBoxing {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.ALL);
+		Globals.getInst().changeLogLevel(Level.WARN);
 		Globals.getInst().parserLogger.setLevel(Level.WARN);
 	}
 
@@ -46,7 +48,8 @@ public class TestVMBoxing {
 		assertEquals((Integer) 2,
 				(Integer) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.invokevirtual.MyType.class.getCanonicalName(), "putReturnObj",
-						"(Ljava/lang/Object;)Ljava/lang/Object;", (Object[]) new Integer[] { 2 }));
+						MethodType.methodType(Object.class, Object.class).toMethodDescriptorString(),
+						(Object[]) new Integer[] { 2 }));
 
 	}
 
@@ -55,7 +58,8 @@ public class TestVMBoxing {
 		assertEquals((Integer) 3,
 				(Integer) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.invokevirtual.MyType.class.getCanonicalName(), "putReturnObj2",
-						"(Ljava/lang/Integer;)Ljava/lang/Integer;", (Object[]) new Integer[] { 3 }));
+						MethodType.methodType(Integer.class, Integer.class).toMethodDescriptorString(),
+						(Object[]) new Integer[] { 3 }));
 
 	}
 
@@ -64,7 +68,8 @@ public class TestVMBoxing {
 		assertEquals((Integer) 4,
 				(Integer) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.invokevirtual.MyType.class.getCanonicalName(), "putReturnObj3",
-						"(Ljava/lang/Integer;)Ljava/lang/Integer;", (Object[]) new Integer[] { 4 }));
+						MethodType.methodType(Integer.class, Integer.class).toMethodDescriptorString(),
+						(Object[]) new Integer[] { 4 }));
 
 	}
 
@@ -73,7 +78,8 @@ public class TestVMBoxing {
 		assertEquals((Integer) 4,
 				(Integer) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.invokevirtual.MyType.class.getCanonicalName(), "putReturnObj4",
-						"(Ljava/lang/Integer;)Ljava/lang/Integer;", (Object[]) new Integer[] { 4 }));
+						MethodType.methodType(Integer.class, Integer.class).toMethodDescriptorString(),
+						(Object[]) new Integer[] { 4 }));
 
 	}
 
@@ -82,7 +88,8 @@ public class TestVMBoxing {
 		assertEquals((Integer) 8,
 				(Integer) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.invokevirtual.MyType.class.getCanonicalName(), "IntegerBoxing",
-						"(Ljava/lang/Integer;)Ljava/lang/Integer;", (Object[]) new Integer[] { 4 }));
+						MethodType.methodType(Integer.class, Integer.class).toMethodDescriptorString(),
+						(Object[]) new Integer[] { 4 }));
 	}
 
 	@Test
@@ -90,16 +97,19 @@ public class TestVMBoxing {
 		assertTrue("boxing boolean doesn't work",
 				(Boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.invokevirtual.MyType.class.getCanonicalName(), "BooleanBoxing",
-						"(Z)Ljava/lang/Boolean;", (Object[]) new Boolean[] { true }));
+						MethodType.methodType(Boolean.class, boolean.class).toMethodDescriptorString(),
+						(Object[]) new Boolean[] { true }));
 
 	}
 
 	@Test
 	public final void testBoolean1() throws ClassFileException, InitializationException, InterruptedException {
+		// doing XOR!
 		assertTrue("boolean test",
 				(Boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.invokevirtual.MyType.class.getCanonicalName(), "booleanTest2",
-						"(Z)Z", (Object[]) new Boolean[] { true }));
+						MethodType.methodType(boolean.class, boolean.class).toMethodDescriptorString(),
+						(Object[]) new Boolean[] { false }));
 	}
 
 	@Test
@@ -107,7 +117,8 @@ public class TestVMBoxing {
 		assertEquals((int) 8,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.invokevirtual.MyType.class.getCanonicalName(), "intNoBoxing",
-						"(I)I", (Object[]) new Integer[] { 4 }));
+						MethodType.methodType(int.class, int.class).toMethodDescriptorString(),
+						(Object[]) new Integer[] { 4 }));
 
 	}
 
@@ -121,10 +132,10 @@ public class TestVMBoxing {
 	// === Boxing Conversion ===
 	@Test
 	public final void boxboolean() throws ClassFileException, InitializationException, InterruptedException {
-
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxboolean", "()Ljava/lang/String;",
-				null);
+		assertEquals("true",
+				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxboolean",
+						MethodType.methodType(String.class).toMethodDescriptorString(), null));
 
 	}
 
@@ -133,34 +144,47 @@ public class TestVMBoxing {
 
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxBoolean",
-				"(Ljava/lang/Boolean;)Ljava/lang/String;", (Object[]) new Boolean[] { true });
-
-	}
-
-	@Test
-	public final void boxBoolean2() throws ClassFileException, InitializationException, InterruptedException {
-
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxBoolean2", "(Z)Z",
+				MethodType.methodType(String.class, Boolean.class).toMethodDescriptorString(),
 				(Object[]) new Boolean[] { true });
 
 	}
 
 	@Test
-	public final void boxBooleanObj() throws ClassFileException, InitializationException, InterruptedException {
+	public final void boxBoolean2() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(false,
+				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxBoolean2",
+						MethodType.methodType(boolean.class, boolean.class).toMethodDescriptorString(),
+						(Object[]) new Boolean[] { false }));
 
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxbooleanObj", "()Ljava/lang/String;",
-				null);
+	}
+
+	@Test
+	public final void boxBooleanObj() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("true",
+				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxbooleanObj",
+						MethodType.methodType(String.class).toMethodDescriptorString(), null));
 
 	}
 
 	@Test
 	public final void boxPlaceholderBoolean() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("true",
+				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxPlaceholder",
+						MethodType.methodType(String.class, Boolean.class).toMethodDescriptorString(),
+						(Object[]) new Boolean[] { true }));
 
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxPlaceholder",
-				"(Ljava/lang/Boolean;)Ljava/lang/String;", (Object[]) new Boolean[] { true });
+	}
+
+	@Test
+	public final void boxPlaceholderChar() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("b",
+				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxPlaceholderChar",
+						MethodType.methodType(String.class, char.class).toMethodDescriptorString(),
+						(Object[]) new Character[] { 'b' }));
 
 	}
 
@@ -169,14 +193,16 @@ public class TestVMBoxing {
 		assertEquals("599",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxPlaceholderint",
-						"()Ljava/lang/String;", null));
+						MethodType.methodType(String.class).toMethodDescriptorString(), null));
 
 	}
 
 	@Test
 	public final void boxintobject() throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals("340", (String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxint", "()Ljava/lang/String;", null));
+		assertEquals("340",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "boxint",
+						MethodType.methodType(String.class).toMethodDescriptorString(), null));
 
 	}
 

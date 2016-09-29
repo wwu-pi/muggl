@@ -49,7 +49,14 @@ public abstract class If extends GeneralInstructionWithOtherBytes implements Jum
 	 */
 	@Override
 	public void execute(Frame frame) {
-		int value = (Integer) frame.getOperandStack().pop();
+		// there could also be a boolean on the stack, see test boxPlaceholderBoolean
+		Object rawValue = frame.getOperandStack().pop();
+
+		int value;
+		if (rawValue instanceof Boolean)
+			value = (boolean) rawValue ? 1 : 0;
+		else
+			value = (Integer) rawValue;
 		if (compare(value)) {
 			frame.getVm().setPC(this.lineNumber + (this.otherBytes[0] << ONE_BYTE | this.otherBytes[1]));
 		}
