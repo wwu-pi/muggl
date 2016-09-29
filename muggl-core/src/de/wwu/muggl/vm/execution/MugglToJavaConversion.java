@@ -447,7 +447,7 @@ public class MugglToJavaConversion {
 		if (className.equals("java.lang.Class")) {
 			// Determine the class this instance belongs to. Get the name field...
 			Field nameField = objectref.getInitializedClass().getClassFile().getFieldByName("name");
-			Objectref nameObjectref = (Objectref) objectref.getField(nameField);
+			Objectref nameObjectref = (Objectref) objectref.getInitializedClass().getField(nameField);
 			// Get the value from the String object reference...
 			Field valueField = nameObjectref.getInitializedClass().getClassFile().getFieldByName("value");
 			Arrayref chars = (Arrayref) nameObjectref.getField(valueField);
@@ -851,11 +851,42 @@ public class MugglToJavaConversion {
 	public void copyFieldFromObject(Object object, Objectref objectref, boolean ignoreFinalFields)
 			throws ConversionException {
 		/*
-		 * Check if the object is a reference of java.lang.class. Class instances are nasty. Ignore
-		 * possible changed - they will most likely not be needed anyway.
+		 * Check if the object is a reference of java.lang.class. Class instances are nasty.
 		 */
- 		if (object.getClass().getName().equals("java.lang.Class"))
+ 		if (object.getClass().getName().equals("java.lang.Class")){
+ 			
+ 			objectref.setDebugHelperString(object.toString());
+ 			// set a least the name field
+ 			 			
+			try {
+				java.lang.reflect.Field javaField = object.getClass().getDeclaredField("name");
+				javaField.setAccessible(true);
+				Field field = objectref.getInitializedClass().getClassFile()
+						.getFieldByName(javaField.getName(), true);
+				// Convert and insert.
+				Object objectToInsert = javaField.get(object);
+				objectToInsert = toMuggl(objectToInsert, field.isPrimitiveType());
+				objectref.getInitializedClass().putField(field, objectToInsert);
+			} catch (IllegalAccessException e) {
+				// Log it but beside that ignore it.
+				if (Globals.getInst().execLogger.isTraceEnabled())
+					Globals.getInst().execLogger.trace("Copying fields from an object "
+							+ "failed with a IllegalAccessException (" + e.getMessage() + ")");
+			} catch (IllegalArgumentException e) {
+				// Log it but beside that ignore it.
+				if (Globals.getInst().execLogger.isTraceEnabled())
+					Globals.getInst().execLogger.trace("Copying fields from an object "
+							+ "failed with a IllegalArgumentException (" + e.getMessage() + ")");
+			} catch (NoSuchFieldException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+ 			
 			return;
+ 		}
 
 		// Work through all declared fields and non-private fields of super-classes.
 		for (java.lang.reflect.Field javaField : getFieldsForObject(object)) {
