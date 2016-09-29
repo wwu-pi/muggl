@@ -1,5 +1,7 @@
 package de.wwu.muggl.test.real.vm;
 
+import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -38,38 +40,34 @@ public class TestVMClassInitialization {
 	public final void testGetVMProperty() throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(),
-				"tryGetProperty", "()Ljava/lang/String;", null);
+				"tryGetProperty", MethodType.methodType(String.class).toMethodDescriptorString(), null);
 	}
 
-	@Test
+	// @Test
 	public final void testGetVMProperties() throws ClassFileException, InitializationException, InterruptedException {
-		org.junit.Assert.assertTrue("ListSystemProperties has no entries at all",
-				((Integer) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-						de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(),
-						"listSystemProperties", "()I", null)) > 1);
+		org.junit.Assert
+				.assertTrue("ListSystemProperties has no entries at all",
+						((Integer) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+								de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class
+										.getCanonicalName(),
+								"listSystemProperties", MethodType.methodType(int.class).toMethodDescriptorString(),
+								null)) > 1);
 	}
 
 	@Test
 	public final void testGetVMIsBooted() throws ClassFileException, InitializationException, InterruptedException {
 		org.junit.Assert.assertTrue("VM is not booted",
-				((Integer) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(),
-						"isbooted", "()Z", null)) != 0);
+						"isbooted", MethodType.methodType(boolean.class).toMethodDescriptorString(), null));
 	}
 
-	/**
-	 * Boolean are internally integers
-	 * 
-	 * @throws ClassFileException
-	 * @throws InitializationException
-	 * @throws InterruptedException
-	 */
 	@Test
 	public final void testReturnValue() throws ClassFileException, InitializationException, InterruptedException {
 		org.junit.Assert.assertTrue("correct return value from function",
-				((Integer) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(),
-						"testReturnValues", "()Z", null)) != 0);
+						"testReturnValues", MethodType.methodType(boolean.class).toMethodDescriptorString(), null));
 	}
 
 }
