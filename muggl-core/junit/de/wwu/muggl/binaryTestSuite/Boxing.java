@@ -2,6 +2,29 @@ package de.wwu.muggl.binaryTestSuite;
 
 public class Boxing {
 
+	private boolean testing = false;
+	private Boolean testing2 = false;
+
+	public Boolean boxbooleanField(Boolean in) {
+		this.testing = in;
+		return this.testing;
+	}
+
+	public Boolean returnInitiatedField() {
+		return this.testing;
+	}
+
+	public boolean boxbooleanField2(boolean in) {
+		this.testing2 = in;
+		return this.testing2;
+	}
+
+	// this should produce an ireturn instruction showcasing both
+	// boolean-Boolean boxing and handling as integer
+	public boolean returnInitiatedField2() {
+		return this.testing2;
+	}
+
 	public static String boxboolean() {
 		boolean in = true;
 		return boxboolean2(in);
