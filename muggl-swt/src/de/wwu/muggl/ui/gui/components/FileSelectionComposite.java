@@ -48,6 +48,7 @@ import de.wwu.muggl.ui.gui.windows.ClassInspectionWindow;
 import de.wwu.muggl.ui.gui.windows.ExecutionWindow;
 import de.wwu.muggl.ui.gui.windows.MethodParametersWindow;
 import de.wwu.muggl.ui.gui.windows.StepByStepExecutionWindow;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Method;
@@ -1475,7 +1476,7 @@ public class FileSelectionComposite extends Composite {
 					|| (this.visibility >= 2 && !methods[a].isAccPrivate())
 					|| this.visibility >= 3) {
 					// Skip some methods if this is desired by the user.
-					if (!(this.hideInitCheckButton.getSelection() && (methods[a].getName().equals("<init>") || methods[a].getName().equals("<clinit>")))
+					if (!(this.hideInitCheckButton.getSelection() && (methods[a].getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME) || methods[a].getName().equals(VmSymbols.CLASS_INITIALIZER_NAME)))
 							&& (!this.mainOnlyCheckButton.getSelection()
 							|| (methods[a].getName().equals("main") && methods[a].isAccPublic() && methods[a].isAccStatic() && methods[a].getReturnType().equals("void")))
 						) {

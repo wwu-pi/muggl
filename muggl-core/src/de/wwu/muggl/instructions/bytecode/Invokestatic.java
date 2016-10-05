@@ -4,6 +4,7 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.Invoke;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
@@ -56,7 +57,7 @@ public class Invokestatic extends Invoke implements Instruction {
 	protected ClassFile checkStaticMethod(Frame frame, String[] nameAndType,
 			Method method, Object[] parameters) throws ExecutionException, VmRuntimeException {
 		// Unexpected exception: the method is an instance initialization method.
-		if (nameAndType[0].equals("<init>"))
+		if (nameAndType[0].equals(VmSymbols.OBJECT_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the initialization method.");
 
@@ -137,7 +138,7 @@ public class Invokestatic extends Invoke implements Instruction {
 		// Get the name and the descriptor.
 		String[] nameAndType = ((ConstantMethodref) constant).getNameAndTypeInfo();
 		ClassFile methodClassFile = classLoader.getClassAsClassFile(((ConstantMethodref) constant).getClassName());
-		if (nameAndType[0].equals("<init>"))
+		if (nameAndType[0].equals(VmSymbols.OBJECT_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the initialization method.");
 

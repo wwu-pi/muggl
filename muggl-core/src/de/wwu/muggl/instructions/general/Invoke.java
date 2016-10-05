@@ -13,6 +13,7 @@ import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableDefining;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
@@ -334,10 +335,10 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 	 */
 	protected void checkNoInstanceInit(Method method) throws ExecutionException {
 		// The method must be neither the instance initializer nor the static initializer.
-		if (method.getName().equals("<init>"))
+		if (method.getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the instance initialization method.");
-		if (method.getName().equals("<clinit>"))
+		if (method.getName().equals(VmSymbols.CLASS_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the class or interface initialization method.");
 	}

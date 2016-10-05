@@ -6,6 +6,7 @@ import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.typed.TypedInstruction;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.StaticFieldPut;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
@@ -172,7 +173,7 @@ public class Putstatic extends Put implements Instruction {
 		if (field.isAccFinal()) {
 			// Only the clinit method of the same class may write it!
 			if (!field.getClassFile().getName().equals(frame.getMethod().getClassFile().getName())
-				|| !frame.getMethod().getName().equals("<clinit>"))
+				|| !frame.getMethod().getName().equals(VmSymbols.CLASS_INITIALIZER_NAME))
 					throw new VmRuntimeException(frame.getVm().generateExc(
 						"java.lang.IllegalAccessError", "Cannot assign values to a final field."));
 		}

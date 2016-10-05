@@ -14,6 +14,7 @@ import de.wwu.muggl.symbolic.testCases.TestCaseSolution;
 import de.wwu.muggl.ui.gui.components.StepByStepExecutionComposite;
 import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Method;
@@ -127,7 +128,7 @@ public class StepByStepExecutionRunner extends Thread {
 			}
 
 			// The method might have changed to &lt;clinit&gt;. Check that and set the fields accordingly, if not skipping of the static initializers has been enabled.
-			if (!Options.getInst().visuallySkipStaticInit && !this.method.getName().equals("<clinit>") && this.application.getVirtualMachine().getCurrentFrame().getMethod().getName().equals("<clinit>"))
+			if (!Options.getInst().visuallySkipStaticInit && !this.method.getName().equals(VmSymbols.CLASS_INITIALIZER_NAME) && this.application.getVirtualMachine().getCurrentFrame().getMethod().getName().equals(VmSymbols.CLASS_INITIALIZER_NAME))
 			{
 				this.currentMethodName = this.application.getVirtualMachine().getCurrentFrame().getMethod().getName();
 				this.currentMethodDescriptor = this.application.getVirtualMachine().getCurrentFrame().getMethod().getDescriptor();

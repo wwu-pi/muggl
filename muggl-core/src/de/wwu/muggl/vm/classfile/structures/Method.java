@@ -12,6 +12,7 @@ import de.wwu.muggl.instructions.replaced.ReplacingInstruction;
 import de.wwu.muggl.symbolic.flow.controlflow.ControlGraph;
 import de.wwu.muggl.symbolic.generating.ArrayElementsGeneratorProvider;
 import de.wwu.muggl.symbolic.generating.GeneratorProvider;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeAnnotationDefault;
@@ -271,7 +272,7 @@ public class Method extends FieldMethod {
 			if (this.accProtected)
 				throw new ClassFileException("An interface method must not have the ACC_PROTECTED flag set.");
 		}
-		if (getName().equals("<init>")) {
+		if (getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME)) {
 			if (this.accAbstract)
 				throw new ClassFileException("An instance initialization method must not have the ACC_ABSTRACT flag set.");
 			if (this.accNative)

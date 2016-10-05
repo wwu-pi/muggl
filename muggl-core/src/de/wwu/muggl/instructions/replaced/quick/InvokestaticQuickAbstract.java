@@ -9,6 +9,7 @@ import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
 import de.wwu.muggl.instructions.replaced.QuickInstruction;
 import de.wwu.muggl.instructions.replaced.ReplacingInstruction;
 import de.wwu.muggl.instructions.replaced.replacer.InvokestaticReplacer;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
@@ -91,7 +92,7 @@ public abstract class InvokestaticQuickAbstract extends GeneralInstructionWithOt
 		// Get the name and the descriptor.
 		String[] nameAndType = ((ConstantMethodref) constant).getNameAndTypeInfo();
 		ClassFile methodClassFile = classLoader.getClassAsClassFile(((ConstantMethodref) constant).getClassName());
-		if (nameAndType[0].equals("<init>"))
+		if (nameAndType[0].equals(VmSymbols.OBJECT_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the initialization method.");
 

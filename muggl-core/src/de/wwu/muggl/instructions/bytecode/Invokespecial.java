@@ -5,6 +5,7 @@ import de.wwu.muggl.instructions.MethodResolutionError;
 import de.wwu.muggl.instructions.general.Invoke;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
@@ -150,7 +151,7 @@ public class Invokespecial extends Invoke implements Instruction {
 			ClassFile objectrefClassFile) throws ClassFileException, VmRuntimeException {
 		// Check if the method can be selected for invocation.
 		if (frame.getVm().getCurrentFrame().getMethod().getClassFile().isAccSuper()
-				&& !method.getName().equals("<init>")) {
+				&& !method.getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME)) {
 			// Check if the class of the resolved method is a superclass of the current class.
 			boolean isASuperClass = false;
 			methodClassFile = method.getClassFile();
@@ -212,7 +213,7 @@ public class Invokespecial extends Invoke implements Instruction {
 		 * Is it the instance initializer but the class in which it is symbolically referenced is
 		 * not the declaring class?
 		 */
-		if (method.getName().equals("<init>")
+		if (method.getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME)
 				&& !method.getClassFile().getName().equals(methodClassFile.getName()))
 			throw new VmRuntimeException(frame.getVm().generateExc(
 					"java.lang.NoSuchMethodError",

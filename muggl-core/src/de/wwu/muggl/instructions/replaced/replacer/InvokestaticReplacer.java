@@ -8,6 +8,7 @@ import de.wwu.muggl.instructions.replaced.ReplacingInstruction;
 import de.wwu.muggl.instructions.replaced.quick.InvokestaticQuickNative;
 import de.wwu.muggl.instructions.replaced.quick.InvokestaticQuickNormal;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
@@ -144,7 +145,7 @@ public class InvokestaticReplacer extends Invokestatic implements ReplacingInstr
 		int parameterCount = method.getNumberOfArguments();
 
 		// Unexpected exception: the method is an instance initialization method.
-		if (nameAndType[0].equals("<init>"))
+		if (nameAndType[0].equals(VmSymbols.OBJECT_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the initialization method.");
 

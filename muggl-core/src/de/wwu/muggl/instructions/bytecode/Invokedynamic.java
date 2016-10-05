@@ -5,6 +5,7 @@ import de.wwu.muggl.instructions.MethodResolutionError;
 import de.wwu.muggl.instructions.general.Invoke;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
@@ -57,10 +58,10 @@ public class Invokedynamic extends Invoke implements Instruction {
 	protected ClassFile checkStaticMethod(Frame frame, String[] nameAndType,
 			Method method, Object[] parameters) throws ExecutionException, VmRuntimeException {
 		// The method must be neither the instance initializer nor the static initializer.
-		if (method.getName().equals("<init>"))
+		if (method.getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the instance initialization method.");
-		if (method.getName().equals("<clinit>"))
+		if (method.getName().equals(VmSymbols.CLASS_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the class or interface initialization method.");
 
@@ -208,10 +209,10 @@ public class Invokedynamic extends Invoke implements Instruction {
 		// Get the name and the descriptor.
 		String[] nameAndType = ((ConstantInterfaceMethodref) constant).getNameAndTypeInfo();
 		ClassFile methodClassFile = classLoader.getClassAsClassFile(((ConstantInterfaceMethodref) constant).getClassName());
-		if (nameAndType[0].equals("<init>"))
+		if (nameAndType[0].equals(VmSymbols.OBJECT_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the instance initialization method.");
-		if (nameAndType[0].equals("<clinit>"))
+		if (nameAndType[0].equals(VmSymbols.CLASS_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the class or interface initialization method.");
 

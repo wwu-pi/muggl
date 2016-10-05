@@ -9,6 +9,7 @@ import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.StackToTrail;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.PopFromFrame;
 import de.wwu.muggl.symbolic.structures.Loop;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.execution.ExecutionException;
@@ -123,7 +124,7 @@ public class SymbolicFrame extends Frame {
 		 * the static initializer. It is not invoked by a invoke instruction!
 		 */
 		if (this.invokedBy != null && Options.getInst().useCFCoverage
-				&& !this.method.getName().equals("<clinit>")) {
+				&& !this.method.getName().equals(VmSymbols.CLASS_INITIALIZER_NAME)) {
 			int pc = this.invokedBy.getPc() - 3;
 			Method method = this.invokedBy.getMethod();
 			// Check if that pc points to an instruction.
