@@ -1,5 +1,9 @@
 package de.wwu.muggl.test.real.vm;
 
+import static org.junit.Assert.*;
+
+import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -45,7 +49,25 @@ public class Java8Execution {
 			throws ClassFileException, InitializationException, InterruptedException {
 
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.CountWordLength.class.getCanonicalName(), "counting", "(I)J",
-				(Object[]) new Integer[] { 2 });
+				de.wwu.muggl.binaryTestSuite.CountWordLength.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.CountWordLength.METHOD_counting,
+				MethodType.methodType(long.class, int.class), (Object[]) new Integer[] { 2 });
+	}
+
+	/**
+	 * Test passing a String as Argument. Will be converted to Objectref from StringCache by MethodRunnerHelper
+	 * 
+	 * @throws ClassFileException
+	 * @throws InitializationException
+	 * @throws InterruptedException
+	 */
+	@Test
+	public final void testApplicationPassStringObjectref()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(11,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.CountWordLength.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.CountWordLength.METHOD_StringTest,
+						MethodType.methodType(int.class, String.class), (Object[]) new String[] { "es wird gut" }));
 	}
 }

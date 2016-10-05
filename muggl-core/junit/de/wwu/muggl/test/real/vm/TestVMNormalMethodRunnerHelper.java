@@ -2,6 +2,8 @@ package de.wwu.muggl.test.real.vm;
 
 import static org.junit.Assert.fail;
 
+import java.lang.invoke.MethodType;
+
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -78,6 +80,13 @@ public class TestVMNormalMethodRunnerHelper {
 		return;
 	}
 
+	public static Object runMethod(MugglClassLoader classLoader, final String classFileName, final String methodName,
+			final MethodType methodType, final Object[] args)
+			throws ClassFileException, InitializationException, InterruptedException {
+		return runMethod(classLoader, classFileName, methodName, methodType.toMethodDescriptorString(), args);
+
+	}
+
 	// FIXME mxs: take a MethodHandle for the MethodDescriptor
 	public static Object runMethod(MugglClassLoader classLoader, final String classFileName, final String methodName,
 			final String methodDescriptor, final Object[] args)
@@ -86,10 +95,22 @@ public class TestVMNormalMethodRunnerHelper {
 
 		Method method = classFile.getMethodByNameAndDescriptor(methodName, methodDescriptor);
 
-		if (args != null)
-			method.setPredefinedParameters(args);
-
 		Application application = new Application(classLoader, classFile.getName(), method);
+
+		if (args != null) {
+			Object[] modifArgs = new Object[args.length];
+			for (int i = 0; i < args.length; i++) {
+				if (args[i] instanceof String) {
+					// if any of the parameters is a string, we have to take care of wrapping them as objectrefs from
+					// the StringCache!
+					modifArgs[i] = application.getVirtualMachine().getStringCache()
+							.getStringObjectref((String) args[i]);
+				} else
+					modifArgs[i] = args[i];
+			}
+			method.setPredefinedParameters(modifArgs);
+		}
+
 		application.start();
 
 		while (!application.getExecutionFinished()) {
