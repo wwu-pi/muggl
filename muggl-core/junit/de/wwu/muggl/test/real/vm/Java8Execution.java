@@ -51,7 +51,7 @@ public class Java8Execution {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.CountWordLength.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.CountWordLength.METHOD_counting,
-				MethodType.methodType(long.class, int.class), (Object[]) new Integer[] { 2 });
+				de.wwu.muggl.binaryTestSuite.CountWordLength.METHOD_counting_sig, (Object[]) new Integer[] { 2 });
 	}
 
 	/**

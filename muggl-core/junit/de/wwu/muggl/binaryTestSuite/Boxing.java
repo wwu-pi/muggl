@@ -1,10 +1,15 @@
 package de.wwu.muggl.binaryTestSuite;
 
 public class Boxing {
+	
+	
+	// should generate a putstatic for boolean
+	private static boolean test3 = true;
 
 	private boolean testing = false;
 	private Boolean testing2 = false;
 
+	
 	public Boolean boxbooleanField(Boolean in) {
 		this.testing = in;
 		return this.testing;
@@ -23,6 +28,14 @@ public class Boxing {
 	// boolean-Boolean boxing and handling as integer
 	public boolean returnInitiatedField2() {
 		return this.testing2;
+	}
+	
+	public boolean returnInitiatedFieldRaw() {
+		return this.testing;
+	}
+	// how to work with a value you got from ireturn
+	public boolean returnInitiatedFieldWrapped() {
+		return this.returnInitiatedField2() || this.returnInitiatedField2();
 	}
 
 	public static String boxboolean() {

@@ -56,13 +56,20 @@ public class Putfield extends Put implements Instruction {
 			Object value = stack.pop();
 			Objectref objectref = (Objectref) stack.pop();
 			Field field = fetchField(frame, objectref);
-
-			// Check for assignment compatibility.
+						
+			// Check for assignment compatibility.			
 			String type = field.getType();
+			
+			// java bytecode would do a aconst_{1|0} if it wanted to putfield for a boolean
+			// so we have to simulate this if we get a boolean object. This all because booleans are treated as 0|1
+			// internally in JVM
+			if (type.equals("boolean") && value.getClass().getName().equals("java.lang.Boolean")) {
+				value = (int) (((boolean) value) ? 1 : 0);
+			}
 			ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
 			if (!ea.checkForAssignmentCompatibility(value, type, frame.getVm(), false)) {
 				// Unexpected exception: value is not assignment compatible to the expected type.
-				throw new ExecutionException("Cannot write a value that is not assignment compatible to " + type + ".");
+				throw new ExecutionException("Cannot write a value (type: " + value.getClass().getName() + ") that is not assignment compatible to " + type + ".");
 			}
 
 			// Finally assign the value.

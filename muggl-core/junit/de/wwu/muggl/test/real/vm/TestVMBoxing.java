@@ -78,7 +78,26 @@ public class TestVMBoxing {
 						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "returnInitiatedField2",
 						MethodType.methodType(boolean.class), (Object[]) new Object[] {}));
 	}
+	
+	@Test
+	public final void testBoxBooleanGetFieldWrapped()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals((boolean) false,
+				(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "returnInitiatedFieldWrapped",
+						MethodType.methodType(boolean.class), (Object[]) new Object[] {}));
+	}
+	
+	@Test
+	public final void testBoxBooleanGetFieldRaw()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals((boolean) false,
+				 TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "returnInitiatedFieldRaw",
+						MethodType.methodType(boolean.class), (Object[]) new Object[] {}));
+	}
 
+	
 	@Test
 	public final void testBugObjectReturn() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals((Integer) 2,
