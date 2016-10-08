@@ -67,18 +67,24 @@ public class IntegerInstruction extends TypedInstruction {
 	 */
 	@Override
 	protected Object truncateValue(Object value, String type) {
-		switch (type) {
-		case "java.lang.Boolean":
-			return ((Integer) value).intValue() == 1 ? Boolean.TRUE : Boolean.FALSE;
-		case "java.lang.Byte":
-			return ((Integer) value).byteValue();
-		case "java.lang.Short":
-			return ((Integer) value).shortValue();
-		case "java.lang.Character":
-			return (char) ((Integer) value).intValue();
-		default: 
-			return value;
+		// Do nothing if we're already right
+		// FIXME mxs boolean handling
+		if (!value.getClass().getName().equals(type)) {
+			switch (type) {
+			case "java.lang.Boolean":
+				return ((Integer) value).intValue() == 1 ? Boolean.TRUE : Boolean.FALSE;
+			case "java.lang.Byte":
+				return ((Integer) value).byteValue();
+			case "java.lang.Short":
+				return ((Integer) value).shortValue();
+			case "java.lang.Character":
+				return (char) ((Integer) value).intValue();
+			default:
+				return value;
+			}
 		}
+
+		return value;
 	}
 
 	/**
