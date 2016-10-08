@@ -12,6 +12,9 @@ import sun.misc.Unsafe;
 public enum MySharedSecrets {
 	THINGY, BOB;
 
+	static {
+		System.out.println("<clinit> got called!");
+	}
 	public static void getValues() {
 		MySharedSecrets[] test = SharedSecrets.getJavaLangAccess().getEnumConstantsShared(MySharedSecrets.class);
 
@@ -19,11 +22,15 @@ public enum MySharedSecrets {
 	}
 
 	// superClass needed by children of getEnumConstantsShared
-	// at  java.lang.Class.isEnum Line 12: Executing invokevirtual  0 73
+	// at java.lang.Class.isEnum Line 12: Executing invokevirtual 0 73
 	public static String getMySuperClass() {
 		return MySharedSecrets.class.getSuperclass().getName();
 	}
-	
+
+	public static String getMySuperSuperClass() {
+		return MySharedSecrets.class.getSuperclass().getSuperclass().getName();
+	}
+
 	// you will likely get a security exception if you call this.
 	// Does not matter in the test cases
 	public static void unsafer() {
@@ -35,6 +42,7 @@ public enum MySharedSecrets {
 	public static void main(String[] args) {
 		MySharedSecrets.getValues();
 		System.out.println(getMySuperClass());
+		System.out.println(getMySuperSuperClass());
 
 	}
 

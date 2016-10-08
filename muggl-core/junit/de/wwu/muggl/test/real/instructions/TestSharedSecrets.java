@@ -13,8 +13,12 @@ import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
+import de.wwu.muggl.vm.Application;
+import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
+import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.initialization.InitializationException;
+import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 /**
@@ -44,18 +48,49 @@ public class TestSharedSecrets {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
-	public final void testInvokeStaticGetValues()
+	// @Test
+	public final void testClassObjectrefSuperclass()
 			throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals("java.lang.Enum",
-				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-						de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(),
-						"getMySuperClass", MethodType.methodType(String.class).toMethodDescriptorString(), null));
+		ClassFile classFile = classLoader.getClassAsClassFile(
+				de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(), true);
+
+		Method method = classFile.getMethodByNameAndDescriptor("<clinit>",
+				MethodType.methodType(void.class).toMethodDescriptorString());
+
+		Application application = new Application(classLoader, classFile.getName(), method);
+
+		application.start();
+
+		while (!application.getExecutionFinished()) {
+			Thread.sleep(Globals.SAFETY_SLEEP_DELAY);
+		}
+
+		Objectref objectref;
+		objectref = application.getVirtualMachine().getAnObjectref(classFile);
 
 	}
 
-//	@Test
+	@Test
 	public final void testGetSuperclass() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("java.lang.Enum",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(),
+						"getMySuperClass", MethodType.methodType(String.class), null));
+
+	}
+
+	@Test
+	public final void testgetSuperSuperclass()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("java.lang.Object",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(),
+						"getMySuperSuperClass", MethodType.methodType(String.class), null));
+
+	}
+
+	@Test
+	public final void testGetValues() throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(), "getValues");
 
