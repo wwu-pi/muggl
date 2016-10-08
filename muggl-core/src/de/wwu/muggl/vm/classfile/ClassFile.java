@@ -15,6 +15,7 @@ import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.FieldResolutionError;
 import de.wwu.muggl.instructions.MethodResolutionError;
 import de.wwu.muggl.vm.VirtualMachine;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.structures.Attribute;
 import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.Field;
@@ -1458,7 +1459,7 @@ public class ClassFile {
 	 */
 	public Method getClinitMethod() {
 		for (int a = 0; a < this.methodsCount; a++) {
-			if (this.methods[a].getName().equals("<clinit>")) return this.methods[a];
+			if (this.methods[a].getName().equals(VmSymbols.CLASS_INITIALIZER_NAME)) return this.methods[a];
 		}
 		throw new MethodResolutionError("Method clinit could not be resolved for class "
 				+ getName() + ".");

@@ -465,6 +465,27 @@ public class MugglToJavaConversion {
 				}
 			}
 
+			// when this is a reference via reflection, you might get primitive names instead of Classes
+			// try to mitigate here
+			switch (name) {
+			case "float":
+				name = "java.lang.Float";
+			case "double":
+				name = "java.lang.Double";
+			case "int":
+				name = "java.lang.Integer";
+			case "boolean":
+				name = "java.lang.Boolean";
+			case "byte":
+				name = "java.lang.Byte";
+			case "char":
+				name = "java.lang.Character";
+			case "short":
+				name = "java.lang.Short";
+			case "long":
+				name = "java.lang.Long";
+			}
+
 			// Get the appropriate Class instance for that String.
 			try {
 				object = Class.forName(name);

@@ -1,5 +1,7 @@
 package de.wwu.muggl.test.real.vm;
 
+import static org.junit.Assert.*;
+
 import java.lang.invoke.MethodType;
 
 import org.apache.log4j.Level;
@@ -24,7 +26,7 @@ public class GetThreadProperties {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.TRACE);
+		Globals.getInst().changeLogLevel(Level.WARN);
 		Globals.getInst().parserLogger.setLevel(Level.WARN);
 	}
 
@@ -43,18 +45,20 @@ public class GetThreadProperties {
 
 	@Test
 	public final void testGetThread() throws ClassFileException, InitializationException, InterruptedException {
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.GetCurrentThread.class.getCanonicalName(),
-				de.wwu.muggl.binaryTestSuite.GetCurrentThread.METHOD_getThread,
-				MethodType.methodType(String.class).toMethodDescriptorString(), null);
+		assertEquals("main",
+				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.GetCurrentThread.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.GetCurrentThread.METHOD_getThread,
+						MethodType.methodType(String.class), null));
 	}
 
-	// @Test
+	@Test
 	public final void testGetThreadGroup() throws ClassFileException, InitializationException, InterruptedException {
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.GetCurrentThread.class.getCanonicalName(),
-				de.wwu.muggl.binaryTestSuite.GetCurrentThread.METHOD_getThreadGroup,
-				MethodType.methodType(String.class).toMethodDescriptorString(), null);
+		assertEquals("main",
+				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.GetCurrentThread.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.GetCurrentThread.METHOD_getThreadGroup,
+						MethodType.methodType(String.class), null));
 	}
 
 }

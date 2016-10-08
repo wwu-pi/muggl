@@ -7,6 +7,7 @@ import java.util.Stack;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.FieldResolutionError;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
@@ -150,7 +151,7 @@ public class NativeWrapper {
 				Object object = null;
 
 				// Now distinguish between the kind of method.
-				if (methodName.equals("<clinit>")) {
+				if (methodName.equals(VmSymbols.CLASS_INITIALIZER_NAME)) {
 					/*
 					 * The static initializer cannot be fetched with getDeclaredMethod(). Just get an instance of the
 					 * class instead, of course using reflection. Encountering an invocation of the static initializer
@@ -158,7 +159,7 @@ public class NativeWrapper {
 					 * though.
 					 */
 					object = methodClass.newInstance();
-				} else if (methodName.equals("<init>")) {
+				} else if (methodName.equals(VmSymbols.OBJECT_INITIALIZER_NAME)) {
 					/*
 					 * The instance initializer cannot be fetched with getDeclaredMethod(). Find the suiting constructor
 					 * by using reflection and use it for initialization.
@@ -192,8 +193,12 @@ public class NativeWrapper {
 							|| returnType.equals("float") || returnType.equals("long"))
 						isPrimitive = true;
 
+					if(returnType.equals("java.lang.Thread")){
+						object = conversion.toMuggl(object);
+					} else {
 					// Convert if necessary.
 					object = conversion.toMuggl(object, isPrimitive);
+					}
 
 					// Finally push it.
 					stack.push(object);
@@ -401,7 +406,17 @@ public class NativeWrapper {
 			// TODO monitor implementation of notifyAll
 			// consider that done, baby!
 			return true;
-		}
+		} else if (methodClassFile.getName().equals(java.lang.Thread.class.getCanonicalName()) && method.getName().equals("currentThread")) {
+			if (frame.getVm() != Thread.currentThread()) {
+				throw new UnsupportedOperationException("Muggl should only have one Thread...");
+			} else {
+				frame.getOperandStack().push(frame.getVm().get_threadObj());
+				return true;
+			}
+		} 
+//		else if (methodClassFile.getName().equals("java.lang.Class") && method.getName().equals("getSuperclass")) {
+//			invokingObjectref
+//		}
 
 		// Arriving here means no special handling was possible.
 		return false;

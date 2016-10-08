@@ -4,4 +4,7 @@ package de.wwu.muggl.vm;
 public class VmSymbols {
 	public static final String OBJECT_INITIALIZER_NAME = "<init>";
 	public static final String CLASS_INITIALIZER_NAME = "<clinit>";
+
+	public static final String PRIORITY_NAME = "priority";
+	public static final String THREADSTATUS_NAME = "threadStatus";
 }

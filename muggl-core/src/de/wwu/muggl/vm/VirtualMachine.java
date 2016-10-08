@@ -2,8 +2,10 @@ package de.wwu.muggl.vm;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.Stack;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.log4j.Level;
@@ -13,18 +15,24 @@ import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.MethodResolutionError;
 import de.wwu.muggl.instructions.interfaces.Instruction;
+import de.wwu.muggl.vm.JavaClasses.java_lang_thread;
 import de.wwu.muggl.vm.classfile.ClassFile;
+import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.Limitations;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
+import de.wwu.muggl.vm.classfile.structures.constants.ConstantClass;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.MugglToJavaConversion;
+import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.Objectref;
+import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.initialization.ThrowableGenerator;
 import de.wwu.muggl.vm.initialization.strings.StringCache;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -131,6 +139,18 @@ public abstract class VirtualMachine extends Thread {
 	 * The number of instructions executed.
 	 */
 	protected long executedInstructions;
+	
+	/**
+	 * The Main Thread Group. Openjdk stores this in Universe.
+	 */
+	private Objectref main_thread_group = null;
+	private Objectref system_thread_group = null;
+	
+	/**
+	 * Handle the VM's thread as the "main"-thread's "OS"-container
+	 */
+	private Objectref threadObj = null;
+
 
 	/**
 	 * Basic Constructor. Beside setting the specified parameters as local values and setting some
@@ -183,21 +203,9 @@ public abstract class VirtualMachine extends Thread {
 	public void run() {
 		Globals.getInst().execLogger.info("Starting a virtual machine (thread #" + this.getId() + ")");
 		try {
-			{
-				// FIXME mxs: is this the right place for init?
-				ClassFile initClassF = this.classLoader.getClassAsClassFile("java.lang.System");
-				Method initMethod = initClassF.getMethodByNameAndDescriptor("initializeSystemClass", "()V");
-				// method is static - no parameters
-				Object[] arguments = new Object[0];
-				createAndPushFrame(null, initMethod, arguments);
-				Frame systemStartupFrame = (Frame) this.stack.peek();
-				systemStartupFrame.setHiddenFrame(true);
-				Boolean stepByStep = this.stepByStepMode;
-				this.stepByStepMode = false;
-				runMainLoop(systemStartupFrame);
-				this.stepByStepMode = stepByStep;
-				Globals.getInst().execLogger.debug("Terminated java.lang.System.initializeSystemClass()");
-			}
+			setUpThreads();
+			
+			Globals.getInst().execLogger.debug("Terminated VM initialization. Loading initMethod and initial Frame");
 			// Preparations for the initial frame.
 			Object[] predefinedParameters = this.initialMethod.getPredefinedParameters();
 			Object[] arguments = null;
@@ -240,8 +248,20 @@ public abstract class VirtualMachine extends Thread {
 			createAndPushFrame(null, this.initialMethod, arguments);
 			Frame visualStartingFrame = (Frame) this.stack.peek();
 
+			// class initialization nedded?, so you can conveniently call instance methods from MugglGUI and tests
+//			if (!this.initialMethod.getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME) && !this.initialMethod.isAccStatic()) {			
+//				try {
+//					createAndPushFrame(null, this.classFile.getMethodByNameAndDescriptor(VmSymbols.OBJECT_INITIALIZER_NAME, "()V"), new Object[]{arguments[0]});
+//					
+//					if (Globals.getInst().execLogger.isDebugEnabled()) Globals.getInst().execLogger.debug("A class initializer (<init>-method) has been found for class " + this.classFile.getName() + ". It will be executed next.");
+//				} catch (MethodResolutionError e) {
+//					// This exception is expected, it just symbolizes there is no static initializer for this class.
+//					if (Globals.getInst().execLogger.isDebugEnabled()) Globals.getInst().execLogger.debug("There is no class initializer (<init>-method) for class " + this.classFile.getName() + ". Execution will start with method " + this.initialMethod.getName() + ".");
+//				}
+//			}
+
 			// Is there a static initializer for this class? If yes, it has to be pushed as a Frame either. Of course, do not do this if the method to be executed first is the static initializer itself.
-			if (!this.initialMethod.getName().equals("<clinit>")) {
+			if (!this.initialMethod.getName().equals(VmSymbols.CLASS_INITIALIZER_NAME)) {
 				try {
 					createAndPushFrame(null, this.classFile.getClinitMethod(), null);
 					if (Globals.getInst().execLogger.isDebugEnabled()) Globals.getInst().execLogger.debug("A static initializer (<clinit>-method) has been found for class " + this.classFile.getName() + ". It will be executed first.");
@@ -250,6 +270,7 @@ public abstract class VirtualMachine extends Thread {
 					if (Globals.getInst().execLogger.isDebugEnabled()) Globals.getInst().execLogger.debug("There is no static initializer (<clinit>-method) for class " + this.classFile.getName() + ". Execution will start with method " + this.initialMethod.getName() + ".");
 				}
 			}
+						
 			// Notify the Application.
 			this.application.newVMHasBeenInitialized();
 			// Start the execution
@@ -375,6 +396,224 @@ public abstract class VirtualMachine extends Thread {
 	}
 
 	/**
+	 * Set up the system thread group and threads. Copied over from openjdk/hotspot/src/share/vm/runtime/thread.cpp
+	 * 
+	 * This is quasi Threads::create_vm
+	 * 
+	 * @throws InterruptedException
+	 * @throws InvalidInstructionInitialisationException
+	 * @throws ExecutionException
+	 * @throws ClassFileException
+	 */
+	private void setUpThreads() throws ClassFileException, ExecutionException,
+			InvalidInstructionInitialisationException, InterruptedException {
+
+		// here you are at openjdk/hotspot/src/share/vm/runtime/thread.cpp:3497
+		// this is a nearly literal translation, respect GPL !
+
+		// instead of using our vmSybols Literals, we can refer to the class from the RuntimeClassLib
+		initialize_class(java.lang.String.class.getCanonicalName());
+
+		// Initialize java_lang.System (needed before creating the thread)
+		initialize_class(java.lang.System.class.getCanonicalName());
+		initialize_class(java.lang.ThreadGroup.class.getCanonicalName());
+
+		Objectref thread_group = create_initial_thread_group();
+
+		this.main_thread_group = thread_group;
+
+		initialize_class(java.lang.Thread.class.getCanonicalName());
+
+		Objectref thread_object = create_initial_thread(thread_group);
+		// really superflous, did that in create_initial_thread
+		// main_thread->set_threadObj(thread_object);
+		// Set thread status to running since main thread has
+		// been started and running.
+		java_lang_thread.set_thread_status(thread_object, java.lang.Thread.State.RUNNABLE);
+
+		// // The VM creates & returns objects of this class. Make sure it's initialized.
+		initialize_class(java.lang.Class.class.getCanonicalName());
+		//
+		// // The VM preresolves methods to these classes. Make sure that they get initialized
+		initialize_class(java.lang.reflect.Method.class.getCanonicalName());
+		initialize_class("java.lang.ref.Finalizer"); // java.lang.ref.Finalizer.class.getCanonicalName() does not work
+														// because its not visible
+		call_initializeSystemClass();
+
+		// // get the Java runtime name after java.lang.System is initialized
+		// JDK_Version::set_runtime_name(get_java_runtime_name(THREAD));
+		// JDK_Version::set_runtime_version(get_java_runtime_version(THREAD));
+		//
+		// an instance of OutOfMemory exception has been allocated earlier
+		// FIXME mxs: shall we initialize exceptions at boot?
+		// initialize_class(vmSymbols::java_lang_OutOfMemoryError(), CHECK_0);
+		// initialize_class(vmSymbols::java_lang_NullPointerException(), CHECK_0);
+		// initialize_class(vmSymbols::java_lang_ClassCastException(), CHECK_0);
+		// initialize_class(vmSymbols::java_lang_ArrayStoreException(), CHECK_0);
+		// initialize_class(vmSymbols::java_lang_ArithmeticException(), CHECK_0);
+		// initialize_class(vmSymbols::java_lang_StackOverflowError(), CHECK_0);
+		// initialize_class(vmSymbols::java_lang_IllegalMonitorStateException(), CHECK_0);
+		// initialize_class(vmSymbols::java_lang_IllegalArgumentException(), CHECK_0);
+		//
+	}
+
+	/**
+	 * Set up the system and main Thread-Group. equivalent source file is openjdk/jdk/share/native/java/lang/thread.cpp
+	 * 
+	 * @return
+	 * @throws ClassFileException
+	 * @throws ExecutionException
+	 * @throws InvalidInstructionInitialisationException
+	 * @throws InterruptedException
+	 */
+	private Objectref create_initial_thread_group() throws ClassFileException, ExecutionException,
+			InvalidInstructionInitialisationException, InterruptedException {
+		ClassFile initClassF = this.classLoader.getClassAsClassFile(java.lang.ThreadGroup.class.getCanonicalName());
+		initClassF.getTheInitializedClass(this);
+		Objectref system_instance = this.getAnObjectref(initClassF);
+
+		java_call_special(system_instance, initClassF, VmSymbols.OBJECT_INITIALIZER_NAME,
+				MethodType.methodType(void.class));
+		this.system_thread_group = system_instance;
+
+		Objectref main_instance = this.getAnObjectref(initClassF);
+		Objectref name = this.getStringCache().getStringObjectref("main");
+
+		java_call_special(main_instance, initClassF, VmSymbols.OBJECT_INITIALIZER_NAME,
+				MethodType.methodType(void.class, ThreadGroup.class, String.class), system_instance, name);
+
+		return main_instance;
+	}
+
+	/**
+	 * Creates the Java Object for the main thread. On "OS"-layer, this is the main thread.
+	 * 
+	 * @param thread_group
+	 * @return
+	 * @throws ClassFileException
+	 * @throws InterruptedException
+	 * @throws InvalidInstructionInitialisationException
+	 * @throws ExecutionException
+	 */
+	private Objectref create_initial_thread(Objectref thread_group) throws ClassFileException, ExecutionException,
+			InvalidInstructionInitialisationException, InterruptedException {
+		// openjdk/hotspot/src/share/vm/runtime/os.hpp: NormPriority = 5,
+		// Normal (non-daemon) priority
+		final int NORM_PRIORITY = 5;
+		ClassFile initClassF = this.classLoader.getClassAsClassFile(java.lang.Thread.class.getCanonicalName());
+		initClassF.getTheInitializedClass(this);
+		Objectref thread_objref = this.getAnObjectref(initClassF);
+
+		java_lang_thread.set_thread(thread_objref, Thread.currentThread());
+
+		java_lang_thread.set_priority(thread_objref, NORM_PRIORITY);
+
+		this.threadObj = thread_objref;
+
+		Objectref name = this.getStringCache().getStringObjectref("main");
+
+		java_call_special(thread_objref, initClassF, VmSymbols.OBJECT_INITIALIZER_NAME,
+				MethodType.methodType(void.class, ThreadGroup.class, String.class), thread_group, name);
+
+		return thread_objref;
+	}
+
+	private void call_initializeSystemClass() throws ClassFileException, ExecutionException,
+			InvalidInstructionInitialisationException, InterruptedException {
+
+		ClassFile initClassF = this.classLoader.getClassAsClassFile("java.lang.System");
+		Method initMethod = initClassF.getMethodByNameAndDescriptor("initializeSystemClass", MethodType.methodType(void.class).toMethodDescriptorString());
+		// method is static - no parameters
+		Object[] arguments = new Object[0];
+				
+		Frame systemStartupFrame = createFrame(null, initMethod, arguments);
+		this.stack.push(systemStartupFrame);
+		systemStartupFrame.setHiddenFrame(true);
+		Boolean stepByStep = this.stepByStepMode;
+		this.stepByStepMode = false;
+		runMainLoop(systemStartupFrame);
+		this.stepByStepMode = stepByStep;
+		Globals.getInst().execLogger.debug("test");
+
+	}
+
+	/**
+	 * Call a java method on an objectref Contract for this method is caller knows what he does, so passing on every
+	 * exception
+	 * 
+	 * @param objectref
+	 * @param klass
+	 * @param methodName
+	 * @throws ExecutionException
+	 * @throws InvalidInstructionInitialisationException
+	 * @throws InterruptedException
+	 */
+	private void java_call_special(Objectref objectref, ClassFile klass, String methodName, MethodType methodType)
+			throws ExecutionException, InvalidInstructionInitialisationException, InterruptedException {
+		Method initMethod = klass.getMethodByNameAndDescriptorOrNull(methodName, MethodType.methodType(void.class));
+
+		Object[] arguments = new Object[1];
+		arguments[0] = objectref;
+		Frame systemStartupFrame = createFrame(null, initMethod, arguments);
+		this.stack.push(systemStartupFrame);
+		systemStartupFrame.setHiddenFrame(true);
+		Boolean stepByStep = this.stepByStepMode;
+		this.stepByStepMode = false;
+		runMainLoop(systemStartupFrame);
+		this.stepByStepMode = stepByStep;
+	}
+
+	// FIXME mxs: silly but quick copy
+	private void java_call_special(Objectref objectref, ClassFile klass, String methodName, MethodType methodType,
+			Objectref arg1) throws ExecutionException, InvalidInstructionInitialisationException, InterruptedException {
+		Method initMethod = klass.getMethodByNameAndDescriptorOrNull(methodName, methodType);
+
+		Object[] arguments = new Object[2];
+		arguments[0] = objectref;
+		arguments[1] = arg1;
+		Frame systemStartupFrame = createFrame(null, initMethod, arguments);
+		systemStartupFrame.setHiddenFrame(true);
+		this.stack.push(systemStartupFrame);
+		Boolean stepByStep = this.stepByStepMode;
+		this.stepByStepMode = false;
+		runMainLoop(systemStartupFrame);
+		this.stepByStepMode = stepByStep;
+	}
+
+	// FIXME mxs: silly but quick copy
+	private void java_call_special(Objectref objectref, ClassFile klass, String methodName, MethodType methodType,
+			Objectref arg1, Objectref arg2)
+			throws ExecutionException, InvalidInstructionInitialisationException, InterruptedException {
+		Method initMethod = klass.getMethodByNameAndDescriptorOrNull(methodName, methodType);
+
+		Object[] arguments = new Object[3];
+		arguments[0] = objectref;
+		arguments[1] = arg1;
+		arguments[2] = arg2;
+		Frame systemStartupFrame = createFrame(null, initMethod, arguments);
+		this.stack.push(systemStartupFrame);
+		systemStartupFrame.setHiddenFrame(true);
+		Boolean stepByStep = this.stepByStepMode;
+		this.stepByStepMode = false;
+		runMainLoop(systemStartupFrame);
+		this.stepByStepMode = stepByStep;
+	}
+
+	// thread.cpp
+	private void initialize_class(String class_name) {
+		ClassFile initClassF;
+		try {
+			initClassF = this.classLoader.getClassAsClassFile(class_name);
+			initClassF.getTheInitializedClass(this);
+
+		} catch (ClassFileException e) {
+			// catch is pretty silly, we should know which classes we wont to initialize...
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
 	 * While the virtual machine stack is not empty, objects are popped from it. If the proper
 	 * object is a frame, it is executed. If not, it has to be a returned object from a method. If
 	 * the stack is not empty, the next element has to be a frame and it is popped off it; then the
@@ -431,7 +670,7 @@ public abstract class VirtualMachine extends Thread {
 				if (!frame.isHiddenFrame() && Globals.getInst()
 						.logBasedOnWhiteBlacklist(frame.getMethod().getPackageAndName()).orElse(true))
 					Globals.getInst().execLogger.trace("Continuing operation with the next frame ("
-							+ frame.getMethod().getPackageAndName() + ").");
+							+ frame.getMethod().getPackageAndName() + "(" + frame.getMethod().getParameterTypesAndNames() + ")).");
 			}
 
 			// Enable stepping once the frame of the initially invoked method is reached.
@@ -463,9 +702,11 @@ public abstract class VirtualMachine extends Thread {
 		
 		if (!this.currentFrame.isHiddenFrame()
 				&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
-			Globals.getInst().executionInstructionLogger
-					.debug(method.getPackageAndName() + " (op: " + this.currentFrame.getOperandStack() + ", localvar: "
-							+ this.currentFrame.getLocalVariables() + " pc: " + this.pc + ")");
+			Globals.getInst().executionInstructionLogger.debug(
+					method.getFullNameWithParameterTypesAndNames() + " (op: " + this.currentFrame.getOperandStack()
+							+ ", localvar: [" + Arrays.stream(this.currentFrame.getLocalVariables())
+									.map(x -> x.toString()).collect(Collectors.joining(", "))
+							+ "] pc: " + this.pc + ")");
 
 		Instruction[] instructions = method.getInstructionsAndOtherBytes();
 		this.currentFrame.setActive(true);
@@ -877,7 +1118,7 @@ public abstract class VirtualMachine extends Thread {
 	public void executeTheCurrentFrameForClassInitialization(Method method) {
 		try {
 			// Method allowed?
-			if (!method.getName().equals("<clinit>")) throw new ExceptionInInitializerError("Only a method with signature <clinit> might be used for class initialization.");
+			if (!method.getName().equals(VmSymbols.CLASS_INITIALIZER_NAME)) throw new ExceptionInInitializerError("Only a method with signature <clinit> might be used for class initialization.");
 
 			Boolean parentFrameIsHidden = currentFrame.isHiddenFrame();
 			if (!currentFrame.isHiddenFrame()
@@ -925,6 +1166,8 @@ public abstract class VirtualMachine extends Thread {
 
 				if (!frame.getMethod().equals(method) && !frame.isHiddenFrame() && Globals.getInst()
 						.logBasedOnWhiteBlacklist(frame.getMethod().getPackageAndName()).orElse(true))
+					// if getParameterTypesAndNames outputs parameters null, it might also be that we're only re-entering a frame
+					// and parameter resolution isn't accurate
 					Globals.getInst().execLogger.trace("Continuing operation with the next frame ("
 							+ frame.getMethod().getPackageAndName() + "). Invoked by the static initializer of "
 							+ method.getClassFile().getName() + ".");
@@ -1104,4 +1347,11 @@ public abstract class VirtualMachine extends Thread {
 		return initializedClass.getANewInstance();
 	}
 
+	/**
+	 * Return the (muggl-java) objectref of the thread object belonging to this thread.
+	 * @return
+	 */
+	public Objectref get_threadObj() {
+		return this.threadObj;
+	}
 }
