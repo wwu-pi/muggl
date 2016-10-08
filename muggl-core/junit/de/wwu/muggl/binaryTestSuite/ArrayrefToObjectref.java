@@ -1,5 +1,8 @@
 package de.wwu.muggl.binaryTestSuite;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ArrayrefToObjectref {
 
 	public final static String METHOD_testObjectref = "testObjectref";
@@ -35,7 +38,31 @@ public class ArrayrefToObjectref {
 		return array[3];
 	}
 
+	public final static String METHOD_testIntegerPutByteArray2 = "testIntegerPutByteArray2";
+
+	// half a boxing issue, half array - put
+	public static int testIntegerPutByteArray2() {
+		Byte[] array = new Byte[5];
+		array[3] = 2 + 4;
+		return array[3];
+	}
+
+	public final static String METHOD_ArrayRefObjectrefBoolean = "ArrayRefObjectrefBoolean";
+
+	public static boolean ArrayRefObjectrefBoolean() {
+		List<Boolean> list1 = new ArrayList<>();
+		list1.add(true);
+
+		if (list1.get(0)) {
+			return true;
+		}
+		return false;
+	}
+
 	public static void main(String[] args) {
 		System.out.println(testIntegerPutByteArray());
+		System.out.println(testIntegerPutByteArray2());
+		System.out.println(testObjectref());
+		System.out.println(testObjectref2());
 	}
 }
