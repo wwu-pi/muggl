@@ -44,6 +44,31 @@ public class InstructionsType {
 		return (byte1 == 0) ? true : false;
 	}
 
+	public final static String METHOD_byteStoreField = "byteStoreField";
+	private static byte testing;
+
+	// test storing int (internal representation) in byte field
+	public static boolean byteStoreField() {
+		testing = 1;
+		return (testing == 0) ? true : false;
+	}
+
+	public final static String METHOD_booleanInternalInt = "booleanInternalInt";
+
+	// test if boolean type information gets lost after ireturn, iloads, and auto-boxing
+	public static boolean booleanInternalInt() {
+		Boolean mBoolean = false;
+		return booleanTestingFunction(booleanReturnFunction(mBoolean));
+	}
+
+	private static boolean booleanTestingFunction(boolean booleanReturnFunction) {
+		return !booleanReturnFunction;
+	}
+
+	private static boolean booleanReturnFunction(Boolean mBoolean) {
+		return !mBoolean;
+	}
+
 	public static void main(String[] args) {
 		System.out.println(byte_imul());
 		System.out.println(char_iinc());

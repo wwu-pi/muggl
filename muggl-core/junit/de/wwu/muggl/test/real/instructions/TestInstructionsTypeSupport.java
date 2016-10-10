@@ -94,5 +94,27 @@ public class TestInstructionsTypeSupport {
 				MethodType.methodType(boolean.class).toMethodDescriptorString(), null));
 
 	}
+	
+	@Test
+	public final void test_byteStoreField() throws ClassFileException, InitializationException,
+			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
+
+		assertTrue(!(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.InstructionsType.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.InstructionsType.METHOD_byteStoreField,
+				MethodType.methodType(boolean.class).toMethodDescriptorString(), null));
+
+	}
+	
+	@Test
+	public final void testbooleanInternalInt() throws ClassFileException, InitializationException, InterruptedException,
+			InvalidInstructionInitialisationException, ConversionException {
+
+		assertTrue(!(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.InstructionsType.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.InstructionsType.METHOD_booleanInternalInt,
+				MethodType.methodType(boolean.class).toMethodDescriptorString(), null));
+
+	}
 
 }
