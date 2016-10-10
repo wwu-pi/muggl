@@ -28,6 +28,13 @@ public interface ReferenceValue {
 	 * @return The name of this reference value.
 	 */
 	String getName();
+	
+	/**
+	 * Same as getName, but will return the primitive name if it is a primitive:
+	 * e.g. [[I
+	 * @return
+	 */
+	String getSignature();
 
 	/**
 	 * Getter for the corresponding InitializedClass.

@@ -4,7 +4,9 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
+import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantClass;
 import de.wwu.muggl.vm.exceptions.ExceptionHandler;
@@ -15,6 +17,8 @@ import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
+import de.wwu.muggl.vm.initialization.PrimitiveWrappingImpossibleException;
+import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Term;
 
@@ -113,8 +117,18 @@ public class Anewarray extends de.wwu.muggl.instructions.general.ObjectInitializ
 		String className = ((ConstantClass) frame.getConstantPool()[this.otherBytes[0] << ONE_BYTE
 				| this.otherBytes[1]]).getValue();
 		ClassFile c;
+		ReferenceValue referenceValue = null;
 		try {
-			c = resolution.resolveClassAsClassFile(frame.getMethod().getClassFile(), className);
+			// anewarray might also be used to generate the topmost layer for multi-dimensional primitive arrays.
+			// The topmost reference should then be a primitive wrapper!
+			if (className.replace("[", "").length() == 1) {
+				referenceValue = frame.getVm().getClassLoader()
+						.getClassAsClassFile(VmSymbols.PrimitiveStr2ClassStr(className.replace("[", "")))
+						.getAPrimitiveWrapperObjectref(frame.getVm());
+			} else {
+				c = resolution.resolveClassAsClassFile(frame.getMethod().getClassFile(), className);
+				referenceValue = frame.getVm().getAnObjectref(c);
+			}
 		} catch (NoClassDefFoundError e) {
 			// The class could not be found.
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", e.getMessage()));
@@ -124,11 +138,15 @@ public class Anewarray extends de.wwu.muggl.instructions.general.ObjectInitializ
 			 *  class generating the new array.
 			 */
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.IllegalAccessError", e.getMessage()));
+		} catch (PrimitiveWrappingImpossibleException e) {
+			e.printStackTrace();
+		} catch (ClassFileException e) {
+			e.printStackTrace();
 		}
 
 		try {
 			// Generate the array.
-			Arrayref arrayref = new Arrayref(frame.getVm().getAnObjectref(c), count);
+			Arrayref arrayref = new Arrayref(referenceValue, count);
 
 			// Push the new array.
 			frame.getOperandStack().push(arrayref);

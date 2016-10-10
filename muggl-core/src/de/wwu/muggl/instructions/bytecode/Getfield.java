@@ -92,7 +92,7 @@ public class Getfield extends Get implements Instruction {
 	 * @throws VmRuntimeException If the Field could not be found, wrapping a NoSuchFieldError.
 	 */
 	private Object getFieldValue(Frame frame) throws ExecutionException, VmRuntimeException {
-		// Preparations.
+		// Preparations. Per spec, the type of objectref must not be an array type!
 		Objectref objectref = (Objectref) frame.getOperandStack().pop();
 		ClassFile methodClassFile = frame.getMethod().getClassFile();
 		Field field = getField(frame, methodClassFile, methodClassFile.getClassLoader());

@@ -139,12 +139,27 @@ public class Arrayref implements Cloneable, ReferenceValue {
 			// Skip the check!
 			// TODO
 		} else if (this.referenceValue.isPrimitive() && !(element instanceof ReferenceValue)) {
-			if (!this.referenceValue.getInitializedClass().getClassFile().getName().equals(element.getClass().getName()))
-				throw new ArrayStoreException(element.getClass().getName() + " is not assignment compatible with a primitive wrapper provided by " + this.getName() + ".");
+			String srcClass = element.getClass().getName();
+			String targetClass = this.referenceValue.getInitializedClass().getClassFile().getName();
+			if (!targetClass.equals(srcClass)) {
+				// it is legal to store ints (from the stack, see baload/bastore in byte and booleans
+				if (srcClass.equals("java.lang.Integer")) {
+					if (targetClass.equals("java.lang.Byte")) {
+						element = ((Integer) element).byteValue();
+					} else if (targetClass.equals("java.lang.Boolean")) {
+						element = (((Integer) element) == 0) ? false : true;
+					}
+				}
+			}
+
+			if (!this.referenceValue.getInitializedClass().getClassFile().getName()
+					.equals(element.getClass().getName()))
+				throw new ArrayStoreException(element.getClass().getName()
+						+ " is not assignment compatible with a primitive wrapper provided by " + this.getName() + ".");
 		} else {
 			// Normal assignment compatibility check.
 			if (!ea.checkForAssignmentCompatibility((ReferenceValue) element, this))
-				throw new ArrayStoreException(((ReferenceValue) element).getName() + " is not assignment compatible with " + this.getName() + ".");
+				throw new ArrayStoreException(((ReferenceValue) element).getName() + " 1is not assignment compatible with " + this.getName() + ".");
 		}
 		this.elements[index] = element;
 	}
@@ -271,5 +286,30 @@ public class Arrayref implements Cloneable, ReferenceValue {
 		dimensions[0] = this.length;
 		return dimensions;
 	}
+	
+	/**
+	 * Return the Signature in the form of [[I and respect primitive types
+	 * @return
+	 */
+	public String getSignature() {
+		int levels = 1; // we have at minimum one level. Useless otherways
+		Object[] elementes = this.elements;
+		if (elementes != null) {
+			for (int i = 0; i < elementes.length; i++) {
+				if (elementes[i] instanceof Arrayref) {
+					levels++;
+					elementes = ((Arrayref) elementes[i]).elements;
+				}
+			}
+		}
+		String levelsBrackets = "";
+		for (int i = 0; i < levels; i++) {
+			levelsBrackets += "[";
+		}
+
+		return levelsBrackets + this.referenceValue.getSignature();
+	}
+	
+	
 
 }

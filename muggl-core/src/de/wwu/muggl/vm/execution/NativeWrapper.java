@@ -9,12 +9,14 @@ import de.wwu.muggl.instructions.FieldResolutionError;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
+import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
+import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 
 /**
@@ -67,7 +69,7 @@ public class NativeWrapper {
 			Frame frame,
 			Method method,
 			ClassFile methodClassFile,
-			Objectref invokingObjectref,
+			ReferenceValue invokingObjectref,
 			Object[] parameters
 			) throws ForwardingUnsuccessfulException, VmRuntimeException {
 		Stack<Object> stack = frame.getOperandStack();
@@ -193,12 +195,10 @@ public class NativeWrapper {
 							|| returnType.equals("float") || returnType.equals("long"))
 						isPrimitive = true;
 
-					if(returnType.equals("java.lang.Thread")){
-						object = conversion.toMuggl(object);
-					} else {
+					
 					// Convert if necessary.
 					object = conversion.toMuggl(object, isPrimitive);
-					}
+					
 
 					// Finally push it.
 					stack.push(object);
@@ -288,7 +288,10 @@ public class NativeWrapper {
 	 *         of the invocation).
 	 */
 	private static boolean javaPackageSpecialHandling(Frame frame, Method method,
-			ClassFile methodClassFile, Objectref invokingObjectref, Object[] parameters) throws VmRuntimeException {
+			ClassFile methodClassFile, ReferenceValue invokingRefVal, Object[] parameters) throws VmRuntimeException {
+		Objectref invokingObjectref = null;
+		if (invokingRefVal instanceof Objectref)
+			invokingObjectref = (Objectref) invokingRefVal;
 		if (methodClassFile.getName().equals("java.lang.String") && method.getName().equals("intern")) {
 			// Provide an unique String object reference.
 			Objectref stringObjectref = frame.getVm().getStringCache().getStringObjectref(invokingObjectref);
@@ -413,10 +416,19 @@ public class NativeWrapper {
 				frame.getOperandStack().push(frame.getVm().get_threadObj());
 				return true;
 			}
+		}else if (methodClassFile.getName().equals("java.lang.Object") && method.getName().equals("getClass") && invokingRefVal instanceof Arrayref) {
+			// have to handle arrayrefs separately because upon wrapping with toJavaObject (for reflective invocation...) the information
+			// about primitive types is lost!
+			Arrayref invokingArrRef = (Arrayref) invokingRefVal;
+			try {
+				Class<?> clazz = Class.forName(invokingArrRef.getSignature());
+				MugglToJavaConversion conversion = new MugglToJavaConversion(frame.getVm());
+				frame.getOperandStack().push(conversion.toMuggl(clazz, clazz.isPrimitive()));
+				return true;
+			} catch (ClassNotFoundException | ConversionException | SecurityException e) {
+				e.printStackTrace();
+			}			
 		} 
-//		else if (methodClassFile.getName().equals("java.lang.Class") && method.getName().equals("getSuperclass")) {
-//			invokingObjectref
-//		}
 
 		// Arriving here means no special handling was possible.
 		return false;

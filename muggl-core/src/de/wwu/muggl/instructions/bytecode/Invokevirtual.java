@@ -79,10 +79,15 @@ public class Invokevirtual extends Invoke implements Instruction {
 		parameters[0] = objectref;
 
 
-		// Unexpected exception: objectref is not a constant_class.
-		//if (!(objectref instanceof Objectref)) throw new ExecutionException("Objectref must be a reference to a Class.");
-		// TODO: is the above needed here? It does not work if an arrayref is supplied, which might happen. Example: Cloning arrays.
-		
+		if (objectref instanceof Arrayref) {
+			// if we're an arrayref, most operations are on Object. They are rather not on the ElementType, e.g. for
+			// Integer Arrays
+			try {
+				return frame.getVm().getClassLoader().getClassAsClassFile("java.lang.Object");
+			} catch (ClassFileException e) {
+				e.printStackTrace();
+			}
+		}
 		// Fetch the class of objectref and return it.
 		return objectref.getInitializedClass().getClassFile();
 	}

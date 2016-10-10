@@ -3,6 +3,7 @@ package de.wwu.muggl.vm.initialization;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.threading.Monitor;
 
@@ -83,6 +84,13 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 	 */
 	public String getName() {
 		return this.staticReference.getClassFile().getName();
+	}
+	
+	public String getSignature() {
+		if (this.primitiveWrapper) {
+				return VmSymbols.ClassStr2PrimitiveStr(staticReference.getClassFile().getName());
+		} else
+			return "L" + this.staticReference.getClassFile().getName() + ";";
 	}
 
 	/**
