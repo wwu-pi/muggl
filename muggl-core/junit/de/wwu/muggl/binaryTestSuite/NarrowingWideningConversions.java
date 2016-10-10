@@ -95,8 +95,4 @@ public class NarrowingWideningConversions {
 		double test = 3.49999999999999;
 		return (short) test;
 	}
-
-	public static void main(String[] args) {
-		// FIXME mxs: develop tests for narrowing widening
-	}
 }

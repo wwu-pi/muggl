@@ -13,7 +13,7 @@ import java.util.Collection;
  */
 public class CountWordLength {
 	public final static String METHOD_counting = "counting";
-	public final static MethodType METHOD_counting_sig = MethodType.methodType(long.class, int.class);
+
 	public static long counting(int filterLength) {
 		// this internally uses a HashMap
 		// Collection<String> myList = Arrays.asList("Hello", "Java");
