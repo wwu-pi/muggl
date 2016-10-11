@@ -705,7 +705,7 @@ public abstract class VirtualMachine extends Thread {
 			Globals.getInst().executionInstructionLogger.debug(
 					method.getFullNameWithParameterTypesAndNames() + " (op: " + this.currentFrame.getOperandStack()
 							+ ", localvar: [" + Arrays.stream(this.currentFrame.getLocalVariables())
-									.map(x -> x.toString()).collect(Collectors.joining(", "))
+									.map(x -> (x == null)? "null": x.toString()).collect(Collectors.joining(", "))									
 							+ "] pc: " + this.pc + ")");
 
 		Instruction[] instructions = method.getInstructionsAndOtherBytes();

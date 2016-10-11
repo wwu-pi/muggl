@@ -1,5 +1,9 @@
 package de.wwu.muggl.test.real.vm;
 
+import static org.junit.Assert.*;
+
+import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -29,7 +33,7 @@ public class BugIntegerCacheMonitor {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		// Globals.getInst().changeLogLevel(Level.TRACE);
+		Globals.getInst().changeLogLevel(Level.WARN);
 		Globals.getInst().parserLogger.setLevel(Level.ERROR);
 	}
 
@@ -48,8 +52,11 @@ public class BugIntegerCacheMonitor {
 
 	@Test
 	public final void testIntegerEquality() throws ClassFileException, InitializationException, InterruptedException {
-		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
-				de.wwu.muggl.binaryTestSuite.invokevirtual.IntegerCache.class.getCanonicalName(), "execute");
+		assertEquals(1,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.invokevirtual.IntegerCache.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.invokevirtual.IntegerCache.METHOD_execute,
+						MethodType.methodType(int.class), new Object[0]));
 
 	}
 

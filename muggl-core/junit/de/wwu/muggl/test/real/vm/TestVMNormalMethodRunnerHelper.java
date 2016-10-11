@@ -87,7 +87,6 @@ public class TestVMNormalMethodRunnerHelper {
 
 	}
 
-	// FIXME mxs: take a MethodHandle for the MethodDescriptor
 	public static Object runMethod(MugglClassLoader classLoader, final String classFileName, final String methodName,
 			final String methodDescriptor, final Object[] args)
 			throws ClassFileException, InitializationException, InterruptedException {
