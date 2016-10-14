@@ -45,13 +45,13 @@ public class Java8Execution {
 	}
 
 	@Test
-	public final void testApplicationMugglClassLoaderStringMethod()
+	public final void testApplicationMugglExecuteCounting()
 			throws ClassFileException, InitializationException, InterruptedException {
 
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.CountWordLength.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.CountWordLength.METHOD_counting,
-				de.wwu.muggl.binaryTestSuite.CountWordLength.METHOD_counting_sig, (Object[]) new Integer[] { 2 });
+				MethodType.methodType(long.class, int.class), (Object[]) new Integer[] { 2 });
 	}
 
 	/**

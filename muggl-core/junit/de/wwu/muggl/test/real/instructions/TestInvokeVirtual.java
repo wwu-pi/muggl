@@ -48,7 +48,7 @@ public class TestInvokeVirtual {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_findStaticInvokeExact,
-				MethodType.methodType(void.class).toMethodDescriptorString(), null);
+				MethodType.methodType(void.class), null);
 
 	}
 
@@ -58,17 +58,26 @@ public class TestInvokeVirtual {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_testBoolean,
-				MethodType.methodType(void.class).toMethodDescriptorString(), null);
+				MethodType.methodType(void.class), null);
 
 	}
 
-	@Test
+	// @Test
 	public final void testApplicationMugglVMInvokeVirtualExecution2()
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_findVirtualInvokeExact,
-				MethodType.methodType(void.class).toMethodDescriptorString(), null);
+				MethodType.methodType(void.class), null);
+
+	}
+
+	@Test
+	public final void testmethodHandleArray() throws ClassFileException, InitializationException, InterruptedException {
+		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_methodHandleArray,
+				MethodType.methodType(void.class), null);
 
 	}
 
@@ -78,7 +87,7 @@ public class TestInvokeVirtual {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_testWithBootstrap,
-				MethodType.methodType(void.class).toMethodDescriptorString(), null);
+				MethodType.methodType(void.class), null);
 
 	}
 
