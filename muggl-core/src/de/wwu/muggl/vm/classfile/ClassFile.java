@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Modifier;
 
 import org.apache.log4j.Level;
 
@@ -942,82 +943,24 @@ public class ClassFile {
 		if (flags < 0)
 			throw new ClassFileException(
 					"Encountered a corrupt class file: access_flags is less than zero.");
+		
+		// see also Modifier.classModifiers()
+		int unknowns = (flags & ~(ACC_ENUM | ACC_ANNOTATION | ACC_SYNTHETIC | ACC_SUPER | ACC_ABSTRACT | ACC_INTERFACE
+				| ACC_SUPER | ACC_FINAL | ACC_PUBLIC));
+		if (unknowns != 0)
+			Globals.getInst().logger
+					.debug("Encountered and ignored flag (or flags) that are unknown for a class. Unknown flags: 0x"
+							+ Integer.toHexString(unknowns));
 
 		// Parse the flags.
-		if (flags >= ClassFile.ACC_ENUM) {
-			flags -= ClassFile.ACC_ENUM;
-			this.accEnum = true;
-		}
-		if (flags >= ClassFile.ACC_ANNOTATION) {
-			flags -= ClassFile.ACC_ANNOTATION;
-			this.accAnnotation = true;
-		}
-		if (flags >= ClassFile.ACC_SYNTHETIC) {
-			flags -= ClassFile.ACC_SYNTHETIC;
-			this.accSynthetic = true;
-		}
-		if (flags >= 0x0800) {
-			flags -= 0x0800;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger
-						.debug("Encountered and ignored a flag with value 0x0800 which is unknown for a class.");
-		}
-		if (flags >= ClassFile.ACC_ABSTRACT) {
-			flags -= ClassFile.ACC_ABSTRACT;
-			this.accAbstract = true;
-		}
-		if (flags >= ClassFile.ACC_INTERFACE) {
-			flags -= ClassFile.ACC_INTERFACE;
-			this.accInterface = true;
-		}
-		if (flags >= 0x0100) {
-			flags -= 0x0100;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger
-						.debug("Encountered and ignored a flag with value 0x0100 which is unknown for a class.");
-		}
-		if (flags >= 0x0080) {
-			flags -= 0x0080;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger
-						.debug("Encountered and ignored a flag with value 0x0080 which is unknown for a class.");
-		}
-		if (flags >= 0x0040) {
-			flags -= 0x0040;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger
-						.debug("Encountered and ignored a flag with value 0x0040 which is unknown for a class.");
-		}
-		if (flags >= ClassFile.ACC_SUPER) {
-			flags -= ClassFile.ACC_SUPER;
-			this.accSuper = true;
-		}
-		if (flags >= ClassFile.ACC_FINAL) {
-			flags -= ClassFile.ACC_FINAL;
-			this.accFinal = true;
-		}
-		if (flags >= 0x0008) {
-			flags -= 0x0008;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger
-						.debug("Encountered and ignored a flag with value 0x0008 which is unknown for a class.");
-		}
-		if (flags >= 0x0004) {
-			flags -= 0x0004;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger
-						.debug("Encountered and ignored a flag with value 0x0004 which is unknown for a class.");
-		}
-		if (flags >= 0x0002) {
-			flags -= 0x0002;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger
-						.debug("Encountered and ignored a flag with value 0x0002 which is unknown for a class.");
-		}
-		if (flags >= ClassFile.ACC_PUBLIC) {
-			flags -= ClassFile.ACC_PUBLIC;
-			this.accPublic = true;
-		}
+		this.accEnum = (flags & ACC_ENUM) != 0;
+		this.accAnnotation = (flags & ACC_ANNOTATION) != 0;
+		this.accSynthetic = (flags & ACC_SYNTHETIC) != 0;
+		this.accAbstract = (flags & ACC_ABSTRACT) != 0;
+		this.accInterface = (flags & ACC_INTERFACE) != 0;
+		this.accSuper = (flags & ACC_SUPER) != 0;
+		this.accFinal = (flags & ACC_FINAL) != 0;
+		this.accPublic = (flags & ACC_PUBLIC) != 0;
 
 		// Check the flags.
 		if (this.accInterface) {

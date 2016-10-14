@@ -106,79 +106,26 @@ public class Field extends FieldMethod {
 		int flags = this.accessFlags;
 		if (flags < 0) throw new ClassFileException("Encountered a corrupt class file: access_flags of a " + getName() + " is less than zero.");
 
+		int unknowns = (flags & ~(ClassFile.ACC_ENUM | ClassFile.ACC_SYNTHETIC | ClassFile.ACC_TRANSIENT
+				| ClassFile.ACC_VOLATILE | ClassFile.ACC_FINAL | ClassFile.ACC_STATIC | ClassFile.ACC_PROTECTED
+				| ClassFile.ACC_PRIVATE | ClassFile.ACC_PUBLIC));
+
+		if (unknowns != 0)
+			Globals.getInst().logger
+					.debug("Encountered and ignored flag (or flags) that are unknown for a field. Unknown flags: 0x"
+							+ Integer.toHexString(unknowns));
+
 		// Parse the flags.
-		if (flags >= ClassFile.ACC_ENUM) {
-			flags -= ClassFile.ACC_ENUM;
-			this.accEnum = true;
-		}
-		if (flags >= 0x2000) {
-			flags -= 0x2000;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug(
-						"Encountered and ignored a flag with value 0x2000 which is unknown for a field.");
-		}
-		if (flags >= ClassFile.ACC_SYNTHETIC) {
-			flags -= ClassFile.ACC_SYNTHETIC;
-			this.accSynthetic = true;
-		}
-		if (flags >= 0x0800) {
-			flags -= 0x0800;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug(
-						"Encountered and ignored a flag with value 0x0080 which is unknown for a field.");
-		}
-		if (flags >= 0x0400) {
-			flags -= 0x0400;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug(
-						"Encountered and ignored a flag with value 0x0400 which is unknown for a field.");
-		}
-		if (flags >= 0x0200) {
-			flags -= 0x0200;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug(
-						"Encountered and ignored a flag with value 0x0200 which is unknown for a field.");
-		}
-		if (flags >= 0x0100) {
-			flags -= 0x0100;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug(
-						"Encountered and ignored a flag with value 0x0100 which is unknown for a field.");
-		}
-		if (flags >= ClassFile.ACC_TRANSIENT) {
-			flags -= ClassFile.ACC_TRANSIENT;
-			this.accTransient = true;
-		}
-		if (flags >= ClassFile.ACC_VOLATILE) {
-			flags -= ClassFile.ACC_VOLATILE;
-			this.accVolatile = true;
-		}
-		if (flags >= 0x0020) {
-			flags -= 0x0020;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug(
-						"Encountered and ignored a flag with value 0x0020 which is unknown for a field.");
-		}
-		if (flags >= ClassFile.ACC_FINAL) {
-			flags -= ClassFile.ACC_FINAL;
-			this.accFinal = true;
-		}
-		if (flags >= ClassFile.ACC_STATIC) {
-			flags -= ClassFile.ACC_STATIC;
-			this.accStatic = true;
-		}
-		if (flags >= ClassFile.ACC_PROTECTED) {
-			flags -= ClassFile.ACC_PROTECTED;
-			this.accProtected = true;
-		}
-		if (flags >= ClassFile.ACC_PRIVATE) {
-			flags -= ClassFile.ACC_PRIVATE;
-			this.accPrivate = true;
-		}
-		if (flags >= ClassFile.ACC_PUBLIC) {
-			flags -= ClassFile.ACC_PUBLIC;
-			this.accPublic = true;
-		}
+		this.accEnum = (flags & ClassFile.ACC_ENUM) != 0;
+		this.accSynthetic = (flags & ClassFile.ACC_SYNTHETIC) != 0;
+		this.accTransient = (flags & ClassFile.ACC_TRANSIENT) != 0;
+		this.accVolatile = (flags & ClassFile.ACC_VOLATILE) != 0;
+		this.accFinal = (flags & ClassFile.ACC_FINAL) != 0;
+		this.accStatic = (flags & ClassFile.ACC_STATIC) != 0;
+		this.accProtected = (flags & ClassFile.ACC_PROTECTED) != 0;
+		this.accPrivate = (flags & ClassFile.ACC_PRIVATE) != 0;
+		this.accPublic = (flags & ClassFile.ACC_PUBLIC) != 0;
+
 
 		// Check the flags.
 		if ((this.accPublic && (this.accPrivate | this.accProtected))
@@ -238,12 +185,8 @@ public class Field extends FieldMethod {
 	@Override
 	public String getPrefix() {
 		String prefix = super.getPrefix();
-		if (this.accVolatile) {
-			prefix += "volatile ";
-		}
-		if (this.accTransient) {
-			prefix += "transient ";
-		}
+
+		// currently not in Modifier.toString(mod)
 		if (this.accEnum) {
 			prefix += "enum ";
 		}

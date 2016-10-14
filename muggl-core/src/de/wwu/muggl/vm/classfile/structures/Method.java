@@ -159,74 +159,28 @@ public class Method extends FieldMethod {
 	protected void parseAccessFlags() throws ClassFileException {
 		int flags = this.accessFlags;
 		if (flags < 0) throw new ClassFileException("Encountered a corrupt class file: access_flags of a " + getName() + " is less than zero.");
-
-		// Parse the flags.
-		if (flags >= 0x4000) {
-			flags -= 0x4000;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug(
-						"Encountered and ignored a flag with value 0x4000 which is unknown for a method.");
-		}
-		if (flags >= 0x2000) {
-			flags -= 0x2000;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug(
-						"Encountered and ignored a flag with value 0x2000 which is unknown for a method.");
-		}
-		if (flags >= ClassFile.ACC_SYNTHETIC) {
-			flags -= ClassFile.ACC_SYNTHETIC;
-			this.accSynthetic = true;
-		}
-		if (flags >= ClassFile.ACC_STRICT) {
-			flags -= ClassFile.ACC_STRICT;
-			this.accStrict = true;
-		}
-		if (flags >= ClassFile.ACC_ABSTRACT) {
-			flags -= ClassFile.ACC_ABSTRACT;
-			this.accAbstract = true;
-		}
-		if (flags >= 0x0200) {
-			flags -= 0x0200;
-			if (Globals.getInst().logger.isDebugEnabled())
-				Globals.getInst().logger.debug(
-						"Encountered and ignored a flag with value 0x0200 which is unknown for a method.");
-		}
-		if (flags >= ClassFile.ACC_NATIVE) {
-			flags -= ClassFile.ACC_NATIVE;
-			this.accNative = true;
-		}
-		if (flags >= ClassFile.ACC_VARARGS) {
-			flags -= ClassFile.ACC_VARARGS;
-			this.accVarargs = true;
-		}
-		if (flags >= ClassFile.ACC_BRIDGE) {
-			flags -= ClassFile.ACC_BRIDGE;
-			this.accBridge = true;
-		}
-		if (flags >= ClassFile.ACC_SYNCHRONIZED) {
-			flags -= ClassFile.ACC_SYNCHRONIZED;
-			this.accSynchronized = true;
-		}
-		if (flags >= ClassFile.ACC_FINAL) {
-			flags -= ClassFile.ACC_FINAL;
-			this.accFinal = true;
-		}
-		if (flags >= ClassFile.ACC_STATIC) {
-			flags -= ClassFile.ACC_STATIC;
-			this.accStatic = true;
-		}
-		if (flags >= ClassFile.ACC_PROTECTED) {
-			flags -= ClassFile.ACC_PROTECTED;
-			this.accProtected = true;
-		}
-		if (flags >= ClassFile.ACC_PRIVATE) {
-			flags -= ClassFile.ACC_PRIVATE;
-			this.accPrivate = true;
-		}
-		if (flags >= ClassFile.ACC_PUBLIC) {
-			flags -= ClassFile.ACC_PUBLIC;
-			this.accPublic = true;
-		}
+		
+		int unknowns = (flags & ~(ClassFile.ACC_SYNTHETIC | ClassFile.ACC_STRICT | ClassFile.ACC_ABSTRACT
+				| ClassFile.ACC_NATIVE | ClassFile.ACC_VARARGS | ClassFile.ACC_BRIDGE | ClassFile.ACC_SYNCHRONIZED
+				| ClassFile.ACC_FINAL | ClassFile.ACC_STATIC | ClassFile.ACC_PROTECTED | ClassFile.ACC_PRIVATE
+				| ClassFile.ACC_PUBLIC));
+		if (unknowns != 0)
+			// if you get this message, look at the bits!
+			Globals.getInst().logger
+					.debug("Encountered and ignored flag (or flags) that are unknown for a method. Unknown flags: 0x"
+							+ Integer.toHexString(unknowns));
+		this.accSynthetic = (flags & ClassFile.ACC_SYNTHETIC) != 0;
+		this.accStrict = (flags & ClassFile.ACC_STRICT) != 0;
+		this.accAbstract = (flags & ClassFile.ACC_ABSTRACT) != 0;
+		this.accNative = (flags & ClassFile.ACC_NATIVE) != 0;
+		this.accVarargs = (flags & ClassFile.ACC_VARARGS) != 0;
+		this.accBridge = (flags & ClassFile.ACC_BRIDGE) != 0;
+		this.accSynchronized = (flags & ClassFile.ACC_SYNCHRONIZED) != 0;
+		this.accFinal = (flags & ClassFile.ACC_FINAL) != 0;
+		this.accStatic = (flags & ClassFile.ACC_STATIC) != 0;
+		this.accProtected = (flags & ClassFile.ACC_PROTECTED) != 0;
+		this.accPrivate = (flags & ClassFile.ACC_PRIVATE) != 0;
+		this.accPublic = (flags & ClassFile.ACC_PUBLIC) != 0;		
 
 		// Check the flags.
 		if ((this.accPublic && (this.accPrivate | this.accProtected))
@@ -347,21 +301,7 @@ public class Method extends FieldMethod {
 	 */
 	@Override
 	public String getPrefix() {
-		String prefix = super.getPrefix();
-		if (this.accSynchronized) {
-			prefix += "synchronized ";
-		}
-		if (this.accNative) {
-			prefix += "native ";
-		}
-		if (this.accAbstract) {
-			prefix += "abstract ";
-		}
-		if (this.accStrict) {
-			prefix += "strictfp ";
-		}
-
-		return prefix;
+		return super.getPrefix();
 	}
 
 	/**

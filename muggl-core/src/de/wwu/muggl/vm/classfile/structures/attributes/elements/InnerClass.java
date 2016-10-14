@@ -2,6 +2,7 @@ package de.wwu.muggl.vm.classfile.structures.attributes.elements;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -100,34 +101,13 @@ public class InnerClass extends ClassFileStructure {
 	protected void parseAccessFlags() throws ClassFileException {
 		int flags = this.innerClassAccessFlags;
 		if (flags < 0) throw new ClassFileException("Encountered a corrupt class file: access_flags of an inner class is less than zero.");
-		if (flags >= ClassFile.ACC_ABSTRACT) {
-			flags -= ClassFile.ACC_ABSTRACT;
-			this.accAbstract = true;
-		}
-		if (flags >= ClassFile.ACC_INTERFACE) {
-			flags -= ClassFile.ACC_INTERFACE;
-			this.accInterface = true;
-		}
-		if (flags >= ClassFile.ACC_FINAL) {
-			flags -= ClassFile.ACC_FINAL;
-			this.accFinal = true;
-		}
-		if (flags >= ClassFile.ACC_STATIC) {
-			flags -= ClassFile.ACC_STATIC;
-			this.accStatic = true;
-		}
-		if (flags >= ClassFile.ACC_PROTECTED) {
-			flags -= ClassFile.ACC_PROTECTED;
-			this.accProtected = true;
-		}
-		if (flags >= ClassFile.ACC_PRIVATE) {
-			flags -= ClassFile.ACC_PRIVATE;
-			this.accPrivate = true;
-		}
-		if (flags >= ClassFile.ACC_PUBLIC) {
-			flags -= ClassFile.ACC_PUBLIC;
-			this.accPublic = true;
-		}
+		this.accAbstract = (flags & ClassFile.ACC_ABSTRACT) != 0;
+		this.accInterface = (flags & ClassFile.ACC_INTERFACE) != 0;
+		this.accFinal = (flags & ClassFile.ACC_FINAL) != 0;
+		this.accStatic = (flags & ClassFile.ACC_STATIC) != 0;
+		this.accProtected = (flags & ClassFile.ACC_PROTECTED) != 0;
+		this.accPrivate = (flags & ClassFile.ACC_PRIVATE) != 0;
+		this.accPublic = (flags & ClassFile.ACC_PUBLIC) != 0;
 	}
 
 	/**
@@ -167,28 +147,7 @@ public class InnerClass extends ClassFileStructure {
 	 * @return A String representation of the access flags.
 	 */
 	public String getPrefix() {
-		String prefix = "";
-		if (this.accPublic) {
-			prefix = "public ";
-		} else if (this.accPrivate) {
-			prefix = "private ";
-		} else if (this.accProtected) {
-			prefix = "protected ";
-		}
-		if (this.accStatic) {
-			prefix += "static ";
-		}
-		if (this.accFinal) {
-			prefix += "final ";
-		}
-		if (this.accInterface) {
-			prefix += "interface ";
-		}
-		if (this.accAbstract) {
-			prefix += "abstract ";
-		}
-
-		return prefix;
+		return Modifier.toString(innerClassAccessFlags) + " ";
 	}
 
 	/**
@@ -217,7 +176,7 @@ public class InnerClass extends ClassFileStructure {
 
 	/**
 	 * Getter for the access flag "private".
-	 * @return true, if the class is privatet, false otherwise.
+	 * @return true, if the class is private, false otherwise.
 	 */
 	public boolean isAccPrivate() {
 		return this.accPrivate;

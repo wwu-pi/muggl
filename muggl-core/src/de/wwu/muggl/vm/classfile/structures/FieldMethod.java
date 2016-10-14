@@ -2,6 +2,7 @@ package de.wwu.muggl.vm.classfile.structures;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 
 import org.apache.log4j.Level;
 
@@ -261,20 +262,9 @@ public abstract class FieldMethod extends ClassFileStructure  {
 	 * @return A String representation of the access flags.
 	 */
 	public String getPrefix() {
-		String prefix = "";
-		if (this.accPublic) {
-			prefix = "public ";
-		} else if (this.accPrivate) {
-			prefix = "private ";
-		} else if (this.accProtected) {
-			prefix = "protected ";
-		}
-		if (this.accStatic) {
-			prefix += "static ";
-		}
-		if (this.accFinal) {
-			prefix += "final ";
-		}
+		String prefix = Modifier.toString(accessFlags) + " ";
+
+		// currently not in Modifier.toString
 		if (this.accSynthetic) {
 			prefix += "synthetic ";
 		}
