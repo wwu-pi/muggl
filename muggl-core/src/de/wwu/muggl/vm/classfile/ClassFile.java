@@ -56,9 +56,10 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Tim Majchrzak
  */
 public class ClassFile {
-	// Constants for the constant_pool.
-	// openjdk equivalence in openjdk/jdk/src/share/javavm/export/classfile_constants.h
-	// and openjdk/hotspot/src/share/vm/prims/jvm.h 
+	/* updated for the following versions */
+	public static final int CLASSFILE_MAJOR_VERSION = 52;
+	public static final int CLASSFILE_MINOR_VERSION = 0;
+	// n.b. the javadoc comments are really superflous
 	/**
 	 * The CONSTANT_Utf8 with a byte value of 1.
 	 */
@@ -104,11 +105,11 @@ public class ClassFile {
 	 */
 	public static final byte	CONSTANT_NAMEANDTYPE		= 12;
 	/**
-	 * The CONSTANT_MethodHandle with a byte value of 15 (Java 7)
+	 * The CONSTANT_MethodHandle with a byte value of 15 (Java 7, JSR 292)
 	 */
 	public static final byte	CONSTANT_METHODHANDLE		= 15;
 	/**
-	 * The CONSTANT_MethodType with a byte value of 16 (Java 7)
+	 * The CONSTANT_MethodType with a byte value of 16 (Java 7, JSR 292)
 	 */
 	public static final byte	CONSTANT_METHODTYPE			= 16;
 	/**
@@ -193,7 +194,7 @@ public class ClassFile {
 	 */
 	public static final short	ACC_ENUM					= 0x4000;
 
-	// Constants for data types.
+	// Constants for data types used in newarray.
 	/**
 	 * The T_BOOLEAN with a byte value of 4.
 	 */
@@ -522,11 +523,16 @@ public class ClassFile {
 				throw new ClassFileException("Invalid class file.");
 			}
 			this.minorVersion = this.dis.readUnsignedShort();
-			if (Globals.getInst().parserLogger.isDebugEnabled())
-				Globals.getInst().parserLogger.debug("Parsing: Read minor_version: " + this.minorVersion);
 			this.majorVersion = this.dis.readUnsignedShort();
-			if (Globals.getInst().parserLogger.isDebugEnabled())
-				Globals.getInst().parserLogger.debug("Parsing: Read major_version: " + this.majorVersion);
+			Globals.getInst().parserLogger
+					.debug("Parsing: Read major_version:minor version " + this.majorVersion + ":" + this.minorVersion);
+
+			if (!(majorVersion <= CLASSFILE_MAJOR_VERSION
+					&& ((majorVersion != CLASSFILE_MAJOR_VERSION) || (minorVersion < CLASSFILE_MINOR_VERSION)))) {
+				throw new UnsupportedClassVersionError(
+						"Unsupported major.minor version " + this.majorVersion + ":" + this.minorVersion);
+			}
+			
 			this.constantPoolCount = this.dis.readUnsignedShort();
 			if (Globals.getInst().parserLogger.isDebugEnabled())
 				Globals.getInst().parserLogger.debug("Parsing: Read constant_pool_count: "
