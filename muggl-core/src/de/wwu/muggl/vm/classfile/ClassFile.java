@@ -1401,7 +1401,7 @@ public class ClassFile {
 
 
 	/**
-	 * Find the <clinit>-Method, if there is any.
+	 * Find the <clinit>-Method, if there is any. Class or interface initialization Method.
 	 * 
 	 * @throws MethodResolutionError If the method could not be found.
 	 * @return The <clinit>-Method of this ClassFile.
@@ -1500,6 +1500,9 @@ public class ClassFile {
 		return this.primitiveWrapper;
 	}
 
+	public InitializedClass getTheInitializedClass(VirtualMachine vm) {
+		return getTheInitializedClass(vm, false);
+	}
 	/**
 	 * Invokes the static initializers for this ClassFile, if that has not yet been done, and return
 	 * an the InitializedClass instance.
@@ -1508,9 +1511,9 @@ public class ClassFile {
 	 * @return The instance of InitializedClass for this ClassFile.
 	 * @throws ExceptionInInitializerError If class initialization fails.
 	 */
-	public InitializedClass getTheInitializedClass(VirtualMachine vm) {
+	public InitializedClass getTheInitializedClass(VirtualMachine vm, boolean forceFrameIfCurrentNull) {
 		if (this.initializedClass == null) {
-			new InitializedClass(this, vm);
+			new InitializedClass(this, vm, forceFrameIfCurrentNull);
 		}
 		return this.initializedClass;
 	}

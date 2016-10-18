@@ -6,8 +6,11 @@ import de.wwu.muggl.instructions.MethodResolutionError;
 import de.wwu.muggl.vm.VirtualMachine;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
+import de.wwu.muggl.vm.classfile.structures.Attribute;
+import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
+import de.wwu.muggl.vm.classfile.structures.attributes.AttributeConstantValue;
 
 /**
  * This class represents a statically initialized ClassFile. It is used to offer access to the
@@ -35,14 +38,18 @@ public class InitializedClass extends FieldContainer {
 	// The only field - the represented ClassFile.
 	private ClassFile representedClassFile;
 
+	public InitializedClass(ClassFile representedClassFile, VirtualMachine vm) {
+		this(representedClassFile, vm, false);
+	}
 	/**
 	 * Generate a statically initialized class. This leads to the execution of the <clinit>-Method
 	 * (if there is any) to initialize static fields.
+	 * @jvms § 5.5
 	 * @param representedClassFile The ClassFile represented.
 	 * @param vm The currently running virtual machine.
 	 * @throws ExceptionInInitializerError If class initialization failed.
 	 */
-	public InitializedClass(ClassFile representedClassFile, VirtualMachine vm) {
+	public InitializedClass(ClassFile representedClassFile, VirtualMachine vm, boolean forceFrameIfCurrentNull) {
 		// Invoke the super constructor.
 		super();
 
@@ -63,8 +70,22 @@ public class InitializedClass extends FieldContainer {
 		// Before invoking the static initializer, set the field for this instance in ClassFile.
 		this.representedClassFile.putInitializedClass(this);
 
+		// initialize final static fields as per step 6. To be able to read static fields via reflection
+		
+		for (Field field : this.representedClassFile.getFields()) {
+			if (field.isAccStatic() && field.isAccFinal()) {
+				for (Attribute attr : field.getAttributes()) {
+					if (attr instanceof AttributeConstantValue) {
+						AttributeConstantValue constA = (AttributeConstantValue) attr;
+						Constant val = constA.getClassFile().getConstantPool()[constA.getConstantvalueIndex()];
+						this.putField(field, val.getValue());
+					}
+				}
+			}
+		}
+		
 		// Check if there is a current frame at all, since this initialization might be done with the virtual machine startup.
-		if (vm.getCurrentFrame() != null) //  && !vm.getCurrentFrame().getMethod().getName().equals("<clinit>") TODO this can be dropped, can it?
+		if (vm.getCurrentFrame() != null || forceFrameIfCurrentNull) //  && !vm.getCurrentFrame().getMethod().getName().equals("<clinit>") TODO this can be dropped, can it?
 		{
 			Method method = null;
 			try {

@@ -4,7 +4,7 @@ public class Boxing {
 	
 	
 	// should generate a putstatic for boolean
-	private static boolean test3 = true;
+	static boolean test3 = true;
 
 	private boolean testing = false;
 	private Boolean testing2 = false;

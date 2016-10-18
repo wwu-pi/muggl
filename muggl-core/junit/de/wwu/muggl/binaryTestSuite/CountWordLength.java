@@ -12,7 +12,18 @@ import java.util.Collection;
  *
  */
 public class CountWordLength {
+	public String teststring = "asdfghjkl";
+
 	public final static String METHOD_counting = "counting";
+
+	public static String returnConstantValue() {
+		return METHOD_counting;
+	}
+
+	public final static String METHOD_returnStaticFieldFriendClass = "returnStaticFieldFriendClass";
+	public boolean returnStaticFieldFriendClass() {
+		return  Boxing.test3;
+	}
 
 	public static long counting(int filterLength) {
 		// this internally uses a HashMap
@@ -30,8 +41,10 @@ public class CountWordLength {
 	}
 
 	public final static String METHOD_StringTest = "countStringLength_ParameterStringTest";
+
 	/**
 	 * The corresponding junit test demonstrates how to pass a String reference to the MugglVM
+	 * 
 	 * @param testin
 	 * @return length of the String
 	 */

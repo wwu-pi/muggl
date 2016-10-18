@@ -125,6 +125,7 @@ public class TestVMNormalMethodRunnerHelper {
 			if (application.getHasAReturnValue()) {
 				// native type or wrapped?
 				Object object = application.getReturnedObject();
+				application.finalizeApplication();
 				if (object == null)
 					return object;
 				if (object instanceof ReferenceValue) {
