@@ -54,7 +54,7 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 			Arrayref arrayref = (Arrayref) arrayrefObject;
 
 			// Runtime exception array index out of bounds.
-			if (arrayref.length < index || index < 0) {
+			if (index >= arrayref.length || index < 0) {
 				throw new VmRuntimeException(frame.getVm().generateExc(
 						"java.lang.ArrayIndexOutOfBoundsException", "Array index is out of bounds"));
 			}
