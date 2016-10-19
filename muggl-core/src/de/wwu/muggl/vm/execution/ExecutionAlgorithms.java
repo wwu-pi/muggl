@@ -1,9 +1,13 @@
 package de.wwu.muggl.vm.execution;
 
+import java.util.LinkedList;
+
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.VirtualMachine;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
+import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -136,19 +140,19 @@ public class ExecutionAlgorithms {
 					targetString = targetString.substring(1);
 				}
 
-				// If there were any "[", drop the "L" as well.
 				if (arrayDimensions > 0) {
-					targetString = targetString.substring(1);
+					// If there were any "[", drop the "L" as well, if there was. (Not the case for [I )
+					if (targetString.startsWith("L"))
+						targetString = targetString.substring(1);
 					// Probably there is a ";" at the end. Drop it.
 					if (targetString.endsWith(";"))
 						targetString = targetString.substring(0, targetString.length() - 1);
 				}
 			}
 			
-			// Check if target is a primitive type.
-			if (targetString.equals("boolean"))  {
+			// Check if target is a primitive type. The short-signatures (e.g. I) are returned if objectref is array
+			if (targetString.equals("boolean") || targetString.equals(VmSymbols.SIGNATURE_BOOL)) {
 				if (arrayDimensions == 0) {
-					// Boolean values are stored as Integers.
 					targetString = "java.lang.Integer";
 				} else {
 					targetString = "java.lang.Boolean";
@@ -320,6 +324,48 @@ public class ExecutionAlgorithms {
 			sourceSuperClassFile = sourceSuperClassFile.getSuperClassFile();
 		}
 
+		// Recursively check if any of the super interfaces of C is T
+		// Now on to interfaces
+		LinkedList<String> superInterfaces = new LinkedList<>();
+		LinkedList<String> exploreSuperClasses = new LinkedList<>();
+
+		// add self as a starting class
+		exploreSuperClasses.add(source.getName());
+
+		// Trying the super interfaces recursively
+
+		while (!superInterfaces.isEmpty() || !exploreSuperClasses.isEmpty()) {
+
+			final int ifaces = superInterfaces.size();
+			for (int i = 0; i < ifaces; i++) {
+				ClassFile classFile1 = null;
+				classFile1 = this.classLoader.getClassAsClassFile(superInterfaces.pop());
+				if (isClassOrSubclassOf(classFile1, target))
+					return true;
+				else {
+					if (classFile1.getSuperClass() != 0)
+						exploreSuperClasses
+								.add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
+
+					for (int iface : classFile1.getInterfaces()) {
+						superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
+					}
+				}
+			}
+
+			final int sClasses = exploreSuperClasses.size();
+			for (int i = 0; i < sClasses; i++) {
+				ClassFile classFile1 = null;
+				classFile1 = this.classLoader.getClassAsClassFile(exploreSuperClasses.pop());
+				if (classFile1.getSuperClass() != 0)
+					exploreSuperClasses.add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
+				for (int iface : classFile1.getInterfaces()) {
+					superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
+				}
+			}
+
+		}
+		
 		// Source does not implement interface T.
 		return false;
 	}

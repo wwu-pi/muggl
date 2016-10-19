@@ -40,13 +40,15 @@ public class TestExecutionAlgorithmAssignmentCompatible {
 	private static ExecutionAlgorithms ea;
 	private static Application application;
 
+	private static MugglClassLoader classLoader;
+	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		Globals.getInst().changeLogLevel(Level.WARN);
 		Globals.getInst().parserLogger.setLevel(Level.ERROR);
 
 		// Need dummy classloader, classFile to get an Application / VM Handle
-		MugglClassLoader classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
 
 		ClassFile classFile = classLoader
 				.getClassAsClassFile(de.wwu.muggl.binaryTestSuite.CountWordLength.class.getCanonicalName(), true);
@@ -222,5 +224,15 @@ public class TestExecutionAlgorithmAssignmentCompatible {
 		assertTrue("should be legal: assigning null to reference type",
 				ea.checkForAssignmentCompatibility(null, "java.lang.Boolean", application.getVirtualMachine(), false));
 	}
+	
+	@Test
+	public void runTestTransientInterface() throws ExecutionException, ClassFileException {
+		ClassFile classFile1 = classLoader
+				.getClassAsClassFile(sun.reflect.generics.tree.ClassSignature.class.getCanonicalName(), true);
+		Objectref objectref = application.getVirtualMachine().getAnObjectref(classFile1);
+		assertTrue("should be legal: A to C, when A implements B (B extends C)",
+				ea.checkForAssignmentCompatibility(objectref, "sun.reflect.generics.tree.Tree", application.getVirtualMachine(), false));
+	}
+	
 
 }
