@@ -430,6 +430,11 @@ public class NativeWrapper {
 			} catch (ClassNotFoundException | ConversionException | SecurityException e) {
 				e.printStackTrace();
 			}						
+		} else if (methodClassFile.getName().equals("java.lang.Object") && method.getName().equals("hashCode")) {
+			// do not do toJava wrapping for hashCode, since it wouln't be the same Object again!
+			Globals.getInst().execLogger.trace("for refval id: " + invokingRefVal.getInstantiationNumber() + " computed hashcode:" + invokingRefVal.hashCode());
+			frame.getOperandStack().push(invokingRefVal.hashCode());
+			return true;
 		} else if (method.getClassFile().getName().equals("java.lang.Object") && method.getName().equals("clone")) {
 			try {
 				frame.getOperandStack().push(invokingRefVal.clone());
