@@ -7,7 +7,7 @@ package de.wwu.muggl.vm.initialization;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-03-11
  */
-public interface ReferenceValue {
+public interface ReferenceValue extends Cloneable {
 
 	/**
 	 * Return true, if this is a reference to an array, or false otherwise.
@@ -54,4 +54,7 @@ public interface ReferenceValue {
 	 * @return The instantiation number.
 	 */
 	long getInstantiationNumber();
+
+	ReferenceValue clone() throws CloneNotSupportedException;
+
 }

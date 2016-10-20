@@ -129,7 +129,7 @@ public class TestMugglArrayrefToObjectref {
 
 	}
 
-	// //@Test //rather advanced Test
+	// @Test //rather advanced Test
 	public final void testArrayClassEquivalence() throws ClassFileException, InitializationException,
 			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
 
@@ -140,7 +140,7 @@ public class TestMugglArrayrefToObjectref {
 
 	}
 
-	// //@Test//rather advanced Test
+	// @Test//rather advanced Test, currently failing in if_acmpne expecting reference values (and gets raw types)
 	public final void testArraySubarrayClone() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 

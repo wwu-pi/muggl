@@ -11,7 +11,7 @@ import de.wwu.muggl.solvers.expressions.Term;
  * @author Tim Majchrzak
  * @version 1.0.0, 2011-01-15
  */
-public class Arrayref implements Cloneable, ReferenceValue {
+public class Arrayref implements ReferenceValue {
 	// Fields.
 	/**
 	 * The corresponding reference value of the array reference.
@@ -116,7 +116,8 @@ public class Arrayref implements Cloneable, ReferenceValue {
 	 * @throws ArrayIndexOutOfBoundsException If the index is out of the array references bounds.
 	 */
 	public Object getElement(int index) {
-		if (index < 0 || index >= this.length) throw new ArrayIndexOutOfBoundsException("Array index out of bounds");
+		if (index < 0 || index >= this.length) 
+			throw new ArrayIndexOutOfBoundsException("Array index[" + index + "] out of bounds inst.nr:" + this.getInstantiationNumber());
 		return this.elements[index];
 	}
 
@@ -309,7 +310,4 @@ public class Arrayref implements Cloneable, ReferenceValue {
 
 		return levelsBrackets + this.referenceValue.getSignature();
 	}
-	
-	
-
 }

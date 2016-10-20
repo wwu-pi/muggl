@@ -429,8 +429,14 @@ public class NativeWrapper {
 				return true;
 			} catch (ClassNotFoundException | ConversionException | SecurityException e) {
 				e.printStackTrace();
-			}			
-		} 
+			}						
+		} else if (method.getClassFile().getName().equals("java.lang.Object") && method.getName().equals("clone")) {
+			try {
+				frame.getOperandStack().push(invokingRefVal.clone());
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+			return true;
 
 		// Arriving here means no special handling was possible.
 		return false;
