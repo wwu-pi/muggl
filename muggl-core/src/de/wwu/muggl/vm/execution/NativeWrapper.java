@@ -392,9 +392,11 @@ public class NativeWrapper {
 					dest.putElement(destPos + a, src.getElement(a));
 				}
 			} else {
+				int copied = 0;
 				for (int a = srcPos; a < srcPos + length; a++) {
 					try {
-						dest.putElement(destPos + a, src.getElement(a));
+						dest.putElement(destPos + copied, src.getElement(a));
+						copied ++;
 					} catch (ArrayStoreException e) {
 						// Wrap the exception.
 						throw new VmRuntimeException(frame.getVm().generateExc(
