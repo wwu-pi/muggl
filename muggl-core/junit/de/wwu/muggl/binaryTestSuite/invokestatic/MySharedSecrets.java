@@ -15,10 +15,10 @@ public enum MySharedSecrets {
 	static {
 		System.out.println("<clinit> got called!");
 	}
-	public static void getValues() {
-		MySharedSecrets[] test = SharedSecrets.getJavaLangAccess().getEnumConstantsShared(MySharedSecrets.class);
 
-		System.out.println(test.length);
+	public static int getValues() {
+		MySharedSecrets[] test = SharedSecrets.getJavaLangAccess().getEnumConstantsShared(MySharedSecrets.class);
+		return test.length;
 	}
 
 	// superClass needed by children of getEnumConstantsShared
@@ -29,6 +29,18 @@ public enum MySharedSecrets {
 
 	public static String getMySuperSuperClass() {
 		return MySharedSecrets.class.getSuperclass().getSuperclass().getName();
+	}
+	
+	public static boolean getClassIsEnum() {
+		return MySharedSecrets.class.isEnum();
+	}
+
+	public static String getObjectSuperclass() {
+		try {
+			return Object.class.getSuperclass().getName();
+		} catch (NullPointerException e) {
+			return "npe as expected";
+		}
 	}
 
 	// you will likely get a security exception if you call this.
@@ -43,6 +55,7 @@ public enum MySharedSecrets {
 		MySharedSecrets.getValues();
 		System.out.println(getMySuperClass());
 		System.out.println(getMySuperSuperClass());
+		System.out.println(getObjectSuperclass());
 
 	}
 

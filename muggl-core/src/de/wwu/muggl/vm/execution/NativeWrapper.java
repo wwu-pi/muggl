@@ -442,6 +442,20 @@ public class NativeWrapper {
 				e.printStackTrace();
 			}
 			return true;
+		} else if (methodClassFile.getName().equals("java.lang.Class") && method.getName().equals("getSuperclass")) {
+			ClassFile mirror = invokingObjectref.getMirrorMuggl();
+			try {
+				if(mirror.getSuperClassFile() != null){
+					// ensure superClassFile is statically initialized
+					mirror.getSuperClassFile().getTheInitializedClass(frame.getVm());
+					frame.getOperandStack().push(mirror.getSuperClassFile().getMirrorJava());
+					return true;
+				}
+			} catch (ClassFileException e) {
+				e.printStackTrace();
+			}
+			frame.getOperandStack().push(null);
+			return true;
 
 		// Arriving here means no special handling was possible.
 		return false;

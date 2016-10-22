@@ -9,7 +9,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
@@ -28,6 +30,9 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  */
 public class TestSharedSecrets {
 	MugglClassLoader classLoader;
+
+	// @Rule
+	// public Timeout globalTimeout = Timeout.seconds(10); // 10 seconds max per method tested
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -90,9 +95,29 @@ public class TestSharedSecrets {
 	}
 
 	@Test
+	public final void testgetObjectSuperclass()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("npe as expected",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(),
+						"getObjectSuperclass", MethodType.methodType(String.class), null));
+
+	}
+
+	@Test
 	public final void testGetValues() throws ClassFileException, InitializationException, InterruptedException {
-		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
-				de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(), "getValues");
+		assertEquals(2,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(), "getValues",
+						MethodType.methodType(int.class), null));
+
+	}
+
+	@Test
+	public final void testClassIsEnum() throws ClassFileException, InitializationException, InterruptedException {
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(), "getClassIsEnum",
+				MethodType.methodType(boolean.class), null));
 
 	}
 
