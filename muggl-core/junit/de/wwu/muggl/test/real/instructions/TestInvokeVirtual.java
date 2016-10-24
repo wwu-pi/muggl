@@ -7,7 +7,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
@@ -22,6 +24,9 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  */
 public class TestInvokeVirtual {
 	MugglClassLoader classLoader;
+
+//	@Rule
+//	public Timeout globalTimeout = Timeout.seconds(15); // 10 seconds max per method tested
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -62,7 +67,7 @@ public class TestInvokeVirtual {
 
 	}
 
-	// @Test
+	@Test
 	public final void testApplicationMugglVMInvokeVirtualExecution2()
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -72,7 +77,7 @@ public class TestInvokeVirtual {
 
 	}
 
-	@Test
+	// @Test
 	public final void testmethodHandleArray() throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),

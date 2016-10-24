@@ -9,7 +9,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
@@ -24,6 +26,8 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  */
 public class TestReflectArray {
 	MugglClassLoader classLoader;
+	@Rule
+	public Timeout globalTimeout = Timeout.seconds(10); // 10 seconds max per method tested
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {

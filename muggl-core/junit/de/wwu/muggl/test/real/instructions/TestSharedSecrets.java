@@ -112,6 +112,7 @@ public class TestSharedSecrets {
 
 	}
 
+	// nota: this involves sun.reflect.NativeMethodAccessorImpl.invoke0
 	@Test
 	public final void testGetValues() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(2,

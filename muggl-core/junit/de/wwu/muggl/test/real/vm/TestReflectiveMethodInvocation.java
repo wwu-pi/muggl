@@ -1,13 +1,15 @@
 package de.wwu.muggl.test.real.vm;
 
+import static org.junit.Assert.*;
+
+import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -19,15 +21,12 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestLoadingDoubleParameter {
+public class TestReflectiveMethodInvocation {
 	MugglClassLoader classLoader;
-
-	@Rule
-	public Timeout globalTimeout = Timeout.seconds(10); // 10 seconds max per method tested
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.ALL);
+		Globals.getInst().changeLogLevel(Level.TRACE);
 		Globals.getInst().parserLogger.setLevel(Level.ERROR);
 	}
 
@@ -45,12 +44,12 @@ public class TestLoadingDoubleParameter {
 	}
 
 	@Test
-	public final void testApplicationMugglVMSymbolicExecDoubleParameter()
-			throws ClassFileException, InitializationException, InterruptedException {
-
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.doubleParameter.FunctionWithDoubleParameter.class.getCanonicalName(),
-				"makeStringWithDoubleParameters", "(DD)Ljava/lang/String;", (Object[]) new Double[] { 1.23, 2.34 });
+	public final void testIntegerEquality() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.ReflectiveMethodInvocation.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.ReflectiveMethodInvocation.METHOD_test_invokeMethod,
+						MethodType.methodType(String.class), new Object[0]));
 
 	}
 

@@ -9,7 +9,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
@@ -33,6 +35,8 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  *
  */
 public class TestClassInitialization {
+	@Rule
+	public Timeout globalTimeout = Timeout.seconds(10); // 10 seconds max per method tested
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -101,10 +105,9 @@ public class TestClassInitialization {
 
 		Application application = new Application(classLoader, classFile.getName(), method);
 		InitializedClass initCl = classFile.getTheInitializedClass(application.getVirtualMachine(), true);
-
-		Objectref objectref = initCl.getANewInstance();
-		application.getVirtualMachine().java_call_special(objectref, classFile, VmSymbols.OBJECT_INITIALIZER_NAME,
-				MethodType.methodType(void.class));
+		
+		Objectref objectref = application.getVirtualMachine().getAndInitializeObjectref(classFile.getInitializedClass());
+				
 		assertEquals("asdfghjkl", new MugglToJavaConversion(application.getVirtualMachine())
 				.toJava(objectref.getField(classFile.getFieldByName("teststring"))));
 

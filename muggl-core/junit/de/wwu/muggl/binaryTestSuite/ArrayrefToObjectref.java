@@ -38,7 +38,7 @@ public class ArrayrefToObjectref {
 	public static String test_arrayClone() {
 		int[] a = { 1, 2, 3 };
 		int[] b = a.clone();
-//		System.out.println("cloning done..");
+		// System.out.println("cloning done..");
 		return b.length + "" + b.toString();
 	}
 
@@ -85,7 +85,8 @@ public class ArrayrefToObjectref {
 
 	// JLS 10.7.2
 	public static boolean testArraySubarrayClone() throws Throwable {
-		int ia[][] = { { 65142, 65142 }, null }; // use Integers beyond IntegerCache to really make sure references are kept equal
+		int ia[][] = { { 65142, 65142 }, null }; // use Integers beyond IntegerCache to really make sure references are
+													// kept equal
 		int ja[][] = ia.clone();
 		// System.out.print((ia == ja) + " ");// false
 		return ia[0] == ja[0] && ia[1] == ja[1];

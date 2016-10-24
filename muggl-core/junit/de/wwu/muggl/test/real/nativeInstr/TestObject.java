@@ -49,7 +49,7 @@ public class TestObject {
 	}
 
 	@Test
-	public final void test_GetClassAnnotations()
+	public final void test_ObjectHashCodeStable()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.nativeInstr.ObjectTest.class.getCanonicalName(),

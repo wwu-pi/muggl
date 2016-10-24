@@ -2,6 +2,8 @@ package de.wwu.muggl.test.real.nativeInstr;
 
 import static org.junit.Assert.*;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
 import org.apache.log4j.Level;
@@ -10,12 +12,21 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
+import de.wwu.muggl.vm.Application;
+import de.wwu.muggl.vm.Reflection;
+import de.wwu.muggl.vm.SystemDictionary;
+import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
+import de.wwu.muggl.vm.classfile.structures.Method;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.initialization.InitializationException;
+import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 /**
@@ -26,9 +37,12 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
 public class TestClassAndClassLoader {
 	MugglClassLoader classLoader;
 
+	// @Rule
+	// public Timeout globalTimeout = Timeout.seconds(20); // 10 seconds max per method tested
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.TRACE);
+		Globals.getInst().changeLogLevel(Level.WARN);
 		Globals.getInst().parserLogger.setLevel(Level.ERROR);
 	}
 
@@ -45,6 +59,32 @@ public class TestClassAndClassLoader {
 	public void tearDown() throws Exception {
 	}
 
+//	@Test
+	public final void test_MethodCreatorHelper() throws ClassFileException, InitializationException,
+			NoSuchMethodException, IllegalAccessException, ExecutionException {
+		MethodType mt = MethodType.methodType(String.class, int.class);
+		ClassFile classF = classLoader.getClassAsClassFile(
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName());
+		Method method = classF.getMethodByNameAndDescriptor("test_MethodWithParamsAndException",
+				mt.toMethodDescriptorString());
+		@SuppressWarnings("unused")
+		Application appli = new Application(classLoader,
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(), method);
+
+		Objectref method2 = Reflection.newMethod(method, false);
+
+		java.lang.reflect.Method methodRef = de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class
+				.getMethod("test_MethodWithParamsAndException", mt.parameterArray());
+
+		Objectref returnTypeClass = (Objectref) method2
+				.getField(method2.getInitializedClass().getClassFile().getFieldByName("returnType"));
+
+		ClassFile mirror = returnTypeClass.getMirrorMuggl();
+
+		assertEquals(methodRef.getReturnType().getName(), mirror.getName());
+
+	}
+
 	// @Test // for now endless loop
 	public final void test_GetClassAnnotations()
 			throws ClassFileException, InitializationException, InterruptedException {
@@ -55,7 +95,7 @@ public class TestClassAndClassLoader {
 
 	}
 
-	@Test
+	// @Test
 	public final void test_GetClassDeclaredConstructors()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("public de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader()",
@@ -65,37 +105,67 @@ public class TestClassAndClassLoader {
 
 	}
 
-	@Test
+	// @Test //läuft
 	public final void test_GetClassDeclaredFields()
 			throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals("serialVersionUID",
+		assertEquals("mySuperSpecialField",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
 						"test_GetClassDeclaredFields", MethodType.methodType(String.class), null));
 
 	}
 
-	@Test
+	// @Test // läuft
+	public final void test_GetClassDeclaredFieldsCount()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(2,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						"test_GetClassDeclaredFieldsCount", MethodType.methodType(int.class), null));
+
+	}
+//	@Test // läuft
+	public final void test_GetClassPrimitiveNames()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("booleanbyteshortcharintlongfloatdoubleObjectvoid",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						"test_GetClassPrimitiveNames", MethodType.methodType(String.class), null));
+
+	}
+
+	// @Test // läuft
+	public final void test_Subclass() throws ClassFileException, InitializationException, InterruptedException {
+
+		ClassFile classFile = classLoader.getClassAsClassFile(
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName() + "$Testclass",
+				true);
+		assertEquals(
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName() + "$Testclass",
+				classFile.getName());
+
+	}
+
+//	@Test // läuft
 	public final void test_GetClassDeclaredMethods()
 			throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals("test_GetClassName",
+		assertEquals("test_GetClassForName",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
 						"test_GetClassDeclaredMethods", MethodType.methodType(String.class), null));
 
 	}
 
-	@Test
+	// @Test
 	public final void test_GetClassInterfaces()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("java.io.Serializable",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
 						"test_GetClassInterfaces", MethodType.methodType(String.class), null));
-
 	}
 
-	@Test
+	// @Test
 	public final void test_GetClassLoader() throws ClassFileException, InitializationException, InterruptedException {
 		assertThat(
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -105,7 +175,7 @@ public class TestClassAndClassLoader {
 
 	}
 
-	@Test
+	// @Test // läuft
 	public final void test_GetClassModifiers()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(1,
@@ -115,7 +185,7 @@ public class TestClassAndClassLoader {
 
 	}
 
-	@Test
+	// @Test // läuft
 	public final void test_GetClassName() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -123,8 +193,47 @@ public class TestClassAndClassLoader {
 						"test_GetClassName", MethodType.methodType(String.class), null));
 
 	}
+	
+	@Test // läuft
+	public final void test_GetClassNameForPrimitive() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(int.class.getName(),
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						"test_GetClassNameForPrimitive", MethodType.methodType(String.class), null));
 
-	@Test
+	}
+	
+	
+
+	// @Test // läuft
+	public final void test_GetClassNameObj() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("java.lang.Integer",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						"test_GetClassNameObj", MethodType.methodType(String.class), null));
+
+	}
+
+	// @Test // läuft
+	public final void test_GetClassForName() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("java.lang.Object",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						"test_GetClassForName", MethodType.methodType(String.class), null));
+
+	}
+
+	// @Test // läuft
+	public final void test_GetClassForNameWithException()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("success",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						"test_GetClassForNameWithException", MethodType.methodType(String.class), null));
+
+	}
+
+	// @Test
 	public final void test_GetClassSigners() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(-1,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -133,7 +242,7 @@ public class TestClassAndClassLoader {
 
 	}
 
-	@Test
+	// @Test
 	public final void test_GetComponentType() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("long",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -142,7 +251,16 @@ public class TestClassAndClassLoader {
 
 	}
 
-	@Test
+	// @Test // läuft
+	public final void test_GetGetClassPrimitive()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("char",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						"test_GetGetClassPrimitive", MethodType.methodType(String.class), null));
+	}
+
+	// @Test
 	public final void test_GetDeclaredClasses()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.Testclass.class.getCanonicalName(),
@@ -152,7 +270,7 @@ public class TestClassAndClassLoader {
 
 	}
 
-	@Test
+	// @Test
 	public final void test_GetDeclaringClass()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
@@ -162,7 +280,7 @@ public class TestClassAndClassLoader {
 
 	}
 
-	@Test
+	// @Test
 	public final void test_GetProtectionDomain()
 			throws ClassFileException, InitializationException, InterruptedException {
 
@@ -172,7 +290,7 @@ public class TestClassAndClassLoader {
 
 	}
 
-	@Test
+	// @Test
 	public final void test_IsArrayClass() throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
@@ -180,18 +298,29 @@ public class TestClassAndClassLoader {
 
 	}
 
-	@Test
+	// @Test // läuft
 	public final void test_IsInterface() throws ClassFileException, InitializationException, InterruptedException {
-		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
-				"test_IsInterface", MethodType.methodType(boolean.class), null));
+		assertEquals(1,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						"test_IsInterface", MethodType.methodType(int.class), null));
 	}
 
-	@Test
+	// @Test // läuft
 	public final void test_IsPrimitive() throws ClassFileException, InitializationException, InterruptedException {
-		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
-				"test_IsPrimitive", MethodType.methodType(boolean.class), null));
+		assertEquals(90,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						"test_CountPrimitive", MethodType.methodType(int.class), null));
+
+	}
+
+	// @Test // läuft
+	public final void test_ObjectClass() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(-1,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						"test_ObjectClass", MethodType.methodType(int.class), null));
 
 	}
 

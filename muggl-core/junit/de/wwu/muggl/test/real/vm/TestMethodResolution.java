@@ -1,5 +1,7 @@
 package de.wwu.muggl.test.real.vm;
 
+import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -138,6 +140,23 @@ public class TestMethodResolution {
 		ResolutionAlgorithms resolAlg = new ResolutionAlgorithms(classLoader);
 
 		final String[] nameAndType = new String[] { "defaultInMyThirdInterface", "()Ljava/lang/String;" };
+
+		resolAlg.resolveMethod(classFile, nameAndType);
+
+	}
+
+	@Test
+	public final void testFindMethodGenericReturnType()
+			throws ClassFileException, InitializationException, NoSuchMethodError {
+
+		final ClassFile classFile = classLoader
+				.getClassAsClassFile(sun.reflect.generics.repository.ClassRepository.class.getCanonicalName(), true);
+
+		ResolutionAlgorithms resolAlg = new ResolutionAlgorithms(classLoader);
+
+		final String[] nameAndType = new String[] { "parse",
+				MethodType.methodType(sun.reflect.generics.repository.ClassRepository.class,String.class)
+						.toMethodDescriptorString() };
 
 		resolAlg.resolveMethod(classFile, nameAndType);
 

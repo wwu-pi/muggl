@@ -24,27 +24,27 @@ public class MethodHandleTest {
 	}
 
 	public final static String METHOD_methodHandleArray = "test_methodHandleArray";
+
 	@CallerSensitive
 	public static void test_methodHandleArray() {
 		// done int MethodHandleImpl.java:1083
 		MethodHandle[] FAKE_METHOD_HANDLE_INVOKE = new MethodHandle[2];
 	}
-	
+
 	public final static String METHOD_findVirtualInvokeExact = "findVirtualInvokeExact";
 
 	public static void findVirtualInvokeExact() throws Throwable {
-		String s;
-		MethodType mt;
-		MethodHandle mh;
+		MethodType mt1 = MethodType.methodType(int.class);
+		System.out.println("markermax --31");
+		// mt is {(char,char) => String}
+		MethodType mt = MethodType.methodType(String.class, char.class, char.class);
+		System.out.println("markermax --32");
 		MethodHandles.Lookup lookup = MethodHandles.lookup();
 		System.out.println("markermax --29");
-		// mt is {(char,char) => String}
-		mt = MethodType.methodType(String.class, char.class, char.class);
-		System.out.println("markermax --32");
-		mh = lookup.findVirtual(String.class, "replace", mt);
+		MethodHandle mh = lookup.findVirtual(String.class, "replace", mt);
 		System.out.println("markermax --34");
 		// (Ljava/lang/String;CC)Ljava/lang/String;
-		s = (String) mh.invokeExact("daddy", 'd', 'n');
+		String s = (String) mh.invokeExact("daddy", 'd', 'n');
 		assert (s.equals("nanny"));
 	}
 

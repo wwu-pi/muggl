@@ -23,7 +23,7 @@ public class TestStringHandling {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.TRACE);
+		Globals.getInst().changeLogLevel(Level.ERROR);
 		Globals.getInst().parserLogger.setLevel(Level.ERROR);
 	}
 
