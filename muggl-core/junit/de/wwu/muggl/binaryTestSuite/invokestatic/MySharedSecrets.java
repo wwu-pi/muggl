@@ -11,7 +11,6 @@ import sun.misc.Unsafe;
  */
 public enum MySharedSecrets {
 	THINGY, BOB;
-
 	static {
 		System.out.println("<clinit> got called!");
 	}
@@ -19,6 +18,15 @@ public enum MySharedSecrets {
 	public static int getValues() {
 		MySharedSecrets[] test = SharedSecrets.getJavaLangAccess().getEnumConstantsShared(MySharedSecrets.class);
 		return test.length;
+	}
+
+	public static int iterateValues() {
+		int i = 0;
+		for (@SuppressWarnings("unused")
+		MySharedSecrets it : MySharedSecrets.values()) {
+			i++;
+		}
+		return i;
 	}
 
 	// superClass needed by children of getEnumConstantsShared
@@ -30,7 +38,7 @@ public enum MySharedSecrets {
 	public static String getMySuperSuperClass() {
 		return MySharedSecrets.class.getSuperclass().getSuperclass().getName();
 	}
-	
+
 	public static boolean getClassIsEnum() {
 		return MySharedSecrets.class.isEnum();
 	}

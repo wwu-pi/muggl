@@ -69,21 +69,20 @@ public class Invokevirtual extends Invoke implements Instruction {
 		if (rawRefVAl == null) 
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException", "checkStaticMethod in Invokevirtual " + nameAndType[0]+ " "+ nameAndType[1]));
 		
-		ReferenceValue objectref = null ;
+		ReferenceValue objectref = null;
 		if (rawRefVAl instanceof ReferenceValue) {
-		// Fetch the object reference to invoke the method on.
-		objectref = (ReferenceValue) rawRefVAl;
+			// Fetch the object reference to invoke the method on.
+			objectref = (ReferenceValue) rawRefVAl;
 		} else {
 			objectref = BoxingConversion.Boxing(frame.getVm(), rawRefVAl);
 		}
 		parameters[0] = objectref;
 
-
 		if (objectref instanceof Arrayref) {
-			// if we're an arrayref, most operations are on Object. They are rather not on the ElementType, e.g. for
-			// Integer Arrays
+			// does not really make sense to return the referenceType here when you invoke things like
+			// .clone() on arrays
 			try {
-				return frame.getVm().getClassLoader().getClassAsClassFile("java.lang.Object");
+				return frame.getVm().getClassLoader().getClassAsClassFile("java.util.Arrays");
 			} catch (ClassFileException e) {
 				e.printStackTrace();
 			}

@@ -255,7 +255,7 @@ public class Invokespecial extends Invoke implements Instruction {
 
 		// Get the name and the descriptor.
 		String[] nameAndType = ((ConstantMethodref) constant).getNameAndTypeInfo();
-		ClassFile methodClassFile = classLoader.getClassAsClassFile(((ConstantMethodref) constant).getClassName());
+		ClassFile methodClassFile = classLoader.getClassAsClassFileOrArrays(((ConstantMethodref) constant).getClassName());
 
 		// Try to resolve method from this class.
 		ResolutionAlgorithms resoluton = new ResolutionAlgorithms(classLoader);

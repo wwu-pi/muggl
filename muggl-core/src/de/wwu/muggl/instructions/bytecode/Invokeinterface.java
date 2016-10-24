@@ -210,7 +210,7 @@ public class Invokeinterface extends Invoke implements Instruction {
 
 		// Get the name and the descriptor.
 		String[] nameAndType = ((ConstantInterfaceMethodref) constant).getNameAndTypeInfo();
-		ClassFile methodClassFile = classLoader.getClassAsClassFile(((ConstantInterfaceMethodref) constant).getClassName());
+		ClassFile methodClassFile = classLoader.getClassAsClassFileOrArrays(((ConstantInterfaceMethodref) constant).getClassName());
 		if (nameAndType[0].equals(VmSymbols.OBJECT_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the instance initialization method.");
@@ -288,7 +288,7 @@ public class Invokeinterface extends Invoke implements Instruction {
 						+ "to be a symbolic reference to a method.");
 		}
 		
-		return classLoader.getClassAsClassFile(
+		return classLoader.getClassAsClassFileOrArrays(
 				((ConstantInterfaceMethodref) constant).getClassName());
 	}
 

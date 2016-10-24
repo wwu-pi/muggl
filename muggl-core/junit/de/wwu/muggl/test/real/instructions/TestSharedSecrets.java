@@ -85,6 +85,14 @@ public class TestSharedSecrets {
 	}
 
 	@Test
+	public final void testIterateValues() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(2,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(),
+						"iterateValues", MethodType.methodType(int.class), null));
+
+	}
+	@Test
 	public final void testgetSuperSuperclass()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("java.lang.Object",

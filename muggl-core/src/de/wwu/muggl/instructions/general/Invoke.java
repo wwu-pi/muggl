@@ -565,7 +565,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 						+ "to be a symbolic reference to a method.");
 		}
 		
-		return classLoader.getClassAsClassFile(
+		return classLoader.getClassAsClassFileOrArrays(
 				((ConstantMethodref) constant).getClassName());
 	}
 

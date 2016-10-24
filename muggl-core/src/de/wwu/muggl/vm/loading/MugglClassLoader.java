@@ -157,6 +157,27 @@ public class MugglClassLoader extends ClassLoader {
 		// Just call the method with the second parameter and set it to false.
 		return getClassAsClassFile(name, false);
 	}
+	
+	/**
+	 * Unlike getClassAsClassFile, this will not strip out Array Identifiers at the beginning and return the 
+	 * component's type class, but will return the classfile for java.utils.Arrays if it detects an array
+	 * 
+	 * ex: [Ljava/lang/Integer; will give you ClassFile of java.util.Arrays
+	 * and 
+	 * Ljava/lang/Integer; will give you class file of java.lang.Integer 
+	 * 
+	 * This is necessary because ConstantMethodref can point to Arrays, e.g. <array>.clone() and you don't want
+	 * to resolve this on the component type!
+	 * @param name
+	 * @return
+	 * @throws ClassFileException
+	 */
+	public ClassFile getClassAsClassFileOrArrays(String name) throws ClassFileException {
+		if (name.startsWith("["))
+			return getClassAsClassFile("java.util.Arrays", false);
+		else
+			return getClassAsClassFile(name, false);
+	}
 
 	/**
 	 * This method is used for the retrieval of any class. It has an additional parameter, refresh,
