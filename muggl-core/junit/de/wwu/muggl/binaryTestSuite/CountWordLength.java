@@ -1,8 +1,6 @@
 package de.wwu.muggl.binaryTestSuite;
 
-import java.lang.invoke.MethodType;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -29,6 +27,11 @@ public class CountWordLength {
 		// this internally uses a HashMap
 		// Collection<String> myList = Arrays.asList("Hello", "Java");
 		Collection<String> myList = new ArrayList<String>() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -1686817071337627569L;
+
 			{
 				add("Hello");
 				add("Java");

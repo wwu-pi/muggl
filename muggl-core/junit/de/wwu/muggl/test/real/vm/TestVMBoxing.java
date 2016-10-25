@@ -9,11 +9,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
-
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -23,16 +21,15 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestVMBoxing {
+public class TestVMBoxing extends TestSkeleton {
 	MugglClassLoader classLoader;
-	
-	@Rule
-	public Timeout globalTimeout = Timeout.seconds(10); // 10 seconds max per method tested
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.DEBUG);
-		Globals.getInst().parserLogger.setLevel(Level.WARN);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.DEBUG);
+			Globals.getInst().parserLogger.setLevel(Level.WARN);
+		}
 	}
 
 	@AfterClass
@@ -41,7 +38,7 @@ public class TestVMBoxing {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After
@@ -83,7 +80,7 @@ public class TestVMBoxing {
 						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "returnInitiatedField2",
 						MethodType.methodType(boolean.class), (Object[]) new Object[] {}));
 	}
-	
+
 	@Test
 	public final void testBoxBooleanGetFieldWrapped()
 			throws ClassFileException, InitializationException, InterruptedException {
@@ -92,17 +89,16 @@ public class TestVMBoxing {
 						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "returnInitiatedFieldWrapped",
 						MethodType.methodType(boolean.class), (Object[]) new Object[] {}));
 	}
-	
+
 	@Test
 	public final void testBoxBooleanGetFieldRaw()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals((boolean) false,
-				 TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.Boxing.class.getCanonicalName(), "returnInitiatedFieldRaw",
 						MethodType.methodType(boolean.class), (Object[]) new Object[] {}));
 	}
 
-	
 	@Test
 	public final void testBugObjectReturn() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals((Integer) 2,

@@ -83,16 +83,9 @@ public class TestVMNormalMethodRunnerHelper {
 	public static Object runMethod(MugglClassLoader classLoader, final String classFileName, final String methodName,
 			final MethodType methodType, final Object[] args)
 			throws ClassFileException, InitializationException, InterruptedException {
-		return runMethod(classLoader, classFileName, methodName, methodType.toMethodDescriptorString(), args);
-
-	}
-
-	public static Object runMethod(MugglClassLoader classLoader, final String classFileName, final String methodName,
-			final String methodDescriptor, final Object[] args)
-			throws ClassFileException, InitializationException, InterruptedException {
 		ClassFile classFile = classLoader.getClassAsClassFile(classFileName, true);
 
-		Method method = classFile.getMethodByNameAndDescriptor(methodName, methodDescriptor);
+		Method method = classFile.getMethodByNameAndDescriptor(methodName, methodType.toMethodDescriptorString());
 
 		Application application = new Application(classLoader, classFile.getName(), method);
 

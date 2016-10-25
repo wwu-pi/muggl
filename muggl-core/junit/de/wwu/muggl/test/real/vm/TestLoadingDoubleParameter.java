@@ -1,15 +1,15 @@
 package de.wwu.muggl.test.real.vm;
 
+import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
-
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -19,16 +19,15 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestLoadingDoubleParameter {
+public class TestLoadingDoubleParameter extends TestSkeleton {
 	MugglClassLoader classLoader;
-
-	@Rule
-	public Timeout globalTimeout = Timeout.seconds(10); // 10 seconds max per method tested
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.ALL);
-		Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.ALL);
+			Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		}
 	}
 
 	@AfterClass
@@ -37,7 +36,7 @@ public class TestLoadingDoubleParameter {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After
@@ -50,7 +49,7 @@ public class TestLoadingDoubleParameter {
 
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.doubleParameter.FunctionWithDoubleParameter.class.getCanonicalName(),
-				"makeStringWithDoubleParameters", "(DD)Ljava/lang/String;", (Object[]) new Double[] { 1.23, 2.34 });
+				"makeStringWithDoubleParameters", MethodType.methodType(String.class, double.class, double.class), (Object[]) new Double[] { 1.23, 2.34 });
 
 	}
 

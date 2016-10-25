@@ -56,7 +56,7 @@ public enum MySharedSecrets {
 	public static void unsafer() {
 		@SuppressWarnings("unused")
 		Unsafe unsafe = Unsafe.getUnsafe();
-		System.out.println(unsafe.ADDRESS_SIZE);
+		System.out.println(Unsafe.ADDRESS_SIZE);
 	}
 
 	public static void main(String[] args) {

@@ -1,6 +1,8 @@
-package de.wwu.muggl.test.real.vm;
+package de.wwu.muggl.test.real.instructions;
 
 import static org.junit.Assert.*;
+
+import java.lang.invoke.MethodType;
 
 import org.apache.log4j.Level;
 import org.junit.After;
@@ -10,6 +12,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
+import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Method;
@@ -22,13 +26,15 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class BugInvokevirtualParentInterfaces {
+public class BugInvokevirtualParentInterfaces extends TestSkeleton {
 	MugglClassLoader classLoader;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.ALL);
-		Globals.getInst().parserLogger.setLevel(Level.WARN);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.ALL);
+			Globals.getInst().parserLogger.setLevel(Level.WARN);
+		}
 	}
 
 	@AfterClass
@@ -37,7 +43,7 @@ public class BugInvokevirtualParentInterfaces {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After
@@ -50,7 +56,7 @@ public class BugInvokevirtualParentInterfaces {
 		assertEquals("2",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.invokevirtual.MyType.class.getCanonicalName(), "forTesting",
-						"(Ljava/lang/Integer;)Ljava/lang/String;", (Object[]) new Integer[] { 2 }));
+						MethodType.methodType(String.class, Integer.class),(Object[]) new Integer[] { 2 }));
 
 	}
 

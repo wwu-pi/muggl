@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
@@ -21,12 +22,14 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestMethodResolution {
+public class TestMethodResolution extends TestSkeleton {
 	MugglClassLoader classLoader;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.TRACE);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.TRACE);
+		}
 	}
 
 	@AfterClass
@@ -35,7 +38,7 @@ public class TestMethodResolution {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After
@@ -155,7 +158,7 @@ public class TestMethodResolution {
 		ResolutionAlgorithms resolAlg = new ResolutionAlgorithms(classLoader);
 
 		final String[] nameAndType = new String[] { "parse",
-				MethodType.methodType(sun.reflect.generics.repository.ClassRepository.class,String.class)
+				MethodType.methodType(sun.reflect.generics.repository.ClassRepository.class, String.class)
 						.toMethodDescriptorString() };
 
 		resolAlg.resolveMethod(classFile, nameAndType);

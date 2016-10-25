@@ -1,4 +1,4 @@
-package de.wwu.muggl.test.real.lambda;
+package de.wwu.muggl.test.real.java8;
 
 import static org.junit.Assert.*;
 
@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.initialization.InitializationException;
@@ -22,12 +23,14 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class LambdaTesting {
+public class TestLambda extends TestSkeleton {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.ALL);
-		Globals.getInst().parserLogger.setLevel(Level.WARN);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.ALL);
+			Globals.getInst().parserLogger.setLevel(Level.WARN);
+		}
 	}
 
 	@AfterClass
@@ -38,7 +41,7 @@ public class LambdaTesting {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After

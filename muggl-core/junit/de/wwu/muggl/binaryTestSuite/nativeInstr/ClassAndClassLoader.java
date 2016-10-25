@@ -2,8 +2,6 @@ package de.wwu.muggl.binaryTestSuite.nativeInstr;
 
 import java.io.Serializable;
 
-import sun.reflect.Reflection;
-
 /**
  * Testing native instructions in java.lang.Class and .ClassLoader
  * 
@@ -202,6 +200,7 @@ public class ClassAndClassLoader implements Serializable {
 		return ClassAndClassLoader.class.getDeclaredConstructors()[0].toGenericString();
 	}
 
+	@SuppressWarnings("unused")
 	public static int test_ObjectClass() {
 		// multi-stage testing that we get the object class object right
 		Class<?> klazz = Object.class;

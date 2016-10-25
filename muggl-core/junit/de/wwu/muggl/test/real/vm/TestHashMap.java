@@ -5,22 +5,16 @@ import static org.junit.Assert.*;
 import java.lang.invoke.MethodType;
 
 import org.apache.log4j.Level;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
-
 import de.wwu.muggl.binaryTestSuite.HashMapTest;
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
-import de.wwu.muggl.vm.Application;
-import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
-import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
@@ -29,17 +23,16 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestHashMap {
+public class TestHashMap extends TestSkeleton {
 	MugglClassLoader classLoader;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.TRACE);
-		Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.TRACE);
+			Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		}
 	}
-	
-	@Rule
-	public Timeout globalTimeout = Timeout.seconds(15); // 10 seconds max per method tested
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
@@ -47,14 +40,14 @@ public class TestHashMap {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After
 	public void tearDown() throws Exception {
 	}
 
-	// @Test // läuft
+	@Test
 	public final void test_HashMap() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("Freixenet",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader, HashMapTest.class.getCanonicalName(),
@@ -62,7 +55,7 @@ public class TestHashMap {
 
 	}
 
-	// @Test // läuft
+	@Test
 	public final void test_HashMapComplicatedClass()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("fieldFilterMap",
@@ -77,6 +70,21 @@ public class TestHashMap {
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader, HashMapTest.class.getCanonicalName(),
 						HashMapTest.METHOD_test_HashMapInHashMap, MethodType.methodType(String.class), null));
 
+	}
+
+	/**
+	 * Will look if a newly initialized HashTable is empty. The function .isEmpty is synchronized so this test will fail
+	 * if there are problems with monitor support
+	 * 
+	 * @throws ClassFileException
+	 * @throws InitializationException
+	 * @throws InterruptedException
+	 */
+	@Test
+	public final void testApplicationMugglVMRunHashTableEmpty()
+			throws ClassFileException, InitializationException, InterruptedException {
+		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
+				de.wwu.muggl.binaryTestSuite.invokevirtual.HashTableEmpty.class.getCanonicalName(), "execute");
 	}
 
 }

@@ -1,4 +1,8 @@
-package de.wwu.muggl.test.real.vm;
+package de.wwu.muggl.test.real.nativeMethodCalls;
+
+import static org.junit.Assert.*;
+
+import java.lang.invoke.MethodType;
 
 import org.apache.log4j.Level;
 import org.junit.After;
@@ -8,6 +12,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
+import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -17,13 +23,15 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class BugMonitorHashTableEmpty {
+public class TestObject extends TestSkeleton {
 	MugglClassLoader classLoader;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		if (!isForbiddenChangingLogLevel) {
 		Globals.getInst().changeLogLevel(Level.TRACE);
 		Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		}
 	}
 
 	@AfterClass
@@ -32,26 +40,21 @@ public class BugMonitorHashTableEmpty {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After
 	public void tearDown() throws Exception {
 	}
 
-	/**
-	 * Will look if a newly initialized HashTable is empty. The function .isEmpty is synchronized so this test will fail
-	 * if there are problems with monitor support
-	 * 
-	 * @throws ClassFileException
-	 * @throws InitializationException
-	 * @throws InterruptedException
-	 */
 	@Test
-	public final void testApplicationMugglVMRunHashTableEmpty()
+	public final void test_ObjectHashCodeStable()
 			throws ClassFileException, InitializationException, InterruptedException {
-		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
-				de.wwu.muggl.binaryTestSuite.invokevirtual.HashTableEmpty.class.getCanonicalName(), "execute");
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ObjectTest.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ObjectTest.METHOD_ObjectHashCodeStable,
+				MethodType.methodType(boolean.class), null));
+
 	}
 
 }

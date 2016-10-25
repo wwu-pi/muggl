@@ -48,7 +48,7 @@ public class HashMapTest {
 
 		Set<Entry<Class<?>, String[]>> test = map.entrySet();
 		int i = 0;
-		for (Entry<Class<?>, String[]> entry : test) {
+		for (@SuppressWarnings("unused") Entry<Class<?>, String[]> entry : test) {
 			i++;
 		}
 		return test.size() + " " + i;

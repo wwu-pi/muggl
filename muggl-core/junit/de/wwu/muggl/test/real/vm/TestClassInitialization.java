@@ -9,14 +9,11 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
-
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.Application;
-import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Method;
@@ -34,10 +31,7 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestClassInitialization {
-	@Rule
-	public Timeout globalTimeout = Timeout.seconds(10); // 10 seconds max per method tested
-
+public class TestClassInitialization extends TestSkeleton {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		Globals.getInst().changeLogLevel(Level.WARN);
@@ -52,7 +46,7 @@ public class TestClassInitialization {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After
@@ -104,6 +98,7 @@ public class TestClassInitialization {
 				MethodType.methodType(long.class, int.class).toMethodDescriptorString());
 
 		Application application = new Application(classLoader, classFile.getName(), method);
+		@SuppressWarnings("unused")
 		InitializedClass initCl = classFile.getTheInitializedClass(application.getVirtualMachine(), true);
 		
 		Objectref objectref = application.getVirtualMachine().getAndInitializeObjectref(classFile.getInitializedClass());

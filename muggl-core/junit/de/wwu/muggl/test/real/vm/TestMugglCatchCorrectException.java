@@ -1,10 +1,10 @@
 package de.wwu.muggl.test.real.vm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -13,18 +13,21 @@ import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
-public class TestMugglCatchCorrectException {
+public class TestMugglCatchCorrectException extends TestSkeleton {
 	MugglClassLoader classLoader;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.TRACE);
-		Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.TRACE);
+			Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		}
 	}
 
 	@AfterClass
@@ -33,7 +36,7 @@ public class TestMugglCatchCorrectException {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After

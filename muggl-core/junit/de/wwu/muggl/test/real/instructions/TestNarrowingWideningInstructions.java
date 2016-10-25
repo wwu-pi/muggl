@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.execution.ConversionException;
@@ -27,7 +28,7 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestNarrowingWideningInstructions {
+public class TestNarrowingWideningInstructions extends TestSkeleton {
 	MugglClassLoader classLoader;
 
 	// how much epsilon is permitted in double comparisons?
@@ -35,8 +36,10 @@ public class TestNarrowingWideningInstructions {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.ERROR);
-		Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.ERROR);
+			Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		}
 	}
 
 	@AfterClass
@@ -45,7 +48,7 @@ public class TestNarrowingWideningInstructions {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After
@@ -59,7 +62,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((float) 4,
 				(float) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "d2f",
-						MethodType.methodType(float.class).toMethodDescriptorString(), null),
+						MethodType.methodType(float.class), null),
 				epsilon);
 
 	}
@@ -71,7 +74,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((int) 3,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "d2i",
-						MethodType.methodType(int.class).toMethodDescriptorString(), null));
+						MethodType.methodType(int.class), null));
 
 	}
 
@@ -82,7 +85,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((long) 3,
 				(long) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "d2l",
-						MethodType.methodType(long.class).toMethodDescriptorString(), null));
+						MethodType.methodType(long.class), null));
 
 	}
 
@@ -93,7 +96,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((short) 3,
 				(short) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "d2s",
-						MethodType.methodType(short.class).toMethodDescriptorString(), null));
+						MethodType.methodType(short.class), null));
 
 	}
 
@@ -104,7 +107,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((double) 444444,
 				(double) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "f2d",
-						MethodType.methodType(double.class).toMethodDescriptorString(), null),
+						MethodType.methodType(double.class), null),
 				epsilon);
 
 	}
@@ -116,7 +119,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((int) 3,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "f2i",
-						MethodType.methodType(int.class).toMethodDescriptorString(), null));
+						MethodType.methodType(int.class), null));
 
 	}
 
@@ -127,7 +130,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((long) 3,
 				(long) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "f2l",
-						MethodType.methodType(long.class).toMethodDescriptorString(), null));
+						MethodType.methodType(long.class), null));
 
 	}
 
@@ -138,7 +141,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((byte) 4,
 				(byte) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "i2b",
-						MethodType.methodType(byte.class).toMethodDescriptorString(), null));
+						MethodType.methodType(byte.class), null));
 
 	}
 
@@ -149,7 +152,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((char) 49,
 				(char) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "i2c",
-						MethodType.methodType(char.class).toMethodDescriptorString(), null));
+						MethodType.methodType(char.class), null));
 
 	}
 
@@ -160,7 +163,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((double) 32443,
 				(double) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "i2d",
-						MethodType.methodType(double.class).toMethodDescriptorString(), null),
+						MethodType.methodType(double.class), null),
 				epsilon);
 
 	}
@@ -172,7 +175,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((float) 32445,
 				(float) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "i2f",
-						MethodType.methodType(float.class).toMethodDescriptorString(), null),
+						MethodType.methodType(float.class), null),
 				epsilon);
 
 	}
@@ -184,7 +187,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((long) 32550,
 				(long) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "i2l",
-						MethodType.methodType(long.class).toMethodDescriptorString(), null));
+						MethodType.methodType(long.class), null));
 
 	}
 
@@ -195,7 +198,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((short) 4,
 				(short) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "i2s",
-						MethodType.methodType(short.class).toMethodDescriptorString(), null));
+						MethodType.methodType(short.class), null));
 
 	}
 
@@ -206,7 +209,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((byte) -7,
 				(byte) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "l2b",
-						MethodType.methodType(byte.class).toMethodDescriptorString(), null));
+						MethodType.methodType(byte.class), null));
 
 	}
 
@@ -217,7 +220,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((double) 499999,
 				(double) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "l2d",
-						MethodType.methodType(double.class).toMethodDescriptorString(), null),
+						MethodType.methodType(double.class), null),
 				epsilon);
 
 	}
@@ -229,7 +232,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((float) 48888,
 				(float) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "l2f",
-						MethodType.methodType(float.class).toMethodDescriptorString(), null),
+						MethodType.methodType(float.class), null),
 				epsilon);
 
 	}
@@ -241,7 +244,7 @@ public class TestNarrowingWideningInstructions {
 		assertEquals((int) 3245,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.NarrowingWideningConversions.class.getCanonicalName(), "l2i",
-						MethodType.methodType(int.class).toMethodDescriptorString(), null));
+						MethodType.methodType(int.class), null));
 
 	}
 

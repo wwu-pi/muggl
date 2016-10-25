@@ -1,9 +1,7 @@
-package de.wwu.muggl.test.real.nativeInstr;
+package de.wwu.muggl.test.real.nativeMethodCalls;
 
 import static org.junit.Assert.*;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
 import org.apache.log4j.Level;
@@ -12,15 +10,12 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
-
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
 import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.Reflection;
-import de.wwu.muggl.vm.SystemDictionary;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Method;
@@ -34,16 +29,15 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestClassAndClassLoader {
+public class TestClassAndClassLoader extends TestSkeleton {
 	MugglClassLoader classLoader;
-
-	// @Rule
-	// public Timeout globalTimeout = Timeout.seconds(20); // 10 seconds max per method tested
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		if (!isForbiddenChangingLogLevel) {
 		Globals.getInst().changeLogLevel(Level.WARN);
 		Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		}
 	}
 
 	@AfterClass
@@ -52,7 +46,7 @@ public class TestClassAndClassLoader {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.wwu.muggl.test.real.instructions;
+package de.wwu.muggl.test.real.java8;
 
 import static org.junit.Assert.*;
 
@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -18,7 +19,7 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class Java8ClassFileParsing {
+public class TestJava8ClassFileParsing extends TestSkeleton {
 	private MugglClassLoader classLoader;
 
 	/**
@@ -26,8 +27,10 @@ public class Java8ClassFileParsing {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		Globals.getInst().changeLogLevel(Level.ALL);
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.ALL);
+		}
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	/**

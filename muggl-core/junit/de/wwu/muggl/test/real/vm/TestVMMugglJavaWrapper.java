@@ -2,7 +2,6 @@ package de.wwu.muggl.test.real.vm;
 
 import static org.junit.Assert.*;
 
-import java.lang.reflect.Array;
 import java.util.stream.IntStream;
 
 import org.apache.log4j.Level;
@@ -15,6 +14,7 @@ import org.junit.Test;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.bytecode.Invokevirtual;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -33,17 +33,19 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestVMMugglJavaWrapper {
+public class TestVMMugglJavaWrapper extends TestSkeleton {
 	private static MugglClassLoader classLoader;
 	private static MugglToJavaConversion conversion;
 	private static Application application;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.TRACE);
-		Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.TRACE);
+			Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		}
 
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 		// need dummy (class and method) to create application
 		ClassFile classFile = classLoader.getClassAsClassFile(
 				de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(), true);
@@ -169,6 +171,7 @@ public class TestVMMugglJavaWrapper {
 		ReferenceValue referenceValue = classLoader.getClassAsClassFile("java.lang.Boolean")
 				.getAPrimitiveWrapperObjectref(application.getVirtualMachine());
 
+		@SuppressWarnings("unused")
 		Arrayref arrayref = new Arrayref(referenceValue, 1);
 
 		Object mugglObj = conversion.toMuggl(array, true);

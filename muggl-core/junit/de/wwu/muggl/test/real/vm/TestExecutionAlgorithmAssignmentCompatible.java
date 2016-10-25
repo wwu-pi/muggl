@@ -3,28 +3,19 @@ package de.wwu.muggl.test.real.vm;
 import static org.junit.Assert.*;
 
 import java.lang.invoke.MethodType;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.log4j.Level;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
-import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
-import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.ExecutionAlgorithms;
 import de.wwu.muggl.vm.execution.ExecutionException;
-import de.wwu.muggl.vm.execution.MugglToJavaConversion;
-import de.wwu.muggl.vm.initialization.Arrayref;
-import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.Objectref;
-import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 /**
@@ -36,16 +27,18 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 // FIXME MXS dieser Test ist eigentlich unvollständig. Die Primitiven, die ich an chekForAss... schicke kommen da ja
 // nicht an sondern werden zu ReferenceTypen java.lang.* also testet es nicht ganz das gewollte.
-public class TestExecutionAlgorithmAssignmentCompatible {
+public class TestExecutionAlgorithmAssignmentCompatible extends TestSkeleton {
 	private static ExecutionAlgorithms ea;
 	private static Application application;
 
 	private static MugglClassLoader classLoader;
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.WARN);
-		Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.WARN);
+			Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		}
 
 		// Need dummy classloader, classFile to get an Application / VM Handle
 		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
@@ -224,15 +217,14 @@ public class TestExecutionAlgorithmAssignmentCompatible {
 		assertTrue("should be legal: assigning null to reference type",
 				ea.checkForAssignmentCompatibility(null, "java.lang.Boolean", application.getVirtualMachine(), false));
 	}
-	
+
 	@Test
 	public void runTestTransientInterface() throws ExecutionException, ClassFileException {
 		ClassFile classFile1 = classLoader
 				.getClassAsClassFile(sun.reflect.generics.tree.ClassSignature.class.getCanonicalName(), true);
 		Objectref objectref = application.getVirtualMachine().getAnObjectref(classFile1);
-		assertTrue("should be legal: A to C, when A implements B (B extends C)",
-				ea.checkForAssignmentCompatibility(objectref, "sun.reflect.generics.tree.Tree", application.getVirtualMachine(), false));
+		assertTrue("should be legal: A to C, when A implements B (B extends C)", ea.checkForAssignmentCompatibility(
+				objectref, "sun.reflect.generics.tree.Tree", application.getVirtualMachine(), false));
 	}
-	
 
 }

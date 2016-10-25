@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
 
 public class HashTablePut {

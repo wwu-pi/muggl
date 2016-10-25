@@ -5,11 +5,7 @@ import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
 
 public class MethodHandleTest {
 
@@ -27,15 +23,14 @@ public class MethodHandleTest {
 
 	@CallerSensitive
 	public static void test_methodHandleArray() {
-		// done int MethodHandleImpl.java:1083
+		// done in MethodHandleImpl.java:1083
+		@SuppressWarnings("unused")
 		MethodHandle[] FAKE_METHOD_HANDLE_INVOKE = new MethodHandle[2];
 	}
 
 	public final static String METHOD_findVirtualInvokeExact = "findVirtualInvokeExact";
 
 	public static void findVirtualInvokeExact() throws Throwable {
-		MethodType mt1 = MethodType.methodType(int.class);
-		System.out.println("markermax --31");
 		// mt is {(char,char) => String}
 		MethodType mt = MethodType.methodType(String.class, char.class, char.class);
 		System.out.println("markermax --32");

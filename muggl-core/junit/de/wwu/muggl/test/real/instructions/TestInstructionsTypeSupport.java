@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
+import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.execution.ConversionException;
@@ -26,13 +27,15 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestInstructionsTypeSupport {
+public class TestInstructionsTypeSupport extends TestSkeleton {
 	MugglClassLoader classLoader;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.WARN);
-		Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.WARN);
+			Globals.getInst().parserLogger.setLevel(Level.ERROR);
+		}
 	}
 
 	@AfterClass
@@ -41,7 +44,7 @@ public class TestInstructionsTypeSupport {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After
@@ -56,7 +59,7 @@ public class TestInstructionsTypeSupport {
 				(byte) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.InstructionsType.class.getCanonicalName(),
 						de.wwu.muggl.binaryTestSuite.InstructionsType.METHOD_byte_imul,
-						MethodType.methodType(byte.class).toMethodDescriptorString(), null));
+						MethodType.methodType(byte.class), null));
 
 	}
 
@@ -68,7 +71,7 @@ public class TestInstructionsTypeSupport {
 				(char) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.InstructionsType.class.getCanonicalName(),
 						de.wwu.muggl.binaryTestSuite.InstructionsType.METHOD_char_iinc,
-						MethodType.methodType(char.class).toMethodDescriptorString(), null));
+						MethodType.methodType(char.class), null));
 
 	}
 
@@ -80,7 +83,7 @@ public class TestInstructionsTypeSupport {
 				(short) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.InstructionsType.class.getCanonicalName(),
 						de.wwu.muggl.binaryTestSuite.InstructionsType.METHOD_short_ineg,
-						MethodType.methodType(short.class).toMethodDescriptorString(), null));
+						MethodType.methodType(short.class), null));
 
 	}
 
@@ -90,22 +93,22 @@ public class TestInstructionsTypeSupport {
 
 		assertTrue(!(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.InstructionsType.class.getCanonicalName(),
-				de.wwu.muggl.binaryTestSuite.InstructionsType.METHOD_bytecompifeq,
-				MethodType.methodType(boolean.class).toMethodDescriptorString(), null));
+				de.wwu.muggl.binaryTestSuite.InstructionsType.METHOD_bytecompifeq, MethodType.methodType(boolean.class),
+				null));
 
 	}
-	
+
 	@Test
-	public final void test_byteStoreField() throws ClassFileException, InitializationException,
-			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
+	public final void test_byteStoreField() throws ClassFileException, InitializationException, InterruptedException,
+			InvalidInstructionInitialisationException, ConversionException {
 
 		assertTrue(!(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.InstructionsType.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.InstructionsType.METHOD_byteStoreField,
-				MethodType.methodType(boolean.class).toMethodDescriptorString(), null));
+				MethodType.methodType(boolean.class), null));
 
 	}
-	
+
 	@Test
 	public final void testbooleanInternalInt() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
@@ -113,7 +116,7 @@ public class TestInstructionsTypeSupport {
 		assertTrue(!(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.InstructionsType.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.InstructionsType.METHOD_booleanInternalInt,
-				MethodType.methodType(boolean.class).toMethodDescriptorString(), null));
+				MethodType.methodType(boolean.class), null));
 
 	}
 

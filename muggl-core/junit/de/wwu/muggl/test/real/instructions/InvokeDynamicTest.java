@@ -1,4 +1,4 @@
-package de.wwu.muggl.test.real.vm;
+package de.wwu.muggl.test.real.instructions;
 
 import static org.junit.Assert.*;
 
@@ -12,6 +12,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
+import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Attribute;
@@ -24,12 +26,14 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class InvokeDynamicTest {
+public class InvokeDynamicTest extends TestSkeleton {
 	MugglClassLoader classLoader;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.TRACE);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.TRACE);
+		}
 	}
 
 	@AfterClass
@@ -38,7 +42,7 @@ public class InvokeDynamicTest {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After
@@ -75,7 +79,7 @@ public class InvokeDynamicTest {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.METHOD_lambdaSugarRunnable,
-				MethodType.methodType(void.class).toMethodDescriptorString(), null);
+				MethodType.methodType(void.class), null);
 	}
 
 	@Test
@@ -84,7 +88,7 @@ public class InvokeDynamicTest {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.METHOD_GenerateLambdaMetafactoryManual,
-				MethodType.methodType(void.class).toMethodDescriptorString(), null);
+				MethodType.methodType(void.class), null);
 	}
 
 	@Test
@@ -93,7 +97,7 @@ public class InvokeDynamicTest {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.invokedynamic.LambdaDemo.METHOD_lambdaMetafactoryAuto,
-				MethodType.methodType(void.class).toMethodDescriptorString(), null);
+				MethodType.methodType(void.class), null);
 	}
 
 }

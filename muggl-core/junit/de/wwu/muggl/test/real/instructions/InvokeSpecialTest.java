@@ -1,4 +1,4 @@
-package de.wwu.muggl.test.real.vm;
+package de.wwu.muggl.test.real.instructions;
 
 import static org.junit.Assert.*;
 
@@ -7,9 +7,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.test.TestSkeleton;
+import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Attribute;
@@ -22,12 +22,14 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class InvokeSpecialTest {
+public class InvokeSpecialTest extends TestSkeleton {
 	MugglClassLoader classLoader;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Globals.getInst().changeLogLevel(Level.TRACE);
+		if (!isForbiddenChangingLogLevel) {
+			Globals.getInst().changeLogLevel(Level.TRACE);
+		}
 	}
 
 	@AfterClass
@@ -36,7 +38,7 @@ public class InvokeSpecialTest {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(new String[] { "./", "./junit-res/" });
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
 	}
 
 	@After
@@ -49,7 +51,7 @@ public class InvokeSpecialTest {
 	 * @throws ClassFileException
 	 * @throws InitializationException
 	 */
-//	@Test
+	// @Test
 	public final void testApplicationMugglParseClassFileBootstrapMethod()
 			throws ClassFileException, InitializationException {
 		ClassFile classFile = classLoader.getClassAsClassFile(
@@ -67,7 +69,7 @@ public class InvokeSpecialTest {
 
 	}
 
-//	@Test
+	// @Test
 	public final void testApplicationMugglVMRunInvokeSpecial()
 			throws ClassFileException, InitializationException, InterruptedException {
 
