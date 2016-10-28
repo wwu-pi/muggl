@@ -1,9 +1,10 @@
 package de.wwu.muggl.vm.classfile.structures.constants;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
+import java.nio.ByteBuffer;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -18,7 +19,7 @@ import de.wwu.muggl.vm.classfile.structures.Constant;
  */
 public class ConstantUtf8 extends Constant {
 	private int length;
-	private byte[] bytes;
+	private byte[] bytes; // first two bytes indicate length
 
 	/**
 	 * Basic constructor.
@@ -28,17 +29,25 @@ public class ConstantUtf8 extends Constant {
 	public ConstantUtf8(ClassFile classFile) throws IOException {
 		super(classFile);
 		this.length = classFile.getDis().readUnsignedShort();
-		this.bytes = new byte[this.length];
-		for (int a = 0; a < this.length; a++) {
+		this.bytes = new byte[this.length+2];
+		// need to retain the length bytes for the decoding of inputbyte later 
+		byte[] bytes = ByteBuffer.allocate(Integer.BYTES).putInt(length).array();
+		this.bytes[0] = bytes[2];
+		this.bytes[1] = bytes[3];
+		for (int a = 2; a < this.length+2; a++) {
 			this.bytes[a] = classFile.getDis().readByte();
 		}
-		if (Globals.getInst().parserLogger.isTraceEnabled()) Globals.getInst().parserLogger.trace("Parsing: Read new Constant: Utf8, bytes to String is \"" + getValue() + "\"");
+		Globals.getInst().parserLogger
+				.trace("Parsing: Read new Constant: Utf8, bytes to String is \"" + getValue() + "\"");
 	}
 
 	/**
 	 * Write the represented structure to the output stream provided.
-	 * @param dos A DataOutputStream to write the represented structure to.
-	 * @throws IOException If writing to the output stream failed.
+	 * 
+	 * @param dos
+	 *            A DataOutputStream to write the represented structure to.
+	 * @throws IOException
+	 *             If writing to the output stream failed.
 	 */
 	@Override
 	public void writeToClassFile(DataOutputStream dos) throws IOException {
@@ -91,8 +100,11 @@ public class ConstantUtf8 extends Constant {
 	@Override
 	public String getValue() {
 		try {
-			return new String(this.bytes, "UTF8");
-		} catch (UnsupportedEncodingException e) {
+
+			ByteArrayInputStream bis = new ByteArrayInputStream(this.bytes);
+			DataInputStream dis = new DataInputStream(bis);
+			return DataInputStream.readUTF(dis);
+		} catch (IOException e) {
 			return null;
 		}
 	}
