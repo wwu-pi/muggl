@@ -57,11 +57,13 @@ public class Checkcast extends CheckcastInstanceof implements Instruction, JumpE
 			// objectref must be either null or is assignment compatible (can be cast to) the expected class.
 			String castingToClassName = ((ConstantClass) constant).getName();
 			ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
-			if (objectref != null && !ea.checkForAssignmentCompatibility(objectref, castingToClassName, frame.getVm(), false)) {
+			if (objectref != null
+					&& !ea.checkForAssignmentCompatibility(objectref, castingToClassName, frame.getVm(), false)) {
 				// Checking of cast failed. Throw a ClassCastException exception.
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ClassCastException", ((ReferenceValue) objectref).getInitializedClass()
-						.getClassFile().getName()
-						+ " cannot be cast to " + castingToClassName));
+				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ClassCastException",
+						((ReferenceValue) objectref).getInitializedClass().getClassFile().getName() + " (id:"
+								+ ((ReferenceValue) objectref).getInstantiationNumber() + ") cannot be cast to "
+								+ castingToClassName));
 			}
 		} catch (VmRuntimeException e) {
 			ExceptionHandler handler = new ExceptionHandler(frame, e);
@@ -96,11 +98,13 @@ public class Checkcast extends CheckcastInstanceof implements Instruction, JumpE
 			// objectref must be either null or is assignment compatible (can be cast to) the expected class.
 			String castingToClassName = ((ConstantClass) constant).getName();
 			ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
-			if (objectref != null && !ea.checkForAssignmentCompatibility(objectref, castingToClassName, frame.getVm(), false)) {
+			if (objectref != null
+					&& !ea.checkForAssignmentCompatibility(objectref, castingToClassName, frame.getVm(), false)) {
 				// Checking of cast failed. Throw a ClassCastException exception.
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ClassCastException", objectref.getInitializedClass()
-						.getClassFile().getName()
-						+ " cannot be cast to " + castingToClassName));
+				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ClassCastException",
+						objectref.getInitializedClass().getClassFile().getName() + " (id:"
+								+ ((ReferenceValue) objectref).getInstantiationNumber() + ")cannot be cast to "
+								+ castingToClassName));
 			}
 		} catch (VmRuntimeException e) {
 			SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);

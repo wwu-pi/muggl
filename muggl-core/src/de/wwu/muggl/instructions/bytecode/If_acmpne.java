@@ -4,6 +4,7 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.If_acmp;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
+import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 
 /**
@@ -43,7 +44,17 @@ public class If_acmpne extends If_acmp implements Instruction {
 	 * @return true If the expected condition is met, false otherwise.
 	 */
 	@Override
-	protected boolean compare(ReferenceValue value1, ReferenceValue value2) {
+	protected boolean compare(ReferenceValue value1, ReferenceValue value2) {		
+		if (value1 instanceof Objectref && value2 instanceof Objectref) {
+			// impossible to have the same object representing the <array>.getclass, so fake here
+			Objectref o1 = (Objectref) value1;
+			Objectref o2 = (Objectref) value2;
+			if (o1.isMirroredMugglIsArray() && o2.isMirroredMugglIsArray()) {
+				return o1.getMirroredMugglArray().getReferenceValue().getInitializedClass().getClassFile() != o2
+						.getMirroredMugglArray().getReferenceValue().getInitializedClass().getClassFile();
+			}
+		}
+		
 		if (value1 != value2) return true;
 		return false;
 	}

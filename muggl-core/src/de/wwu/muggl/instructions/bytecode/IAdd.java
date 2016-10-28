@@ -5,6 +5,7 @@ import java.util.Stack;
 import de.wwu.muggl.instructions.general.Add;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.execution.ExecutionException;
 
@@ -22,11 +23,10 @@ public class IAdd extends Add implements Instruction {
 	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void execute(Frame frame) throws ExecutionException {
-		Stack<Object> stack = frame.getOperandStack();
-		Integer value2 = (Integer) stack.pop();
-		Integer value1 = (Integer) stack.pop();
+		Stack<Object> stack = frame.getOperandStack();	
+		Integer value2 = (Integer) VmSymbols.wideningPrimConversion(stack.pop(), Integer.class); 
+		Integer value1 = (Integer) VmSymbols.wideningPrimConversion(stack.pop(), Integer.class); 
 		stack.push(value1 + value2);
 	}
 

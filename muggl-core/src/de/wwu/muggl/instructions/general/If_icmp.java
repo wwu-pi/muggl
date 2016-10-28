@@ -5,6 +5,7 @@ import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
@@ -46,8 +47,8 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 	 */
 	@Override
 	public void execute(Frame frame) {
-		Integer value2 = (Integer) frame.getOperandStack().pop();
-		Integer value1 = (Integer) frame.getOperandStack().pop();
+		Integer value2 = (Integer) VmSymbols.wideningPrimConversion(frame.getOperandStack().pop(), Integer.class);
+		Integer value1 = (Integer) VmSymbols.wideningPrimConversion(frame.getOperandStack().pop(), Integer.class);
 		if (compare(value1, value2)) {
 			frame.getVm().setPC(this.lineNumber + (this.otherBytes[0] << ONE_BYTE | this.otherBytes[1]));
 		}

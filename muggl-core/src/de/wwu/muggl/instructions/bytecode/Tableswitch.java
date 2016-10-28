@@ -4,6 +4,8 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SystemDictionary;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.attributes.NoMoreCodeBytesException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
@@ -77,7 +79,7 @@ public class Tableswitch extends Switch implements Instruction {
 	 */
 	@Override
 	public void execute(Frame frame) {
-		int index = (Integer) frame.getOperandStack().pop();
+		int index = (Integer) VmSymbols.wideningPrimConversion(frame.getOperandStack().pop(), Integer.class);
 		findTargetAndSwitch(frame, index);
 	}
 
