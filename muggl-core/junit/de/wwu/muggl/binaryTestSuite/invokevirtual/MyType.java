@@ -20,7 +20,7 @@ public class MyType<T> {
 		return new MySecondType<T>(m);
 	}
 
-	private static class MySecondType<E> extends SuperclassMySecondType<E>
+	public static class MySecondType<E> extends SuperclassMySecondType<E>
 			implements java.io.Serializable, MySecondInterface {
 		private static final long serialVersionUID = -2764017481108945198L;
 		protected final E e;

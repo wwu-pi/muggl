@@ -5,6 +5,8 @@ package de.wwu.muggl.test.real.java8;
 
 import static org.junit.Assert.*;
 
+import java.lang.invoke.MethodType;
+
 import org.apache.log4j.Level;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +15,7 @@ import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
+import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 /**
@@ -47,6 +50,15 @@ public class TestJava8ClassFileParsing extends TestSkeleton {
 
 		// small side-test
 		assertEquals(52, classFile.getMajorVersion());
+	}
+
+	@Test
+	public final void testMugglClassLoaderMethodAnnotations() throws ClassFileException {
+		ClassFile classFile = classLoader.getClassAsClassFile("sun.reflect.Reflection", true);
+
+		Method m = classFile.getMethodByNameAndDescriptor("getCallerClass",
+				MethodType.methodType(Class.class).toMethodDescriptorString());
+		assertTrue(m.isCallerSensitive());
 	}
 
 }

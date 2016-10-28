@@ -33,4 +33,15 @@ public class StringHandling {
 		return "testing".startsWith("tes");
 	}
 
+	public static String METHOD_CharLength = "CharLength";
+
+	public static int CharLength() {
+		final char B[] = ("\000\001").toCharArray();
+		return B.length;
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(CharLength());
+	}
+
 }

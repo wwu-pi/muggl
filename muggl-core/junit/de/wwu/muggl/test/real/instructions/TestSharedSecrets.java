@@ -112,7 +112,7 @@ public class TestSharedSecrets extends TestSkeleton {
 
 	// nota: this involves sun.reflect.NativeMethodAccessorImpl.invoke0
 	@Test
-	public final void testGetValues() throws ClassFileException, InitializationException, InterruptedException {
+	public final void testGetValuesShared() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(2,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(), "getValues",

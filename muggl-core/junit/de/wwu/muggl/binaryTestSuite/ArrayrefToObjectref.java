@@ -120,6 +120,14 @@ public class ArrayrefToObjectref {
 		}
 		return types;
 	}
+	
+	public final static String METHOD_testArrayComponentTypeClass = "testArrayComponentTypeClass";
+
+	public static boolean testArrayComponentTypeClass() {
+		byte[] mByte = { 0x1, 0x2 };
+				
+		return mByte.getClass().getComponentType() == byte.class;
+	}
 
 	public final static String METHOD_testArrayInstanceOf = "testArrayInstanceOf";
 

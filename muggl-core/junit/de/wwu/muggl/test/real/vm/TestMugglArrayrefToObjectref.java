@@ -131,7 +131,7 @@ public class TestMugglArrayrefToObjectref extends TestSkeleton {
 
 	}
 
-	// @Test //rather advanced Test
+	 @Test //rather advanced Test
 	public final void testArrayClassEquivalence() throws ClassFileException, InitializationException,
 			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
 
@@ -212,4 +212,17 @@ public class TestMugglArrayrefToObjectref extends TestSkeleton {
 				MethodType.methodType(boolean.class), null));
 
 	}
+	
+	@Test
+	public final void testVMArrayComponentTypeClass() throws ClassFileException, InitializationException,
+			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
+
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.ArrayrefToObjectref.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.ArrayrefToObjectref.METHOD_testArrayComponentTypeClass,
+				MethodType.methodType(boolean.class), null));
+
+	}
+	
+	
 }
