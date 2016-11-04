@@ -188,7 +188,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 		this.searchAlgorithm = searchAlgorithm;
 		this.coverage = new CoverageController(this);
 		this.trackCoverage = options.useCFCoverage && options.useDUCoverage;
-		this.stack = new StackToTrail<Object>(true, this.searchAlgorithm);
+		this.stack = new StackToTrail(true, this.searchAlgorithm);
 		this.doNotTryToTrackBack = false;
 		this.doNotProcessSolutions = false;
 		this.measureExecutionTime = options.measureSymbolicExecutionTime;
@@ -585,7 +585,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 			throws ExecutionException {
 		SymbolicFrame frame = new SymbolicFrame(invokedBy, this, method, method.getClassFile()
 				.getConstantPool(), arguments);
-		frame.setOperandStack(new StackToTrail<Object>(false, this.searchAlgorithm));
+		frame.setOperandStack(new StackToTrail(false, this.searchAlgorithm));
 		return frame;
 	}
 

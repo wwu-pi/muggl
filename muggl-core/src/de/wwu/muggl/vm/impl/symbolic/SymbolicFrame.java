@@ -92,7 +92,7 @@ public class SymbolicFrame extends Frame {
 	public void returnFromMethod(Object value) {
 		this.executionFinishedNormally = true;
 		if (this.invokedBy != null) {
-			StackToTrail<Object> operandStack = (StackToTrail<Object>) this.invokedBy.getOperandStack();
+			StackToTrail operandStack = (StackToTrail) this.invokedBy.getOperandStack();
 			// Enable restoring mode to the pushed item will not be added as a pop trail element to the trail.
 			operandStack.setRestoringMode(true);
 			// Push the return value.

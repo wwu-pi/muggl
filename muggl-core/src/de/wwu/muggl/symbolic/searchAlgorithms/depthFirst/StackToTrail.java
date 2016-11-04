@@ -24,7 +24,7 @@ import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.VmPush;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-03-10
  */
-public class StackToTrail<E> extends Stack<E> {
+public class StackToTrail extends Stack<Object> {
 	// Fields.
 	private boolean isVmStack;
 	private SearchAlgorithm searchAlgorithm;
@@ -49,7 +49,7 @@ public class StackToTrail<E> extends Stack<E> {
 	 * @return The supplied item.
 	 */
 	@Override
-	public E push(E item) {
+	public Object push(Object item) {
 		if (!this.restoringMode) {
 			ChoicePoint choicePoint = this.searchAlgorithm.getCurrentChoicePoint();
 			if (choicePoint != null && choicePoint.hasTrail()) {
@@ -70,8 +70,8 @@ public class StackToTrail<E> extends Stack<E> {
 	 * @return The popped item.
 	 */
 	@Override
-	public synchronized E pop() {
-		E item = super.pop();
+	public synchronized Object pop() {
+		Object item = super.pop();
 		if (!this.restoringMode) {
 			ChoicePoint choicePoint = this.searchAlgorithm.getCurrentChoicePoint();
 			if (choicePoint != null && choicePoint.hasTrail()) {
@@ -106,7 +106,7 @@ public class StackToTrail<E> extends Stack<E> {
 	@SuppressWarnings("unchecked")
 	public synchronized boolean equals(Object obj) {
 		if (obj instanceof StackToTrail) {
-			StackToTrail<E> stack = (StackToTrail<E>) obj;
+			StackToTrail stack = (StackToTrail) obj;
 			if (stack.isVmStack == this.isVmStack && stack.searchAlgorithm == this.searchAlgorithm && stack.restoringMode == this.restoringMode) {
 				return super.equals(obj);
 			}

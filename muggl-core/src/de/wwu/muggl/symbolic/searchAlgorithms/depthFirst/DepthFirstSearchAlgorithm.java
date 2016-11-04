@@ -236,8 +236,8 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 	 */
 	public void recoverState(SymbolicVirtualMachine vm) {
 		// Get the current stacks.
-		StackToTrail<Object> operandStack = (StackToTrail<Object>) vm.getCurrentFrame().getOperandStack();
-		StackToTrail<Object> vmStack = (StackToTrail<Object>) vm.getStack();
+		StackToTrail operandStack = (StackToTrail) vm.getCurrentFrame().getOperandStack();
+		StackToTrail vmStack = (StackToTrail) vm.getStack();
 
 		// Set the StackToTrail instances to restoring mode. Otherwise the recovery will be added to the trail, which will lead to weird behavior.
 		operandStack.setRestoringMode(true);
@@ -276,7 +276,7 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 					// Disable the restoring mode for the last Frame's operand stack.
 					operandStack.setRestoringMode(false);
 					// Set the current operand stack accordingly.
-					operandStack = (StackToTrail<Object>) frameChange.getFrame().getOperandStack();
+					operandStack = (StackToTrail) frameChange.getFrame().getOperandStack();
 					// Enable restoring mode for it.
 					operandStack.setRestoringMode(true);
 				} else if (object instanceof Push) {
