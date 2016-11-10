@@ -4,6 +4,7 @@ import de.wwu.muggl.instructions.bytecode.LCmp;
 import de.wwu.muggl.instructions.general.CompareFp;
 import de.wwu.muggl.instructions.general.GeneralInstructionWithOtherBytes;
 import de.wwu.muggl.instructions.general.Switch;
+import de.wwu.muggl.search.SearchAlgorithm;
 import de.wwu.muggl.symbolic.generating.Generator;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.ArrayRestore;
@@ -25,7 +26,7 @@ import de.wwu.muggl.solvers.expressions.Term;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-08-29
  */
-public interface SymbolicSearchAlgorithm {
+public interface SymbolicSearchAlgorithm extends SearchAlgorithm {
 
 	/**
 	 * Get the current ChoicePoint of this search algorithm. It reflects the
@@ -145,13 +146,6 @@ public interface SymbolicSearchAlgorithm {
 	void generateNewChoicePoint(SymbolicVirtualMachine vm, Switch instruction, Term termFromStack,
 			IntConstant[] keys, int[] pcs, IntConstant low, IntConstant high)
 			throws SymbolicExecutionException;
-
-	/**
-	 * Return a String representation of this search algorithms name.
-	 *
-	 * @return A String representation of this search algorithms name.
-	 */
-	String getName();
 
 	/**
 	 * Get the information whether this search algorithm requires a field
