@@ -25,7 +25,7 @@ import de.wwu.muggl.solvers.expressions.Term;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-08-29
  */
-public interface SearchAlgorithm {
+public interface SymbolicSearchAlgorithm {
 
 	/**
 	 * Get the current ChoicePoint of this search algorithm. It reflects the

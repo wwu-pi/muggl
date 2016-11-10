@@ -19,7 +19,7 @@ import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.symbolic.flow.coverage.CoverageController;
 import de.wwu.muggl.symbolic.generating.Generator;
-import de.wwu.muggl.symbolic.searchAlgorithms.SearchAlgorithm;
+import de.wwu.muggl.symbolic.searchAlgorithms.SymbolicSearchAlgorithm;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.DepthFirstSearchAlgorithm;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.StackToTrail;
@@ -58,7 +58,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	private SolverManager			solverManager;
 
 	// The search algorithm.
-	private final SearchAlgorithm	searchAlgorithm;
+	private final SymbolicSearchAlgorithm	searchAlgorithm;
 	private boolean					doNotTryToTrackBack;
 
 	// Coverage Controller.
@@ -135,7 +135,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	 * @throws InitializationException If initialization of auxiliary classes fails.
 	 * @throws NullPointerException If succeededSVM is null.
 	 */
-	public SymbolicVirtualMachine(SearchAlgorithm searchAlgorithm,
+	public SymbolicVirtualMachine(SymbolicSearchAlgorithm searchAlgorithm,
 			SymbolicVirtualMachine succeededSVM) throws InitializationException {
 		this(succeededSVM.getApplication(), succeededSVM.getClassLoader(), succeededSVM
 				.getClassFile(), succeededSVM.getInitialMethod(), searchAlgorithm);
@@ -172,7 +172,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	 * @throws InitializationException If initialization of auxiliary classes fails.
 	 */
 	private SymbolicVirtualMachine(Application application, MugglClassLoader classLoader,
-			ClassFile classFile, Method initialMethod, SearchAlgorithm searchAlgorithm)
+			ClassFile classFile, Method initialMethod, SymbolicSearchAlgorithm searchAlgorithm)
 			throws InitializationException {
 		super(application, classLoader, classFile, initialMethod);
 		Options options = Options.getInst();
@@ -215,8 +215,8 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	 * 
 	 * @return An instance of SearchAlgorithm.
 	 */
-	private static SearchAlgorithm selectSearchAlgorithm() {
-		SearchAlgorithm searchAlgorithm;
+	private static SymbolicSearchAlgorithm selectSearchAlgorithm() {
+		SymbolicSearchAlgorithm searchAlgorithm;
 		if (Options.getInst().searchAlgorithm == 2) {
 			searchAlgorithm = new IterativeDeepeningSearchAlgorithm(
 					Options.getInst().iterativeDeepeningStartingDepth,
@@ -829,7 +829,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	 * 
 	 * @return The SearchAlgorithm.
 	 */
-	public SearchAlgorithm getSearchAlgorithm() {
+	public SymbolicSearchAlgorithm getSearchAlgorithm() {
 		return this.searchAlgorithm;
 	}
 

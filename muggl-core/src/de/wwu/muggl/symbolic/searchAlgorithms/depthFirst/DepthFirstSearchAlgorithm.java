@@ -19,7 +19,7 @@ import de.wwu.muggl.symbolic.flow.coverage.CGCoverageTrailElement;
 import de.wwu.muggl.symbolic.flow.coverage.DUCoverageTrailElement;
 import de.wwu.muggl.symbolic.generating.Generator;
 import de.wwu.muggl.symbolic.generating.GeneratorChoicePoint;
-import de.wwu.muggl.symbolic.searchAlgorithms.SearchAlgorithm;
+import de.wwu.muggl.symbolic.searchAlgorithms.SymbolicSearchAlgorithm;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.EquationViolationException;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.SolvingException;
@@ -81,7 +81,7 @@ import de.wwu.muggl.solvers.expressions.Term;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-03-16
  */
-public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
+public class DepthFirstSearchAlgorithm implements SymbolicSearchAlgorithm {
 	// Fields
 	/**
 	 * The choice point the search algorithm last branched at.

@@ -2,7 +2,7 @@ package de.wwu.muggl.symbolic.searchAlgorithms.depthFirst;
 
 import java.util.Stack;
 
-import de.wwu.muggl.symbolic.searchAlgorithms.SearchAlgorithm;
+import de.wwu.muggl.symbolic.searchAlgorithms.SymbolicSearchAlgorithm;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.Pop;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.Push;
@@ -27,7 +27,7 @@ import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.VmPush;
 public class StackToTrail extends Stack<Object> {
 	// Fields.
 	private boolean isVmStack;
-	private SearchAlgorithm searchAlgorithm;
+	private SymbolicSearchAlgorithm searchAlgorithm;
 	private boolean restoringMode;
 
 	/**
@@ -35,7 +35,7 @@ public class StackToTrail extends Stack<Object> {
 	 * @param isVmStack If set to true, this StackToTrail should be used as a virtual machine stack. It should be used as a operand stack otherwise.
 	 * @param searchAlgorithm The currently used search algorithm.
 	 */
-	public StackToTrail(boolean isVmStack, SearchAlgorithm searchAlgorithm) {
+	public StackToTrail(boolean isVmStack, SymbolicSearchAlgorithm searchAlgorithm) {
 		super();
 		this.isVmStack = isVmStack;
 		this.searchAlgorithm = searchAlgorithm;
