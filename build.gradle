@@ -24,6 +24,15 @@ allprojects {
         testCompile "junit:junit:4.+"
     }
 
+	task sourcesJar(type: Jar, dependsOn: classes) {
+		classifier = 'sources'
+		from sourceSets.main.allSource
+	}
+
+	artifacts {
+		archives sourcesJar
+	}
+
 }
 
 tasks.withType(JavaCompile) {
