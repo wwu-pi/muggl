@@ -29,6 +29,7 @@ import de.wwu.muggl.symbolic.structures.Loop;
 import de.wwu.muggl.symbolic.testCases.SolutionProcessor;
 import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.VirtualMachine;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.Limitations;
@@ -53,7 +54,7 @@ import de.wwu.muggl.solvers.expressions.Term;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-12-08
  */
-public class SymbolicVirtualMachine extends VirtualMachine {
+public class SymbolicVirtualMachine extends VirtualMachine implements SearchingVM {
 	// The Solver Manager.
 	private SolverManager			solverManager;
 
@@ -824,11 +825,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 		this.nextFrameIsAlreadyLoaded = true;
 	}
 
-	/**
-	 * Getter for the search algorithm implemented in this symbolic virtual machine.
-	 * 
-	 * @return The SearchAlgorithm.
-	 */
+	@Override
 	public SymbolicSearchAlgorithm getSearchAlgorithm() {
 		return this.searchAlgorithm;
 	}
@@ -876,11 +873,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 		}
 	}
 
-	/**
-	 * Getter for the SolverManager.
-	 * 
-	 * @return The SolverManager of this SymbolicalVirtualMachine.
-	 */
+	@Override
 	public SolverManager getSolverManager() {
 		return this.solverManager;
 	}
