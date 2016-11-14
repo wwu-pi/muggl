@@ -1,5 +1,6 @@
 package de.wwu.muggl.search;
 
+import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.Restore;
 
 /**
  * This interface is to be extended by other interfaces, specifying methods to be
@@ -19,4 +20,18 @@ public interface SearchAlgorithm {
 	 */
 	String getName();
 
+	/**
+	 * Get the information whether this search algorithm requires a local
+	 * variable value to be stored (at this exakt moment of execution).
+	 * @return true, if the local variable value should be stored, false otherwise.
+	 */
+	 boolean savingLocalVariableValues();
+
+	/**
+	 * Store a local variable value for use by the search algorithm's tracking back
+	 * functionality.
+	 * @param valueRepresentation A Restore object.
+	 */
+	void saveLocalVariableValue(Restore valueRepresentation);
+	
 }

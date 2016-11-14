@@ -9,7 +9,6 @@ import de.wwu.muggl.symbolic.generating.Generator;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.ArrayRestore;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.FieldPut;
-import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.Restore;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
@@ -160,20 +159,6 @@ public interface SymbolicSearchAlgorithm extends SearchAlgorithm {
 	 * @param valueRepresentation Either a InstanceFieldPut or a StaticfieldPut object.
 	 */
 	void saveFieldValue(FieldPut valueRepresentation);
-
-	/**
-	 * Get the information whether this search algorithm requires a local
-	 * variable value to be stored (at this exakt moment of execution).
-	 * @return true, if the local variable value should be stored, false otherwise.
-	 */
-	 boolean savingLocalVariableValues();
-
-	/**
-	 * Store a local variable value for use by the search algorithm's tracking back
-	 * functionality.
-	 * @param valueRepresentation A Restore object.
-	 */
-	void saveLocalVariableValue(Restore valueRepresentation);
 
 	/**
 	 * Get the information whether this search algorithm requires an array
