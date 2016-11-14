@@ -9,10 +9,10 @@ import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
 import de.wwu.muggl.instructions.typed.TypedInstruction;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.Restore;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 
 /**
  * Abstract instruction with some concrete methods for instructions that store elements
@@ -109,9 +109,9 @@ public abstract class Store extends GeneralInstructionWithOtherBytes implements
 	 */
 	public void executeSymbolically(Frame frame, int localVariable) throws SymbolicExecutionException {
 		// Save the current value, if necessary.
-		if (((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().savingLocalVariableValues()) {
+		if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingLocalVariableValues()) {
 			Restore localVariableValue = new Restore(localVariable, frame.getLocalVariables()[localVariable]);
-			((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().saveLocalVariableValue(localVariableValue);
+			((SearchingVM) frame.getVm()).getSearchAlgorithm().saveLocalVariableValue(localVariableValue);
 		}
 
 		// Store the value.
