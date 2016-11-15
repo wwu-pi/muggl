@@ -54,12 +54,12 @@ public class SymbolicExceptionHandler extends ExceptionHandler {
 	protected void noHandlerFound() throws ExecutionException, NoExceptionHandlerFoundException {
 		// Update coverage.
 		Method method = this.frame.getMethod();
-		/*
-		 * Get the symbolic virtual machine. Frame does not need to be casted to SymbolicFrame since
-		 * the stored vm can only be the symbolic one.
-		 */
-		SymbolicVirtualMachine svm = (SymbolicVirtualMachine) this.frame.getVm();
-		svm.getCoverageController().reportFailedHandling(method);
+		
+		if (this.frame instanceof SymbolicFrame) { 
+			// If in symbolic execution (not in logic execution!), update coverage.
+			SymbolicVirtualMachine svm = (SymbolicVirtualMachine) this.frame.getVm();
+			svm.getCoverageController().reportFailedHandling(method);
+		}
 
 		// Invoke the super implementation to continue exception handling.
 		super.noHandlerFound();
@@ -75,7 +75,9 @@ public class SymbolicExceptionHandler extends ExceptionHandler {
 	 */
 	@Override
 	protected void frameHasBeenRestored() {
-		((SymbolicFrame) this.frame).revertLastPCForCFCovering();
+		if (this.frame instanceof SymbolicFrame) { 
+			((SymbolicFrame) this.frame).revertLastPCForCFCovering();
+		}
 	}
 
 }
