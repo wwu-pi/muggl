@@ -6,6 +6,7 @@ import de.wwu.muggl.instructions.interfaces.LocalVariableAccess;
 import de.wwu.muggl.instructions.typed.IntegerInstruction;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.Restore;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.execution.ExecutionException;
@@ -117,9 +118,9 @@ public class Iinc extends de.wwu.muggl.instructions.general.IntegerIncremenet im
 				throw new SymbolicExecutionException("The expected type for iinc is int. Cannot process any other type.");
 
 			// Save the current value, if necessary.
-			if (((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().savingLocalVariableValues()) {
+			if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingLocalVariableValues()) {
 				Restore localVariableValue = new Restore(localVariable, term);
-				((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().saveLocalVariableValue(localVariableValue);
+				((SearchingVM) frame.getVm()).getSearchAlgorithm().saveLocalVariableValue(localVariableValue);
 			}
 
 			// Store the new value.
