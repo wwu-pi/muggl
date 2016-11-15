@@ -8,6 +8,7 @@ import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
 import de.wwu.muggl.instructions.typed.TypedInstruction;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.ArrayRestore;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.exceptions.ExceptionHandler;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
@@ -109,10 +110,10 @@ public abstract class Astore extends GeneralInstruction implements JumpException
 			Arrayref arrayref = (Arrayref) arrayrefObject;
 
 			// Save the current value, if necessary.
-			if (((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().savingArrayValues()) {
+			if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingArrayValues()) {
 				Object oldValue = arrayref.getElement(index);
 				ArrayRestore arrayValue = new ArrayRestore(arrayref, index, oldValue);
-				((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().saveArrayValue(arrayValue);
+				((SearchingVM) frame.getVm()).getSearchAlgorithm().saveArrayValue(arrayValue);
 			}
 
 			// Unexpected exception: The value is not of one of the required types.

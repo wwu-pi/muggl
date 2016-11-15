@@ -8,6 +8,7 @@ import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.typed.TypedInstruction;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.InstanceFieldPut;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
@@ -161,9 +162,9 @@ public class Putfield extends Put implements Instruction {
 			}
 
 			// Save the current value, if necessary.
-			if (((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().savingFieldValues()) {
+			if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingFieldValues()) {
 				InstanceFieldPut fieldValue = new InstanceFieldPut(objectref, field, objectref.getField(field));
-				((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().saveFieldValue(fieldValue);
+				((SearchingVM) frame.getVm()).getSearchAlgorithm().saveFieldValue(fieldValue);
 			}
 
 			// Finally assign the value.

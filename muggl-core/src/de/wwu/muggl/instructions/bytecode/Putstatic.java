@@ -7,6 +7,7 @@ import de.wwu.muggl.instructions.typed.TypedInstruction;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.StaticFieldPut;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
@@ -145,9 +146,9 @@ public class Putstatic extends Put implements Instruction {
 			InitializedClass initializedClass = field.getClassFile().getTheInitializedClass(frame.getVm());
 
 			// Save the current value, if necessary.
-			if (((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().savingFieldValues()) {
+			if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingFieldValues()) {
 				StaticFieldPut fieldValue = new StaticFieldPut(initializedClass, field, initializedClass.getField(field));
-				((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().saveFieldValue(fieldValue);
+				((SearchingVM) frame.getVm()).getSearchAlgorithm().saveFieldValue(fieldValue);
 			}
 
 			// Finally assign the value.

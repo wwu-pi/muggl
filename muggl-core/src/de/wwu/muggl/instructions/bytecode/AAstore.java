@@ -7,6 +7,7 @@ import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.typed.ReferenceInstruction;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.ArrayRestore;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.exceptions.ExceptionHandler;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
@@ -98,9 +99,9 @@ public class AAstore extends Astore implements Instruction {
 			Arrayref arrayref  = (Arrayref) stack.pop();
 
 			// Save the current value, if necessary.
-			if (((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().savingArrayValues()) {
+			if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingArrayValues()) {
 				ArrayRestore arrayValue = new ArrayRestore(arrayref, index, value);
-				((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().saveArrayValue(arrayValue);
+				((SearchingVM) frame.getVm()).getSearchAlgorithm().saveArrayValue(arrayValue);
 			}
 
 			// Set the value into the array and save it.
