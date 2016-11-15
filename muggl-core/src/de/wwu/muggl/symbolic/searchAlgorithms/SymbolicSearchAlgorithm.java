@@ -7,8 +7,6 @@ import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.search.SearchAlgorithm;
 import de.wwu.muggl.symbolic.generating.Generator;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
-import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.ArrayRestore;
-import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.FieldPut;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
@@ -145,34 +143,6 @@ public interface SymbolicSearchAlgorithm extends SearchAlgorithm {
 	void generateNewChoicePoint(SymbolicVirtualMachine vm, Switch instruction, Term termFromStack,
 			IntConstant[] keys, int[] pcs, IntConstant low, IntConstant high)
 			throws SymbolicExecutionException;
-
-	/**
-	 * Get the information whether this search algorithm requires a field
-	 * value to be stored (at this exakt moment of execution).
-	 * @return true, if the field value should be stored, false otherwise.
-	 */
-	boolean savingFieldValues();
-
-	/**
-	 * Store a field value for use by the search algorithm's tracking back
-	 * functionality.
-	 * @param valueRepresentation Either a InstanceFieldPut or a StaticfieldPut object.
-	 */
-	void saveFieldValue(FieldPut valueRepresentation);
-
-	/**
-	 * Get the information whether this search algorithm requires an array
-	 * value to be stored (at this exakt moment of execution).
-	 * @return true, if the array value should be stored, false otherwise.
-	 */
-	boolean savingArrayValues();
-
-	/**
-	 * Store a array value for use by the search algorithm's tracking back
-	 * functionality.
-	 * @param valueRepresentation An ArrayRestore object.
-	 */
-	void saveArrayValue(ArrayRestore valueRepresentation);
 
 	/**
 	 * Return statistical information about the execution. The information is
