@@ -1,7 +1,6 @@
 package de.wwu.muggl.vm.initialization;
 
-import java.util.Hashtable;
-
+import java.util.HashMap;
 import de.wwu.muggl.vm.classfile.structures.Field;
 
 /**
@@ -32,13 +31,13 @@ public abstract class FieldContainer {
 	/**
 	 * The assignment of fields to value i.e. object references.
 	 */
-	protected Hashtable<Field, Object> fields;
+	protected HashMap<Field, Object> fields; // needs to be a hashMap to be able to put null values
 
 	/**
 	 * Just initialize the Hashtable.
 	 */
 	public FieldContainer() {
-		this.fields = new Hashtable<Field, Object>();
+		this.fields = new HashMap<Field, Object>();
 	}
 
 	/**
@@ -75,7 +74,7 @@ public abstract class FieldContainer {
 		//if (!field.getClassFile().equals(getRepresentedClassFile())) throw new FieldAccessError("The field supplied does not belong to the class choosen.");
 
 		// Second step: Put it! This will automatically overwrite old values.
-		if (value != null) this.fields.put(field, value);
+		this.fields.put(field, value);
 	}
 	
 	/**
