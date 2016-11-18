@@ -119,7 +119,7 @@ public class Application extends Thread {
 				this.executionFinished = false;
 			}  catch (InterruptedException e) {
 				// Just log it.
-				if (!this.finalized) {
+				if (!this.finalized) { // TODO: Just wondering whether this should probably be inversed. Not sure of the consequences, though. -JD
 					if (Globals.getInst().execLogger.isInfoEnabled())
 						Globals.getInst().execLogger
 								.info("The execution process failed with an InterruptedException as the Application was finalized.");
