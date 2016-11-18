@@ -281,5 +281,9 @@ final class Defaults {
 	 * @see Options#solverManager
 	 */
 	public static final String SOLVER_MANAGER = "de.wwu.muggl.solvers.jacop.JaCoPSolverManager";
+	/**
+	 * @see Options#actualCliPrinting
+	 */
+	public static final boolean ACTUAL_CLI_PRINTING = false;
 	
 }

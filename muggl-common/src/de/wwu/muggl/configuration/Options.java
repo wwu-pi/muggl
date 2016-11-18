@@ -549,6 +549,14 @@ public final class Options {
 	 */
 	public String solverManager;
 	
+	/** 
+	 * Should System.XXX.print[ln]() statements actually print to the output streams?
+	 * If not, strings are redirected to log instead, augmented by a hint to the intended stream.
+	 * This mainly controls what de.wwu.muggl.vm.execution.nativeWrapping.PrintStreamWrapper.writeToLogfileImplementation(String, String)
+	 * is doing.
+	 */
+	public boolean actualCliPrinting;
+	
 	// Singleton.
 	private static final Options OPTIONS = new Options();
 	
@@ -626,6 +634,7 @@ public final class Options {
 		this.dynReplaceInstWithOptimizedOnes = Defaults.DYN_REPLACE_INSTR_WITH_OPTIMIZED_ONES;
 		this.htmlLogging = Defaults.HTML_LOGGING;
 		this.solverManager = Defaults.SOLVER_MANAGER;
+		this.actualCliPrinting = Defaults.ACTUAL_CLI_PRINTING;
 	}
 
 	/**

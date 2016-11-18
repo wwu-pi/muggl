@@ -361,6 +361,8 @@ public class ConfigReader {
 				options.dynReplaceInstWithOptimizedOnes = loadDefaultValues ? Boolean.parseBoolean(defaultValue) : Boolean.parseBoolean(value);
 			} else if (name.equals("solverManager")) {
 				options.solverManager = loadDefaultValues ? defaultValue : value;
+			} else if (name.equals("actualCliPrinting")) {
+				options.actualCliPrinting = loadDefaultValues ? Boolean.parseBoolean(defaultValue) : Boolean.parseBoolean(value);
 			} else {
 				// No match found - log that.
 				if (Globals.getInst().logger.isEnabledFor(Level.WARN)) Globals.getInst().logger.warn("Encountered a problem loading the current configuration from a file: Setting " + name + " could not be recognized and was ignored.");
@@ -554,6 +556,7 @@ public class ConfigReader {
 			out.write(generateNewEntry("symbolicArrayInitializationTestZeroLengthArray", String.valueOf(options.symbArrayInitTestZeroLengthArray), String.valueOf(Defaults.SYMB_ARRAY_INIT_TEST_ZERO_LENGTH_ARRAY)));
 			out.write(generateNewEntry("dynamicallyReplaceInstructionsWithOptimizedOnes", String.valueOf(options.dynReplaceInstWithOptimizedOnes), String.valueOf(Defaults.DYN_REPLACE_INSTR_WITH_OPTIMIZED_ONES)));
 			out.write(generateNewEntry("solverManager", String.valueOf(options.solverManager), String.valueOf(Defaults.SOLVER_MANAGER)));
+			out.write(generateNewEntry("actualCliPrinting", String.valueOf(options.actualCliPrinting), String.valueOf(Defaults.ACTUAL_CLI_PRINTING)));
 
 			// Finish.
 			out.write("</" + Globals.APP_NAME + "Configuration>"+LINE_SEPARATOR);
