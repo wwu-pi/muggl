@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.configuration.Options;
 
 /**
  * This class is a replacement wrapper for java.io.PrintStream. It should be used when
@@ -320,7 +321,18 @@ public class PrintStreamWrapper extends PrintStream {
 	 */
 	public static void writeToLogfileImplementation(String s, String wrapperFor) {
 		Globals constants = Globals.getInst();
-		if (constants.execLogger.isInfoEnabled()) {
+		if (Options.getInst().actualCliPrinting) {
+			PrintStream ps;
+			switch (wrapperFor) {
+			case "System.err":
+				ps = System.err;
+				break;
+			default:
+				ps = System.out;
+				break;
+			}
+			ps.print(s);
+		} else if (constants.execLogger.isInfoEnabled()) {
 			if (s != null) {
 				s = s.replace("\r", "\\r");
 				s = s.replace("\n", "\\n");
