@@ -46,7 +46,7 @@ public class TestReflectArray extends TestSkeleton {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
+	@Test // läuft
 	public final void test_GetArrayLength() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(3,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -55,7 +55,7 @@ public class TestReflectArray extends TestSkeleton {
 
 	}
 
-	@Test
+	@Test // läuft
 	public final void test_GetArrayElement() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(999,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -64,7 +64,17 @@ public class TestReflectArray extends TestSkeleton {
 
 	}
 
-	@Test
+	@Test // läuft
+	public final void test_GetArrayElementMultiple()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(9,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(),
+						"test_GetArrayElementMultiple", MethodType.methodType(int.class), null));
+
+	}
+
+	@Test // läuft
 	public final void test_SetArrayElement() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(1000,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -73,7 +83,37 @@ public class TestReflectArray extends TestSkeleton {
 
 	}
 
-	@Test
+	@Test // läuft
+	public final void test_SetArrayElementMultiple()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(7,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(),
+						"test_SetArrayElementMultipleIntegerBased", MethodType.methodType(int.class), null));
+
+	}
+
+	@Test // läuft
+	public final void test_SetArrayElementShort()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(1,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(),
+						"test_SetArrayElementShort", MethodType.methodType(int.class), null));
+
+	}
+
+	@Test // läuft
+	public final void test_SetArrayElementChar()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(1,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(),
+						"test_SetArrayElementChar", MethodType.methodType(int.class), null));
+
+	}
+
+	@Test // läuft
 	public final void test_NewArray() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(0,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -82,16 +122,16 @@ public class TestReflectArray extends TestSkeleton {
 
 	}
 
-	@Test
+	@Test // läuft
 	public final void test_NewMultiArray() throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals(4,
+		assertEquals(3,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(),
 						"test_NewMultiArray", MethodType.methodType(int.class), null));
 
 	}
 
-	@Test
+	@Test // läuft
 	public final void test_IsArrayClass() throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(), "test_IsArrayClass",
