@@ -162,7 +162,11 @@ public class Arrayref implements ReferenceValue {
 						element = ((Integer) element).byteValue();
 					} else if (targetClass.equals("java.lang.Boolean")) {
 						element = (((Integer) element) == 0) ? false : true;
-					}
+					}else if (targetClass.equals("java.lang.Character")) {
+						element = (char)((int) element);
+					}else if (targetClass.equals("java.lang.Short")) {
+						element = ((Integer) element).shortValue();
+					}				
 				}
 			}
 
@@ -327,4 +331,24 @@ public class Arrayref implements ReferenceValue {
 	public Objectref getMirrorJava() {
 		return mirrorJava;
 	}
+
+	/**
+	 * convert back to one-dimensional int[] array. Does not do it recursively
+	 * 
+	 * @return
+	 */
+	public int[] toPrimitiveIntFlat() {
+		int[] ret = new int[this.length];
+
+		for (int i = 0; i < this.length; i++) {
+			if (this.getElement(i) instanceof Arrayref) {
+				// maybe in future use - but please test
+				// int[] sub = ((Arrayref)
+				// this.getElement(i)).toPrimitiveInt(); System.arraycopy(sub, 0, ret, i, sub.length);
+			} else
+				ret[i] = (int) this.getElement(i);
+		}
+		return ret;
+	}
+	
 }

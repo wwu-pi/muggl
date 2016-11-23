@@ -115,7 +115,7 @@ public class NativeWrapper {
 				if (mh.type().returnType() != void.class) {
 					frame.getOperandStack().push(mh.invokeWithArguments(params));
 				} else {
-					mh.invoke(params);
+					mh.invokeWithArguments(params);
 				}
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -394,6 +394,7 @@ public class NativeWrapper {
 				&& method.getName().equals("getCallerClass")) {
 			
 			if (frame.getMethod().getName().equals("registerAsParallelCapable")) {
+				frame.getOperandStack().push(null);
 				throw new ForwardingUnsuccessfulException("registerasparallelcapable not impl");
 			}
 //			if(!Globals.getInst().vmIsInitialized) {
