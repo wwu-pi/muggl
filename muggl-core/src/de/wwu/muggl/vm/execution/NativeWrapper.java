@@ -1,15 +1,19 @@
 package de.wwu.muggl.vm.execution;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Hashtable;
 import java.util.Stack;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.FieldResolutionError;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.Reflection;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
-import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
@@ -44,6 +48,19 @@ import de.wwu.muggl.solvers.expressions.IntConstant;
  */
 public class NativeWrapper {
 
+	private static Hashtable<String, MethodHandle> registeredNatives = new Hashtable<>();
+	private static MethodHandles.Lookup lookup = MethodHandles.lookup();
+	
+	static {
+		// Allow following classes to register native methods with me:
+		new NativeJavaLangClass().registerNatives();
+		new NativeJavaLangInvokeMethodHandleNatives().registerNatives();
+		new NativeJavaLangObject().registerNatives();
+		new NativeJavaLangReflectArray().registerNatives();
+		new NativeJavaLangString().registerNatives();
+		new NativeJavaLangSystem().registerNatives();
+	}
+	
 	/**
 	 * Protected default constructor.
 	 */
@@ -64,6 +81,7 @@ public class NativeWrapper {
 	 * @throws ForwardingUnsuccessfulException If forwarding fails.
 	 * @throws VmRuntimeException If the invoked method throws an exception (which is a valid result
 	 *         of the invocation).
+	 * @throws ExecutionException 
 	 */
 	public static void forwardNativeInvocation(
 			Frame frame,
@@ -71,18 +89,53 @@ public class NativeWrapper {
 			ClassFile methodClassFile,
 			ReferenceValue invokingObjectref,
 			Object[] parameters
-			) throws ForwardingUnsuccessfulException, VmRuntimeException {
+			) throws ForwardingUnsuccessfulException, VmRuntimeException, ExecutionException {
 		Stack<Object> stack = frame.getOperandStack();
 		MugglToJavaConversion conversion = new MugglToJavaConversion(frame.getVm());
+		
+		// lookup if it's registered via the hash table:
+		if (registeredNatives.containsKey(method.getPackageAndName())) {
+			MethodHandle mh = registeredNatives.get(method.getPackageAndName());
+			// if method is not static, have to add invokingObjRef
+			int addObjRef = 0;
+			if (!method.isAccStatic()) {
+				addObjRef = 1;
+			}
+			// prepare parameters, first is always frame, and, if method is not static second is invokinObjref, there should be a parameter in
+			// methodType that matches this
+			Object[] params = new Object[1 + mh.type().parameterCount() - 1];
+			params[0] = frame;
+			if (addObjRef > 0) {
+				params[1] = invokingObjectref;
+			}
+			for (int i = 1 + addObjRef; i < params.length; i++) {
+				params[i] = mh.type().parameterType(i).cast(parameters[i - 1 - addObjRef]);
+			}
+			try {
+				if (mh.type().returnType() != void.class) {
+					frame.getOperandStack().push(mh.invokeWithArguments(params));
+				} else {
+					mh.invoke(params);
+				}
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+			return;
+		}
 
 		// Forward to a native implementation in the java-package?
-		if (methodClassFile.getPackageName().startsWith("java.")) {
+		if (methodClassFile.getPackageName().startsWith("java.") || methodClassFile.getPackageName().startsWith("sun.")) {
 			/*
 			 * Check if there is a special handling desired for this method. If it is, it will be
 			 * applied directly and native handling is finished upon returning from it.
 			 */
-			if (javaPackageSpecialHandling(frame, method, methodClassFile, invokingObjectref, parameters))
-				return;
+			if(methodClassFile.getPackageName().startsWith("java."))
+				if (javaPackageSpecialHandling(frame, method, methodClassFile, invokingObjectref, parameters))
+					return;
+			
+			if(methodClassFile.getPackageName().startsWith("sun."))
+				if (sunPackageSpecialHandling(frame, method, methodClassFile, invokingObjectref, parameters))
+					return;
 
 			// Proceed with the general forwarding procedure.
 			try {
@@ -292,175 +345,91 @@ public class NativeWrapper {
 		Objectref invokingObjectref = null;
 		if (invokingRefVal instanceof Objectref)
 			invokingObjectref = (Objectref) invokingRefVal;
-		if (methodClassFile.getName().equals("java.lang.String") && method.getName().equals("intern")) {
-			// Provide an unique String object reference.
-			Objectref stringObjectref = frame.getVm().getStringCache().getStringObjectref(invokingObjectref);
-			frame.getOperandStack().push(stringObjectref);
-
-			// Special handling was successful!
-			return true;
-		} else if (methodClassFile.getName().equals("java.lang.System") && method.getName().equals("arraycopy")) {			
-			// Possible exceptions for null parameters
-			if (parameters[0] == null || parameters[2] == null) {
-				throw new VmRuntimeException(frame.getVm().generateExc(
-						"java.lang.NullPointerException", "null"));
-			}
-			
-			// Possible exceptions with regard to types.
-			if (!(parameters[0] instanceof Arrayref)) {
-				throw new VmRuntimeException(frame.getVm().generateExc(
-						"java.lang.ArrayStoreException", "null"));
-			}
-			if (!(parameters[2] instanceof Arrayref)) {
-				throw new VmRuntimeException(frame.getVm().generateExc(
-						"java.lang.ArrayStoreException", "null"));
-			}
-			
-			// Get the five parameters.
-			Integer srcPos;
-			Integer destPos;
-			Integer length;
-			Arrayref src = (Arrayref) parameters[0];
-			Object srcPosObject =  parameters[1];
-			Arrayref dest = (Arrayref) parameters[2];
-			Object destPosObject = parameters[3];
-			Object lengthObject = parameters[4];
-			
-			if (srcPosObject instanceof IntConstant) {
-				srcPos = ((IntConstant) srcPosObject).getIntValue();
-			} else {
-				srcPos = (Integer) srcPosObject;
-			}
-			if (destPosObject instanceof IntConstant) {
-				destPos = ((IntConstant) destPosObject).getIntValue();
-			} else {
-				destPos = (Integer) destPosObject;
-			}
-			if (lengthObject instanceof IntConstant) {
-				length = ((IntConstant) lengthObject).getIntValue();
-			} else {
-				length = (Integer) lengthObject;
-			}
-
-			// Further possible exceptions with regard to types.
-			if (src.isPrimitive()) {
-				if (dest.isPrimitive()) {
-					if (src.getInitializedClass() != dest.getInitializedClass()) {
-						throw new VmRuntimeException(frame.getVm().generateExc(
-								"java.lang.ArrayStoreException", "null"));
-					}
-				} else {
-					throw new VmRuntimeException(frame.getVm().generateExc(
-							"java.lang.ArrayStoreException", "null"));
-				}
-			} else {
-				if (dest.isPrimitive()) {
-					throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ArrayStoreException",
-							"null"));
-				}
-			}
-
-			// Exceptions that regard the arrays' bounds.
-			if (srcPos < 0) {
-				throw new VmRuntimeException(frame.getVm().generateExc(
-						"java.lang.IndexOutOfBoundsException", "null"));
-			}
-			if (destPos < 0) {
-				throw new VmRuntimeException(frame.getVm().generateExc(
-						"java.lang.IndexOutOfBoundsException", "null"));
-			}
-			if (length < 0) {
-				throw new VmRuntimeException(frame.getVm().generateExc(
-						"java.lang.IndexOutOfBoundsException", "null"));
-			}
-			if (srcPos + length > src.length) {
-				throw new VmRuntimeException(frame.getVm().generateExc(
-						"java.lang.IndexOutOfBoundsException", "null"));
-			}
-			if (destPos + length > dest.length) {
-				throw new VmRuntimeException(frame.getVm().generateExc(
-						"java.lang.IndexOutOfBoundsException", "null"));
-			}
-			
-			// Are both arrays the equal object?
-			if (parameters[0] == parameters[2]) {
-				src = new Arrayref(dest.getReferenceValue(), length);
-				for (int a = srcPos; a < srcPos + length; a++) {
-					src.putElement(a - srcPos, dest.getElement(a));
-				}
-				for (int a = 0; a < length; a++) {
-					dest.putElement(destPos + a, src.getElement(a));
-				}
-			} else {
-				int copied = 0;
-				for (int a = srcPos; a < srcPos + length; a++) {
-					try {
-						dest.putElement(destPos + copied, src.getElement(a));
-						copied ++;
-					} catch (ArrayStoreException e) {
-						// Wrap the exception.
-						throw new VmRuntimeException(frame.getVm().generateExc(
-								"java.lang.ArrayStoreException", e.getMessage()));
-					}
-				}
-			}
-			
-			// Special handling was successful!
-			return true;
-		} else if (methodClassFile.getName().equals("java.lang.Object") && method.getName().equals("notifyAll")) {
-			// TODO monitor implementation of notifyAll
-			// consider that done, baby!
-			return true;
-		} else if (methodClassFile.getName().equals(java.lang.Thread.class.getCanonicalName()) && method.getName().equals("currentThread")) {
+		if (methodClassFile.getName().equals(java.lang.Thread.class.getCanonicalName()) && method.getName().equals("currentThread")) {
 			if (frame.getVm() != Thread.currentThread()) {
 				throw new UnsupportedOperationException("Muggl should only have one Thread...");
 			} else {
 				frame.getOperandStack().push(frame.getVm().get_threadObj());
 				return true;
 			}
-		}else if (methodClassFile.getName().equals("java.lang.Object") && method.getName().equals("getClass") && invokingRefVal instanceof Arrayref) {
-			// have to handle arrayrefs separately because upon wrapping with toJavaObject (for reflective invocation...) the information
-			// about primitive types is lost!
-			Arrayref invokingArrRef = (Arrayref) invokingRefVal;
-			try {
-				Class<?> clazz = Class.forName(invokingArrRef.getSignature());
-				MugglToJavaConversion conversion = new MugglToJavaConversion(frame.getVm());
-				frame.getOperandStack().push(conversion.toMuggl(clazz, clazz.isPrimitive()));
-				return true;
-			} catch (ClassNotFoundException | ConversionException | SecurityException e) {
-				e.printStackTrace();
-			}						
-		} else if (methodClassFile.getName().equals("java.lang.Object") && method.getName().equals("hashCode")) {
-			// do not do toJava wrapping for hashCode, since it wouln't be the same Object again!
-			Globals.getInst().execLogger.trace("for refval id: " + invokingRefVal.getInstantiationNumber() + " computed hashcode:" + invokingRefVal.hashCode());
-			frame.getOperandStack().push(invokingRefVal.hashCode());
-			return true;
-		} else if (method.getClassFile().getName().equals("java.lang.Object") && method.getName().equals("clone")) {
-			try {
-				frame.getOperandStack().push(invokingRefVal.clone());
-			} catch (CloneNotSupportedException e) {
-				e.printStackTrace();
-			}
-			return true;
-		} else if (methodClassFile.getName().equals("java.lang.Class") && method.getName().equals("getSuperclass")) {
-			ClassFile mirror = invokingObjectref.getMirrorMuggl();
-			try {
-				if(mirror.getSuperClassFile() != null){
-					// ensure superClassFile is statically initialized
-					mirror.getSuperClassFile().getTheInitializedClass(frame.getVm());
-					frame.getOperandStack().push(mirror.getSuperClassFile().getMirrorJava());
-					return true;
-				}
-			} catch (ClassFileException e) {
-				e.printStackTrace();
-			}
-			frame.getOperandStack().push(null);
-			return true;
-
+		}
 		// Arriving here means no special handling was possible.
 		return false;
 	}
 	
+	private static boolean sunPackageSpecialHandling(Frame frame, Method method, ClassFile methodClassFile,
+			ReferenceValue invokingRefVal, Object[] parameters)
+			throws VmRuntimeException, ForwardingUnsuccessfulException, ExecutionException {
+		Objectref invokingObjectref = null;
+		if (invokingRefVal instanceof Objectref)
+			invokingObjectref = (Objectref) invokingRefVal;
+		if (methodClassFile.getName().equals("sun.misc.Unsafe")) {
+			if (method.getName().equals("compareAndSwapObject")) {
+				frame.getOperandStack().push(true);
+				return true;
+			} else if (method.getName().equals("compareAndSwapInt")) {
+				frame.getOperandStack().push(true);
+				return true;
+			} else if (method.getName().equals("compareAndSwapLong")) {
+				frame.getOperandStack().push(true);
+				return true;
+			} else
+				Globals.getInst().execLogger.warn("you are calling sun.misc.Unsafe. THIS IS NOT IMPLEMENTED!");
+
+		} else if (methodClassFile.getName().equals("sun.reflect.NativeMethodAccessorImpl")
+				&& method.getName().equals("invoke0")) {
+			// private static native Object invoke0(Method m, Object obj, Object[] args);
+			Objectref methodObjref = (Objectref) parameters[0];
+			Object obj = (Object) parameters[1];
+			Arrayref args = (Arrayref) parameters[2];
+			Reflection.invokeMethod(frame, methodObjref, obj, args);
+			return true;
+		}else if (methodClassFile.getName().equals("sun.reflect.Reflection")
+				&& method.getName().equals("getClassAccessFlags")) {
+			Objectref clazz = (Objectref) parameters[0];
+			frame.getOperandStack().push(clazz.asClass().getAccessFlags());
+			return true;
+		}  
+		else if (methodClassFile.getName().equals("sun.reflect.Reflection")
+				&& method.getName().equals("getCallerClass")) {
+			
+			if (frame.getMethod().getName().equals("registerAsParallelCapable")) {
+				throw new ForwardingUnsuccessfulException("registerasparallelcapable not impl");
+			}
+//			if(!Globals.getInst().vmIsInitialized) {
+//				// FIXME mxs WARNING HACKY!
+//				frame.getOperandStack().push(null);
+//				return true;
+//			}
+			// return class of caller of the caller of this method
+			Frame lookingAtFrame = frame;
+			int i = 1;
+			while (lookingAtFrame != null) {
+				Method m = lookingAtFrame.getMethod();
+				switch (i) {
+				case 0:
+					// checked by the enclosing if - whether we are called by getCallerClass in Reflection
+				case 1:
+					if (!m.isCallerSensitive())
+						throw new VmRuntimeException(frame.getVm().generateExc("java.lang.InternalError",
+								"CallerSensitive annotation expected at frame"));
+					break;
+				default:
+					if (!m.isIgnoredBySecurityStackWalk()) {
+						frame.getOperandStack().push(m.getClassFile().getMirrorJava());
+						return true;
+					}
+					break;
+				}
+				lookingAtFrame = lookingAtFrame.getInvokedBy();
+				i++;
+			}
+			// should never reach here...
+			return false;
+		}
+		throw new ForwardingUnsuccessfulException("sun.* not implemented");
+	}
+
 	/* TODO old code
 	private static boolean javaPackageSpecialHandling(Frame frame, Method method,
 			ClassFile methodClassFile, Objectref invokingObjectref, Object[] parameters) throws VmRuntimeException {
@@ -699,5 +668,34 @@ public class NativeWrapper {
 			}
 		}
 	}
+	
+	/**
+	 * Register a method as 'native' Method
+	 * 
+	 * @param class1
+	 *            The class which is calling me
+	 * @param pkg
+	 *            JavaPackage to register it for
+	 * @param method
+	 *            the name of the method to register
+	 * @param methodType
+	 *            first argument of the method is always frame, and do not use "raw" (int, ...) types in your arguments!
+	 */
+	public static void registerNativeMethod(Class<? extends NativeMethodProvider> class1, String pkg, String method,
+			MethodType methodType) {
+		try {
+			if (methodType.parameterType(0) != Frame.class) {
+				throw new IllegalArgumentException("first parameter of 'native' method must always be frame");
+			}
+			// get a handle, so we can easily invoke it later
+			MethodHandle mh = lookup.findStatic(class1, method, methodType);
+			registeredNatives.put(pkg + "." + method, mh);
+		} catch (NoSuchMethodException | IllegalAccessException e) {
+			// should never happen
+			e.printStackTrace();
+			// an error here is so hard it has to be fixed first
+			System.exit(-1);
+		}
 
+	}
 }
