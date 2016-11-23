@@ -91,7 +91,7 @@ public abstract class InvokestaticQuickAbstract extends GeneralInstructionWithOt
 
 		// Get the name and the descriptor.
 		String[] nameAndType = ((ConstantMethodref) constant).getNameAndTypeInfo();
-		ClassFile methodClassFile = classLoader.getClassAsClassFile(((ConstantMethodref) constant).getClassName());
+		ClassFile methodClassFile = classLoader.getClassAsClassFileOrArrays(((ConstantMethodref) constant).getClassName());
 		if (nameAndType[0].equals(VmSymbols.OBJECT_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": The Method must not be the initialization method.");
@@ -165,7 +165,7 @@ public abstract class InvokestaticQuickAbstract extends GeneralInstructionWithOt
 
 		// Get the name and the descriptor.
 		String[] nameAndType = ((ConstantMethodref) constant).getNameAndTypeInfo();
-		ClassFile methodClassFile = classLoader.getClassAsClassFile(
+		ClassFile methodClassFile = classLoader.getClassAsClassFileOrArrays(
 				((ConstantMethodref) constant).getClassName());
 
 		// Try to resolve method from this class.

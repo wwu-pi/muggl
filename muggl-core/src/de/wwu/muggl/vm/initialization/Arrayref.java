@@ -1,6 +1,8 @@
 package de.wwu.muggl.vm.initialization;
 
+import de.wwu.muggl.vm.SystemDictionary;
 import de.wwu.muggl.vm.execution.ExecutionAlgorithms;
+import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.solvers.expressions.Term;
 
 /**
@@ -26,6 +28,8 @@ public class Arrayref implements ReferenceValue {
 	 */
 	protected Object[] elements;
 	private long instantiationNumber;
+	
+	private Objectref mirrorJava;
 
 	/**
 	 * Initialize the arrayref. It must have a type of ReferenceValue and
@@ -46,6 +50,15 @@ public class Arrayref implements ReferenceValue {
 		} else {
 			this.elements = new ReferenceValue[this.length];
 		}
+		
+		if(SystemDictionary.isInitialized() &&
+				SystemDictionary.gI().Class_klass_loaded()){
+			Objectref instanceMirror = SystemDictionary.gI().Class_klass.getANewInstance();
+			instanceMirror.setMirroredMugglIsArray(true);
+			instanceMirror.setMirroredMugglArray(this);
+			this.mirrorJava = instanceMirror;
+		}
+		Globals.getInst().execLogger.trace("created arrayref id:" + this.instantiationNumber);
 	}
 
 	/**
@@ -309,5 +322,9 @@ public class Arrayref implements ReferenceValue {
 		}
 
 		return levelsBrackets + this.referenceValue.getSignature();
+	}
+
+	public Objectref getMirrorJava() {
+		return mirrorJava;
 	}
 }

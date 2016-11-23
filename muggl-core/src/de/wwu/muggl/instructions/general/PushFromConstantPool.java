@@ -1,5 +1,6 @@
 package de.wwu.muggl.instructions.general;
 
+import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.interfaces.control.JumpNever;
 import de.wwu.muggl.instructions.interfaces.data.StackPush;
@@ -222,17 +223,29 @@ public abstract class PushFromConstantPool extends GeneralInstructionWithOtherBy
 	 */
 	private Object provideClassReference(VirtualMachine vm, ConstantClass constant, ClassFile d)
 			throws VmRuntimeException {
-		try {
+		try {			
 			ResolutionAlgorithms resolution = new ResolutionAlgorithms(vm.getClassLoader());
-			String value = constant.getValue().replace("/", ".");
-			ClassFile classFile = resolution.resolveClassAsClassFile(d, "java.lang.Class");
-			Objectref objectref = vm.getAnObjectref(classFile);
-			Field field = classFile.getFieldByName("name");
-			Object stringReference;
-			stringReference = vm.getStringCache().getStringObjectref(value);
-			objectref.setDebugHelperString("ref to " + value);
-			objectref.putField(field, stringReference);
-			return objectref;
+			ClassFile toBeMirrored = resolution.resolveClassAsClassFile(d, constant.getStringValue());
+			// make sure class is statically initalized
+			toBeMirrored.getTheInitializedClass(vm);
+
+			Objectref potentialMirror = toBeMirrored.getMirrorJava();
+
+			if (potentialMirror != null) {
+				return potentialMirror;
+			} else {
+				String value = constant.getValue().replace("/", ".");
+				ClassFile classFile = resolution.resolveClassAsClassFile(d, "java.lang.Class");
+				Objectref objectref = vm.getAnObjectref(classFile);
+				objectref.setMirrorMuggl(toBeMirrored);
+				Field field = classFile.getFieldByName("name");
+				Object stringReference;
+				stringReference = vm.getStringCache().getStringObjectref(value);
+				objectref.setDebugHelperString("ref to " + value + " set in provideClassReference");
+				objectref.putField(field, stringReference);
+				Globals.getInst().execLogger.trace("provideClassReference created id:" + objectref.getInstantiationNumber());
+				return objectref;
+			}
 		} catch (IllegalAccessError e) {
 			throw new VmRuntimeException(vm.generateExc("java.lang.IllegalAccessError", e.getMessage()));
 		} catch (NoClassDefFoundError e) {

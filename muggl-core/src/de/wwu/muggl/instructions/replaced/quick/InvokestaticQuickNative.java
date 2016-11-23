@@ -128,7 +128,7 @@ public class InvokestaticQuickNative extends InvokestaticQuickAbstract {
 			// Forward native methods?
 			if (Options.getInst().forwardJavaPackageNativeInvoc) {
 				// Try to forward.
-				if (method.getClassFile().getPackageName().startsWith("java.")) {
+				if (method.getClassFile().getPackageName().startsWith("java.") || method.getClassFile().getPackageName().startsWith("sun.")) {
 					NativeWrapper.forwardNativeInvocation(frame, method, this.methodClassFile, null, parameters);
 				} else if (method.getClassFile().getPackageName().equals("de.wwu.muggl.vm.execution.nativeWrapping")) {
 					// Get the object reference of the invoking method.
@@ -159,7 +159,7 @@ public class InvokestaticQuickNative extends InvokestaticQuickAbstract {
 			// Ignore it, but log it.
 			if (Globals.getInst().execLogger.isDebugEnabled())
 				Globals.getInst().execLogger.debug(
-						"Forwarding of the native method " + method.getName()
+						"Forwarding of the native method " + method.getPackageAndName()
 						+ " was not successfull. The reason is: " + e.getMessage());
 		}
 		/*
@@ -170,7 +170,7 @@ public class InvokestaticQuickNative extends InvokestaticQuickAbstract {
 			Invoke.pushZeroOrNull(stack, method, symbolic);
 			if (Globals.getInst().execLogger.isDebugEnabled())
 				Globals.getInst().execLogger.debug(
-						"Assume a null/zero value for the native method " + method.getName() + ".");
+						"Assume a null/zero value for the native method " + method.getPackageAndName() + ".");
 		} else {
 			if (Globals.getInst().execLogger.isInfoEnabled())
 				Globals.getInst().execLogger.info(

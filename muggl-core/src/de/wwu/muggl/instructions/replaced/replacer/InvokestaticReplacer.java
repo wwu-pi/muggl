@@ -127,7 +127,7 @@ public class InvokestaticReplacer extends Invokestatic implements ReplacingInstr
 
 		// Get the name and the descriptor.
 		String[] nameAndType = ((ConstantMethodref) constant).getNameAndTypeInfo();
-		ClassFile methodClassFile = frame.getVm().getClassLoader().getClassAsClassFile(
+		ClassFile methodClassFile = frame.getVm().getClassLoader().getClassAsClassFileOrArrays(
 				((ConstantMethodref) constant).getClassName());
 
 		// Try to resolve method from this class.
