@@ -79,7 +79,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // for now endless loop
+	// //@Test // for now endless loop
 	public final void test_GetClassAnnotations()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("@de.wwu.muggl.binaryTestSuite.nativeInstr.MyAnnotation()",
@@ -100,7 +100,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test //läuft
+	@Test // läuft
 	public final void test_GetClassDeclaredFields()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("mySuperSpecialField",
@@ -111,7 +111,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	// @Test
 	public final void test_GetClassDeclaredFieldsCount()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(2,
@@ -122,7 +122,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetClassPrimitiveNames()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("booleanbyteshortcharintlongfloatdoubleObjectvoid",
@@ -133,7 +133,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_Subclass() throws ClassFileException, InitializationException, InterruptedException {
 
 		ClassFile classFile = classLoader.getClassAsClassFile(
@@ -145,7 +145,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetClassDeclaredMethods()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("test_GetClassForName",
@@ -167,7 +167,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetClassInterfaces()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("java.io.Serializable",
@@ -187,7 +187,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	// @Test
 	public final void test_GetClassModifiers()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(1,
@@ -198,7 +198,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetClassName() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -208,7 +208,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetClassNameForPrimitive()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(int.class.getName(),
@@ -219,7 +219,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetClassNameObj() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("java.lang.Integer",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -229,7 +229,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetClassForName() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("java.lang.Object",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -239,7 +239,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	// @Test
 	public final void test_GetClassForNameWithException()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("success",
@@ -260,7 +260,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetComponentType() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("long",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -270,7 +270,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetGetClassPrimitive()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("char",
@@ -280,7 +280,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 						MethodType.methodType(String.class), null));
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetDeclaredClasses()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(
@@ -292,7 +292,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetDeclaringClass()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
@@ -303,7 +303,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_GetDeclaringClassOnPrimitive()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("null",
@@ -325,7 +325,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_IsArrayClass() throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue(!(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
@@ -334,7 +334,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_IsInterface() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(1,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -343,7 +343,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 						MethodType.methodType(int.class), null));
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_IsPrimitive() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(90,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -353,7 +353,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test //läuft
+	@Test // läuft
 	public final void test_PrimitiveClassesReferenceEqual()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -363,7 +363,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_IsPrimitiveInstances()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(64,
@@ -374,7 +374,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test // läuft
+	@Test // läuft
 	public final void test_ObjectClass() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(-1,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -383,9 +383,10 @@ public class TestClassAndClassLoader extends TestSkeleton {
 						MethodType.methodType(int.class), null));
 
 	}
-	
-	@Test
-	public final void test_GetClassAccessFlags() throws ClassFileException, InitializationException, InterruptedException {
+
+	@Test // läuft
+	public final void test_GetClassAccessFlags()
+			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(49,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),

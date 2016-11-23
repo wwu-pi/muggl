@@ -21,7 +21,7 @@ public class TestSkeleton {
 	/**
 	 * subclasses should not change loglevel if set (for CI tests...).
 	 * 
-	 * Set this to true if you're testing locally, but always commit false for CI
+	 * Set this to false if you're testing locally, but always commit true for CI
 	 */
 	public final static boolean isForbiddenChangingLogLevel = true;
 
