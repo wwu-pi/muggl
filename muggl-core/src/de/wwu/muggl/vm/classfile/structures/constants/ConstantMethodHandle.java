@@ -4,6 +4,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.classfile.ClassFile;
+import de.wwu.muggl.vm.classfile.ClassFileConstants.ReferenceKind;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
@@ -16,34 +17,6 @@ import de.wwu.muggl.vm.initialization.ReferenceValue;
 public class ConstantMethodHandle extends Constant {
 	private ReferenceKind referenceKind;
 	private int referenceIndex;
-
-	public static enum ReferenceKind {
-		REF_getField(1), REF_getStatic(2), REF_putField(3), REF_putStatic(4), REF_invokeVirtual(5), REF_invokeStatic(
-				6), REF_invokeSpecial(7), REF_newInvokeSpecial(8), REF_invokeInterface(9);
-
-		private final int referenceKindIdx;
-
-		ReferenceKind(int idx) {
-			this.referenceKindIdx = idx;
-		}
-
-		public int getReferenceKindIdx() {
-			return referenceKindIdx;
-		}
-
-		public static ReferenceKind valueOf(int value) {
-			for (ReferenceKind e : ReferenceKind.values()) {
-				if (e.referenceKindIdx == value) {
-					return e;
-				}
-			}
-			return null;// not found
-		}
-
-		public String toString() {
-			return super.toString().replaceAll("REF_", "").toLowerCase();
-		}
-	}
 
 	/**
 	 * Basic constructor.
