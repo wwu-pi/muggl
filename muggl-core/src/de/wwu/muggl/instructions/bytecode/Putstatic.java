@@ -54,6 +54,12 @@ public class Putstatic extends Put implements Instruction {
 			// Check for assignment compatibility.
 			Object value = frame.getOperandStack().pop();
 			String type = field.getType();
+			if (type.equals("boolean") && value.getClass().getName().equals("java.lang.Boolean")) {
+				value = (int) (((boolean) value) ? 1 : 0);
+			} else if(type.equals("short") && value.getClass().getName().equals("java.lang.Short")) {
+				value = Short.valueOf((short)value).intValue();
+			}
+			
 			ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
 			if (!ea.checkForAssignmentCompatibility(value, type, frame.getVm(), false)) {
 				// Unexpected exception: value is not assignment compatible to the expected type.

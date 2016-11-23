@@ -65,6 +65,8 @@ public class Putfield extends Put implements Instruction {
 			// internally in JVM
 			if (type.equals("boolean") && value.getClass().getName().equals("java.lang.Boolean")) {
 				value = (int) (((boolean) value) ? 1 : 0);
+			} else if(type.equals("short") && value.getClass().getName().equals("java.lang.Short")) {
+				value = Short.valueOf((short)value).intValue();
 			}
 			ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
 			if (!ea.checkForAssignmentCompatibility(value, type, frame.getVm(), false)) {
