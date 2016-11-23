@@ -5,9 +5,13 @@ import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+
+import de.wwu.muggl.binaryTestSuite.HelperStaticInitializerCalled;
 import sun.reflect.CallerSensitive;
 
 public class MethodHandleTest {
+	@SuppressWarnings("unused")
+	private static final int test1 = 1, test2 = 2, test3 = 3;
 
 	public static void main(String[] args) throws Throwable {
 		test_methodHandleArray();
@@ -25,22 +29,30 @@ public class MethodHandleTest {
 	public static void test_methodHandleArray() {
 		// done in MethodHandleImpl.java:1083
 		@SuppressWarnings("unused")
-		MethodHandle[] FAKE_METHOD_HANDLE_INVOKE = new MethodHandle[2];
+		MethodHandle[] FAKE_METHOD_HANDLE_INVOKE = new MethodHandle[2];		
 	}
 
 	public final static String METHOD_findVirtualInvokeExact = "findVirtualInvokeExact";
 
 	public static void findVirtualInvokeExact() throws Throwable {
+		HelperStaticInitializerCalled test;
+		System.out.println("dummy");
+		HelperStaticInitializerCalled test2[] = {
+				test = new HelperStaticInitializerCalled()
+		};
+		
+		Object arr = java.lang.reflect.Array.newInstance(Class.forName("java.lang.invoke.LambdaForm$NamedFunction"),2);
+		System.out.println(arr.getClass().getName());
 		// mt is {(char,char) => String}
 		MethodType mt = MethodType.methodType(String.class, char.class, char.class);
-		System.out.println("markermax --32");
-		MethodHandles.Lookup lookup = MethodHandles.lookup();
-		System.out.println("markermax --29");
-		MethodHandle mh = lookup.findVirtual(String.class, "replace", mt);
-		System.out.println("markermax --34");
-		// (Ljava/lang/String;CC)Ljava/lang/String;
-		String s = (String) mh.invokeExact("daddy", 'd', 'n');
-		assert (s.equals("nanny"));
+		// System.out.println("markermax --32");
+		// MethodHandles.Lookup lookup = MethodHandles.lookup();
+		// System.out.println("markermax --29");
+		// MethodHandle mh = lookup.findVirtual(String.class, "replace", mt);
+		// System.out.println("markermax --34");
+		// // (Ljava/lang/String;CC)Ljava/lang/String;
+		// String s = (String) mh.invokeExact("daddy", 'd', 'n');
+		// assert (s.equals("nanny"));
 	}
 
 	public final static String METHOD_findStaticInvokeExact = "findStaticInvokeExact";
