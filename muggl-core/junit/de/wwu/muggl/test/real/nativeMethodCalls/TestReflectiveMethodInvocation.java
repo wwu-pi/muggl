@@ -57,7 +57,7 @@ public class TestReflectiveMethodInvocation extends TestSkeleton {
 
 	}
 
-	// @Test
+	 @Test
 	public final void test_invokeMethodWithArg()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("hello, world!2",
