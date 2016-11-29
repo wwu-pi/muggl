@@ -34,15 +34,9 @@ public class MethodHandleTest {
 
 	public final static String METHOD_findVirtualInvokeExact = "findVirtualInvokeExact";
 
-	public static void findVirtualInvokeExact() throws Throwable {
-		HelperStaticInitializerCalled test;
-		System.out.println("dummy");
-		HelperStaticInitializerCalled test2[] = {
-				test = new HelperStaticInitializerCalled()
-		};
-		
-		Object arr = java.lang.reflect.Array.newInstance(Class.forName("java.lang.invoke.LambdaForm$NamedFunction"),2);
-		System.out.println(arr.getClass().getName());
+	public static void findVirtualInvokeExact() throws Throwable {	
+//		Object arr = java.lang.reflect.Array.newInstance(Class.forName("java.lang.invoke.LambdaForm$NamedFunction"),2);
+//		System.out.println(arr.getClass().getName());
 		// mt is {(char,char) => String}
 		MethodType mt = MethodType.methodType(String.class, char.class, char.class);
 		// System.out.println("markermax --32");

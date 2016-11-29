@@ -25,7 +25,6 @@ public class ClassAndClassLoader implements Serializable {
 	// }
 
 	// no tests for the following (uses openjdk/jdk/src/share/javavm/export/jvm.h function names):
-	// JVM_FindPrimitiveClass / getPrimitiveClass
 	// JVM_ResolveClass
 	// JVM_FindClassFromBootLoader
 	// JVM_FindClassFromClassLoader
@@ -111,6 +110,22 @@ public class ClassAndClassLoader implements Serializable {
 			interfaces++;
 
 		return interfaces;
+	}
+
+	public static final String METHOD_test_isAssignableFrom = "test_isAssignableFrom";
+
+	public static int test_isAssignableFrom() {
+		int tests = 0;
+
+		// same class
+		if (int.class.isAssignableFrom(int.class))
+			tests++;
+
+		// superclass = widening reference
+		if (Object.class.isAssignableFrom(Integer.class))
+			tests++;
+		
+		return tests;
 	}
 
 	public static final String METHOD_test_GetClassSigners = "test_GetClassSigners";
@@ -249,10 +264,39 @@ public class ClassAndClassLoader implements Serializable {
 		return countPrims * countNonPrims;
 	}
 
+	public static final String METHOD_test_isInstance = "test_isInstance";
+
+	public static boolean test_isInstance() {
+		Integer test = 3;
+		return Object.class.isInstance(test);
+	}
+
 	public static final String METHOD_test_GetComponentType = "test_GetComponentType";
 
 	public static String test_GetComponentType() {
 		return (new long[0]).getClass().getComponentType().getName();
+	}
+
+	public static final String METHOD_test_GetComponentType2 = "test_GetComponentType2";
+
+	public static int test_GetComponentType2() {
+		int ret = 0;
+		if (Integer[].class.getComponentType().getName() == "java.lang.Integer")
+			ret++;
+		if (Integer[][].class.getComponentType().getName() == "[Ljava.lang.Integer;")
+			ret++;
+
+		Class<?> klazz = int[][].class.getComponentType();
+		if (klazz.getName() == "[I")
+			ret++;
+
+		return ret;
+	}
+
+	public static final String METHOD_test_GetComponentTypeIdentity = "test_GetComponentTypeIdentity";
+
+	public static boolean test_GetComponentTypeIdentity() {
+		return Integer[][].class.getComponentType() == Integer[][].class.getComponentType();
 	}
 
 	public static final String METHOD_test_GetClassModifiers = "test_GetClassModifiers";
@@ -413,6 +457,10 @@ public class ClassAndClassLoader implements Serializable {
 		System.out.println(test_PrimitiveClassesReferenceEqual());
 		System.out.println(test_GetClassArrayComponentType());
 		System.out.println(test_GetClassAccessFlags());
+		System.out.println(test_GetComponentType2());
+		System.out.println(test_GetComponentTypeIdentity());
+		System.out.println(test_isInstance());
+		System.out.println(test_isAssignableFrom());
 	}
 
 }

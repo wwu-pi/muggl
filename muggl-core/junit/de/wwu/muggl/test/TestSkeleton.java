@@ -16,14 +16,14 @@ import de.wwu.muggl.configuration.Globals;
  */
 public class TestSkeleton {
 	@Rule
-	public Timeout globalTimeout = Timeout.seconds(20);
+	public Timeout globalTimeout = Timeout.seconds(200000000);
 
 	/**
 	 * subclasses should not change loglevel if set (for CI tests...).
 	 * 
 	 * Set this to false if you're testing locally, but always commit true for CI
 	 */
-	public final static boolean isForbiddenChangingLogLevel = true;
+	public final static boolean isForbiddenChangingLogLevel = false;
 
 	public final static String[] mugglClassLoaderPaths = new String[] { "./", "./junit-res/" };
 

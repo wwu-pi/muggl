@@ -1,5 +1,9 @@
 package de.wwu.muggl.binaryTestSuite.nativeInstr;
 
+import java.util.Arrays;
+
+import de.wwu.muggl.test.TestSkeleton;
+
 /**
  * Test native operations on Arrays
  * 
@@ -131,7 +135,7 @@ public class ReflectArray {
 	}
 
 	public static int test_NewMultiArray() {
-		Object mTest = java.lang.reflect.Array.newInstance(int.class, new int[] { 2, 4,3 });
+		Object mTest = java.lang.reflect.Array.newInstance(int.class, new int[] { 2, 4, 3 });
 		return ((int[][][]) mTest)[0][1].length;
 	}
 
@@ -151,6 +155,24 @@ public class ReflectArray {
 		return mTest.getClass().getComponentType().getName();
 	}
 
+	public static String METHOD_test_ArrayCopyOf = "test_ArrayCopyOf";
+
+	public static boolean test_ArrayCopyOf() {
+		Integer[] orig = { new Integer(10), new Integer(11) };
+		Integer[] copy = Arrays.copyOf(orig, 10);
+
+		return (copy[0] == orig[0]);
+	}
+
+	public static String METHOD_test_ArrayCopyOfRange = "test_ArrayCopyOfRange";
+
+	public static boolean test_ArrayCopyOfRange() {
+		Integer[] orig = { new Integer(10), new Integer(12) };
+		Integer[] copy = Arrays.copyOfRange(orig, 1, 2, Integer[].class);
+
+		return (copy[0] == orig[1]);
+	}
+
 	public static void main(String[] args) {
 		System.out.println(test_GetArrayLength());
 		System.out.println(test_GetArrayElement());
@@ -160,6 +182,8 @@ public class ReflectArray {
 		System.out.println(test_IsArrayClass());
 		System.out.println(test_ArrayGetClass());
 		System.out.println(test_ArrayGetComponentTypeClass());
+		System.out.println(test_ArrayCopyOf());
+		System.out.println(test_ArrayCopyOfRange());
 	}
 
 }

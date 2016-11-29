@@ -87,6 +87,17 @@ public class TestStringHandling extends TestSkeleton {
 				null));
 
 	}
+	
+	@Test
+	public final void Test_StringFromChar() throws ClassFileException, InitializationException, InterruptedException,
+			InvalidInstructionInitialisationException, ConversionException {
+
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.StringHandling.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.StringHandling.METHOD_StringFromChar, MethodType.methodType(boolean.class),
+				null));
+
+	}
 
 	// run this test with assertions on, checks correct String Handling when parsing from modified UTF-8 (as in class files)
 	@Test

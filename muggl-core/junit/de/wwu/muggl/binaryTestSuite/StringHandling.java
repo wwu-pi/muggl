@@ -7,9 +7,17 @@ package de.wwu.muggl.binaryTestSuite;
  *
  */
 public class StringHandling {
+	
+	public static String METHOD_StringFromChar = "StringFromChar";
+
+	public static boolean StringFromChar() {
+		char[] d = {'c','d'};
+		String test = new String(d, 0, 2);
+		return test.equals("cd");
+	}
 
 	public static String METHOD_StringReferenceEquality = "StringReferenceEquality";
-
+	
 	public static boolean StringReferenceEquality() {
 		return "testing" == "testing";
 	}
@@ -42,6 +50,7 @@ public class StringHandling {
 	
 	public static void main(String[] args) {
 		System.out.println(CharLength());
+		System.out.println(StringFromChar());
 	}
 
 }

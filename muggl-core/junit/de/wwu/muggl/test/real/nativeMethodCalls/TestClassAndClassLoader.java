@@ -207,7 +207,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 						MethodType.methodType(String.class), null));
 
 	}
-
+	
 	@Test // läuft
 	public final void test_GetClassNameForPrimitive()
 			throws ClassFileException, InitializationException, InterruptedException {
@@ -267,6 +267,29 @@ public class TestClassAndClassLoader extends TestSkeleton {
 						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
 						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.METHOD_test_GetComponentType,
 						MethodType.methodType(String.class), null));
+
+	}
+
+	@Test // läuft
+	public final void test_GetComponentType2()
+			throws ClassFileException, InitializationException, InterruptedException {
+
+		assertEquals(3,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.METHOD_test_GetComponentType2,
+						MethodType.methodType(int.class), null));
+
+	}
+
+//	@Test // tricky one
+	public final void test_GetComponentTypeIdentity()
+			throws ClassFileException, InitializationException, InterruptedException {
+
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.METHOD_test_GetComponentTypeIdentity,
+				MethodType.methodType(boolean.class), null));
 
 	}
 
@@ -370,6 +393,25 @@ public class TestClassAndClassLoader extends TestSkeleton {
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
 						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.METHOD_test_CountPrimitiveInstances,
+						MethodType.methodType(int.class), null));
+
+	}
+
+	@Test // läuft
+	public final void test_isInstance() throws ClassFileException, InitializationException, InterruptedException {
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.METHOD_test_isInstance,
+				MethodType.methodType(boolean.class), null));
+
+	}
+
+	@Test // läuft
+	public final void test_isAssignableFrom() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(2,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.METHOD_test_isAssignableFrom,
 						MethodType.methodType(int.class), null));
 
 	}

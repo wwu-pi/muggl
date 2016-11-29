@@ -138,5 +138,23 @@ public class TestReflectArray extends TestSkeleton {
 				MethodType.methodType(boolean.class), null));
 
 	}
+	
+	@Test // läuft
+	public final void test_ArrayCopyOf() throws ClassFileException, InitializationException, InterruptedException {
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(), 
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.METHOD_test_ArrayCopyOf,
+				MethodType.methodType(boolean.class), null));
+
+	}
+	
+	@Test // läuft
+	public final void test_ArrayCopyOfRange() throws ClassFileException, InitializationException, InterruptedException {
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(), 
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.METHOD_test_ArrayCopyOfRange,
+				MethodType.methodType(boolean.class), null));
+
+	}
 
 }
