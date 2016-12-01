@@ -44,6 +44,17 @@ public class TestObjectManipulation extends TestSkeleton {
 	}
 
 	@Test
+	public final void testPutstaticNull() throws ClassFileException, InitializationException, InterruptedException,
+			InvalidInstructionInitialisationException, ConversionException {
+
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.Putfield.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.Putfield.METHOD_testPutStaticNull, MethodType.methodType(boolean.class),
+				null));
+
+	}
+
+	@Test
 	public final void testPutfieldNull() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 
