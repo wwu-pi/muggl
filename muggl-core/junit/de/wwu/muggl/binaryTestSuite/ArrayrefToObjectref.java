@@ -65,7 +65,7 @@ public class ArrayrefToObjectref {
 
 	public static String testMultipleInstanceOf() {
 		int[][] meinArray = { { 1, 2 }, {}, { 4 } };
-		// FIXME mxs: rework when IntegerCache ready
+		// alternative would be to use Integer, then you also test IntegerCache
 		// Integer[][] meinIntegerArray = { { 1, 2 }, { 3 }, { 4 } };
 		Object[] testing = { meinArray };
 		return meinArray.getClass().getName() + testing.getClass().getName() + testing[0].getClass().getName();

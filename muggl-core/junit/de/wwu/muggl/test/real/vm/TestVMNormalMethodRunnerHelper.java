@@ -125,7 +125,6 @@ public class TestVMNormalMethodRunnerHelper {
 					try {
 						return new MugglToJavaConversion(application.getVirtualMachine()).toJava(object);
 					} catch (ConversionException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} else {
@@ -230,7 +229,6 @@ public class TestVMNormalMethodRunnerHelper {
 					try {
 						return new MugglToJavaConversion(application.getVirtualMachine()).toJava(object);
 					} catch (ConversionException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} else {

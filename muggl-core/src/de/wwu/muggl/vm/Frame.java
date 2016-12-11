@@ -111,8 +111,7 @@ public class Frame {
 	 */
 	public Frame(VirtualMachine vm) {
 		this.vm = vm;
-		// FIXME mxs hide System management frame
-//		this.hiddenFrame = true;
+		this.hiddenFrame = true;
 	}
 	/**
 	 * Getter for the operand stack.
