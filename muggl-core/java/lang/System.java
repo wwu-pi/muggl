@@ -1184,7 +1184,7 @@ public final class System {
 
         lineSeparator = props.getProperty("line.separator");
         sun.misc.Version.init();
-
+//mxs modified
 //        FileInputStream fdIn = new FileInputStream(FileDescriptor.in);
 //        FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
 //        FileOutputStream fdErr = new FileOutputStream(FileDescriptor.err);
