@@ -47,7 +47,7 @@ public class TestReflectiveMethodInvocation extends TestSkeleton {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
+	@Test // läuft
 	public final void test_invokeMethod() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("hello, world!",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -57,7 +57,7 @@ public class TestReflectiveMethodInvocation extends TestSkeleton {
 
 	}
 
-	 @Test
+	@Test // läuft
 	public final void test_invokeMethodWithArg()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("hello, world!2",
@@ -68,7 +68,7 @@ public class TestReflectiveMethodInvocation extends TestSkeleton {
 
 	}
 
-	// @Test
+	@Test // läuft
 	public final void test_invokeInstanceMethodWithArg()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("hello, world!3",

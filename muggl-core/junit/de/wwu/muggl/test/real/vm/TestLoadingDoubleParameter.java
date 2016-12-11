@@ -1,5 +1,7 @@
 package de.wwu.muggl.test.real.vm;
 
+import static org.junit.Assert.*;
+
 import java.lang.invoke.MethodType;
 
 import org.apache.log4j.Level;
@@ -8,6 +10,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import de.wwu.muggl.binaryTestSuite.doubleParameter.FunctionWithDoubleParameter;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -44,12 +48,24 @@ public class TestLoadingDoubleParameter extends TestSkeleton {
 	}
 
 	@Test
-	public final void testApplicationMugglVMSymbolicExecDoubleParameter()
+	public final void testApplicationMugglVMRealExecDoubleParameter()
 			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("result: 1.23",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						FunctionWithDoubleParameter.class.getCanonicalName(),
+						FunctionWithDoubleParameter.METHOD_makeStringWithDoubleParameters,
+						MethodType.methodType(String.class, double.class), (Object[]) new Double[] { 1.23 }));
 
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.doubleParameter.FunctionWithDoubleParameter.class.getCanonicalName(),
-				"makeStringWithDoubleParameters", MethodType.methodType(String.class, double.class, double.class), (Object[]) new Double[] { 1.23, 2.34 });
+	}
+
+	@Test // läuft
+	public final void testApplicationMugglVMRealExecCalcDoubleParameter()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(1.0, (double) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				FunctionWithDoubleParameter.class.getCanonicalName(),
+				FunctionWithDoubleParameter.METHOD_calcWithDoubleParameters,
+				MethodType.methodType(double.class, double.class, double.class), (Object[]) new Double[] { 2.1, 1.1 }),
+				0.0000001);
 
 	}
 

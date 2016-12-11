@@ -57,6 +57,16 @@ public class Java8Execution extends TestSkeleton {
 				MethodType.methodType(long.class, int.class), (Object[]) new Integer[] { 2 });
 	}
 
+	@Test // läuft
+	public final void testApplicationMugglExecuteCountingReflective()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(1,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.CountWordLength.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.CountWordLength.METHOD_countingreflective,
+						MethodType.methodType(int.class, int.class), (Object[]) new Integer[] { 4 }));
+	}
+
 	/**
 	 * Test passing a String as Argument. Will be converted to Objectref from StringCache by MethodRunnerHelper
 	 * 

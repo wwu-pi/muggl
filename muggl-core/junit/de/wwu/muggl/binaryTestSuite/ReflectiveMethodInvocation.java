@@ -1,6 +1,7 @@
 package de.wwu.muggl.binaryTestSuite;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * "Simple" method invocation without MethodType, methodLookup, but only using reflection
@@ -21,17 +22,32 @@ public class ReflectiveMethodInvocation {
 		return "hello, world!" + i;
 	}
 
+	public boolean retBoolean() {
+		return true;
+	}
+
 	public static String METHOD_test_invokeMethod = "test_invokeMethod";
 
 	public static String test_invokeMethod() {
 		Object ret = null;
 		try {
-			ret = ReflectiveMethodInvocation.class.getDeclaredMethods()[0].invoke(null, new Object[0]);
+			Method m = ReflectiveMethodInvocation.class.getDeclaredMethods()[0];
+			ret = m.invoke(null, new Object[0]);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 			e.printStackTrace();
 			return "failed...";
 		}
 		return (String) ret;
+	}
+
+	public static boolean test_invokeMethodReturnPrimitive() {
+		try {
+			Method m = ReflectiveMethodInvocation.class.getDeclaredMethods()[3];
+			return m.invoke(null, new Object[0]).getClass().isPrimitive();
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	public static String METHOD_test_invokeMethodWithArg = "test_invokeMethodWithArg";
@@ -62,6 +78,6 @@ public class ReflectiveMethodInvocation {
 	}
 
 	public static void main(String[] args) {
-
+		System.out.println(test_invokeMethodReturnPrimitive());
 	}
 }

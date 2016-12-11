@@ -5,10 +5,12 @@ import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
-import de.wwu.muggl.binaryTestSuite.HelperStaticInitializerCalled;
 import sun.reflect.CallerSensitive;
 
+@SuppressWarnings("restriction")
 public class MethodHandleTest {
 	@SuppressWarnings("unused")
 	private static final int test1 = 1, test2 = 2, test3 = 3;
@@ -29,24 +31,25 @@ public class MethodHandleTest {
 	public static void test_methodHandleArray() {
 		// done in MethodHandleImpl.java:1083
 		@SuppressWarnings("unused")
-		MethodHandle[] FAKE_METHOD_HANDLE_INVOKE = new MethodHandle[2];		
+		MethodHandle[] FAKE_METHOD_HANDLE_INVOKE = new MethodHandle[2];
 	}
 
 	public final static String METHOD_findVirtualInvokeExact = "findVirtualInvokeExact";
 
-	public static void findVirtualInvokeExact() throws Throwable {	
-//		Object arr = java.lang.reflect.Array.newInstance(Class.forName("java.lang.invoke.LambdaForm$NamedFunction"),2);
-//		System.out.println(arr.getClass().getName());
+	public static void findVirtualInvokeExact() throws Throwable {
+		// Object arr =
+		// java.lang.reflect.Array.newInstance(Class.forName("java.lang.invoke.LambdaForm$NamedFunction"),2);
+		// System.out.println(arr.getClass().getName());
 		// mt is {(char,char) => String}
 		MethodType mt = MethodType.methodType(String.class, char.class, char.class);
-		// System.out.println("markermax --32");
-		// MethodHandles.Lookup lookup = MethodHandles.lookup();
-		// System.out.println("markermax --29");
-		// MethodHandle mh = lookup.findVirtual(String.class, "replace", mt);
-		// System.out.println("markermax --34");
-		// // (Ljava/lang/String;CC)Ljava/lang/String;
-		// String s = (String) mh.invokeExact("daddy", 'd', 'n');
-		// assert (s.equals("nanny"));
+		System.out.println("markermax --32");
+		MethodHandles.Lookup lookup = MethodHandles.lookup();
+		System.out.println("markermax --29");
+		MethodHandle mh = lookup.findVirtual(String.class, "replace", mt);
+		System.out.println("markermax --34");
+		// (Ljava/lang/String;CC)Ljava/lang/String;
+		String s = (String) mh.invokeExact("daddy", 'd', 'n');
+		assert (s.equals("nanny"));
 	}
 
 	public final static String METHOD_findStaticInvokeExact = "findStaticInvokeExact";
@@ -164,21 +167,21 @@ public class MethodHandleTest {
 
 	// boolean problem that arised
 
-	static boolean DEBUG_METHOD_HANDLE_NAMES = false;
+	static boolean DEBUG_METHOD_HANDLE_NAMES = true;
 
 	public final static String METHOD_testBoolean = "testBoolean";
 
-	public static void testBoolean() {
-		final Object[] values = { false };
-		// AccessController.doPrivileged(new PrivilegedAction<Void>() {
-		// public Void run() {
-		// System.out.println("testing");
-		values[0] = Boolean.getBoolean("java.lang.invoke.MethodHandle.DEBUG_NAMES");
-		// return null;
-		// }
-		// });
-		System.out.println((Boolean) values[0]);
+	public static boolean testBoolean() {
+		final Object[] values = { true };
+		AccessController.doPrivileged(new PrivilegedAction<Object>() {
+			public Void run() {
+				values[0] = false;
+				return null;
+			}
+		});
+		// System.out.println((Boolean) values[0]);
 		DEBUG_METHOD_HANDLE_NAMES = (Boolean) values[0];
+		return (Boolean) values[0];
 	}
 
 }

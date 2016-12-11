@@ -13,6 +13,7 @@ import sun.reflect.Reflection;
  * @author Max Schulze
  *
  */
+@SuppressWarnings("restriction")
 public class HashMapTest {
 
 	public static String METHOD_test_HashMap = "test_HashMap";

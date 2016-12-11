@@ -14,6 +14,8 @@ public class TestSimpleForSymbolic {
 		}
 	}
 
+	public static final String METHOD_olderThanSammy = "olderThanSammy";
+
 	public int olderThanSammy(int myAge) {
 		int sammysAge = 25;
 

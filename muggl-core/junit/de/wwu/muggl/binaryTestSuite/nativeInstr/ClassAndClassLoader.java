@@ -1,12 +1,7 @@
 package de.wwu.muggl.binaryTestSuite.nativeInstr;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
-import de.wwu.muggl.binaryTestSuite.invokevirtual.IntegerCache;
 import de.wwu.muggl.binaryTestSuite.invokevirtual.MyType.MySecondType;
-import sun.reflect.ReflectionFactory;
 
 /**
  * Testing native instructions in java.lang.Class and .ClassLoader
@@ -425,6 +420,7 @@ public class ClassAndClassLoader implements Serializable {
 
 	public static final String METHOD_test_GetClassAccessFlags = "test_GetClassAccessFlags";
 
+	@SuppressWarnings("restriction")
 	public static int test_GetClassAccessFlags() {
 		Class<?> clazz = Class.class;
 		return sun.reflect.Reflection.getClassAccessFlags(clazz);

@@ -14,7 +14,6 @@ import org.junit.Test;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.test.TestSkeleton;
-import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.initialization.InitializationException;

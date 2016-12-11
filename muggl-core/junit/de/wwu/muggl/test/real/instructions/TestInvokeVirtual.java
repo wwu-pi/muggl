@@ -1,5 +1,7 @@
 package de.wwu.muggl.test.real.instructions;
 
+import static org.junit.Assert.*;
+
 import java.lang.invoke.MethodType;
 
 import org.apache.log4j.Level;
@@ -44,7 +46,7 @@ public class TestInvokeVirtual extends TestSkeleton {
 	public void tearDown() throws Exception {
 	}
 
-	// @Test
+//	 @Test
 	public final void testApplicationMugglVMInvokeVirtualExecutionStatic1()
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -54,17 +56,20 @@ public class TestInvokeVirtual extends TestSkeleton {
 
 	}
 
-	// @Test
-	public final void testApplicationMugglVMTestBoolean()
+	@Test
+	public final void testApplicationMugglVMTestDoPrivileged()
 			throws ClassFileException, InitializationException, InterruptedException {
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),
-				de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_testBoolean,
-				MethodType.methodType(void.class), null);
+		assertEquals(false,
+				(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.invokevirtual.MethodHandleTest.METHOD_testBoolean,
+						MethodType.methodType(boolean.class), null));
 
 	}
 
-	@Test
+	
+
+//	@Test
 	public final void testApplicationMugglVMInvokeVirtualExecution2()
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,

@@ -1,5 +1,6 @@
 package de.wwu.muggl.binaryTestSuite;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -19,27 +20,44 @@ public class CountWordLength {
 	}
 
 	public final static String METHOD_returnStaticFieldFriendClass = "returnStaticFieldFriendClass";
+
 	public boolean returnStaticFieldFriendClass() {
-		return  Boxing.test3;
+		return Boxing.test3;
 	}
+
+	static Collection<Integer> myList = new ArrayList<Integer>() {
+		private static final long serialVersionUID = -1686817071337627569L;
+
+		{
+			add(4);
+			add(5);
+		}
+	};
 
 	public static long counting(int filterLength) {
 		// this internally uses a HashMap
 		// Collection<String> myList = Arrays.asList("Hello", "Java");
-		Collection<String> myList = new ArrayList<String>() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = -1686817071337627569L;
 
-			{
-				add("Hello");
-				add("Java");
+		long countLongStrings = myList.stream().filter(element -> element > filterLength).count();
+
+		return countLongStrings;
+	}
+
+	public static Boolean filter(int filterLength, Integer entry) {
+		return entry > filterLength;
+	}
+
+	public static final String METHOD_countingreflective = "countingReflective";
+
+	public static int countingReflective(int filterLength) throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException, NoSuchMethodException, SecurityException {
+		int countLongStrings = 0;
+		for (Integer entry : myList) {
+			if ((boolean) CountWordLength.class.getMethod("filter", int.class, Integer.class).invoke(null,
+					new Object[] { filterLength, entry })) {
+				countLongStrings++;
 			}
-		};
-
-		long countLongStrings = myList.stream().filter(element -> element.length() > filterLength).count();
-
+		}
 		return countLongStrings;
 	}
 
@@ -55,7 +73,9 @@ public class CountWordLength {
 		return testin.length();
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException, NoSuchMethodException, SecurityException {
 		System.out.println(counting(2));
+		System.out.println(countingReflective(2));
 	}
 }

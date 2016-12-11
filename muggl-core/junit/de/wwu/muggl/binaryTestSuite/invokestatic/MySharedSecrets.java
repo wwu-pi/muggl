@@ -9,6 +9,7 @@ import sun.misc.Unsafe;
  * @author max
  *
  */
+@SuppressWarnings("restriction")
 public enum MySharedSecrets {
 	THINGY, BOB;
 	static {

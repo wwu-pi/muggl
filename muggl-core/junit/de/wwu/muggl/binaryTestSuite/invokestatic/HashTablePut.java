@@ -7,6 +7,7 @@ import java.util.Map;
 
 import sun.reflect.Reflection;
 
+@SuppressWarnings("restriction")
 public class HashTablePut {
 	
 	public static void main(String[] args) {

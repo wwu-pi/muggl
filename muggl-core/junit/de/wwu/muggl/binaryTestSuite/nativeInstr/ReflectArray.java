@@ -2,8 +2,6 @@ package de.wwu.muggl.binaryTestSuite.nativeInstr;
 
 import java.util.Arrays;
 
-import de.wwu.muggl.test.TestSkeleton;
-
 /**
  * Test native operations on Arrays
  * 

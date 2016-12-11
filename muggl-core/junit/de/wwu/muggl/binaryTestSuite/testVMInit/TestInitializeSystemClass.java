@@ -1,5 +1,7 @@
 package de.wwu.muggl.binaryTestSuite.testVMInit;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -8,6 +10,7 @@ public class TestInitializeSystemClass {
 	public static void main(String[] args) {
 		System.out.println(tryGetProperty());
 		System.out.println(listSystemProperties());
+		System.out.println(mandatoryProperties());
 		System.out.println(isbooted());
 	}
 
@@ -20,6 +23,7 @@ public class TestInitializeSystemClass {
 	 * @return if not configured, null
 	 */
 
+	@SuppressWarnings("restriction")
 	public static String tryGetProperty() {
 		return sun.misc.VM.getSavedProperty("java.lang.Integer.IntegerCache.high");
 	}
@@ -29,8 +33,9 @@ public class TestInitializeSystemClass {
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("restriction")
 	public static boolean isbooted() {
-		System.out.println(sun.misc.VM.isBooted());
+		// System.out.println(sun.misc.VM.isBooted());
 		return sun.misc.VM.isBooted();
 	}
 
@@ -38,12 +43,55 @@ public class TestInitializeSystemClass {
 		return true;
 	}
 
+	public static final String METHOD_MANDATORYPROPS = "mandatoryProperties";
+
+	public static boolean mandatoryProperties() {
+		int count = 0;
+		// mandatory system properties to test, see java.lang.System:509
+		String[] props = { "java.version", "java.vendor", "java.vendor.url", "java.home", "java.class.version",
+				"java.class.path", "os.name", "os.arch", "os.version", "file.separator", "path.separator",
+				"line.separator", "user.name", "user.home", "user.dir" };
+
+		for (String string : props) {
+			if (System.getProperty(string) == null) {
+				System.out.println("fatal: mandatory property not found: " + string);
+			} else
+				count++;
+		}
+		return props.length == count;
+	}
+
+	public final static String METHOD_testGetSystemProperty = "testGetSystemProperty";
+
+	public static int testGetSystemProperty() {
+		final int[] values = { 1, 2, 3 };
+
+		AccessController.doPrivileged(new PrivilegedAction<Object>() {
+			public Object run() {
+				return values[0] = Integer.getInteger("TestProperty");
+			}
+		});
+
+		return (int) values[0];
+	}
+
+	public final static String METHOD_testDoPrivileged = "testDoPrivileged";
+
+	public static boolean testDoPrivileged() {
+		return AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+			public Boolean run() {
+				return true;
+			}
+		});
+
+	}
+
 	public static int listSystemProperties() {
 		Properties p = System.getProperties();
 		int i = 0;
 		if (p != null) {
 			System.out.println("size: " + p.size());
-			
+
 			Enumeration<Object> keys = p.keys();
 			while (keys.hasMoreElements()) {
 				String key = (String) keys.nextElement();

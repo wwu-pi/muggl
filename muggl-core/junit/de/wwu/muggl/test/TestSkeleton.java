@@ -16,7 +16,7 @@ import de.wwu.muggl.configuration.Globals;
  */
 public class TestSkeleton {
 	@Rule
-	public Timeout globalTimeout = Timeout.seconds(200000000);
+	public Timeout globalTimeout = Timeout.seconds(2000000);
 
 	/**
 	 * subclasses should not change loglevel if set (for CI tests...).

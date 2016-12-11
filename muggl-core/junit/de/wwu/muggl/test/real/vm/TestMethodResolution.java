@@ -1,8 +1,5 @@
 package de.wwu.muggl.test.real.vm;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.AfterClass;

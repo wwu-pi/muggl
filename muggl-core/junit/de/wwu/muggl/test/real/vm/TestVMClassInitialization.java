@@ -1,5 +1,7 @@
 package de.wwu.muggl.test.real.vm;
 
+import static org.junit.Assert.*;
+
 import java.lang.invoke.MethodType;
 
 import org.apache.log4j.Level;
@@ -46,17 +48,48 @@ public class TestVMClassInitialization extends TestSkeleton {
 				"tryGetProperty", MethodType.methodType(String.class), null);
 	}
 
-	// @Test
+	@Test
 	public final void testGetVMProperties() throws ClassFileException, InitializationException, InterruptedException {
-		org.junit.Assert.assertTrue("ListSystemProperties has no entries at all",
+		assertTrue("ListSystemProperties has no entries at all",
 				((Integer) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(),
 						"listSystemProperties", MethodType.methodType(int.class), null)) > 1);
 	}
 
 	@Test
+	public final void testGetVMPropertiesMandatory()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.METHOD_MANDATORYPROPS,
+				MethodType.methodType(boolean.class), null));
+	}
+
+	@Test // closely related to testGetVMPropertiesMandatory,except it also tests for doPrivileged
+	public final void testApplicationMugglVMTestGetSystemProperty()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(99,
+				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.METHOD_testGetSystemProperty,
+						MethodType.methodType(int.class), null));
+
+	}
+
+	
+	@Test // closely related to testGetVMPropertiesMandatory,except it also tests for doPrivileged
+	public final void testApplicationMugglVMTestDoPrivileged()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.METHOD_testDoPrivileged,
+						MethodType.methodType(boolean.class), null));
+
+	}
+
+	@Test
 	public final void testGetVMIsBooted() throws ClassFileException, InitializationException, InterruptedException {
-		org.junit.Assert.assertTrue("VM is not booted",
+		assertTrue("VM is not booted",
 				(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(),
 						"isbooted", MethodType.methodType(boolean.class), null));
@@ -64,7 +97,7 @@ public class TestVMClassInitialization extends TestSkeleton {
 
 	@Test
 	public final void testReturnValue() throws ClassFileException, InitializationException, InterruptedException {
-		org.junit.Assert.assertTrue("correct return value from function",
+		assertTrue("correct return value from function",
 				(boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(),
 						"testReturnValues", MethodType.methodType(boolean.class), null));

@@ -218,6 +218,7 @@ public class TestExecutionAlgorithmAssignmentCompatible extends TestSkeleton {
 				ea.checkForAssignmentCompatibility(null, "java.lang.Boolean", application.getVirtualMachine(), false));
 	}
 
+	@SuppressWarnings("restriction")
 	@Test
 	public void runTestTransientInterface() throws ExecutionException, ClassFileException {
 		ClassFile classFile1 = classLoader

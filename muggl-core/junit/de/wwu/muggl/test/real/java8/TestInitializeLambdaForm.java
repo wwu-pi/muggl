@@ -1,7 +1,5 @@
 package de.wwu.muggl.test.real.java8;
 
-import static org.junit.Assert.assertEquals;
-
 import java.lang.invoke.MethodType;
 
 import org.apache.log4j.Level;
