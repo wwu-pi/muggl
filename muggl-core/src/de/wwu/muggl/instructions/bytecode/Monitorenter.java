@@ -57,7 +57,8 @@ public class Monitorenter extends Monitor implements Instruction {
 	 */
 	@Override
 	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
-		throw new SymbolicExecutionException("The instruction " + getName() + " has not been implemented, yet.");
+		// TODO implement monitorenter symbolically
+//		throw new SymbolicExecutionException("The instruction " + getName() + " has not been implemented, yet.");
 	}
 
 	/**

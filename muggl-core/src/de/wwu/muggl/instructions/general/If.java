@@ -71,7 +71,7 @@ public abstract class If extends GeneralInstructionWithOtherBytes implements Jum
 	@Override
 	public void executeSymbolically(Frame frame) throws NoExceptionHandlerFoundException, SymbolicExecutionException {
 		try {
-			Term term1 = (Term) frame.getOperandStack().pop();
+			Term term1 = Term.frameConstant(frame.getOperandStack().pop());
 
 			// Check if the term is constant.
 			if (term1.isConstant()) {

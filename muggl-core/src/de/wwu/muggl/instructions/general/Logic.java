@@ -24,8 +24,8 @@ public abstract class Logic extends GeneralInstruction implements StackPop, Stac
 	@Override
 	public void executeSymbolically(Frame frame) {
 		Stack<Object> stack = frame.getOperandStack();
-		Term term2 = (Term) stack.pop();
-		Term term1 = (Term) stack.pop();
+		Term term2 = Term.frameConstant(stack.pop());
+		Term term1 = Term.frameConstant(stack.pop());
 		stack.push(calculate(term1, term2));
 	}
 

@@ -1050,16 +1050,17 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	 */
 	@Override
 	public void changeCurrentFrame(Frame frame) {
-		// Create a FrameChange trail element?
-		ChoicePoint choicePoint = this.searchAlgorithm.getCurrentChoicePoint();
-		if (choicePoint != null && choicePoint.hasTrail()) {
-			// Add a FrameChange trail element.
-			choicePoint.addToTrail(new FrameChange(this.currentFrame));
+		if (universeSetupFinished) {
+			// Create a FrameChange trail element?
+			ChoicePoint choicePoint = this.searchAlgorithm.getCurrentChoicePoint();
+			if (choicePoint != null && choicePoint.hasTrail()) {
+				// Add a FrameChange trail element.
+				choicePoint.addToTrail(new FrameChange(this.currentFrame));
+			}
+
+			// Report frame change to the coverage controller.
+			this.coverage.reportFrameChange(frame);
 		}
-
-		// Report frame change to the coverage controller.
-		this.coverage.reportFrameChange(frame);
-
 		// Invoke the super implementation to change the frame.
 		super.changeCurrentFrame(frame);
 	}

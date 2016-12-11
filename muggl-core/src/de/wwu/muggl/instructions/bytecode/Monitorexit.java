@@ -65,7 +65,7 @@ public class Monitorexit extends Monitor implements Instruction {
 	 */
 	@Override
 	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
-		throw new SymbolicExecutionException("The instruction " + getName() + " has not been implemented, yet.");
+//		throw new SymbolicExecutionException("The instruction " + getName() + " has not been implemented, yet.");
 	}
 
 	/**

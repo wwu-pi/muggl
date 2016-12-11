@@ -23,6 +23,7 @@ import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
 import de.wwu.muggl.solvers.expressions.Term;
 
 /**
@@ -63,17 +64,22 @@ public class Putfield extends Put implements Instruction {
 			// java bytecode would do a aconst_{1|0} if it wanted to putfield for a boolean
 			// so we have to simulate this if we get a boolean object. This all because booleans are treated as 0|1
 			// internally in JVM
-			if (type.equals("boolean") && value.getClass().getName().equals("java.lang.Boolean")) {
-				value = (int) (((boolean) value) ? 1 : 0);
-			} else if(type.equals("short") && value.getClass().getName().equals("java.lang.Short")) {
-				value = Short.valueOf((short)value).intValue();
+			if (value != null) { // it is legal to assign null as long as it's not a primitive type
+				// (compiler should catch that)
+				
+				// TODO: boolean computational type should be harmonized
+				if (type.equals("boolean") && value.getClass().getName().equals("java.lang.Boolean")) {
+					value = (int) (((boolean) value) ? 1 : 0);
+				} else if (type.equals("short") && value.getClass().getName().equals("java.lang.Short")) {
+					value = Short.valueOf((short) value).intValue();
+				}
+				ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
+				if (!ea.checkForAssignmentCompatibility(value, type, frame.getVm(), false)) {
+					// Unexpected exception: value is not assignment compatible to the expected type.
+					throw new ExecutionException("Cannot write a value (type: " + value.getClass().getName()
+							+ ") that is not assignment compatible to " + type + ".");
+				}
 			}
-			ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
-			if (!ea.checkForAssignmentCompatibility(value, type, frame.getVm(), false)) {
-				// Unexpected exception: value is not assignment compatible to the expected type.
-				throw new ExecutionException("Cannot write a value (type: " + value.getClass().getName() + ") that is not assignment compatible to " + type + ".");
-			}
-
 			// Finally assign the value.
 			objectref.putField(field, value);
 		} catch (VmRuntimeException e) {
@@ -106,6 +112,13 @@ public class Putfield extends Put implements Instruction {
 			// Check for assignment compatibility.
 			String type = field.getType();
 			ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
+			
+			if (type.equals("boolean") && value.getClass().getName().equals("java.lang.Boolean")) {
+				value = (int) (((boolean) value) ? 1 : 0);
+			} else if (type.equals("short") && value.getClass().getName().equals("java.lang.Short")) {
+				value = Short.valueOf((short) value).intValue();
+			}
+			
 			if (value instanceof Term) {
 				// Value is a term. Get its type and do the type checking with it.
 				String valueAsString = TypedInstruction.getStringRepresentationForWrappedType(((Term) value).getType());
@@ -113,6 +126,13 @@ public class Putfield extends Put implements Instruction {
 				{
 					// Unexpected exception: value is not assignment compatible to the expected type.
 					throw new ExecutionException("Cannot write a value that is not assignment compatible to " + type + ".");
+				}
+			} else if(value instanceof BooleanConstant) {
+				if(type.equalsIgnoreCase("boolean")) {
+					// all good
+				}
+				else{
+					throw new ExecutionException("Cannot write a BooleanConst that is not assignment compatible to " + type + ".");
 				}
 			} else if (value instanceof Arrayref && ((Arrayref) value).getReferenceValue().getName().startsWith("de.wwu.muggl.solvers.expressions.Term")) {
 				// Value is an array of term objects. Does it have a represented type?

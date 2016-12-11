@@ -213,4 +213,26 @@ public abstract class Term implements Expression {
      * @return the product of the multiplication.
      */
     protected abstract Term multiply(Term factor);
+
+    /**
+     * A cast of an java.lang.Integer to term would always fail.
+     * Try to be a bit more intelligent and frame Integers as IntConstant if necessary
+     * @param obj
+     * @return
+     */
+	public static Term frameConstant(Object obj) {
+		if (obj instanceof Term){
+			return (Term) obj;
+		}
+		if (obj instanceof Integer){
+			return new IntConstant((int)obj);
+		} else if (obj instanceof BooleanConstant) {
+			return new IntConstant(((BooleanConstant) obj).getValue() ? 1:0);
+		} else if (obj instanceof Boolean) {
+			return IntConstant.getInstance(((Boolean) obj) ? 1:0); 
+		}
+		
+		
+		return (Term) obj;
+	}
 }

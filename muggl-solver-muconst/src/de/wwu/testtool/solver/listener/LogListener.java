@@ -41,7 +41,7 @@ public class LogListener extends StatisticListener implements SolverManagerListe
     @Override
     public void constraintAdded(SolverManager manager, ConstraintExpression ce, ComposedConstraint cc){
 	super.constraintAdded(manager, ce, cc);
-	if (logger.isDebugEnabled()) logger.debug("SolverManager: constraint added: " + ce.toString() + " --&gt; " + cc.toString());
+	logger.debug("SolverManager: constraint added: " + ce.toString() + " --&gt; " + ((cc == null) ? "":cc.toString()));
     }
 
     @Override

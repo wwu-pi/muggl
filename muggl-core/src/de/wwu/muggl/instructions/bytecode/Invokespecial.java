@@ -4,6 +4,7 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.MethodResolutionError;
 import de.wwu.muggl.instructions.general.Invoke;
 import de.wwu.muggl.instructions.interfaces.Instruction;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -58,7 +59,21 @@ public class Invokespecial extends Invoke implements Instruction {
 	protected ClassFile checkStaticMethod(Frame frame, String[] nameAndType,
 			Method method, Object[] parameters) throws ExecutionException, VmRuntimeException {
 		// Fetch the object reference to invoke the method on.
-		ReferenceValue objectref = (ReferenceValue) frame.getOperandStack().pop();
+		
+		ReferenceValue objectref = null;
+		Object stackObj = frame.getOperandStack().pop();
+		if(stackObj instanceof IntConstant){
+			try {
+				return frame.getVm().getClassLoader().getClassAsClassFile("java.lang.Integer");
+			} catch (ClassFileException e) {
+				e.printStackTrace();
+			}
+		}
+		else if (stackObj instanceof ReferenceValue) {
+			objectref = (ReferenceValue) stackObj;
+		} else
+			objectref = (ReferenceValue) stackObj;
+		
 		parameters[0] = objectref;
 
 		// Runtime exception: objectref is null.
