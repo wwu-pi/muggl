@@ -144,7 +144,7 @@ final class Defaults {
 	/**
 	 * Log to a HTML file.
 	 */
-	public static final boolean HTML_LOGGING = true;
+	public static final boolean HTML_LOGGING = false;
 	/**
 	 * @see Options#measureSymbolicExecutionTime
 	 */

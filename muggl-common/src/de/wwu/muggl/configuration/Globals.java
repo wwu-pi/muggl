@@ -171,8 +171,7 @@ public final class Globals {
 	 * Per-Package options for logging. white & blacklist take string start so imaging <entry>* whitelist overwrites
 	 * blacklist
 	 */
-	public static final List<String> logPackageBlacklist = Arrays.asList("java.util.", "java.lang.",
-			"java.lang.Integer.");
+	public static final List<String> logPackageBlacklist = Arrays.asList("sun.misc.FDBigInteger","jdk.internal.org.objectweb","java.lang.Integer","java.util.Arrays","java.lang.String.","java.lang.AbstractStringBuilder","java.lang.CharacterData","java.lang.Byte$ByteCache","java.lang.Short$ShortCache","java.lang.Character$CharacterCache","java.lang.Long$LongCache", "java.lang.Number", "java.lang.String.replace", "java.lang.Class.desiredAssertionStatus");
 	public static final List<String> logPackageWhitelist = Arrays.asList("java.util.HashMap.putVal", "java.lang.Class",
 			"java.lang.Enum");
 
@@ -185,6 +184,7 @@ public final class Globals {
 	private CountingFileAppender fileAppender;
 	private final Vector<Logger> loggers;
 	
+	public boolean vmIsInitialized = false;
 	// Static initialization.
 	static {
 		APP_NAME = "Muggl";
@@ -246,6 +246,7 @@ public final class Globals {
 			this.execLogger.addAppender(appender);
 			this.parserLogger.addAppender(appender);
 			this.executionInstructionLogger.addAppender(appender);
+			this.symbolicExecLogger.addAppender(appender);
 			
 			this.executionInstructionLogger.addAppender(this.fileAppender);
 			this.logger.addAppender(this.fileAppender);
