@@ -56,6 +56,9 @@ public class Invokestatic extends Invoke implements Instruction {
 	@Override
 	protected ClassFile checkStaticMethod(Frame frame, String[] nameAndType,
 			Method method, Object[] parameters) throws ExecutionException, VmRuntimeException {
+		
+		checkNoInstanceInit(method);
+		
 		// Unexpected exception: the method is an instance initialization method.
 		if (nameAndType[0].equals(VmSymbols.OBJECT_INITIALIZER_NAME))
 			throw new ExecutionException("Error while executing instruction " + getName()

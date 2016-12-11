@@ -1,6 +1,8 @@
 package de.wwu.muggl.instructions.general;
 
+import java.util.Arrays;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Level;
 
@@ -30,6 +32,7 @@ import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Objectref;
+import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 import de.wwu.muggl.solvers.expressions.DoubleConstant;
 import de.wwu.muggl.solvers.expressions.FloatConstant;
@@ -139,10 +142,13 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 		ClassFile methodClassFile = getMethodClassFile(constant, frame.getVm().getClassLoader());
 
 		// Try to resolve method from this class.
-		ResolutionAlgorithms resoluton = new ResolutionAlgorithms(frame.getVm().getClassLoader());
+		ResolutionAlgorithms resolution = new ResolutionAlgorithms(frame.getVm().getClassLoader());
 		Method method;
 		try {
-			method = resoluton.resolveMethod(methodClassFile, nameAndType);
+			if (this.getName().contains("interface")) {
+				method = resolution.resolveMethodInterface(methodClassFile, nameAndType);
+			} else
+				method = resolution.resolveMethod(methodClassFile, nameAndType);
 		} catch (ClassFileException e) {
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", e.getMessage()));
 		} catch (NoSuchMethodError e) {
@@ -162,6 +168,15 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 			parameters[a] = stack.pop();
 		}
 
+		if(parameters.length>0 && parameters[0]==null && nameAndType[0].equals("loadClass")) {
+			// FIXME TODO mxs: hard fake. Because the SystemClassLoader is not known
+			String className = frame.getVm().getStringCache().getStringObjrefValue((Objectref)parameters[1]);
+			ClassFile klass = frame.getVm().getClassLoader().getClassAsClassFile(className);
+			klass.getTheInitializedClass(frame.getVm());
+			frame.getOperandStack().push(klass.getMirrorJava());
+			return;
+		}
+		
 		/*
 		 * Do the checks for static/non-static methods calls and get the {@link ClassFile} of the
 		 * object reference to invoke the method on for non-static ones.
@@ -183,6 +198,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 			}
 		}
 
+		
 		// Is the method native?
 		if (method.isAccNative()) {
 			if (Options.getInst().doNotHaltOnNativeMethods) {
@@ -194,9 +210,9 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 						 * object reference).
 						 */
 						Object[] parametersWithoutObjectref;
-						Objectref objectref = null;
+						ReferenceValue objectref = null; // could be Arrayref or Objectref
 						if (this.hasObjectrefParameter == 1) {
-							objectref = (Objectref) parameters[0];
+							objectref = (ReferenceValue) parameters[0];
 							parametersWithoutObjectref = new Object[parameters.length - 1];
 							for (int a  = 1; a < parameters.length; a++) {
 								parametersWithoutObjectref[a - 1] = parameters[a];
@@ -206,7 +222,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 						}
 
 						// Try to forward.
-						if (method.getClassFile().getPackageName().startsWith("java.")) {
+						if (method.getClassFile().getPackageName().startsWith("java.") || method.getClassFile().getPackageName().startsWith("sun.")) {
 							NativeWrapper.forwardNativeInvocation(frame, method, methodClassFile, objectref, parametersWithoutObjectref);
 						} else if (method.getClassFile().getPackageName().equals("de.wwu.muggl.vm.execution.nativeWrapping")) {
 							// Get the object reference of the invoking method.
@@ -224,12 +240,12 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 						if (!frame.isHiddenFrame()
 								&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
 							Globals.getInst().execLogger
-									.debug("Forwarded the native method " + method.getPackageAndName() + " to a wrapper.");
+									.debug("Forwarded the native method1 " + method.getPackageAndName() + " to a wrapper.");
 						
 						// Release the monitor if it is synchronized.
 						if (method.isAccSynchronized()) {
 							if (this.hasObjectrefParameter == 1) {
-								frame.getVm().getMonitorForObject(objectref).monitorExit();
+								frame.getVm().getMonitorForObject((Objectref) objectref).monitorExit();
 							} else {
 								frame.getVm().getMonitorForStaticInvocation(methodClassFile).monitorExit();
 							}
@@ -237,8 +253,9 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 						if (!frame.isHiddenFrame()
 								&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
 							Globals.getInst().executionInstructionLogger
-									.debug("upon return: (op: " + frame.getOperandStack() + ", localvar: "
-				 							+ frame.getLocalVariables() + " pc: " + frame.getPc() + ")");
+									.debug("upon return: (op: " + frame.getOperandStack() + ", localvar: [" + Arrays.stream(frame.getLocalVariables())
+									                                   									.map(x -> (x == null)? "null": x.toString()).collect(Collectors.joining(", "))									
+									                                   									+ "] pc: " + frame.getPc() + ")");
 
 						// Finished.
 						return;
@@ -453,7 +470,10 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 		ResolutionAlgorithms resoluton = new ResolutionAlgorithms(classLoader);
 		Method method;
 		try {
-			method = resoluton.resolveMethod(methodClassFile, nameAndType);
+			if (methodClassFile.isAccInterface())
+				method = resoluton.resolveMethodInterface(methodClassFile, nameAndType);
+			else
+				method = resoluton.resolveMethod(methodClassFile, nameAndType);
 		} catch (ClassFileException e) {
 			throw new ExecutionException(e);
 		} catch (NoSuchMethodError e) {

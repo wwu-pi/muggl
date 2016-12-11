@@ -3,7 +3,7 @@ package de.wwu.muggl.vm.classfile;
 public final class ClassFileConstants {
 
 	// Constants for the constant_pool.
-	// openjdk equivalence in openjdk/jdk/src/share/javavm/export/classfile_constants.h
+	// openjdk equivalence roughly in openjdk/jdk/src/share/javavm/export/classfile_constants.h
 	// and openjdk/hotspot/src/share/vm/prims/jvm.h
 
 	// FIXME mxs: would make sense to move the ClassFile Constants here to have a shorter file over there.
@@ -12,19 +12,19 @@ public final class ClassFileConstants {
 		REF_getField(1), REF_getStatic(2), REF_putField(3), REF_putStatic(4), REF_invokeVirtual(5), REF_invokeStatic(
 				6), REF_invokeSpecial(7), REF_newInvokeSpecial(8), REF_invokeInterface(9);
 
-		private final int referenceKindIdx;
+		private final int val;
 
 		ReferenceKind(int idx) {
-			this.referenceKindIdx = idx;
+			this.val = idx;
 		}
-
-		public int getReferenceKindIdx() {
-			return referenceKindIdx;
+		
+		public int val() {
+			return val;
 		}
 
 		public static ReferenceKind valueOf(int value) {
 			for (ReferenceKind e : ReferenceKind.values()) {
-				if (e.referenceKindIdx == value) {
+				if (e.val == value) {
 					return e;
 				}
 			}

@@ -27,6 +27,7 @@ import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeVisibleAn
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeVisibleParameterAnnotations;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeSynthetic;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeUnknownSkipped;
+import de.wwu.muggl.vm.classfile.structures.attributes.elements.Annotation;
 import de.wwu.muggl.vm.classfile.structures.attributes.elements.LocalVariableTable;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantUtf8;
 import de.wwu.muggl.solvers.expressions.Variable;
@@ -61,6 +62,16 @@ public class Method extends FieldMethod {
 	// Cached hash code
 	private boolean hashComputed = false;
 	private int hashCode;
+
+	// vtable index
+	// Valid vtable indexes are non-negative (>= 0).
+	// These few negative values are used as sentinels.
+	public static final int ITABLE_INDEX_MAX= -10, // first itable index, growing downward
+			PENDING_ITABLE_INDEX= -9, // itable index will be assigned
+			INVALID_VTABLE_INDEX= -4, // distinct from any valid vtable index
+			GARBAGE_VTABLE_INDEX= -3, // not yet linked; no vtable layout yet
+			NONVIRTUAL_VTABLE_INDEX= -2; // there is no need for vtable dispatch
+	// 6330203 Note: Do not use -1, which was overloaded with many meanings.
 
 	/**
 	 * Basic constructor.
@@ -761,7 +772,7 @@ public class Method extends FieldMethod {
 	}
 
 	/**
-	 * Get the declared exceptions this method may throw. This will no include
+	 * Get the declared exceptions this method may throw. This will not include
 	 * unchecked exceptions the method or any method it invokes may throw.
 	 * @return The declared exception types as an array of String values.
 	 */
@@ -989,16 +1000,130 @@ public class Method extends FieldMethod {
 	}
 
 	public boolean isSignaturePolymorphic() {
-		// shortcut from the JVM spec §2.9
-		// "In Java SE 8, the only signature polymorphic methods are the invoke and invokeExact
-		// methods of the class java.lang.invoke.MethodHandle ."
-		if ((getName().equalsIgnoreCase("invoke") || getName().equalsIgnoreCase("invokeExact"))
-				&& this.getClassFile().getName().equalsIgnoreCase("java.lang.invoke.MethodHandle")) {
-			return true;
+		if (this.getClassFile().getName().equalsIgnoreCase("java.lang.invoke.MethodHandle")) {
+			
+			// shortcut from the JVM spec §2.9, not valid here
+			// "In Java SE 8, the only signature polymorphic methods are the invoke and invokeExact
+			// methods of the class java.lang.invoke.MethodHandle ."
+			// (getName().equalsIgnoreCase("invoke") || getName().equalsIgnoreCase("invokeExact"))
+			
+			// more extensive test for annotation, if for e.g. linktoVirtual
+			Optional<AttributeRuntimeVisibleAnnotations> annot = Arrays.stream(this.attributes).filter(i->i instanceof AttributeRuntimeVisibleAnnotations)
+			.map(c->(AttributeRuntimeVisibleAnnotations)c).findFirst();
+			
+			if(annot.isPresent()) {
+				AttributeRuntimeVisibleAnnotations anno = annot.get();
+				for (Annotation annotation : anno.getAnnotations()) {
+					if(annotation.classFile.getConstantPool()[annotation.getTypeIndex()].getStringValue().equals("Ljava/lang/invoke/MethodHandle$PolymorphicSignature;")) {
+						return true;
+					}
+				}
+			}			
+		}
+		return false;
+	}
+
+	/**
+	 * whether to include this method in reflective listing of methods
+	 * @param wantConstructor
+	 * @return
+	 */
+	public boolean selectMethod(boolean wantConstructor) {
+		if (wantConstructor) {
+			return (this.isInitializer() && !this.isAccStatic());
 		} else {
-			return false;
+			return (!this.isInitializer()
+			// && !method.isOverpass()
+			);
 		}
 	}
 
+	/**
+	 * return true if the static initializer &lt;clinit> of a class
+	 * @return
+	 */
+	public boolean isStaticInitializer() {
+		// For classfiles version 51 or greater, ensure that the clinit method is
+		// static. Non-static methods with the name "<clinit>" are not static
+		// initializers. (older classfiles exempted for backward compatibility)
+		return getName().equals(VmSymbols.CLASS_INITIALIZER_NAME)
+				&& (isAccStatic() || this.getClassFile().getMajorVersion() < 51);
+	}
 
+	/**
+	 * return true if name is &lt;init>
+	 * @return
+	 */
+	public boolean isInitializer() {
+		return this.getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME) || isStaticInitializer();
+	}
+	
+	/**
+	 * Return true if it has the CallerSensitive Annotation set
+	 * 
+	 * @return
+	 */
+	public boolean isCallerSensitive() {
+		for (Attribute attribute : attributes) {
+			if (attribute instanceof AttributeRuntimeVisibleAnnotations) {
+				AttributeRuntimeVisibleAnnotations attr = (AttributeRuntimeVisibleAnnotations) attribute;
+				for (Annotation annot : attr.getAnnotations()) {
+					if (annot.classFile.getConstantPool()[annot.getTypeIndex()].getStringValue()
+							.equals("Lsun/reflect/CallerSensitive;"))
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns true if this is one of the specially treated methods for security related stack walks (like
+	 * Reflection.getCallerClass).
+	 * 
+	 * @return
+	 */
+	public boolean isIgnoredBySecurityStackWalk() {
+		if (this.classFile.getName().equals("java.lang.Method") && this.getName().equals("invoke")) {
+			// This is Method.invoke() -- ignore it
+			return true;
+		}
+		// if (method_holder()->is_subclass_of(SystemDictionary::reflect_MethodAccessorImpl_klass())) {
+		// // This is an auxilary frame -- ignore it
+		// return true;
+		// }
+		if (isMethodHandleIntrinsic()
+		// FIXME compiled_lambda_form
+		// || is_compiled_lambda_form()
+		) {
+			// This is an internal adapter frame for method handles -- ignore it
+			return true;
+		}
+		return false;
+	}
+
+	// Test if this method is an internal MH primitive method.
+	public boolean isMethodHandleIntrinsic() {
+		return isSignaturePolymorphic();
+	}
+
+	public int vtable_index() {
+		// FIXME: implement
+		return 1;
+	}
+
+	public boolean can_be_statically_bound() {
+		// TODO FIXME implement
+		return false;
+	}
+
+	public boolean has_vtable_index() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public int itable_index() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

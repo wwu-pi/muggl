@@ -8,13 +8,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Modifier;
+import java.lang.invoke.MethodType;
+import java.util.Arrays;
 
 import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.FieldResolutionError;
 import de.wwu.muggl.instructions.MethodResolutionError;
+import de.wwu.muggl.vm.SystemDictionary;
 import de.wwu.muggl.vm.VirtualMachine;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.structures.Attribute;
@@ -54,6 +56,7 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * it provides methods to access the complete data structure of a class file.
  * 
  * @author Tim Majchrzak
+ * @see the openjdk equivalent would be 	instanceKlass
  */
 public class ClassFile {
 	/* updated for the following versions */
@@ -227,6 +230,7 @@ public class ClassFile {
 	 * The T_LONG with a byte value of 11.
 	 */
 	public static final byte	T_LONG						= 11;
+	
 
 	// The magic number.
 	/**
@@ -268,7 +272,7 @@ public class ClassFile {
 	private Class<?>			instanceOfClass;
 	private InitializedClass	initializedClass;
 	private Objectref			primitiveWrapper;
-
+	
 	// Other fields.
 	private MugglClassLoader	classLoader;
 	private boolean				readingData					= false;
@@ -276,7 +280,10 @@ public class ClassFile {
 	private String				name;
 	private String				fullPath;
 	private long				loadingNumber;
-
+	
+	//the java/lang/class mirror
+	private Objectref mirrorJava;
+		
 	/**
 	 * Constructor for reading a class from a File resource.
 	 * 
@@ -316,6 +323,51 @@ public class ClassFile {
 			if (Globals.getInst().logger.isInfoEnabled())
 				Globals.getInst().logger.info("Parsing class " + fullPath);
 			this.fullPath = fullPath;
+			this.loadingNumber = classLoader.getNextLoadingNumber();
+			this.readingData = true;
+			this.dis = new DataInputStream(is);
+			this.byteLength = (int) byteLength;
+			this.bytes = new byte[this.byteLength];
+			readClass();
+			this.readingData = false;
+			this.instanceOfClass = null;
+
+			// Now read the whole stream into an array of bytes.
+			this.dis.close();
+			is.close();
+			this.dis = new DataInputStream(is2);
+			int a = 0;
+			try {
+				while (this.dis.available() != 0) {
+					this.bytes[a] = this.dis.readByte();
+					a++;
+				}
+			} catch (ArrayIndexOutOfBoundsException e) {
+				throw new ClassFileException(
+						"The specified length of the class file does not reflectr the actual length of it.");
+			}
+			if (a < this.byteLength)
+				throw new ClassFileException(
+						"The specified length of the class file does not reflectr the actual length of it.");
+		} finally {
+			// Close the streams.
+			this.dis.close();
+			is2.close();
+		}
+	}
+	
+	public ClassFile(MugglClassLoader classLoader, InputStream is, InputStream is2,
+			long byteLength) throws ClassFileException, FileNotFoundException,
+			IOException {
+		try {
+			this.classLoader = classLoader;
+			this.fullPath = "";
+			if (!fullPath.toLowerCase().endsWith(".class")) {
+				fullPath += ".class";
+			}
+			if (Globals.getInst().logger.isInfoEnabled())
+				Globals.getInst().logger.info("Parsing class " + fullPath);
+			
 			this.loadingNumber = classLoader.getNextLoadingNumber();
 			this.readingData = true;
 			this.dis = new DataInputStream(is);
@@ -528,7 +580,7 @@ public class ClassFile {
 					.debug("Parsing: Read major_version:minor version " + this.majorVersion + ":" + this.minorVersion);
 
 			if (!(majorVersion <= CLASSFILE_MAJOR_VERSION
-					&& ((majorVersion != CLASSFILE_MAJOR_VERSION) || (minorVersion < CLASSFILE_MINOR_VERSION)))) {
+					&& (majorVersion != CLASSFILE_MAJOR_VERSION || minorVersion <= CLASSFILE_MINOR_VERSION))) {
 				throw new UnsupportedClassVersionError(
 						"Unsupported major.minor version " + this.majorVersion + ":" + this.minorVersion);
 			}
@@ -702,6 +754,10 @@ public class ClassFile {
 
 			this.name = this.constantPool[this.thisClass].toString().replace("/", ".");
 
+			// to be able to instantiate classes from byteStream only:
+			if (this.fullPath.equals(".class")) {
+				this.fullPath = this.name.replace('.', '/') + ".class";
+			}
 			// Check if this name matches the file name.
 			String path = this.fullPath.replace("\\", "/");
 			String className = path.substring(path.lastIndexOf("|") + 1); // strip away surrounding java archives (if any) 
@@ -1631,5 +1687,42 @@ public class ClassFile {
 	public int getByteLength() {
 		return this.byteLength;
 	}
+	
+	public AttributeBootstrapMethods getBootstrapMethods() {
+		return (AttributeBootstrapMethods) Arrays.stream(attributes).filter(x-> x instanceof AttributeBootstrapMethods).findFirst().orElse(null);
+	}
 
+	public Method getMethodByNameAndDescriptorOrNull(String objectInitializerName, MethodType methodType) {
+		return getMethodByNameAndDescriptorOrNull(objectInitializerName, methodType.toMethodDescriptorString());
+	}
+
+	public void setupMirrorClass() {
+		if(SystemDictionary.isInitialized() && // when StringCache builds its first objectref
+				SystemDictionary.gI().Class_klass_loaded()){
+			Objectref instanceMirror = SystemDictionary.gI().Class_klass.getANewInstance();
+			//JavaClasses.java_lang_Class.set_static_oop_field_count(java_class, size);
+			
+			this.mirrorJava = instanceMirror;
+			instanceMirror.setMirrorMuggl(this);
+			
+		}else
+			Globals.getInst().execLogger.debug("not implemented...");
+			
+		
+	}
+
+	public void linkClass() {
+		// ensure that it is linked
+//		void InstanceKlass::link_class(TRAPS) {
+		
+	}
+
+	/**
+	 * Return an objectref that is an instance of java.lang.Class describing this classFile
+	 * @return
+	 */
+	public Objectref getMirrorJava() {
+		return mirrorJava;
+	}
+	
 }

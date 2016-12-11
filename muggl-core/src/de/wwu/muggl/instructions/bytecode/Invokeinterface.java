@@ -1,7 +1,9 @@
 package de.wwu.muggl.instructions.bytecode;
 
+import java.util.LinkedList;
+
+import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
-import de.wwu.muggl.instructions.MethodResolutionError;
 import de.wwu.muggl.instructions.general.Invoke;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
@@ -58,13 +60,8 @@ public class Invokeinterface extends Invoke implements Instruction {
 	@Override
 	protected ClassFile checkStaticMethod(Frame frame, String[] nameAndType,
 			Method method, Object[] parameters) throws ExecutionException, VmRuntimeException {
-		// The method must be neither the instance initializer nor the static initializer.
-		if (method.getName().equals("<init>"))
-			throw new ExecutionException("Error while executing instruction " + getName()
-					+ ": The Method must not be the instance initialization method.");
-		if (method.getName().equals("<clinit>"))
-			throw new ExecutionException("Error while executing instruction " + getName()
-					+ ": The Method must not be the class or interface initialization method.");
+		
+		checkNoInstanceInit(method);
 
 		/*
 		 * The third additional byte is ignored (redundant count information). Unexpected exception:
@@ -113,52 +110,98 @@ public class Invokeinterface extends Invoke implements Instruction {
 	 *         thrown.
 	 */
 	@Override
-	protected Method selectMethod(Frame frame, Method method, ClassFile methodClassFile,
-			ClassFile objectrefClassFile) throws ClassFileException, VmRuntimeException {
-		// Does C contain a declaration for an instance method with the same name and descriptor?
+	protected Method selectMethod(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile)
+			throws ClassFileException, VmRuntimeException {
 		boolean methodSelected = false;
-		while (!methodSelected) {
-			try {
-				method = objectrefClassFile.getMethodByNameAndDescriptor(method.getName(), method.getDescriptor());
-				if (!method.isAccAbstract() && !method.isAccStatic()) methodSelected = true;
-			} catch (MethodResolutionError e) {
-				// Runtime exception: objectref does not implement the interface!
-				throw new VmRuntimeException(frame.getVm().generateExc(
-						"java.lang.IncompatibleClassChangeError",
-						objectrefClassFile.getName() + " does not implement interface "
-								+ methodClassFile.getName() + "."));
-			}
-			// Has the method been selected?
-			if (methodSelected) break;
 
-			// Does C have a superclass?
-			if (objectrefClassFile.getSuperClass() != 0) {
-				// Get the super classes recursively.
-				objectrefClassFile = frame.getVm().getClassLoader().getClassAsClassFile(
-						objectrefClassFile.getConstantPool()[objectrefClassFile.getSuperClass()]
-								.getStringValue());
-			} else {
-				break;
+		// According to JVMs8 invokeinterface
+		// Step 1: in C
+		Method selMethod = objectrefClassFile.getMethodByNameAndDescriptorOrNull(method.getName(), method.getDescriptor());
+
+		if (selMethod != null)
+			methodSelected = true;
+
+		// Step 2: Superclasses of C
+		if (!methodSelected) {
+			selMethod = new ResolutionAlgorithms(frame.getVm().getClassLoader())
+					.resolveMethodInSuperclass(objectrefClassFile, method.getName(), method.getDescriptor());
+			if (selMethod != null)
+				methodSelected = true;
+
+		}
+
+		if (!methodSelected) {
+
+			// Now on to interfaces
+			LinkedList<String> superInterfaces = new LinkedList<>();
+			LinkedList<Method> tentativeMethods = new LinkedList<>();
+			LinkedList<String> exploreSuperClasses = new LinkedList<>();
+
+			// add self as a starting class
+			exploreSuperClasses.add(objectrefClassFile.getName());
+			
+			// Trying the super interfaces recursively
+			// wanting to find the maximally-specific superinterface methods
+			// that match name and descriptor and that has neither its
+			// ACC_PRIVATE flag nor its ACC_STATIC flag set
+
+			while (!superInterfaces.isEmpty() || !exploreSuperClasses.isEmpty()) {
+				final int ifaces = superInterfaces.size();
+				for (int i = 0; i < ifaces; i++) {
+					ClassFile classFile1 = null;
+					classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(superInterfaces.pop());
+					Method method1 = classFile1.getMethodByNameAndDescriptorOrNull(method.getName(),
+							method.getDescriptor());
+
+					if (method1 != null && !method1.isAccPrivate() && !method1.isAccStatic()) {
+						selMethod = method1;
+						methodSelected = true;
+						Globals.getInst().execLogger.trace("Lookup of " + method.getName() + " in interfaceclass "
+								+ classFile1.getName() + " succeeded.");
+
+					} else {
+						for (int iface : classFile1.getInterfaces()) {
+							superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
+						}
+					}
+				}
+				
+				final int sClasses = exploreSuperClasses.size();
+				for (int i = 0; i < sClasses; i++) {
+					ClassFile classFile1 = null;
+					classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(exploreSuperClasses.pop());
+					if (classFile1.getSuperClass() != 0)
+						exploreSuperClasses.add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
+					for (int iface : classFile1.getInterfaces()) {
+						superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
+					}
+				}
+
 			}
 		}
 
 		// Has the method been selected?
 		if (!methodSelected)
-			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.AbstractMethodError",
-					"The method to be invoked with " + getName() + " must not be abstract."));
+			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoSuchMethodError",
+					"The method " + method.getName() + " to be invoked with " + getName() + " was not found."));
+
+		if (selMethod.isAccStatic() || selMethod.isAccPrivate())
+			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.IncompatibleClassChangeError",
+					"The method " + selMethod.getName() + " to be invoked with " + getName()
+							+ " must not be static or private."));
 
 		// Is it abstract?
-		if (method.isAccAbstract())
+		if (selMethod.isAccAbstract())
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.AbstractMethodError",
-					"The method to be invoked with " + getName() + " must not be abstract."));
+					"The method " + method.getFullNameWithParameterTypesAndNames() + " to be invoked with " + getName() + " must not be abstract."));
 
 		// Is it public?
-		if (!method.isAccPublic())
+		if (!selMethod.isAccPublic())
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.IllegalAccessError",
-					"The method to be invoked with " + getName() + " must be public"));
+					"The method " + method.getName() + " to be invoked with " + getName() + " must be public"));
 
 		// Return the selected method.
-		return method;
+		return selMethod;
 	}
 
 	/**
@@ -220,7 +263,7 @@ public class Invokeinterface extends Invoke implements Instruction {
 
 		// Try to resolve method from this class.
 		ResolutionAlgorithms resoluton = new ResolutionAlgorithms(classLoader);
-		return resoluton.resolveMethod(methodClassFile, nameAndType);
+		return resoluton.resolveMethodInterface(methodClassFile, nameAndType);
 	}
 
 	/**

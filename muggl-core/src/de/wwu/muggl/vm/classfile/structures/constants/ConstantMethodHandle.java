@@ -7,7 +7,6 @@ import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileConstants.ReferenceKind;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
-import de.wwu.muggl.vm.initialization.ReferenceValue;
 
 /**
  * Representation of a CONSTANT_MethodHandle_info of a class.
@@ -50,7 +49,7 @@ public class ConstantMethodHandle extends Constant {
 	@Override
 	public void writeToClassFile(DataOutputStream dos) throws IOException {
 		super.writeToClassFile(dos);
-		dos.write(this.referenceKind.getReferenceKindIdx());
+		dos.write(this.referenceKind.val());
 		dos.writeShort(this.referenceIndex);
 	}
 

@@ -1,6 +1,8 @@
 package de.wwu.muggl.vm.execution;
 
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.stream.Stream;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.FieldResolutionError;
@@ -85,18 +87,18 @@ public class ResolutionAlgorithms {
 			// 1. If C declares a field with the name and descriptor specified by the field reference, field lookup succeeds. The declared field is the result of the field lookup.
 			field = classFile.getFieldByNameAndDescriptor(nameAndType[0], nameAndType[1]);
 		} catch (FieldResolutionError e) {
-			if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("Lookup of field " + nameAndType[1] + " in class " + nameAndType[0] + " unsuccessfull. Trying its super classes.");
+			Globals.getInst().execLogger.trace("Lookup of field " + nameAndType[0] + ":" +  nameAndType[1] + " in class " + classFile.getName() + " unsuccessfull. Trying its super classes.");
 			// unsuccessful - trying the super classes recursively
 			while (classFile.getSuperClass() != 0) {
 				classFile = this.classLoader.getClassAsClassFile(classFile.getConstantPool()[classFile.getSuperClass()].getStringValue());
 				try {
 					field = classFile.getFieldByNameAndDescriptor(nameAndType[0], nameAndType[1]);
 					// if the Field could be resolved, quit the loop
-					if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("Lookup of " + nameAndType[1] + " in super class " + classFile.getName() + " succeeded.");
+					Globals.getInst().execLogger.trace("Lookup of " + nameAndType[0] + " in super class " + classFile.getName() + " succeeded.");
 					break;
 				} catch (FieldResolutionError e2) {
 					// basically do nothing, but log on deep log levels
-					if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("Lookup of " + nameAndType[1] + " in super class " + classFile.getName() + " unsuccessfull. Trying its super classes.");
+					Globals.getInst().execLogger.trace("Lookup of " + nameAndType[0] + " in super class " + classFile.getName() + " unsuccessfull. Trying its super classes.");
 				}
 			}
 
@@ -122,138 +124,245 @@ public class ResolutionAlgorithms {
 	 */
 	public Method resolveMethod(final ClassFile classFile, final String[] nameAndType)
 		throws ClassFileException {
-		// FIXME: this could be called on interface or method
+		final String lookingFor = nameAndType[0] + ":" + nameAndType[1];
 		
-		// FIXME: each class can have *at most one superclass* and mutliple interfaces (see class file definition!)
-		
-//		if (classFile.isAccInterface()) throw new IncompatibleClassChangeError("Cannot call resolveMethod on an Interface");
-		
+		// According to JVMs8 § 5.4.3.3
+		// Step 1
+		if (classFile.isAccInterface())
+			throw new IncompatibleClassChangeError("Cannot call resolveMethod on an Interface");
+
+		// Step 2: in C or its superclasses
 		Method method = null;
-		try {
-			method = classFile.getMethodByNameAndDescriptor(nameAndType[0], nameAndType[1]);
-		} catch (MethodResolutionError e) {
-			final String lookingFor = nameAndType[0] + ":" + nameAndType[1];			
-			if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("1Lookup of " + lookingFor + " in class " + classFile.getClassName() + " unsuccessfull. Trying its super class.");
 
-			// Unsuccessful - trying the super classes recursively.
-			method = resolveMethodInSuperclass(classFile, nameAndType);
+		// Signature polymorphic?
+		{
+			Stream<Method> candidates = Arrays.stream(classFile.getMethods())
+					.filter(i -> i.getName().equals(nameAndType[0]));
+			Method inspectMethod = candidates.findFirst().orElse(null);
+			if (inspectMethod != null) {
+				if (inspectMethod.isSignaturePolymorphic()){
+					Globals.getInst().execLogger.trace("Found a polymorphic method for " + nameAndType[0] + " in class "
+							+ classFile.getClassName() + " ");
+					return inspectMethod;
+				}
+			}
+		}
+		// In C
+		method = classFile.getMethodByNameAndDescriptorOrNull(nameAndType[0], nameAndType[1]);
+		if (method != null)
+			return method;
 
-			// Now on to interfaces
-			if (method == null) {
-				LinkedList<String> superInterfaces = new LinkedList<>();
-				LinkedList<String> exploreSuperClasses = new LinkedList<>();
+		// ...or its superclasses
+		method = resolveMethodInSuperclass(classFile, nameAndType[0], nameAndType[1]);
 
-				// add self as a starting class
-				exploreSuperClasses.add(classFile.getName());
+		if (method != null)
+			return method;
 
-				// Trying the super interfaces recursively
-				// wanting to find the maximally-specific superinterface methods
-				// that match name and descriptor and that has neither its
-				// ACC_PRIVATE
-				// flag nor its ACC_STATIC flag set
+		// Superinterfaces of C
+		
+		// Now on to interfaces
+		LinkedList<String> superInterfaces = new LinkedList<>();
+		LinkedList<String> exploreSuperClasses = new LinkedList<>();
 
-				while (!superInterfaces.isEmpty()
-						|| !exploreSuperClasses.isEmpty()) {
+		// add self as a starting class
+		exploreSuperClasses.add(classFile.getName());
 
-					final int ifaces = superInterfaces.size();
-					for (int i = 0; i < ifaces; i++) {
-						ClassFile classFile1 = null;
-						try {
-							classFile1 = this.classLoader
-									.getClassAsClassFile(superInterfaces.pop());
-							method = classFile1.getMethodByNameAndDescriptor(
-									nameAndType[0], nameAndType[1]);
-							if (Globals.getInst().execLogger.isTraceEnabled())
-								Globals.getInst().execLogger.trace("Lookup of "
-										+ lookingFor + " in class "
-										+ classFile1.getName() + " succeeded.");
-							break;
-						} catch (MethodResolutionError e1) {
-							if (Globals.getInst().execLogger.isTraceEnabled())
-								Globals.getInst().execLogger.trace("Lookup of "
-										+ lookingFor + " in interface class "
-										+ classFile1.getClassName()
-										+ " unsuccessfull. Enqueueing its super class.");
-							if (classFile1.getSuperClass() != 0)
-								exploreSuperClasses.add(
-										classFile1.getConstantPool()[classFile1
-												.getSuperClass()]
-														.getStringValue());
-							for (int iface : classFile1.getInterfaces()) {
-								superInterfaces
-										.add(classFile1.getConstantPool()[iface]
-												.getStringValue());
-							}
-						}
+		// Trying the super interfaces recursively
+		// wanting to find the maximally-specific superinterface methods
+		// that match name and descriptor and that has neither its
+		// ACC_PRIVATE flag nor its ACC_STATIC flag set
+
+		while (!superInterfaces.isEmpty() || !exploreSuperClasses.isEmpty()) {
+
+			final int ifaces = superInterfaces.size();
+			for (int i = 0; i < ifaces; i++) {
+				ClassFile classFile1 = null;
+				try {
+					classFile1 = this.classLoader.getClassAsClassFile(superInterfaces.pop());
+					method = classFile1.getMethodByNameAndDescriptor(nameAndType[0], nameAndType[1]);
+						Globals.getInst().execLogger
+								.trace("Lookup of " + lookingFor + " in class " + classFile1.getName() + " succeeded.");
+					break;
+				} catch (MethodResolutionError e1) {
+						Globals.getInst().execLogger.trace("Lookup of " + lookingFor + " in interface class "
+								+ classFile1.getClassName() + " unsuccessfull. Enqueueing its super class.");
+					if (classFile1.getSuperClass() != 0)
+						exploreSuperClasses
+								.add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
+					for (int iface : classFile1.getInterfaces()) {
+						superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
 					}
-					if (method != null)
-						break;
+				}
+			}
+			if (method != null)
+				return method;
 
-					final int sClasses = exploreSuperClasses.size();
-					for (int i = 0; i < sClasses; i++) {
-						ClassFile classFile1 = null;
-						try {
-							classFile1 = this.classLoader.getClassAsClassFile(
-									exploreSuperClasses.pop());
-							method = classFile1.getMethodByNameAndDescriptor(
-									nameAndType[0], nameAndType[1]);
-							if (Globals.getInst().execLogger.isTraceEnabled())
-								Globals.getInst().execLogger.trace("Lookup of "
-										+ lookingFor + " in class "
-										+ classFile1.getName() + " succeeded.");
-							break;
-						} catch (MethodResolutionError e1) {
-							if (Globals.getInst().execLogger.isTraceEnabled())
-								Globals.getInst().execLogger.trace("Lookup of "
-										+ lookingFor + " in class "
-										+ classFile1.getClassName()
+			final int sClasses = exploreSuperClasses.size();
+			for (int i = 0; i < sClasses; i++) {
+				ClassFile classFile1 = null;
+				try {
+					classFile1 = this.classLoader.getClassAsClassFile(exploreSuperClasses.pop());
+					method = classFile1.getMethodByNameAndDescriptor(nameAndType[0], nameAndType[1]);
+						Globals.getInst().execLogger
+								.trace("Lookup of " + lookingFor + " in class " + classFile1.getName() + " succeeded.");
+					break;
+				} catch (MethodResolutionError e1) {
+						Globals.getInst().execLogger
+								.trace("Lookup of " + lookingFor + " in class " + classFile1.getClassName()
 										+ " unsuccessfull. Enqueueing its super class and interfaces.");
-							if (classFile1.getSuperClass() != 0)
-								exploreSuperClasses.add(
-										classFile1.getConstantPool()[classFile1
-												.getSuperClass()]
-														.getStringValue());
-							for (int iface : classFile1.getInterfaces()) {
-								superInterfaces
-										.add(classFile1.getConstantPool()[iface]
-												.getStringValue());
-							}
-						}
+					if (classFile1.getSuperClass() != 0)
+						exploreSuperClasses
+								.add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
+					for (int iface : classFile1.getInterfaces()) {
+						superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
 					}
-
-					if (method != null)
-						break;
 				}
 			}
 
-			// Successful lookup?.
-			if (method == null) {
-				if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("Lookup of " + lookingFor + " failed.");
-				throw new NoSuchMethodError("Method " + lookingFor + " could not be resolved for class " + classFile.getName() + " or any of its superclasses or superinterfaces.");
-			}
+			if (method != null)
+				return method;
 		}
-		return method;
+									
+		// illegalAccessError is being taken care of by the Instruction's checkAccess
+
+			Globals.getInst().execLogger.trace("Lookup of " + lookingFor + " failed.");
+		throw new NoSuchMethodError("Method " + lookingFor + " could not be resolved for class " + classFile.getName()
+				+ " or any of its superclasses or superinterfaces.");
+
 	}
 	
-	private Method resolveMethodInSuperclass(ClassFile classFile, String[] nameAndType) throws ClassFileException {
+	public Method resolveMethodInSuperclass(ClassFile classFile, final String name, final String descriptor) throws ClassFileException {
 		Method method = null;
-		final String lookingFor = nameAndType[0] + ":" + nameAndType[1];
-		
+		final String lookingFor = name + ":" + descriptor;
+
 		while (classFile.getSuperClass() != 0) {
-			
-			classFile = this.classLoader.getClassAsClassFile(classFile.getConstantPool()[classFile.getSuperClass()].getStringValue()) ;
+
+			classFile = this.classLoader
+					.getClassAsClassFile(classFile.getConstantPool()[classFile.getSuperClass()].getStringValue());
 			try {
-				method = classFile.getMethodByNameAndDescriptor(nameAndType[0], nameAndType[1]);
+				method = classFile.getMethodByNameAndDescriptor(name, descriptor);
 				// if the method could be resolved, quit the loop
-				if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("Lookup of " + lookingFor + " in super class " + classFile.getName() + " succeeded.");
+
+				Globals.getInst().execLogger
+						.trace("Lookup of " + lookingFor + " in super class " + classFile.getName() + " succeeded.");
 				break;
 			} catch (MethodResolutionError e2) {
 				// basically do nothing, but log on deep log levels
-				if (Globals.getInst().execLogger.isTraceEnabled()) Globals.getInst().execLogger.trace("Lookup of " + lookingFor + " in super class " + classFile.getName() + " unsuccessfull. Trying its super classes.");
+				Globals.getInst().execLogger.trace("Lookup of " + lookingFor + " in super class " + classFile.getName()
+						+ " unsuccessfull. Trying its super classes.");
 			}
 		}
 		return method;
 	}
 	
+
+	/**
+	 * §5.4.3.4 Interface Method Resolution This is separate from resolveMethod to make it easier to comply with the
+	 * differences in JVMS. (e.g. resolveMethod has to take care of polymorphic methods,too)
+	 * 
+	 * @param classFile
+	 * @param nameAndType
+	 * @return
+	 * @throws ClassFileException
+	 */
+	public Method resolveMethodInterface(final ClassFile classFile, final String[] nameAndType)
+			throws ClassFileException {
+		final String lookingFor = nameAndType[0] + ":" + nameAndType[1];
+
+		// According to JVMs8 § 5.4.3.3
+		// Step 1
+		if (!classFile.isAccInterface())
+			throw new IncompatibleClassChangeError("Can only call resolveMethodInterface on an Interface");
+
+		// Step 2: in C
+		Method method = classFile.getMethodByNameAndDescriptorOrNull(nameAndType[0], nameAndType[1]);
+
+		if (method != null)
+			return method;
+
+		// Step 3: Otherwise, if the class Object declares a method with the name and descriptor
+		// specified by the interface method reference, which has its ACC_PUBLIC flag set
+		// and does not have its ACC_STATIC flag set, method lookup succeeds.
+		{
+			ClassFile classFile2 = this.classLoader.getClassAsClassFile("java.lang.Object");
+			method = classFile2.getMethodByNameAndDescriptorOrNull(nameAndType[0], nameAndType[1]);
+
+			if (method != null && method.isAccPublic() && !method.isAccStatic())
+				return method;
+		}
+
+		// Step 4
+
+		// Now on to interfaces
+		LinkedList<String> superInterfaces = new LinkedList<>();
+		LinkedList<Method> tentativeMethods = new LinkedList<>();
+		LinkedList<String> exploreSuperClasses = new LinkedList<>();
+
+		// add self as a starting class
+		exploreSuperClasses.add(classFile.getName());
+		
+		// Trying the super interfaces recursively
+		// wanting to find the maximally-specific superinterface methods
+		// that match name and descriptor and that has neither its
+		// ACC_PRIVATE flag nor its ACC_STATIC flag set
+
+		while (!superInterfaces.isEmpty() || !exploreSuperClasses.isEmpty()) {
+
+			final int ifaces = superInterfaces.size();
+			for (int i = 0; i < ifaces; i++) {
+				ClassFile classFile1 = null;
+				classFile1 = this.classLoader.getClassAsClassFile(superInterfaces.pop());
+				Method method1 = classFile1.getMethodByNameAndDescriptorOrNull(nameAndType[0], nameAndType[1]);
+
+				if (method1 != null && !method1.isAccPrivate() && !method1.isAccStatic()) {
+					if (!method1.isAccAbstract()) {
+						Globals.getInst().execLogger.trace("Lookup of " + lookingFor + " in interfaceclass "
+								+ classFile1.getName() + " succeeded.");
+						return method1;
+					} else {
+						Globals.getInst().execLogger.trace("Lookup of " + lookingFor + " in interfaceclass "
+								+ classFile1.getName() + " : tentative method found.");
+						tentativeMethods.add(method1);
+					}
+
+				} else {
+
+					Globals.getInst().execLogger.trace("Lookup of " + lookingFor + " in interfaceclass "
+							+ classFile1.getClassName() + " unsuccessfull. Enqueueing its super class.");
+					if (classFile1.getSuperClass() != 0)
+						exploreSuperClasses
+								.add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
+
+					for (int iface : classFile1.getInterfaces()) {
+						superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
+					}
+				}
+			}
+
+			final int sClasses = exploreSuperClasses.size();
+			for (int i = 0; i < sClasses; i++) {
+				ClassFile classFile1 = null;
+				classFile1 = this.classLoader.getClassAsClassFile(exploreSuperClasses.pop());
+				if (classFile1.getSuperClass() != 0)
+					exploreSuperClasses.add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
+				for (int iface : classFile1.getInterfaces()) {
+					superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
+				}
+			}
+
+		}
+
+		if (!tentativeMethods.isEmpty()) {
+			// arbitrarily chosen. Conditions should have been explored in the first place.
+			return tentativeMethods.getFirst();
+		}
+		
+		// illegalAccessError is being taken care of by the Instruction's checkAccess
+
+		Globals.getInst().execLogger.trace("Lookup of " + lookingFor + " failed.");
+		throw new NoSuchMethodError("Method " + lookingFor + " could not be resolved for interfaceclass " + classFile.getName()
+				+ " or any of its superinterfaces.");
+
+	}
 
 }
