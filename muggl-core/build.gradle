@@ -12,6 +12,11 @@ sourceSets {
 	test.java.srcDir "junit"
 	test.resources.srcDir "junit-res"
 }
+test {
+    testLogging {
+        events "started", "passed", "skipped", "failed"
+    }
+}
 
 eclipse.jdt.file {
 	withProperties { jdt ->
