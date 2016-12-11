@@ -42,7 +42,7 @@ public abstract class ClassFileStructure {
 	public abstract String getStructureName();
 
 	/**
-	 * Getter for the ClassFile.
+	 * Getter for the ClassFile. Could also be regarded as "method holder".
 	 * @return The ClassFile.
 	 */
 	public ClassFile getClassFile() {

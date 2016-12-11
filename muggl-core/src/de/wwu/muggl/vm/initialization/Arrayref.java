@@ -51,6 +51,11 @@ public class Arrayref implements ReferenceValue {
 			this.elements = new ReferenceValue[this.length];
 		}
 		
+		setupMirror();
+		
+	}
+
+	private void setupMirror() {
 		if(SystemDictionary.isInitialized() &&
 				SystemDictionary.gI().Class_klass_loaded()){
 			Objectref instanceMirror = SystemDictionary.gI().Class_klass.getANewInstance();
@@ -119,6 +124,7 @@ public class Arrayref implements ReferenceValue {
 				}
 			}
 		}
+		setupMirror();
 	}
 
 	/**
@@ -196,7 +202,14 @@ public class Arrayref implements ReferenceValue {
 	 */
 	@Override
 	public String toString() {
-		return "Array reference of type " + getName() + " with length " + this.length + " (id: " + this.instantiationNumber + ").";
+		String dbghint = "";
+		if(getName().equals("[Ljava.lang.Character;")) {
+			for (int i = 0; i < elements.length; i++) {
+				dbghint += elements[i];
+			}
+		}
+		return "Arrayref of type " + getName() + " length " + this.length + " (id: "
+				+ this.instantiationNumber + ((dbghint.length() > 0) ? (" content:" + dbghint) : "") + ").";
 	}
 
 	/**
@@ -351,4 +364,12 @@ public class Arrayref implements ReferenceValue {
 		return ret;
 	}
 	
+	public byte[] getElements() {
+		byte[] ret = new byte[this.length];
+		
+		for (int i = 0; i < this.length; i++) {			
+				ret[i] = (byte) this.getElement(i);
+		}
+		return ret;
+	}
 }

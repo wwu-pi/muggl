@@ -33,7 +33,7 @@ public class BoxingConversion {
 				break;
 
 			case "java.lang.Integer":
-				// FIXME mxs: boxing should really use the constructors!
+				// TODO boxing should really use the Objects' constructors!
 				referenceValue.putField(
 						vm.getClassLoader().getClassAsClassFile("java.lang.Integer").getFieldByName("value"),
 						(int) object);

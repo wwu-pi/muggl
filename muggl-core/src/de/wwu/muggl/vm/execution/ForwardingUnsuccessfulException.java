@@ -12,6 +12,11 @@ import de.wwu.muggl.configuration.MugglException;
 public class ForwardingUnsuccessfulException extends MugglException {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3327440322693742300L;
+
+	/**
 	 * Constructs a new exception with null as its detail message.
 	 *
 	 * @see Exception#Exception()

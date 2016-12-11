@@ -217,6 +217,35 @@ public class StringCache {
 		// Get the String object reference.
 		return getStringObjectref(characters);
 	}
+	
+	/**
+	 * Return a (Java-) String that this objref represents
+	 * @param objectref
+	 * @return
+	 */
+	public String getStringObjrefValue(Objectref objectref) {
+		// Check if the object reference is a reference of java.lang.String.
+		if (!objectref.getInitializedClass().getClassFile().getName().equals("java.lang.String")) {
+			throw new IllegalArgumentException(
+					"Can only process object references of java.lang.String.");
+		}
+
+		// Get the array of characters.
+		Arrayref arrayref = (Arrayref) objectref.getField(this.stringValueField);
+
+		// Convert it.
+		boolean symbolicalMode = Options.getInst().symbolicMode;
+		char[] characters = new char[arrayref.length];
+		for (int a = 0; a < arrayref.length; a++) {
+			if (symbolicalMode) {
+				characters[a] = (char) ((IntConstant) arrayref.getElement(a)).getIntValue();
+			} else {
+				characters[a] = (Character) arrayref.getElement(a);
+			}
+		}
+
+		return String.valueOf(characters);
+	}
 
 	/**
 	 * Provide a String object reference. It automatically adjusts to normal respectively symbolic

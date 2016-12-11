@@ -1,6 +1,6 @@
 package de.wwu.muggl.vm.initialization;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 
 import de.wwu.muggl.instructions.MethodResolutionError;
 import de.wwu.muggl.vm.VirtualMachine;
@@ -52,9 +52,13 @@ public class InitializedClass extends FieldContainer {
 	public InitializedClass(ClassFile representedClassFile, VirtualMachine vm, boolean forceFrameIfCurrentNull) {
 		// Invoke the super constructor.
 		super();
-
+				
 		// Set the represented ClassFile.
 		this.representedClassFile = representedClassFile;
+		
+		// do this early, in case anyone in the static initializer calls itself
+		// e.g. java.lang.invoke.Invokers -.-
+		this.representedClassFile.setupMirrorClass();
 
 		// If there is a super class, it has to be initialized first.
 		if (this.representedClassFile.getSuperClass() != 0) {
@@ -83,6 +87,7 @@ public class InitializedClass extends FieldContainer {
 				}
 			}
 		}
+		// FIXME mxs: force Frame if Current kann ja nie funktionieren wenn mal einer nach dem Parent frame fragt?
 		
 		// Check if there is a current frame at all, since this initialization might be done with the virtual machine startup.
 		if (vm.getCurrentFrame() != null || forceFrameIfCurrentNull) //  && !vm.getCurrentFrame().getMethod().getName().equals("<clinit>") TODO this can be dropped, can it?
@@ -101,7 +106,7 @@ public class InitializedClass extends FieldContainer {
 		}
 
 		// Some classes need special a special initialization to work correctly in this application.
-		specialInitialization(vm);
+		specialInitialization(vm);		
 	}
 
 	/**
@@ -207,7 +212,7 @@ public class InitializedClass extends FieldContainer {
 	 *
 	 * @return The static fields Hashtable.
 	 */
-	public Hashtable<Field, Object> getStaticFields() {
+	public HashMap<Field, Object> getStaticFields() {
 		return this.fields;
 	}
 }

@@ -223,18 +223,24 @@ public abstract class PushFromConstantPool extends GeneralInstructionWithOtherBy
 	 */
 	private Object provideClassReference(VirtualMachine vm, ConstantClass constant, ClassFile d)
 			throws VmRuntimeException {
-		try {			
+		return provideClassReference(vm, constant.getValue(), d);			
+	}
+
+	private Object provideClassReference(VirtualMachine vm, String constantVal, ClassFile d) throws VmRuntimeException {
+		try {
 			ResolutionAlgorithms resolution = new ResolutionAlgorithms(vm.getClassLoader());
-			ClassFile toBeMirrored = resolution.resolveClassAsClassFile(d, constant.getStringValue());
+			ClassFile toBeMirrored = resolution.resolveClassAsClassFile(d, constantVal);
 			// make sure class is statically initalized
 			toBeMirrored.getTheInitializedClass(vm);
 
 			Objectref potentialMirror = toBeMirrored.getMirrorJava();
 
-			if (potentialMirror != null) {
+			int arrayLevel = constantVal.lastIndexOf("[") + 1;
+
+			if (potentialMirror != null && arrayLevel == 0) {
 				return potentialMirror;
 			} else {
-				String value = constant.getValue().replace("/", ".");
+				String value = constantVal.replace("/", ".");
 				ClassFile classFile = resolution.resolveClassAsClassFile(d, "java.lang.Class");
 				Objectref objectref = vm.getAnObjectref(classFile);
 				objectref.setMirrorMuggl(toBeMirrored);
@@ -243,7 +249,15 @@ public abstract class PushFromConstantPool extends GeneralInstructionWithOtherBy
 				stringReference = vm.getStringCache().getStringObjectref(value);
 				objectref.setDebugHelperString("ref to " + value + " set in provideClassReference");
 				objectref.putField(field, stringReference);
-				Globals.getInst().execLogger.trace("provideClassReference created id:" + objectref.getInstantiationNumber());
+
+				if (arrayLevel > 0) {
+					objectref.getSysfields().put(Objectref.SYSFIELDNAME_ARRAYCLASS, true);
+					objectref.getSysfields().put(Objectref.SYSFIELDNAME_ARRAYCLASS_COMPONENTTYPE,
+							provideClassReference(vm, constantVal.replaceFirst("\\[", ""), d));
+				}
+
+				Globals.getInst().execLogger
+						.trace("provideClassReference created id:" + objectref.getInstantiationNumber());
 				return objectref;
 			}
 		} catch (IllegalAccessError e) {

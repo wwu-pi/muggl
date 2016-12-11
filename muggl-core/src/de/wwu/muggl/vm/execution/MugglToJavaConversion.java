@@ -2,6 +2,7 @@ package de.wwu.muggl.vm.execution;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import java.util.Set;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.vm.VirtualMachine;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
@@ -109,6 +111,7 @@ public class MugglToJavaConversion {
 		// Null will stay null.
 		if (object == null)
 			return null;
+		
 
 		// Convert object and array references.
 		if (object instanceof Objectref) {
@@ -172,7 +175,18 @@ public class MugglToJavaConversion {
 
 			// Create a new array.
 			int[] dimensions = arrayref.getDimensions();
-			Object[] array = (Object[]) Array.newInstance(classFile.getInstanceOfClass(), dimensions);
+			Object[] array = null;
+			// array could be array for primitive types
+			if (arrayref.getReferenceValue().isPrimitive()){				
+				try {
+					array = (Object[]) Array.newInstance(VmSymbols.basicType2Class(VmSymbols.javaClassName2BasicType(classFile.getName())), dimensions);
+				} catch (IllegalArgumentException | NegativeArraySizeException e) {
+					e.printStackTrace();
+				}	
+			}
+			else 
+				array = (Object[]) Array.newInstance(classFile.getInstanceOfClass(), dimensions);
+			
 
 			// Insert the elements.
 			insertArrayrefIntoArray(array, arrayref);
@@ -208,7 +222,7 @@ public class MugglToJavaConversion {
 		}
 
 		return object;
-	}
+	}	
 
 	/**
 	 * Convert java objects to Muggl objects. This method will process any kind of java objects
@@ -262,13 +276,13 @@ public class MugglToJavaConversion {
 						 * Convert Boolean, Byte and Short to Integer. Other primitive types can be
 						 * used as they are.
 						 */
-						if (object instanceof Boolean) {
-							object = Integer.valueOf(((Boolean) object).booleanValue() ? 1 : 0);
-						} else if (object instanceof Byte) {
-							object = Integer.valueOf((Byte) object);
-						} else if (object instanceof Short) {
-							object = Integer.valueOf((Short) object);
-						}
+//						if (object instanceof Boolean) {
+//							object = Integer.valueOf(((Boolean) object).booleanValue() ? 1 : 0);
+//						} else if (object instanceof Byte) {
+//							object = Integer.valueOf((Byte) object);
+//						} else if (object instanceof Short) {
+//							object = Integer.valueOf((Short) object);
+//						}
 					}
 				} else {
 					// Got a cached result?
@@ -395,6 +409,7 @@ public class MugglToJavaConversion {
 		return dimensionCount;
 	}
 
+		
 	/**
 	 * This methods takes reference values from the java "world", reads their fields, creates an
 	 * object reference and writes the fields into it. By doing so, java objects like the ones
@@ -410,19 +425,23 @@ public class MugglToJavaConversion {
 	 *         the used java reflection API.
 	 */
 	private Objectref toObjectref(Object object) throws ConversionException, ClassFileException {
-		// Create the new object reference.
-		Objectref objectref = this.vm.getAnObjectref(this.vm.getClassLoader().getClassAsClassFile(
-						object.getClass().getName()));
+//		if (object instanceof String) {
+//			return this.vm.getStringCache().getStringObjectref((String) object);
+//		} else {
+			// Create the new object reference.
+			Objectref objectref = this.vm
+					.getAnObjectref(this.vm.getClassLoader().getClassAsClassFile(object.getClass().getName()));
 
-		// Cache the result. This has to be done before inserting the fields to avoid infinite loops.
-		this.javaMugglMapping.put(object, objectref);
-		// TODO why not also add the combo (objectref, object) to mugglJavaMapping ?
+			// Cache the result. This has to be done before inserting the fields to avoid infinite loops.
+			this.javaMugglMapping.put(object, objectref);
+			// TODO why not also add the combo (objectref, object) to mugglJavaMapping ?
 
-		// Insert the fields.
-		copyFieldFromObject(object, objectref, false);
+			// Insert the fields.
+			copyFieldFromObject(object, objectref, false);
 
-		// Return the new object reference.
-		return objectref;
+			// Return the new object reference.
+			return objectref;
+//		}
 	}
 
 	/**
@@ -785,10 +804,10 @@ public class MugglToJavaConversion {
 	private void insertFieldValues(Objectref objectref, Object object) throws ConversionException,
 			NoSuchFieldException {
 		// Static fields.
-		Enumeration<Field> fieldsEnumeration1 = objectref.getInitializedClass().getStaticFields()
-				.keys();
+		final Enumeration<Field> fieldsEnumeration1 = Collections.enumeration(objectref.getInitializedClass().getStaticFields()
+				.keySet());
 		// Instance fields.
-		Enumeration<Field> fieldsEnumeration2 = objectref.getFields().keys();
+		final Enumeration<Field> fieldsEnumeration2 = Collections.enumeration(objectref.getFields().keySet());
 
 		// Process both static and instance fields.
 		for (int a = 0; a < 2; a++) {
@@ -896,12 +915,24 @@ public class MugglToJavaConversion {
 	 */
 	public void copyFieldFromObject(Object object, Objectref objectref, boolean ignoreFinalFields)
 			throws ConversionException {
+		// check if we're doing some crazy recursion here.
+		final int limit = 2;
+		int counting = 0;
+		for (StackTraceElement stElem : Thread.currentThread().getStackTrace()) {
+			if( stElem.getMethodName().equals("copyFieldFromObject"))
+				counting++;
+		}
+		// ignore the threads in the thread group
+		if (counting > limit)
+			if  (object instanceof Thread )
+			return;
+		
 		/*
 		 * Check if the object is a reference of java.lang.class. Class instances are nasty.
 		 */
  		if (object.getClass().getName().equals("java.lang.Class")){
  			
- 			objectref.setDebugHelperString(object.toString());
+ 			objectref.setDebugHelperString(object.toString() + " in copyFieldFromObject");
  			// set a least the name field
  			 			
 			try {
@@ -934,6 +965,7 @@ public class MugglToJavaConversion {
 			return;
  		}
 
+ 		
 		// Work through all declared fields and non-private fields of super-classes.
 		for (java.lang.reflect.Field javaField : getFieldsForObject(object)) {
 			// Ensure accessibility.

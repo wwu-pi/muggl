@@ -1,9 +1,14 @@
 package de.wwu.muggl.vm.initialization;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
+import de.wwu.muggl.configuration.Options;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.vm.Universe;
 import de.wwu.muggl.vm.VmSymbols;
+import de.wwu.muggl.vm.VmSymbols.BasicType;
+import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.threading.Monitor;
 
@@ -21,7 +26,18 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 	private boolean primitiveWrapper;
 	private Monitor monitor;
 	private long instantiationNumber;
-
+	// if we're instance of java/lang/class, we're the class object for staticReference
+	private ClassFile mirrorMuggl; // link to the "original object" of which I'm the class representation. Might only be null if this represents a class for a primitive object
+	private boolean mirroredMugglIsArray = false; // if the "original" is being used in an array
+	private Arrayref mirroredMugglArray = null; 
+	
+	// could be the equivalence of jvm's internal address field purpose
+	private HashMap<String, Object> sysfields= new HashMap<>();
+	
+	public static final String SYSFIELDNAME_ARRAYCLASS="isClassForArray";
+	public static final String SYSFIELDNAME_ARRAYCLASS_COMPONENTTYPE = "ObjectrefClassComponentType";
+	// FIXME TODO mxs? add virtual method table for better resolution?
+	
 	/**
 	 * to aid debugging, because this objectref has no reference to VM which would be needed,
 	 * to have a classloader, to extract the "name" field. So store some debug info (primitive value, class name) here
@@ -65,7 +81,25 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 	@Override
 	public String toString() {
 		String dbghint = (debugHelperString != null) ? " dbghint: " + this.debugHelperString : "";
-		return "Reference of " + this.staticReference.getClassFile().getName() + " (id: " + this.instantiationNumber
+		if(this.staticReference.getClassFile().getName().equals("java.lang.String") && (dbghint.length()==0)) {
+			if (!this.fields.isEmpty()) {
+				// Get the array of characters.
+				Arrayref arrayref = (Arrayref) this.getField(this.getInitializedClass().getClassFile().getFieldByName("value"));
+
+				// Convert it.
+				boolean symbolicalMode = Options.getInst().symbolicMode;
+				char[] characters = new char[arrayref.length];
+				for (int a = 0; a < arrayref.length; a++) {
+					if (symbolicalMode) {
+						characters[a] = (char) ((IntConstant) arrayref.getElement(a)).getIntValue();
+					} else {
+						characters[a] = (Character) arrayref.getElement(a);
+					}
+				}
+				dbghint = " val:" + String.valueOf(characters);			
+			}
+		}
+		return "Objectref " + this.staticReference.getClassFile().getName() + " (id: " + this.instantiationNumber
 				+ dbghint + ")";
 	}
 
@@ -88,7 +122,8 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 	
 	public String getSignature() {
 		if (this.primitiveWrapper) {
-				return VmSymbols.ClassStr2PrimitiveStr(staticReference.getClassFile().getName());
+			return VmSymbols.basicType2Signature(
+					VmSymbols.javaClassName2BasicType(staticReference.getClassFile().getName().replace('.', '/')));
 		} else
 			return "L" + this.staticReference.getClassFile().getName() + ";";
 	}
@@ -149,23 +184,26 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 		if (this.staticReference.getClassFile() != objectref.staticReference.getClassFile()) return false;
 
 		// Then compare all static fields. First by size, the element by element.
-		if (this.staticReference.fields.size() != objectref.staticReference.fields.size()) return false;
-		Enumeration<Field> fieldEnumerator = this.staticReference.fields.keys();
-		while (fieldEnumerator.hasMoreElements()) {
-			Field field = fieldEnumerator.nextElement();
-			if (!objectref.staticReference.fields.containsKey(field)) return false;
-			if (!(ObjectComparator.compareObjects(this.staticReference.fields.get(field), objectref.staticReference.fields.get(field)))) return false;
+		if (this.staticReference.fields.size() != objectref.staticReference.fields.size())
+			return false;
+		for (Entry<Field, Object> field : this.staticReference.fields.entrySet()) {
+			if (!objectref.staticReference.fields.containsKey(field.getKey()))
+				return false;
+			if (!(ObjectComparator.compareObjects(field.getValue(),
+					objectref.staticReference.fields.get(field.getKey()))))
+				return false;
 		}
 
 		// Finally compare all instance fields.
-		if (this.fields.size() != objectref.fields.size()) return false;
-		fieldEnumerator = this.fields.keys();
-		while (fieldEnumerator.hasMoreElements()) {
-			Field field = fieldEnumerator.nextElement();
-			if (!objectref.fields.containsKey(field)) return false;
-			if (!(ObjectComparator.compareObjects(this.fields.get(field), objectref.fields.get(field)))) return false;
+		if (this.fields.size() != objectref.fields.size())
+			return false;
+		for (Entry<Field, Object> field : this.fields.entrySet()) {
+			if (!objectref.fields.containsKey(field.getKey()))
+				return false;
+			if (!(ObjectComparator.compareObjects(field.getValue(), objectref.fields.get(field.getKey()))))
+				return false;
 		}
-
+		
 		// Reaching this point means that the values are equal.
 		return true;
 	}
@@ -197,7 +235,7 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 	 *
 	 * @return The fields Hashtable.
 	 */
-	public Hashtable<Field, Object> getFields() {
+	public HashMap<Field, Object> getFields() {
 		return this.fields;
 	}
 
@@ -209,4 +247,65 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 		this.debugHelperString = debugHelperString;
 	}
 
+	public ClassFile getMirrorMuggl() {
+		return mirrorMuggl;
+	}
+
+	public void setMirrorMuggl(ClassFile mirrorMuggl) {
+		this.mirrorMuggl = mirrorMuggl;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Objectref clone() throws CloneNotSupportedException {
+		Objectref clone = (Objectref) super.clone();
+		clone.sysfields = (HashMap<String, Object>) this.sysfields.clone();
+		return clone;
+	}
+	
+	
+	/**
+	 * Treat Objectref as representation of a java.lang.Class instance and make its methods accessible
+	 * @return
+	 */
+	public ObjectrefAsClass asClass() {
+		// make sure we can be treated as representation of 
+		// java.lang.Class
+		if (!this.getInitializedClass().getClassFile().getName().equals("java.lang.Class")) {
+			new Exception("must be representing java.lang.Class!");
+		}
+		return new ObjectrefAsClass(this);
+	}
+
+	public boolean isMirroredMugglIsArray() {
+		return mirroredMugglIsArray;
+	}
+
+	public void setMirroredMugglIsArray(boolean mirroredMugglIsArray) {
+		this.mirroredMugglIsArray = mirroredMugglIsArray;
+	}
+
+	public Arrayref getMirroredMugglArray() {
+		return mirroredMugglArray;
+	}
+
+	public void setMirroredMugglArray(Arrayref mirroredMugglArray) {
+		this.mirroredMugglArray = mirroredMugglArray;
+	}
+
+	/**
+	 * Takes into account if this is a primitive and redirects accordingly
+	 * @return
+	 */
+	public Objectref getMirrorJava() {
+		if (this.isPrimitive()){			
+			BasicType type = VmSymbols.javaClassName2BasicType(this.getInitializedClass().getClassFile().getName().replace('.', '/'));
+			return Universe.java_mirror(type);	
+		}			
+		else
+			return this.getInitializedClass().getClassFile().getMirrorJava();
+	}
+	
+	public HashMap<String, Object> getSysfields() {
+		return this.sysfields;
+	}
 }

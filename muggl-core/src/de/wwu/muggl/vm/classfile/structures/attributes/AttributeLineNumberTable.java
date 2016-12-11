@@ -2,7 +2,6 @@ package de.wwu.muggl.vm.classfile.structures.attributes;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 
 import de.wwu.muggl.configuration.Globals;
