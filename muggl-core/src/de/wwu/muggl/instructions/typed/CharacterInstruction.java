@@ -79,6 +79,11 @@ public class CharacterInstruction extends TypedInstruction {
 	 */
 	@Override
 	protected Object truncateValue(Object value, String type) {
+		if (value instanceof Character) {
+			return (char) value;
+		} else if (value instanceof Integer) {
+			return (char) ((Integer) value).intValue();
+		}
 		return (char) ((Integer) value).intValue();
 	}
 

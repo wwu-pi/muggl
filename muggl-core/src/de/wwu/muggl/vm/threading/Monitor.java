@@ -36,7 +36,6 @@ public class Monitor {
 	 * @throws VmRuntimeException If the thread trying to exit the monitor is not its owner (it is a
 	 *         wrapped IllegalMonitorStateException).
 	 */
-	@SuppressWarnings("unused") // TODO
 	public void monitorExit() throws VmRuntimeException {
 		// Decrement the counter.
 		this.timesEntered--;

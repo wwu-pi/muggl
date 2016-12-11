@@ -85,7 +85,9 @@ public class ByteInstruction extends TypedInstruction {
 	 */
 	@Override
 	protected Object truncateValue(Object value, String type) {
-		if (type.equals("java.lang.Boolean")) {
+		if(value.getClass().getName().equals(type)) {
+			return value;
+		}else if (type.equals("java.lang.Boolean")) {
 			value = ((Integer) value).intValue() == 1 ? new Boolean(true) : Boolean.FALSE;
 		} else if (type.equals("java.lang.Byte")) {
 			value = ((Integer) value).byteValue();

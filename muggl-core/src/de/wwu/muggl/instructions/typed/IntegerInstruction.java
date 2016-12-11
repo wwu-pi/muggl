@@ -68,7 +68,7 @@ public class IntegerInstruction extends TypedInstruction {
 	@Override
 	protected Object truncateValue(Object value, String type) {
 		// Do nothing if we're already right
-		// FIXME mxs boolean handling
+		// TODO the type system should be harmonized
 		if (!value.getClass().getName().equals(type)) {
 			switch (type) {
 			case "java.lang.Boolean":
