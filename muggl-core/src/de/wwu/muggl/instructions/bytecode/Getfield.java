@@ -1,5 +1,6 @@
 package de.wwu.muggl.instructions.bytecode;
 
+import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.Get;
 import de.wwu.muggl.instructions.interfaces.Instruction;
@@ -147,6 +148,8 @@ public class Getfield extends Get implements Instruction {
 		// Get the value of the field.
 		Object value = objectref.getField(field);
 
+		Globals.getInst().execLogger
+				.trace("Getfield name:" + field.getName() + " value:" + ((value == null) ? "null" : value));
 		// Return the value.
 		return value;
 	}

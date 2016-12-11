@@ -104,7 +104,7 @@ public class ReferenceInstruction extends TypedInstruction {
 		if (!ea.checkForAssignmentCompatibility((ReferenceValue) value, (ReferenceValue) arrayref))
 			throw new VmRuntimeException(frame.getVm().generateExc(
 					"java.lang.ArrayStoreException",
-					value.getClass().getName() + " is not assignment compatible with "
+					value.getClass().getName() + " is not1 assignment compatible with "
 							+ arrayref.getClass().getName()));
 		return value;
 	}

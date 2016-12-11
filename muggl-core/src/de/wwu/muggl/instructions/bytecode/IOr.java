@@ -5,6 +5,7 @@ import java.util.Stack;
 import de.wwu.muggl.instructions.general.Or;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 
 /**
@@ -23,7 +24,8 @@ public class IOr extends Or implements Instruction {
 	@Override
 	public void execute(Frame frame) {
 		Stack<Object> stack = frame.getOperandStack();
-		stack.push((Integer) stack.pop() | (Integer) stack.pop());
+		stack.push((Integer) VmSymbols.wideningPrimConversion(stack.pop(), Integer.class)
+				| (Integer) VmSymbols.wideningPrimConversion(stack.pop(), Integer.class));
 	}
 
 	/**

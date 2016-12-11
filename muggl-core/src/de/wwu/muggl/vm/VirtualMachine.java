@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.invoke.MethodType;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,6 +30,7 @@ import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.MugglToJavaConversion;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.InitializedClass;
@@ -129,6 +132,11 @@ public abstract class VirtualMachine extends Thread {
 	private int ignoreInterruption;
 	private boolean runUntilNoOfInstructionsReached;
 	private long executedInstructionsTarget;
+	
+	/**
+	 * Whether to enable assertions. Only one general switch for all.
+	 */
+	private boolean assertionEnabled = true;
 
 	// Statistical Fields.
 	/**
@@ -139,19 +147,41 @@ public abstract class VirtualMachine extends Thread {
 	 * The number of instructions executed.
 	 */
 	protected long executedInstructions;
-	
-	/**
-	 * The Main Thread Group. Openjdk stores this in Universe.
-	 */
-	private Objectref main_thread_group = null;
-	private Objectref system_thread_group = null;
+
+	protected boolean universeSetupFinished = false;
+	// Helpers for debugging. See method fillDebugStackTraces
+	public String debugStackTraceJavaVM;
+	public String debugStackTraceMugglVM;
 	
 	/**
 	 * Handle the VM's thread as the "main"-thread's "OS"-container
 	 */
-	private Objectref threadObj = null;
+	private static Objectref threadObj = null;
 
-
+	/**
+	 * System properties for the Muggl VM.
+	 */
+	public Hashtable<String, String> systemProperties = new Hashtable<String, String>() {
+		private static final long serialVersionUID = 3991769537861501908L;
+		{
+			put("java.vendor", "Muggl Team");
+			put("java.vendor.url", "http://wwu.de");
+			put("java.vm.vendor", "Muggl Team");
+			put("java.class.version", "52.0");
+			put("java.home", System.getProperty("java.home"));
+			put("java.class.path", System.getProperty("java.class.path"));
+			put("os.name", System.getProperty("os.name"));
+			put("os.arch", System.getProperty("os.arch"));
+			put("os.version", System.getProperty("os.version"));
+			put("file.separator", System.getProperty("file.separator"));
+			put("path.separator", System.getProperty("path.separator"));
+			put("line.separator", System.getProperty("line.separator"));
+			put("user.name", System.getProperty("user.name"));
+			put("user.home", System.getProperty("user.home"));
+			put("user.dir", System.getProperty("user.dir"));
+		}
+	};
+	
 	/**
 	 * Basic Constructor. Beside setting the specified parameters as local values and setting some
 	 * internal fields to initial their values, it will reset the class loader's number of already
@@ -184,8 +214,11 @@ public abstract class VirtualMachine extends Thread {
 		this.ignoreInterruption = 0;
 		this.runUntilNoOfInstructionsReached = false;
 		this.executedInstructionsTarget = -1L;
+		
 		this.stringCache = new StringCache(this);
-		this.throwableGenerator = new ThrowableGenerator(this);
+		this.throwableGenerator = new ThrowableGenerator(this);			
+		this.currentFrame = null;
+		this.stack = null;		
 	}
 
 	/**
@@ -203,8 +236,7 @@ public abstract class VirtualMachine extends Thread {
 	public void run() {
 		Globals.getInst().execLogger.info("Starting a virtual machine (thread #" + this.getId() + ")");
 		try {
-			setUpThreads();
-			
+			Globals.getInst().vmIsInitialized = true;
 			Globals.getInst().execLogger.debug("Terminated VM initialization. Loading initMethod and initial Frame");
 			// Preparations for the initial frame.
 			Object[] predefinedParameters = this.initialMethod.getPredefinedParameters();
@@ -376,6 +408,7 @@ public abstract class VirtualMachine extends Thread {
 			if (Globals.getInst().execLogger.isEnabledFor(Level.ERROR))
 				Globals.getInst().execLogger.error("Fatal error during the execution, halting the virtual machine: " + this.errorMessage);
 		} catch (Error e) {
+			e.printStackTrace();
 			this.errorMessage = "Fatal error of type " + e.getClass().getName() + ": " + e.getMessage();
 			this.errorOccured = true;
 			this.nextStepReady = false;
@@ -420,7 +453,7 @@ public abstract class VirtualMachine extends Thread {
 
 		Objectref thread_group = create_initial_thread_group();
 
-		this.main_thread_group = thread_group;
+		Universe.set_main_thread_group(thread_group);
 
 		initialize_class(java.lang.Thread.class.getCanonicalName());
 
@@ -474,7 +507,7 @@ public abstract class VirtualMachine extends Thread {
 
 		java_call_special(system_instance, initClassF, VmSymbols.OBJECT_INITIALIZER_NAME,
 				MethodType.methodType(void.class));
-		this.system_thread_group = system_instance;
+		Universe.set_system_thread_group(system_instance);
 
 		Objectref main_instance = this.getAnObjectref(initClassF);
 		Objectref name = this.getStringCache().getStringObjectref("main");
@@ -551,7 +584,7 @@ public abstract class VirtualMachine extends Thread {
 	private void java_call_special(Objectref objectref, ClassFile klass, String methodName, MethodType methodType)
 			throws ExecutionException, InvalidInstructionInitialisationException, InterruptedException {
 		Method initMethod = klass.getMethodByNameAndDescriptorOrNull(methodName, MethodType.methodType(void.class));
-
+		if (initMethod != null){
 		Object[] arguments = new Object[1];
 		arguments[0] = objectref;
 		Frame systemStartupFrame = createFrame(null, initMethod, arguments);
@@ -559,8 +592,9 @@ public abstract class VirtualMachine extends Thread {
 		systemStartupFrame.setHiddenFrame(true);
 		Boolean stepByStep = this.stepByStepMode;
 		this.stepByStepMode = false;
-		runMainLoop(systemStartupFrame);
+		runMainLoop(systemStartupFrame);		
 		this.stepByStepMode = stepByStep;
+		}
 	}
 
 	// FIXME mxs: silly but quick copy
@@ -597,6 +631,22 @@ public abstract class VirtualMachine extends Thread {
 		this.stepByStepMode = false;
 		runMainLoop(systemStartupFrame);
 		this.stepByStepMode = stepByStep;
+	}
+			
+	private void java_call_virtual(ClassFile klass, String methodName, String methodType, Object[] args)
+			throws ExecutionException, InvalidInstructionInitialisationException, InterruptedException {
+		Method initMethod = klass.getMethodByNameAndDescriptorOrNull(methodName, methodType);
+		if (initMethod != null){
+		
+		Frame systemStartupFrame = createFrame(currentFrame, initMethod, args);
+		this.stack.push(currentFrame);
+		// FIXME :mxs
+		systemStartupFrame.setHiddenFrame(false);
+		Boolean stepByStep = this.stepByStepMode;
+		this.stepByStepMode = false;
+		runMainLoop(systemStartupFrame);
+		this.stepByStepMode = stepByStep;
+		}
 	}
 
 	// thread.cpp
@@ -703,7 +753,7 @@ public abstract class VirtualMachine extends Thread {
 		if (!this.currentFrame.isHiddenFrame()
 				&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
 			Globals.getInst().executionInstructionLogger.debug(
-					method.getFullNameWithParameterTypesAndNames() + " (op: " + this.currentFrame.getOperandStack()
+					method.getFullNameWithParameterTypesAndNames()+ ":" + method.getReturnType() + " (op: " + this.currentFrame.getOperandStack()
 							+ ", localvar: [" + Arrays.stream(this.currentFrame.getLocalVariables())
 									.map(x -> (x == null)? "null": x.toString()).collect(Collectors.joining(", "))									
 							+ "] pc: " + this.pc + ")");
@@ -766,7 +816,7 @@ public abstract class VirtualMachine extends Thread {
 			if (!currentFrame.isHiddenFrame() && Globals.getInst()
 					.logBasedOnWhiteBlacklist(this.currentFrame.method.getPackageAndName()).orElse(true))
 				Globals.getInst().executionInstructionLogger.trace(this.currentFrame.method.getPackageAndName()
-						+ " Line " + this.pc + ": Executing " + instructions[this.pc].getNameWithOtherBytes());
+						+ " " + String.format("%1$2s", this.pc) + ": Executing " + instructions[this.pc].getNameWithOtherBytes());
 
 			// Execute the instruction.
 			executeInstruction(instructions[pc]);
@@ -921,14 +971,8 @@ public abstract class VirtualMachine extends Thread {
 	public Objectref generateExc(String typeString, String message) {
 		// marker for debug logs for easier finding of where an exception originated		
 		Globals.getInst().execLogger.info("generating a new exception " + typeString + "(" + message + ") in muggl at: " + Thread.currentThread().getStackTrace()[0].toString());
-		Globals.getInst().execLogger.debug("at " + this.currentFrame.method.getPackageAndName() + " pc:"
-				+ currentFrame.getPc() + " line:" + currentFrame.method.getLineNumberForPC(currentFrame.getPc()).orElse(-1));
-		Frame curF = currentFrame;
-		while (curF.invokedBy != null) {
-			curF = curF.invokedBy;
-			Globals.getInst().execLogger.debug("\t at " + curF.method.getPackageAndName() + " pc:" + curF.getPc()
-					+ " line or line before!:" + curF.method.getLineNumberForPC(curF.getPc()).orElse(-1));
-		}
+		
+		Globals.getInst().execLogger.debug(this.currentStackTrace());			
 
 		return this.throwableGenerator.getException(typeString, message);
 	}
@@ -1193,6 +1237,11 @@ public abstract class VirtualMachine extends Thread {
 
 			if (!currentFrame.isHiddenFrame()) 
 				Globals.getInst().execLogger.trace("Execution of the static initializer of " + method.getClassFile().getName() + " finished. Returning to the normal program flow.");
+			
+			//FIXME mxs: remove this hack
+			if(method.getClassFile().getName().equals("sun.reflect.generics.parser.SignatureParser")) {
+			method.getClassFile().getInitializedClass().putField(method.getClassFile().getFieldByName("DEBUG"), 1);
+			}
 		} catch (NoExceptionHandlerFoundException e) {
 			Objectref objectref = e.getUncaughtThrowable();
 			String type = objectref.getInitializedClass().getClassFile().getClassName();
@@ -1352,6 +1401,86 @@ public abstract class VirtualMachine extends Thread {
 	 * @return
 	 */
 	public Objectref get_threadObj() {
-		return this.threadObj;
+		return VirtualMachine.threadObj;
+	}
+
+	public Objectref getAndInitializeObjectref(InitializedClass class_klass) {
+		Objectref ret = getAnObjectref(class_klass.getClassFile());
+		try {
+			java_call_special(ret, class_klass.getClassFile(), VmSymbols.OBJECT_INITIALIZER_NAME,
+					MethodType.methodType(void.class));
+			return ret;
+		} catch (ExecutionException | InvalidInstructionInitialisationException | InterruptedException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public boolean isAssertionEnabled() {
+		return assertionEnabled;
+	}
+
+	/**
+	 * Return a String representation of the current MugglVM StackTrace
+	 * @return
+	 */
+	public String currentStackTrace() {
+		// within the Muggl VM
+		StringBuilder stackT = new StringBuilder();
+
+		stackT.append("at " + this.currentFrame.method.getPackageAndName() + " pc:" + currentFrame.getPc() + " line:"
+				+ currentFrame.method.getLineNumberForPC(currentFrame.getPc()).orElse(-1) + System.lineSeparator());
+		Frame curF = currentFrame;
+		while (curF.invokedBy != null) {
+			curF = curF.invokedBy;
+			if(curF.method != null)
+			stackT.append("\t at " + curF.method.getPackageAndName() + "(" + curF.method.getClassFile().getClassName()
+					+ ".java:" + curF.method.getLineNumberForPC(curF.getPcDone()).orElse(-1) + ")" + " CurPc:"
+					+ curF.getPc() + System.lineSeparator());
+		}
+
+		return stackT.toString();
+	}
+
+	public void fillDebugStackTraces() {
+		// within the JavaVM
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		new Throwable().printStackTrace(pw);
+		this.debugStackTraceJavaVM = sw.toString();
+
+		this.debugStackTraceMugglVM = currentStackTrace();
+	}
+
+	public void set_property(Objectref props, String k, String v) throws ExecutionException,
+			InvalidInstructionInitialisationException, InterruptedException, ClassFileException {
+		// Objectref key = getStringCache().getStringObjectref(k);
+		// Objectref value = getStringCache().getStringObjectref((v != null) ? v : "");
+		// java_call_virtual(classLoader.getClassAsClassFile("java.util.Hashtable"), VmSymbols.PUT_NAME,
+		// VmSymbols.OBJECT_OBJECT_OBJECT_SIGNATURE,
+		// new Object[] { props, key, value });
+
+	}
+
+	public void performUniverseGenesis() throws ClassFileException, ExecutionException,
+			InvalidInstructionInitialisationException, InterruptedException {
+		if (this.universeSetupFinished)
+			return;
+		// prepare a "parent" null frame for the universe genesis
+		if (!Options.getInst().symbolicMode) {
+			this.stack = new Stack<Object>();
+			Frame frame = new Frame(this);
+			this.currentFrame = frame;
+			this.stack.push(frame);
+			Universe.genesis(this);
+			this.stack.clear();
+			setUpThreads();
+		}
+		// if(this instanceof SymbolicVirtualMachine){
+		// SymbolicVirtualMachine tsVM = (SymbolicVirtualMachine) this;
+		// tsVM.doNotProcessSolutions();
+		// tsVM.getSolutionProcessor().setDoNotSaveTheNextSolution(true);
+		// }
+		this.universeSetupFinished = true;
 	}
 }

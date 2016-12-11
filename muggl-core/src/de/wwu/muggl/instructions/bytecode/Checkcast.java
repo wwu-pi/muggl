@@ -2,6 +2,7 @@ package de.wwu.muggl.instructions.bytecode;
 
 import java.util.Stack;
 
+import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.CheckcastInstanceof;
 import de.wwu.muggl.instructions.interfaces.Instruction;
@@ -54,6 +55,9 @@ public class Checkcast extends CheckcastInstanceof implements Instruction, JumpE
 			if (!(constant instanceof ConstantClass))
 				throw new ExecutionException("The constant_pool entry fetched does not have the correct type.");
 
+			if(objectref != null && !(objectref instanceof ReferenceValue)) {
+				Globals.getInst().execLogger.error("checkcast can only deal with referenceValues! Put: " + objectref.getClass().getName() + " prim?:" + objectref.getClass().isPrimitive());
+			}
 			// objectref must be either null or is assignment compatible (can be cast to) the expected class.
 			String castingToClassName = ((ConstantClass) constant).getName();
 			ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
@@ -61,7 +65,7 @@ public class Checkcast extends CheckcastInstanceof implements Instruction, JumpE
 					&& !ea.checkForAssignmentCompatibility(objectref, castingToClassName, frame.getVm(), false)) {
 				// Checking of cast failed. Throw a ClassCastException exception.
 				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ClassCastException",
-						((ReferenceValue) objectref).getInitializedClass().getClassFile().getName() + " (id:"
+						((ReferenceValue) objectref).getInitializedClass().getClassFile().getName() + " (primitive?:" +objectref.getClass().isPrimitive()+", id:"
 								+ ((ReferenceValue) objectref).getInstantiationNumber() + ") cannot be cast to "
 								+ castingToClassName));
 			}

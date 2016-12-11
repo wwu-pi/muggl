@@ -53,6 +53,10 @@ public class Frame {
 	private boolean hiddenFrame = false;
 	// Private fields.
 	private int pc;
+	
+	// when jumping out of methods, we set the pc to the return address, but for stack traces we want to the "last track"
+	private int pcDone; 
+	
 	private Monitor monitor;
 
 	/**
@@ -101,6 +105,15 @@ public class Frame {
 		this.pc = 0;
 	}
 
+	/**
+	 * Constructor for a near-null frame. Needed as topmost frame when executing Universe Genesis.
+	 * @param vm
+	 */
+	public Frame(VirtualMachine vm) {
+		this.vm = vm;
+		// FIXME mxs hide System management frame
+//		this.hiddenFrame = true;
+	}
 	/**
 	 * Getter for the operand stack.
 	 * @return The operand stack.
@@ -205,6 +218,7 @@ public class Frame {
 	 * @param pc The new pc value as an int.
 	 */
 	public void setPc(int pc) {
+		this.pcDone = this.pc;
 		this.pc = pc;
 	}
 
@@ -272,11 +286,16 @@ public class Frame {
 	 * @return
 	 */
 	public boolean isHiddenFrame() {
-		return hiddenFrame;
+		return false;
+//		return hiddenFrame;
 	}
 
 	public void setHiddenFrame(boolean hiddenFrame) {
 		this.hiddenFrame = hiddenFrame;
+	}
+	
+	public int getPcDone() {
+		return this.pcDone;
 	}
 
 }

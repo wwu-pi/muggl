@@ -118,14 +118,15 @@ public class Anewarray extends de.wwu.muggl.instructions.general.ObjectInitializ
 				| this.otherBytes[1]]).getValue();
 		ClassFile c;
 		ReferenceValue referenceValue = null;
-		// FIXME: TODO: bug: anewarray should not execute class initializers, which it will implicitly do when calling "getanobjectref"
+		// FIXME TODO bug: anewarray should not execute class initializers, which it will implicitly do when calling "getanobjectref"
 		// @see de.wwu.muggl.binaryTestSuite.InitializerOrder.testInitializationsArray()
 		try {
 			// anewarray might also be used to generate the topmost layer for multi-dimensional primitive arrays.
 			// The topmost reference should then be a primitive wrapper!
 			if (className.replace("[", "").length() == 1) {
 				referenceValue = frame.getVm().getClassLoader()
-						.getClassAsClassFile(VmSymbols.PrimitiveStr2ClassStr(className.replace("[", "")))
+						.getClassAsClassFile(
+								VmSymbols.basicType2JavaClassName(VmSymbols.signature2BasicType(className.replace("[", ""))))
 						.getAPrimitiveWrapperObjectref(frame.getVm());
 			} else {
 				c = resolution.resolveClassAsClassFile(frame.getMethod().getClassFile(), className);
