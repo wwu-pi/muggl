@@ -10,7 +10,7 @@ import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 
-public class NativeJavaLangReflectArray implements NativeMethodProvider {
+public class NativeJavaLangReflectArray extends NativeMethodProvider {
 	public static String pkg = "java.lang.reflect.Array";
 
 	/*
@@ -51,6 +51,10 @@ public class NativeJavaLangReflectArray implements NativeMethodProvider {
 
 	public static short getShort(Frame frame, Arrayref arr, Integer idx) {
 		return (short) arr.getElement(idx);
+	}
+
+	public static int getLength(Frame frame, Arrayref arr) {
+		return arr.length;
 	}
 
 	/*
@@ -104,8 +108,8 @@ public class NativeJavaLangReflectArray implements NativeMethodProvider {
 			String name = "";
 			try {
 				name = frame.getVm().getStringCache().getStringFieldValue(compType, "name");
-				BasicType t = VmSymbols.name2type(name);
-				ref = frame.getVm().getClassLoader().getClassAsClassFile(VmSymbols.PRIMITIVES_JAVA_CLASSES[t.value])
+				BasicType t = VmSymbols.primitiveName2BasicType(name);
+				ref = frame.getVm().getClassLoader().getClassAsClassFile(VmSymbols.basicType2JavaClassName(t))
 						.getAPrimitiveWrapperObjectref(frame.getVm());
 			} catch (ExecutionException | ClassFileException e) {
 				e.printStackTrace();
@@ -115,7 +119,7 @@ public class NativeJavaLangReflectArray implements NativeMethodProvider {
 		}
 		return new Arrayref(ref, dim);
 	}
-	
+
 	public static Arrayref multiNewArray(Frame frame, Objectref compType, Arrayref dim) {
 
 		ReferenceValue ref = null;
@@ -125,8 +129,8 @@ public class NativeJavaLangReflectArray implements NativeMethodProvider {
 			String name = "";
 			try {
 				name = frame.getVm().getStringCache().getStringFieldValue(compType, "name");
-				BasicType t = VmSymbols.name2type(name);
-				ref = frame.getVm().getClassLoader().getClassAsClassFile(VmSymbols.PRIMITIVES_JAVA_CLASSES[t.value])
+				BasicType t = VmSymbols.primitiveName2BasicType(name);
+				ref = frame.getVm().getClassLoader().getClassAsClassFile(VmSymbols.basicType2JavaClassName(t))
 						.getAPrimitiveWrapperObjectref(frame.getVm());
 			} catch (ExecutionException | ClassFileException e) {
 				e.printStackTrace();
@@ -134,53 +138,77 @@ public class NativeJavaLangReflectArray implements NativeMethodProvider {
 		} else {
 			ref = compType.getMirrorMuggl().getInitializedClass().getANewInstance();
 		}
-				
+
 		return new Arrayref(ref, dim.toPrimitiveIntFlat());
 	}
 
-	public void registerNatives() {
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "newArray",
-				MethodType.methodType(Arrayref.class, Frame.class, Objectref.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "multiNewArray",
-				MethodType.methodType(Arrayref.class, Frame.class, Objectref.class, Arrayref.class));
-		
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "get",
-				MethodType.methodType(Object.class, Frame.class, Arrayref.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getBoolean",
-				MethodType.methodType(boolean.class, Frame.class, Arrayref.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getByte",
-				MethodType.methodType(byte.class, Frame.class, Arrayref.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getChar",
-				MethodType.methodType(char.class, Frame.class, Arrayref.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getDouble",
-				MethodType.methodType(double.class, Frame.class, Arrayref.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getFloat",
-				MethodType.methodType(float.class, Frame.class, Arrayref.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getInt",
-				MethodType.methodType(int.class, Frame.class, Arrayref.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getLong",
-				MethodType.methodType(long.class, Frame.class, Arrayref.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getShort",
-				MethodType.methodType(short.class, Frame.class, Arrayref.class, Integer.class));
+	public static void registerNatives() {
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "newArray",
+				MethodType.methodType(Arrayref.class, Frame.class, Objectref.class, Integer.class),
+				MethodType.methodType(Object.class, Class.class, int.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "multiNewArray",
+				MethodType.methodType(Arrayref.class, Frame.class, Objectref.class, Arrayref.class),
+				MethodType.methodType(Object.class, Class.class, int[].class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "set",
-				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Objectref.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "setBoolean",
-				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "setByte",
-				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "setChar",
-				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "setDouble",
-				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Double.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "setFloat",
-				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Float.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "setInt",
-				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Integer.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "setLong",
-				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Long.class));
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "setShort",
-				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Integer.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "get",
+				MethodType.methodType(Object.class, Frame.class, Arrayref.class, Integer.class),
+				MethodType.methodType(Object.class, Object.class, int.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "getBoolean",
+				MethodType.methodType(boolean.class, Frame.class, Arrayref.class, Integer.class),
+				MethodType.methodType(boolean.class, Object.class, int.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "getByte",
+				MethodType.methodType(byte.class, Frame.class, Arrayref.class, Integer.class),
+				MethodType.methodType(byte.class, Object.class, int.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "getChar",
+				MethodType.methodType(char.class, Frame.class, Arrayref.class, Integer.class),
+				MethodType.methodType(char.class, Object.class, int.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "getDouble",
+				MethodType.methodType(double.class, Frame.class, Arrayref.class, Integer.class),
+				MethodType.methodType(double.class, Object.class, int.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "getFloat",
+				MethodType.methodType(float.class, Frame.class, Arrayref.class, Integer.class),
+				MethodType.methodType(float.class, Object.class, int.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "getInt",
+				MethodType.methodType(int.class, Frame.class, Arrayref.class, Integer.class),
+				MethodType.methodType(int.class, Object.class, int.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "getLong",
+				MethodType.methodType(long.class, Frame.class, Arrayref.class, Integer.class),
+				MethodType.methodType(long.class, Object.class, int.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "getShort",
+				MethodType.methodType(short.class, Frame.class, Arrayref.class, Integer.class),
+				MethodType.methodType(short.class, Object.class, int.class));
+
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "getLength",
+				MethodType.methodType(int.class, Frame.class, Arrayref.class),
+				MethodType.methodType(int.class, Object.class));
+
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "set",
+				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Objectref.class),
+				MethodType.methodType(void.class, Object.class, int.class, Object.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "setBoolean",
+				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Integer.class),
+				MethodType.methodType(void.class, Object.class, int.class, boolean.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "setByte",
+				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Integer.class),
+				MethodType.methodType(void.class, Object.class, int.class, byte.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "setChar",
+				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Integer.class),
+				MethodType.methodType(void.class, Object.class, int.class, char.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "setDouble",
+				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Double.class),
+				MethodType.methodType(void.class, Object.class, int.class, double.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "setFloat",
+				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Float.class),
+				MethodType.methodType(void.class, Object.class, int.class, float.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "setInt",
+				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Integer.class),
+				MethodType.methodType(void.class, Object.class, int.class, int.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "setLong",
+				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Long.class),
+				MethodType.methodType(void.class, Object.class, int.class, long.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangReflectArray.class, pkg, "setShort",
+				MethodType.methodType(void.class, Frame.class, Arrayref.class, Integer.class, Integer.class),
+				MethodType.methodType(void.class, Object.class, int.class, short.class));
 
 	}
 

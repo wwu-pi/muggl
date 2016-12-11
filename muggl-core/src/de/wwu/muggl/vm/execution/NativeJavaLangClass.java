@@ -1,12 +1,16 @@
 package de.wwu.muggl.vm.execution;
 
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.SystemDictionary;
 import de.wwu.muggl.vm.Universe;
 import de.wwu.muggl.vm.VmSymbols;
+import de.wwu.muggl.vm.JavaClasses.java_lang_Class;
 import de.wwu.muggl.vm.VmSymbols.BasicType;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -20,12 +24,57 @@ import de.wwu.muggl.vm.initialization.Objectref;
  * @author Max Schulze
  *
  */
-public class NativeJavaLangClass implements NativeMethodProvider {
+public class NativeJavaLangClass extends NativeMethodProvider {
 	public static String pkg = "java.lang.Class";
 
 	public static boolean isPrimitive(Frame frame, Objectref invokingObjectref) {
 		boolean isPrimitive = invokingObjectref.getMirrorMuggl() == null;
 		return isPrimitive;
+	}
+
+	public static boolean isInstance(Frame frame, Objectref invokingObjectref, Objectref obj) {
+		assert (java_lang_Class.is_instance(invokingObjectref));
+		ClassFile classF = invokingObjectref.getMirrorMuggl();
+
+		ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
+		try {
+			return ea.checkForAssignmentCompatibility(obj, classF.getName(), frame.getVm(), false);
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public static boolean isAssignableFrom(Frame frame, Objectref invokingObjectref, Objectref obj) {
+		try {
+			assert (java_lang_Class.is_instance(invokingObjectref));
+			assert (java_lang_Class.is_instance(obj));
+
+			ClassFile classFThis = invokingObjectref.getMirrorMuggl();
+			if (classFThis == null) {
+				BasicType typeThis = java_lang_Class.primitive_type(invokingObjectref);
+				classFThis = frame.getVm().getClassLoader()
+						.getClassAsClassFile(VmSymbols.basicType2JavaClassName(typeThis));
+			}
+
+			ClassFile classFThat = obj.getMirrorMuggl();
+			if (classFThat == null) {
+				BasicType typeThat = java_lang_Class.primitive_type(invokingObjectref);
+				classFThat = frame.getVm().getClassLoader()
+						.getClassAsClassFile(VmSymbols.basicType2JavaClassName(typeThat));
+			}
+
+			if (classFThis == classFThat)
+				return true;
+
+			Objectref that = classFThat.getTheInitializedClass(frame.getVm()).getANewInstance();
+
+			ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
+			return ea.checkForAssignmentCompatibility(that, classFThis.getName(), frame.getVm(), false);
+		} catch (ExecutionException | ClassFileException | AssertionError e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public static Objectref getSuperclass(Frame frame, Objectref invokingObjectref) {
@@ -66,6 +115,7 @@ public class NativeJavaLangClass implements NativeMethodProvider {
 		try {
 			String arg = (String) new MugglToJavaConversion(frame.getVm()).toJava(p1);
 			ClassFile classf;
+			Globals.getInst().execLogger.debug("forName0 getting " + arg);
 			classf = frame.getVm().getClassLoader().getClassAsClassFile(arg);
 			return classf.getTheInitializedClass(frame.getVm(), true).getClassFile().getMirrorJava();
 		} catch (ClassFileException | ConversionException e) {
@@ -79,11 +129,14 @@ public class NativeJavaLangClass implements NativeMethodProvider {
 		String arg;
 		try {
 			arg = (String) new MugglToJavaConversion(frame.getVm()).toJava(p1);
-			BasicType t = VmSymbols.name2type(arg);
+			BasicType t = VmSymbols.primitiveName2BasicType(arg);
 			if (t != BasicType.T_ILLEGAL && t != BasicType.T_OBJECT && t != BasicType.T_ARRAY) {
 				mirror = Universe.java_mirror(t);
 			}
-			if (mirror == null) {
+			if (mirror == null && t == BasicType.T_INT) {
+				// allow. This happens when mirrors are not (yet) initialized
+				return null;
+			} else if (mirror == null) {
 				throw new ForwardingUnsuccessfulException(
 						"ClassNotFoundException, getPrimitiveClass failed on: " + arg);
 			} else {
@@ -142,7 +195,7 @@ public class NativeJavaLangClass implements NativeMethodProvider {
 		return invokingObjectref.asClass().getDeclaredConstructors0(publicOnly);
 	}
 
-	public static Integer desiredAssertionStatus0(Frame frame) {
+	public static Integer desiredAssertionStatus0(Frame frame, Objectref invokingObjectref) {
 		return ((Integer) VmSymbols.wideningPrimConversion(frame.getVm().isAssertionEnabled(), Integer.class));
 	}
 
@@ -191,56 +244,80 @@ public class NativeJavaLangClass implements NativeMethodProvider {
 		return (invokingObjectref.asClass().isInterface());
 	}
 
-	// FIXME: missiing: isInstance
+	public static void registerNatives() {
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "registerNatives",
+				MethodType.methodType(void.class), MethodType.methodType(void.class));
 
-	public void registerNatives() {
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "desiredAssertionStatus0",
-				MethodType.methodType(Integer.class, Frame.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "desiredAssertionStatus0",
+				MethodType.methodType(Integer.class, Frame.class, Objectref.class),
+				MethodType.methodType(boolean.class, Class.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "forName0", MethodType.methodType(Objectref.class,
-				Frame.class, Object.class, Object.class, Object.class, Object.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "forName0",
+				MethodType.methodType(Objectref.class, Frame.class, Object.class, Object.class, Object.class,
+						Object.class),
+				MethodType.methodType(Class.class, String.class, boolean.class, ClassLoader.class, Class.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getComponentType",
-				MethodType.methodType(Objectref.class, Frame.class, Objectref.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "getComponentType",
+				MethodType.methodType(Objectref.class, Frame.class, Objectref.class),
+				MethodType.methodType(Class.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getDeclaredClasses0",
-				MethodType.methodType(Object.class, Frame.class, Objectref.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "getDeclaredClasses0",
+				MethodType.methodType(Object.class, Frame.class, Objectref.class),
+				MethodType.methodType(Class[].class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getDeclaredConstructors0",
-				MethodType.methodType(Object.class, Frame.class, Objectref.class, Object.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "getDeclaredConstructors0",
+				MethodType.methodType(Object.class, Frame.class, Objectref.class, Object.class),
+				MethodType.methodType(Constructor[].class, boolean.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getDeclaredFields0",
-				MethodType.methodType(Arrayref.class, Frame.class, Objectref.class, Object.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "getDeclaredFields0",
+				MethodType.methodType(Arrayref.class, Frame.class, Objectref.class, Object.class),
+				MethodType.methodType(Field[].class, boolean.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getDeclaredMethods0",
-				MethodType.methodType(Object.class, Frame.class, Objectref.class, Object.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "getDeclaredMethods0",
+				MethodType.methodType(Object.class, Frame.class, Objectref.class, Object.class),
+				MethodType.methodType(Method[].class, boolean.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getDeclaringClass0",
-				MethodType.methodType(Object.class, Frame.class, Objectref.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "getDeclaringClass0",
+				MethodType.methodType(Object.class, Frame.class, Objectref.class), MethodType.methodType(Class.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getInterfaces0",
-				MethodType.methodType(Arrayref.class, Frame.class, Objectref.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "getInterfaces0",
+				MethodType.methodType(Arrayref.class, Frame.class, Objectref.class),
+				MethodType.methodType(Class[].class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getModifiers",
-				MethodType.methodType(int.class, Frame.class, Objectref.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "getModifiers",
+				MethodType.methodType(int.class, Frame.class, Objectref.class), MethodType.methodType(int.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getName0",
-				MethodType.methodType(Objectref.class, Frame.class, Objectref.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "getName0",
+				MethodType.methodType(Objectref.class, Frame.class, Objectref.class),
+				MethodType.methodType(String.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getPrimitiveClass",
-				MethodType.methodType(Objectref.class, Frame.class, Object.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "getPrimitiveClass",
+				MethodType.methodType(Objectref.class, Frame.class, Object.class),
+				MethodType.methodType(Class.class, String.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getSuperclass",
-				MethodType.methodType(Objectref.class, Frame.class, Objectref.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "getSuperclass",
+				MethodType.methodType(Objectref.class, Frame.class, Objectref.class),
+				MethodType.methodType(Class.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "isArray",
-				MethodType.methodType(boolean.class, Frame.class, Objectref.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "isArray",
+				MethodType.methodType(boolean.class, Frame.class, Objectref.class),
+				MethodType.methodType(boolean.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "isInterface",
-				MethodType.methodType(boolean.class, Frame.class, Objectref.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "isInterface",
+				MethodType.methodType(boolean.class, Frame.class, Objectref.class),
+				MethodType.methodType(boolean.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "isPrimitive",
-				MethodType.methodType(boolean.class, Frame.class, Objectref.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "isPrimitive",
+				MethodType.methodType(boolean.class, Frame.class, Objectref.class),
+				MethodType.methodType(boolean.class));
+
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "isInstance",
+				MethodType.methodType(boolean.class, Frame.class, Objectref.class, Objectref.class),
+				MethodType.methodType(boolean.class));
+
+		NativeWrapper.registerNativeMethod(NativeJavaLangClass.class, pkg, "isAssignableFrom",
+				MethodType.methodType(boolean.class, Frame.class, Objectref.class, Objectref.class),
+				MethodType.methodType(boolean.class, Class.class));
 	}
 
 }

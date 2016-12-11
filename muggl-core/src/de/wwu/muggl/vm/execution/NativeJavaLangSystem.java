@@ -1,14 +1,17 @@
 package de.wwu.muggl.vm.execution;
 
 import java.lang.invoke.MethodType;
+import java.util.Properties;
 
+import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
 
-public class NativeJavaLangSystem implements NativeMethodProvider {
+public class NativeJavaLangSystem extends NativeMethodProvider {
 	public static String pkg = "java.lang.System";
 
 	public static void arraycopy(Frame frame, Object p0, Object p1, Object p2, Object p3, Object p4)
@@ -108,9 +111,26 @@ public class NativeJavaLangSystem implements NativeMethodProvider {
 		}
 	}
 
-	public void registerNatives() {
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "arraycopy", MethodType.methodType(void.class,
-				Frame.class, Object.class, Object.class, Object.class, Object.class, Object.class));
+	
+	public static Objectref initProperties(Frame frame, Objectref arg1) {		
+		frame.getVm().systemProperties.forEach((String k,String v)->{
+			try {
+				frame.getVm().set_property(arg1,k,v);
+			} catch (ExecutionException | InvalidInstructionInitialisationException | InterruptedException | ClassFileException e) {
+				e.printStackTrace();
+			}
+		});		
+		return arg1;
+	}
+	public static void registerNatives() {
+		NativeWrapper.registerNativeMethod(NativeJavaLangSystem.class, pkg, "arraycopy",
+				MethodType.methodType(void.class, Frame.class, Object.class, Object.class, Object.class, Object.class,
+						Object.class),
+				MethodType.methodType(void.class, Object.class, int.class, Object.class, int.class, int.class));
+
+		NativeWrapper.registerNativeMethod(NativeJavaLangSystem.class, pkg, "initProperties",
+				MethodType.methodType(Objectref.class, Frame.class, Objectref.class),
+				MethodType.methodType(Properties.class, Properties.class));
 	}
 
 }

@@ -1,5 +1,8 @@
 package de.wwu.muggl.vm.execution;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -13,7 +16,9 @@ import de.wwu.muggl.instructions.FieldResolutionError;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.Reflection;
 import de.wwu.muggl.vm.VmSymbols;
+import de.wwu.muggl.vm.JavaClasses.java_lang_Class;
 import de.wwu.muggl.vm.classfile.ClassFile;
+import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
@@ -22,6 +27,7 @@ import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * This class provides the functionality to wrap native methods calls. It therefore offers several
@@ -53,12 +59,14 @@ public class NativeWrapper {
 	
 	static {
 		// Allow following classes to register native methods with me:
-		new NativeJavaLangClass().registerNatives();
-		new NativeJavaLangInvokeMethodHandleNatives().registerNatives();
-		new NativeJavaLangObject().registerNatives();
-		new NativeJavaLangReflectArray().registerNatives();
-		new NativeJavaLangString().registerNatives();
-		new NativeJavaLangSystem().registerNatives();
+		NativeJavaLangClass.registerNatives();
+		NativeJavaLangInvokeMethodHandleNatives.registerNatives();
+		NativeJavaLangObject.registerNatives();
+		NativeJavaLangReflectArray.registerNatives();
+		NativeJavaLangString.registerNatives();
+		NativeJavaLangSystem.registerNatives();
+		NativeJavaLangThrowable.registerNatives();
+		NativeJavaSecurityAccessController.registerNatives();
 	}
 	
 	/**
@@ -93,9 +101,17 @@ public class NativeWrapper {
 		Stack<Object> stack = frame.getOperandStack();
 		MugglToJavaConversion conversion = new MugglToJavaConversion(frame.getVm());
 		
+		MethodHandle mh = null;
+		// try finding the more specific version first:
+		mh = registeredNatives.get(method.getPackageAndName() + method.getDescriptor());
+
+		if (mh == null) { // now only per name
+			mh = registeredNatives.get(method.getPackageAndName());
+		}
+
 		// lookup if it's registered via the hash table:
-		if (registeredNatives.containsKey(method.getPackageAndName())) {
-			MethodHandle mh = registeredNatives.get(method.getPackageAndName());
+		if (mh != null) {
+
 			// if method is not static, have to add invokingObjRef
 			int addObjRef = 0;
 			if (!method.isAccStatic()) {
@@ -104,23 +120,49 @@ public class NativeWrapper {
 			// prepare parameters, first is always frame, and, if method is not static second is invokinObjref, there should be a parameter in
 			// methodType that matches this
 			Object[] params = new Object[1 + mh.type().parameterCount() - 1];
-			params[0] = frame;
+			
+			int addFrameParam = 0;
+			if(params.length != 0){
+				params[0] = frame;
+				addFrameParam = 1;
+			}
 			if (addObjRef > 0) {
 				params[1] = invokingObjectref;
 			}
-			for (int i = 1 + addObjRef; i < params.length; i++) {
-				params[i] = mh.type().parameterType(i).cast(parameters[i - 1 - addObjRef]);
-			}
 			try {
+				// "implementation" of native methods must always match the right number of arguments
+				// so that we "fail early"...
+				if (mh.type().parameterCount() - addFrameParam - addObjRef != parameters.length) {
+					throw new IllegalArgumentException("wrong number of arguments(" + parameters.length
+							+ ") supplied to native method (" + method.getName() + "). Required: (" + (params.length - 1 - addObjRef) + ")");
+				}
+				for (int i = addFrameParam + addObjRef; i < params.length; i++) {
+					
+					if(parameters[i - 1 - addObjRef] instanceof Term) {
+						Term obj = (Term) parameters[i - 1 - addObjRef];
+						if(obj.isConstant()) {
+							if(obj instanceof IntConstant){
+								params[i] = mh.type().parameterType(i).cast(((IntConstant) obj).getValue());
+							}
+						}
+						else
+							// no conversion possible. Fail with the exception
+							params[i] = mh.type().parameterType(i).cast(parameters[i - 1 - addObjRef]);						
+					}else
+						params[i] = mh.type().parameterType(i).cast(parameters[i - 1 - addObjRef]);
+				}
+				Globals.getInst().execLogger.debug("Native method (" + method.getPackageAndName() + ") found in Muggls Implementation, invoking...");
 				if (mh.type().returnType() != void.class) {
 					frame.getOperandStack().push(mh.invokeWithArguments(params));
 				} else {
 					mh.invokeWithArguments(params);
 				}
 			} catch (Throwable e) {
+				frame.getVm().fillDebugStackTraces();
 				e.printStackTrace();
+				throw new ForwardingUnsuccessfulException(e.toString());
 			}
-			return;
+			return;			
 		}
 
 		// Forward to a native implementation in the java-package?
@@ -342,11 +384,9 @@ public class NativeWrapper {
 	 */
 	private static boolean javaPackageSpecialHandling(Frame frame, Method method,
 			ClassFile methodClassFile, ReferenceValue invokingRefVal, Object[] parameters) throws VmRuntimeException {
-		Objectref invokingObjectref = null;
-		if (invokingRefVal instanceof Objectref)
-			invokingObjectref = (Objectref) invokingRefVal;
+
 		if (methodClassFile.getName().equals(java.lang.Thread.class.getCanonicalName()) && method.getName().equals("currentThread")) {
-			if (frame.getVm() != Thread.currentThread()) {
+			if (frame.getVm().getApplication() != Thread.currentThread()) {
 				throw new UnsupportedOperationException("Muggl should only have one Thread...");
 			} else {
 				frame.getOperandStack().push(frame.getVm().get_threadObj());
@@ -360,9 +400,6 @@ public class NativeWrapper {
 	private static boolean sunPackageSpecialHandling(Frame frame, Method method, ClassFile methodClassFile,
 			ReferenceValue invokingRefVal, Object[] parameters)
 			throws VmRuntimeException, ForwardingUnsuccessfulException, ExecutionException {
-		Objectref invokingObjectref = null;
-		if (invokingRefVal instanceof Objectref)
-			invokingObjectref = (Objectref) invokingRefVal;
 		if (methodClassFile.getName().equals("sun.misc.Unsafe")) {
 			if (method.getName().equals("compareAndSwapObject")) {
 				frame.getOperandStack().push(true);
@@ -373,7 +410,52 @@ public class NativeWrapper {
 			} else if (method.getName().equals("compareAndSwapLong")) {
 				frame.getOperandStack().push(true);
 				return true;
-			} else
+			} else if(method.getName().equals("defineAnonymousClass")){
+				byte[] classBytes = ((Arrayref)parameters[1]).getElements();
+				ClassFile CF = null;
+				try {
+					InputStream is= new ByteArrayInputStream(classBytes);
+					InputStream is2= new ByteArrayInputStream(classBytes);
+					CF = new ClassFile(frame.getVm().getClassLoader(), is, is2, classBytes.length);
+				} catch (IOException | ClassFileException e) {
+					e.printStackTrace();
+				}
+				CF.setupMirrorClass();
+				frame.getOperandStack().push(CF.getMirrorJava());
+				return true;			
+			}else if(method.getName().equals("ensureClassInitialized")){
+				Objectref clazz = (Objectref) parameters[0];
+				assert(java_lang_Class.is_instance(clazz));
+				clazz.getMirrorMuggl().getTheInitializedClass(frame.getVm(), true);
+				return true;			
+			}else if(method.getName().equals("getObjectVolatile")){
+				if(parameters[0] instanceof Arrayref) {
+					frame.getOperandStack().push(((Arrayref)parameters[0]).getElement(((Long)parameters[1]).intValue()));
+				}			
+				else if (parameters[0] instanceof Objectref && java_lang_Class.is_instance((Objectref)parameters[0])) {
+					frame.getOperandStack().push(((Objectref)parameters[0]).getMirrorMuggl().getFields()[((Long)parameters[1]).intValue()]);			
+				}
+				else
+					frame.getOperandStack().push(null);
+				return true;
+			}else if(method.getName().equals("staticFieldBase")){
+//				Objectref obj1 = (Objectref) parameters[0];
+//				if(obj1.getInitializedClass().getClassFile().getName().equals("java.lang.reflect.Field")) {
+//					frame.getOperandStack().push(obj1.getField(obj1.getInitializedClass().getClassFile().getFieldByName("clazz")));
+//				}
+//				else
+					frame.getOperandStack().push(null);
+				return true;
+			}else if(method.getName().equals("staticFieldOffset")){
+				Objectref obj1 = (Objectref) parameters[0];
+				if(obj1.getInitializedClass().getClassFile().getName().equals("java.lang.reflect.Field")) {
+					frame.getOperandStack().push(obj1.getField(obj1.getInitializedClass().getClassFile().getFieldByName("clazz")));
+				}
+				else
+					frame.getOperandStack().push(null);
+				return true;
+			}
+			else		
 				Globals.getInst().execLogger.warn("you are calling sun.misc.Unsafe. THIS IS NOT IMPLEMENTED!");
 
 		} else if (methodClassFile.getName().equals("sun.reflect.NativeMethodAccessorImpl")
@@ -671,26 +753,43 @@ public class NativeWrapper {
 	}
 	
 	/**
-	 * Register a method as 'native' Method
+	 * Backwards-compatible version for non-overloaded native methods.
+	 */
+	@Deprecated
+	public static void registerNativeMethod(Class<? extends NativeMethodProvider> class1, String pkg, String method,
+			MethodType methodType) {
+		registerNativeMethod(class1, pkg, method, methodType, null);
+	}
+
+	/**
+	 * Register a method as executor for a 'native' method
 	 * 
 	 * @param class1
-	 *            The class which is calling me
+	 *            The class which is calling me to register
 	 * @param pkg
 	 *            JavaPackage to register it for
 	 * @param method
-	 *            the name of the method to register
-	 * @param methodType
-	 *            first argument of the method is always frame, and do not use "raw" (int, ...) types in your arguments!
+	 *            name of the method to register
+	 * @param mugglMt
+	 *            methodType in the Muggl-World
+	 * @param javaAPIMt
+	 *            method type as originally in the java source
 	 */
 	public static void registerNativeMethod(Class<? extends NativeMethodProvider> class1, String pkg, String method,
-			MethodType methodType) {
+			MethodType mugglMt, MethodType javaAPIMt) {
 		try {
-			if (methodType.parameterType(0) != Frame.class) {
+			if (method == "registerNatives") {
+			} else if (mugglMt.parameterType(0) != Frame.class) {
 				throw new IllegalArgumentException("first parameter of 'native' method must always be frame");
 			}
 			// get a handle, so we can easily invoke it later
-			MethodHandle mh = lookup.findStatic(class1, method, methodType);
-			registeredNatives.put(pkg + "." + method, mh);
+			MethodHandle mh = lookup.findStatic(class1, method, mugglMt);
+
+			String methodDescrAppendix = "";
+			if (javaAPIMt != null) {
+				methodDescrAppendix = javaAPIMt.toMethodDescriptorString();
+			}
+			registeredNatives.put(pkg + "." + method + methodDescrAppendix, mh);
 		} catch (NoSuchMethodException | IllegalAccessException e) {
 			// should never happen
 			e.printStackTrace();

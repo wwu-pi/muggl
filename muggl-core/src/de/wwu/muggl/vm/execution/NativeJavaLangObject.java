@@ -8,12 +8,18 @@ import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 
-public class NativeJavaLangObject implements NativeMethodProvider {
+public class NativeJavaLangObject extends NativeMethodProvider {
 	public static String pkg = "java.lang.Object";
 
 	public static void notifyAll(Frame frame, Objectref invokingObjectref) {
 		// TODO monitor implementation of notifyAll
-		// consider that done, baby!
+		// fake here
+		return;
+	}
+
+	public static void notify(Frame frame, Objectref invokingObjectref) {
+		// TODO monitor implementation of notify
+		// fake here
 		return;
 	}
 
@@ -43,18 +49,26 @@ public class NativeJavaLangObject implements NativeMethodProvider {
 		return null;
 	}
 
-	public void registerNatives() {
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "clone",
-				MethodType.methodType(ReferenceValue.class, Frame.class, ReferenceValue.class));
+	public static void registerNatives() {
+		NativeWrapper.registerNativeMethod(NativeJavaLangObject.class, pkg, "registerNatives",
+				MethodType.methodType(void.class), MethodType.methodType(void.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "getClass",
-				MethodType.methodType(Objectref.class, Frame.class, ReferenceValue.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangObject.class, pkg, "clone",
+				MethodType.methodType(ReferenceValue.class, Frame.class, ReferenceValue.class),
+				MethodType.methodType(Object.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "hashCode",
-				MethodType.methodType(int.class, Frame.class, ReferenceValue.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangObject.class, pkg, "getClass",
+				MethodType.methodType(Objectref.class, Frame.class, ReferenceValue.class),
+				MethodType.methodType(Class.class));
 
-		NativeWrapper.registerNativeMethod(this.getClass(), pkg, "notifyAll",
-				MethodType.methodType(void.class, Frame.class, Objectref.class));
+		NativeWrapper.registerNativeMethod(NativeJavaLangObject.class, pkg, "hashCode",
+				MethodType.methodType(int.class, Frame.class, ReferenceValue.class), MethodType.methodType(int.class));
+
+		NativeWrapper.registerNativeMethod(NativeJavaLangObject.class, pkg, "notifyAll",
+				MethodType.methodType(void.class, Frame.class, Objectref.class), MethodType.methodType(void.class));
+
+		NativeWrapper.registerNativeMethod(NativeJavaLangObject.class, pkg, "notify",
+				MethodType.methodType(void.class, Frame.class, Objectref.class), MethodType.methodType(void.class));
 	}
 
 }

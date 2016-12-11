@@ -1,17 +1,22 @@
 package de.wwu.muggl.vm.execution;
 
-import java.lang.invoke.MethodType;
-
-import de.wwu.muggl.vm.Frame;
-
 /**
  * Interface to group all classes that provide methods that are 'native' in the JVM
  * 
  * @author Max Schulze
  *
  */
-public interface NativeMethodProvider {
-	abstract void registerNatives();
+public abstract class NativeMethodProvider {
+
+	/**
+	 * Call this as entry point to get to know the function it provides. This is not 100% the Java registerNatives
+	 * equivalent. In may be used on classes that don't have a call to registerNatives in the Runtime (e.g.
+	 * reflect/Array.java)
+	 * 
+	 */
+	public static void registerNatives() {
+		throw new IllegalArgumentException("Have to implement registerNatives");
+	}
 
 	/**
 	 * Example functions to place in classes implementing this interface. First two parameters are frame, and
