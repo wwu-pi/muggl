@@ -4,12 +4,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.invoke.MethodType;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Stack;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
@@ -23,19 +20,14 @@ import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.Limitations;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
-import de.wwu.muggl.vm.classfile.structures.constants.ConstantClass;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
-import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.MugglToJavaConversion;
-import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.Objectref;
-import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.initialization.ThrowableGenerator;
 import de.wwu.muggl.vm.initialization.strings.StringCache;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -478,7 +470,7 @@ public abstract class VirtualMachine extends Thread {
 		// JDK_Version::set_runtime_version(get_java_runtime_version(THREAD));
 		//
 		// an instance of OutOfMemory exception has been allocated earlier
-		// FIXME mxs: shall we initialize exceptions at boot?
+		// TODO shall we initialize exceptions at boot?
 		// initialize_class(vmSymbols::java_lang_OutOfMemoryError(), CHECK_0);
 		// initialize_class(vmSymbols::java_lang_NullPointerException(), CHECK_0);
 		// initialize_class(vmSymbols::java_lang_ClassCastException(), CHECK_0);
@@ -541,7 +533,7 @@ public abstract class VirtualMachine extends Thread {
 
 		java_lang_thread.set_priority(thread_objref, NORM_PRIORITY);
 
-		this.threadObj = thread_objref;
+		VirtualMachine.threadObj = thread_objref;
 
 		Objectref name = this.getStringCache().getStringObjectref("main");
 
@@ -599,23 +591,6 @@ public abstract class VirtualMachine extends Thread {
 
 	// FIXME mxs: silly but quick copy
 	private void java_call_special(Objectref objectref, ClassFile klass, String methodName, MethodType methodType,
-			Objectref arg1) throws ExecutionException, InvalidInstructionInitialisationException, InterruptedException {
-		Method initMethod = klass.getMethodByNameAndDescriptorOrNull(methodName, methodType);
-
-		Object[] arguments = new Object[2];
-		arguments[0] = objectref;
-		arguments[1] = arg1;
-		Frame systemStartupFrame = createFrame(null, initMethod, arguments);
-		systemStartupFrame.setHiddenFrame(true);
-		this.stack.push(systemStartupFrame);
-		Boolean stepByStep = this.stepByStepMode;
-		this.stepByStepMode = false;
-		runMainLoop(systemStartupFrame);
-		this.stepByStepMode = stepByStep;
-	}
-
-	// FIXME mxs: silly but quick copy
-	private void java_call_special(Objectref objectref, ClassFile klass, String methodName, MethodType methodType,
 			Objectref arg1, Objectref arg2)
 			throws ExecutionException, InvalidInstructionInitialisationException, InterruptedException {
 		Method initMethod = klass.getMethodByNameAndDescriptorOrNull(methodName, methodType);
@@ -631,25 +606,10 @@ public abstract class VirtualMachine extends Thread {
 		this.stepByStepMode = false;
 		runMainLoop(systemStartupFrame);
 		this.stepByStepMode = stepByStep;
-	}
-			
-	private void java_call_virtual(ClassFile klass, String methodName, String methodType, Object[] args)
-			throws ExecutionException, InvalidInstructionInitialisationException, InterruptedException {
-		Method initMethod = klass.getMethodByNameAndDescriptorOrNull(methodName, methodType);
-		if (initMethod != null){
-		
-		Frame systemStartupFrame = createFrame(currentFrame, initMethod, args);
-		this.stack.push(currentFrame);
-		// FIXME :mxs
-		systemStartupFrame.setHiddenFrame(false);
-		Boolean stepByStep = this.stepByStepMode;
-		this.stepByStepMode = false;
-		runMainLoop(systemStartupFrame);
-		this.stepByStepMode = stepByStep;
-		}
-	}
+	}				
 
-	// thread.cpp
+	// Equivalence to a method in OpenJDK thread.cpp. When we know that the class should be there, spare us the
+	// try_catches...
 	private void initialize_class(String class_name) {
 		ClassFile initClassF;
 		try {
@@ -657,10 +617,9 @@ public abstract class VirtualMachine extends Thread {
 			initClassF.getTheInitializedClass(this);
 
 		} catch (ClassFileException e) {
-			// catch is pretty silly, we should know which classes we wont to initialize...
+			// catch is pretty silly, we should know which classes we want to initialize...
 			e.printStackTrace();
 		}
-
 	}
 
 	/**

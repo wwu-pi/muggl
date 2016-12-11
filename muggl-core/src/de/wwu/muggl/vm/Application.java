@@ -4,10 +4,12 @@ import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
+import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.util.StaticStringFormatter;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Method;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.logic.LogicVirtualMachine;
 import de.wwu.muggl.vm.impl.real.RealVirtualMachine;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
@@ -97,6 +99,12 @@ public class Application extends Thread {
 	@Override
 	public void run() {
 		do {
+			try {
+				this.virtualMachine.performUniverseGenesis();
+			} catch (ClassFileException | ExecutionException | InvalidInstructionInitialisationException
+					| InterruptedException e1) {
+				e1.printStackTrace();
+			}
 			this.vmHasChanged = false;
 			if (this.vmHasChanged && Globals.getInst().execLogger.isInfoEnabled()) Globals.getInst().execLogger.info("Starting the next virtual machine...");
 			this.virtualMachine.start();
@@ -213,6 +221,7 @@ public class Application extends Thread {
 	 * Getter for the virtual machine.
 	 * @return The VirtualMachine.
 	 */
+	// TODO max: this is othervise called getVM
 	public VirtualMachine getVirtualMachine() {
 		return this.virtualMachine;
 	}
