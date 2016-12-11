@@ -1,16 +1,14 @@
 package de.wwu.muggl.vm.loading;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -240,7 +238,7 @@ public class MugglClassLoader extends ClassLoader {
 				addToClassCache(classFile);
 				return classFile;
 			}
-			// FIXME: mxs done for overwriting system libs
+			// FIXME: mxs done for overwriting system libs, switched positions
 			// Fourth attempt: find in the class path.
 			classFile = getClassFromClasspath(name, path, className);
 			if (classFile != null) {
@@ -264,21 +262,21 @@ public class MugglClassLoader extends ClassLoader {
 			}
 
 			// Sixth attempt: Find in lib/solving.jar.
-			try {
-				File file = new File(Globals.BASE_DIRECTORY + "/lib/solving.jar");
-				JarFile jarFile = new JarFile(file);
-				String nameForJarFileSearch = name.replace(".", "/") + ".class";
-				classFile = getFromJarFile(jarFile, nameForJarFileSearch);
-				if (classFile != null) {
-					addToClassCache(classFile);
-					return classFile;
-				}
-			} catch (FileNotFoundException e) {
-				throw new ClassFileException(
-						"Loading of class " + name + " failed due to an Error on resolving "
-						+ "the required library solving.jar from the /lib directory. The root cause is: "
-						+ e.getMessage());
-			}
+//			try {
+//				File file = new File(Globals.BASE_DIRECTORY + "/lib/solving.jar");
+//				JarFile jarFile = new JarFile(file);
+//				String nameForJarFileSearch = name.replace(".", "/") + ".class";
+//				classFile = getFromJarFile(jarFile, nameForJarFileSearch);
+//				if (classFile != null) {
+//					addToClassCache(classFile);
+//					return classFile;
+//				}
+//			} catch (FileNotFoundException e) {
+//				throw new ClassFileException(
+//						"Loading of class " + name + " failed due to an Error on resolving "
+//						+ "the required library solving.jar from the /lib directory. The root cause is: "
+//						+ e.getMessage());
+//			}
 		} catch (ClassFileException e) {
 			throw new ClassFileException("Loading of class " + name
 					+ " failed due to an Error while parsing the file. The root cause is: "
@@ -314,12 +312,14 @@ public class MugglClassLoader extends ClassLoader {
 			while (name.startsWith("[")) {
 				name = name.substring(1);
 			}
-			// Drop the "L"
-			if (name.startsWith("L")) name = name.substring(1);
-			// Drop the ";" at the end.
-			if (name.endsWith(";")) name = name.substring(0, name.length() - 1);
 		} else if (name.endsWith("...")) {
 			name = name.substring(0, name.length() - 3);
+		}
+		// Drop the "L"
+		if (name.startsWith("L") && name.endsWith(";")){
+			name = name.substring(1);
+			// Drop the ";" at the end.
+			if (name.endsWith(";")) name = name.substring(0, name.length() - 1);
 		}
 
 		// If the length is only one, it is a primitive type. Get the appropriate wrapper class.
