@@ -56,7 +56,7 @@ public class TestInvokeVirtual extends TestSkeleton {
 
 	}
 
-	@Test
+//	@Test // läuft
 	public final void testApplicationMugglVMTestDoPrivileged()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(false,
@@ -69,7 +69,7 @@ public class TestInvokeVirtual extends TestSkeleton {
 
 	
 
-//	@Test
+	@Test
 	public final void testApplicationMugglVMInvokeVirtualExecution2()
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import sun.reflect.Reflection;
 
@@ -22,6 +23,15 @@ public class HashMapTest {
 		Map<String, String> getraenke = new HashMap<String, String>();
 		getraenke.put("Sekt", "Freixenet");
 		getraenke.put("daddel", "duduu");
+		return getraenke.get("Sekt");
+	}
+
+	public static String METHOD_test_HashMapConcurrent = "test_HashMapConcurrent";
+
+	public static String test_HashMapConcurrent() {
+		Map<String, String> getraenke = new ConcurrentHashMap<String, String>();
+		assert ("daddel".hashCode() == "daddel".hashCode());
+		getraenke.put("Sekt", "Freixenet");
 		return getraenke.get("Sekt");
 	}
 
@@ -49,7 +59,8 @@ public class HashMapTest {
 
 		Set<Entry<Class<?>, String[]>> test = map.entrySet();
 		int i = 0;
-		for (@SuppressWarnings("unused") Entry<Class<?>, String[]> entry : test) {
+		for (@SuppressWarnings("unused")
+		Entry<Class<?>, String[]> entry : test) {
 			i++;
 		}
 		return test.size() + " " + i;

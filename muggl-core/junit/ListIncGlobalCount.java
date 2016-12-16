@@ -27,57 +27,54 @@ import java.util.function.Consumer;
  * @author max
  *
  */
-public class PrintNumberListStaticArg {
-
-	public static int res;
-	public static int b;
-
-	public static int numBootstrapCalled;
+public class ListIncGlobalCount {
+	public static int counter;
 
 	public class mConsumer implements Consumer<Integer> {
 		@Override
 		public void accept(Integer t) {
-			// essentially max(b,3);
-			if (PrintNumberListStaticArg.b > 3)
-				PrintNumberListStaticArg.b = 3;
+			if (t >= 10)
+				counter++;
 		}
 	};
 
 	public static Consumer<Integer> accept() {
-		Consumer<Integer> ret = (new PrintNumberListStaticArg()).new mConsumer();
-		return ret;
+		return (new ListIncGlobalCount()).new mConsumer();
+	}
+
+	// Execute the "accept" method directly
+	public static int executeWithoutLambda() {
+		counter = 0;
+		List<Integer> numbers = Arrays.asList(1, 10, 11);
+		numbers.forEach(accept());
+		return counter;
+	}
+
+	public static int executeLambdaCompiledJVM() {
+		counter = 0;
+		List<Integer> numbers = Arrays.asList(1, 10, 11);
+		numbers.forEach(x -> accept().accept(x));
+		return counter;
+	}
+
+	public static int executeLambdaPure() {
+		counter = 0;
+		List<Integer> numbers = Arrays.asList(1, 10, 11);
+		numbers.forEach(x -> {
+			if (x >= 10)
+				counter++;
+		});
+		return counter;
 	}
 
 	public static CallSite myPrimitiveBootstrap(MethodHandles.Lookup l, String name, MethodType mt, MethodType mt2,
 			MethodHandle mh, MethodType mt3) {
-		numBootstrapCalled++;
-		// System.out.println("mt" + mt.toMethodDescriptorString());
-		// System.out.println("mt2" + mt2.toMethodDescriptorString());
-		// System.out.println("mh" + mh.toString());
-		// System.out.println("mt3" + mt3.toMethodDescriptorString());
 		try {
-			return new ConstantCallSite(l.findStatic(PrintNumberListStaticArg.class, name, mt));
+			return new ConstantCallSite(l.findStatic(ListIncGlobalCount.class, name, mt));
 		} catch (NoSuchMethodException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-	// scaffold to replace with our user-defined bootstrapper method
-	public static int execute(int b) {
-		List<Integer> numbers = Arrays.asList(1);
-		PrintNumberListStaticArg.b = b;
-		numbers.forEach(x -> accept().accept(x));
-		return PrintNumberListStaticArg.b;
-	}
-
-	// Execute the "accept" method directly
-	public static int executeWithoutLambda(int b) {
-		List<Integer> numbers = Arrays.asList(1);
-		PrintNumberListStaticArg.b = b;
-		mConsumer action = (new PrintNumberListStaticArg()).new mConsumer();
-		numbers.forEach(action);
-		return PrintNumberListStaticArg.b;
 	}
 
 	public static void dummy() {
@@ -91,10 +88,8 @@ public class PrintNumberListStaticArg {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(execute(2));
-		System.out.println(execute(3));
-		System.out.println(execute(4));
-		bootstrapTester();
-		System.out.println(numBootstrapCalled);
+		System.out.println(executeLambdaCompiledJVM());
+		System.out.println(executeWithoutLambda());
+		System.out.println(executeLambdaPure());
 	}
 }

@@ -14,7 +14,6 @@ import org.junit.Test;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
-import de.wwu.muggl.util.PrintNumberList;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -24,12 +23,12 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestLambda extends TestSkeleton {
+public class TestLambdaHandModified extends TestSkeleton {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		if (!isForbiddenChangingLogLevel) {
-			Globals.getInst().changeLogLevel(Level.ALL);
+			Globals.getInst().changeLogLevel(Level.TRACE);
 			Globals.getInst().parserLogger.setLevel(Level.WARN);
 		}
 	}
@@ -49,14 +48,18 @@ public class TestLambda extends TestSkeleton {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
-	public final void testMugglLambdaFiltering()
+//	@Test
+	public final void testLambdaHandInvokedynamic()
 			throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals(3,
-				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-						de.wwu.muggl.binaryTestSuite.lambda.LambdaFiltering.class.getCanonicalName(),
-						de.wwu.muggl.binaryTestSuite.lambda.LambdaFiltering.METHOD_helperExecute_countPersons,
-						MethodType.methodType(int.class, int.class), (Object[]) new Integer[] { 25 }));
-
+		assertEquals(2, TestVMNormalMethodRunnerHelper.runMethod(classLoader, "PrintNumberListStaticArg", "execute",
+				MethodType.methodType(int.class, int.class), (Object[]) new Object[] { 4 }));
 	}
+
+	@Test
+	public final void testLambdaHandBootstrapCall()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals(2, TestVMNormalMethodRunnerHelper.runMethod(classLoader, "PrintNumberListStaticArg",
+				"bootstrapTester", MethodType.methodType(void.class), (Object[]) new Object[] {}));
+	}
+
 }

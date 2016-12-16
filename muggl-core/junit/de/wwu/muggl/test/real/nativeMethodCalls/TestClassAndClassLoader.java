@@ -111,10 +111,10 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test
+	@Test // läuft
 	public final void test_GetClassDeclaredFieldsCount()
 			throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals(2,
+		assertEquals(37,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
 						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.METHOD_test_GetClassDeclaredFieldsCount,
@@ -187,7 +187,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-	// @Test
+	@Test // läuft
 	public final void test_GetClassModifiers()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(1,
@@ -207,7 +207,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 						MethodType.methodType(String.class), null));
 
 	}
-	
+
 	@Test // läuft
 	public final void test_GetClassNameForPrimitive()
 			throws ClassFileException, InitializationException, InterruptedException {
@@ -282,7 +282,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 
 	}
 
-//	@Test // tricky one
+	// @Test // tricky one
 	public final void test_GetComponentTypeIdentity()
 			throws ClassFileException, InitializationException, InterruptedException {
 

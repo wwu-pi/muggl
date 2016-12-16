@@ -62,12 +62,12 @@ public class LambdaDemo {
 		MethodType mt = MethodType.methodType(void.class);
 
 		// must be a functional interface
-		MethodType invokedType = MethodType.methodType(MyDummy.class);
+		MethodType invokedType = MethodType.methodType(MyFuncIntf.class);
 		MethodHandle mh = lookup.findStatic(LambdaDemo.class, "printHelloWorld", mt);
 
-		CallSite lambda = LambdaMetafactory.metafactory(lookup, "doTest", invokedType, mt, mh, mt);
+		CallSite lambda = LambdaMetafactory.metafactory(lookup, "performAction", invokedType, mt, mh, mt);
 
-		((MyDummy) lambda.getTarget().invoke()).doTest();
+		((MyFuncIntf) lambda.getTarget().invoke()).performAction();
 	}
 
 	/**
@@ -76,8 +76,8 @@ public class LambdaDemo {
 	 * @author max
 	 *
 	 */
-	interface MyDummy {
-		void doTest();
+	interface MyFuncIntf {
+		void performAction();
 	}
 
 	/**

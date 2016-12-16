@@ -13,12 +13,8 @@ import org.junit.Test;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
-import de.wwu.muggl.vm.Application;
-import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
-import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.initialization.InitializationException;
-import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 /**
@@ -32,8 +28,8 @@ public class TestSharedSecrets extends TestSkeleton {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		if (!isForbiddenChangingLogLevel) {
-		Globals.getInst().changeLogLevel(Level.TRACE);
-		Globals.getInst().parserLogger.setLevel(Level.WARN);
+			Globals.getInst().changeLogLevel(Level.TRACE);
+			Globals.getInst().parserLogger.setLevel(Level.WARN);
 		}
 	}
 
@@ -50,30 +46,7 @@ public class TestSharedSecrets extends TestSkeleton {
 	public void tearDown() throws Exception {
 	}
 
-	// @Test
-	public final void testClassObjectrefSuperclass()
-			throws ClassFileException, InitializationException, InterruptedException {
-		ClassFile classFile = classLoader.getClassAsClassFile(
-				de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(), true);
-
-		Method method = classFile.getMethodByNameAndDescriptor("<clinit>",
-				MethodType.methodType(void.class).toMethodDescriptorString());
-
-		Application application = new Application(classLoader, classFile.getName(), method);
-
-		application.start();
-
-		while (!application.getExecutionFinished()) {
-			Thread.sleep(Globals.SAFETY_SLEEP_DELAY);
-		}
-
-		@SuppressWarnings("unused")
-		Objectref objectref;
-		objectref = application.getVirtualMachine().getAnObjectref(classFile);
-
-	}
-
-	@Test
+	@Test // läuft
 	public final void testGetSuperclass() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("java.lang.Enum",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -82,7 +55,7 @@ public class TestSharedSecrets extends TestSkeleton {
 
 	}
 
-	@Test
+	@Test // läuft
 	public final void testIterateValues() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(2,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -90,7 +63,8 @@ public class TestSharedSecrets extends TestSkeleton {
 						"iterateValues", MethodType.methodType(int.class), null));
 
 	}
-	@Test
+
+	@Test // läuft
 	public final void testgetSuperSuperclass()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("java.lang.Object",
@@ -100,7 +74,7 @@ public class TestSharedSecrets extends TestSkeleton {
 
 	}
 
-	@Test
+	@Test // läuft
 	public final void testgetObjectSuperclass()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("npe as expected",
@@ -111,7 +85,7 @@ public class TestSharedSecrets extends TestSkeleton {
 	}
 
 	// nota: this involves sun.reflect.NativeMethodAccessorImpl.invoke0
-	@Test
+	@Test // läuft
 	public final void testGetValuesShared() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(2,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -120,7 +94,7 @@ public class TestSharedSecrets extends TestSkeleton {
 
 	}
 
-	@Test
+	@Test // läuft
 	public final void testClassIsEnum() throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(), "getClassIsEnum",
@@ -128,7 +102,7 @@ public class TestSharedSecrets extends TestSkeleton {
 
 	}
 
-	// @Test
+	@Test // läuft
 	public final void testGetUnsafe() throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethodNoArgVoid(classLoader,
 				de.wwu.muggl.binaryTestSuite.invokestatic.MySharedSecrets.class.getCanonicalName(), "unsafer");

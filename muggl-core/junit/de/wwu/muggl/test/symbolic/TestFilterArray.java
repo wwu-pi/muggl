@@ -1,6 +1,4 @@
-package de.wwu.muggl.test.real.java8;
-
-import static org.junit.Assert.*;
+package de.wwu.muggl.test.symbolic;
 
 import java.lang.invoke.MethodType;
 
@@ -11,11 +9,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.wwu.muggl.binaryTestSuite.SimpleFilterArray;
+import de.wwu.muggl.binaryTestSuite.TestSimpleForSymbolic;
 import de.wwu.muggl.configuration.Globals;
-import de.wwu.muggl.test.TestSkeleton;
+import de.wwu.muggl.test.TestSkeletonSymbolic;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
-import de.wwu.muggl.util.PrintNumberList;
 import de.wwu.muggl.vm.classfile.ClassFileException;
+import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
@@ -24,21 +24,21 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  *
  */
-public class TestLambda extends TestSkeleton {
+public class TestFilterArray extends TestSkeletonSymbolic {
+	MugglClassLoader classLoader;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		if (!isForbiddenChangingLogLevel) {
-			Globals.getInst().changeLogLevel(Level.ALL);
-			Globals.getInst().parserLogger.setLevel(Level.WARN);
+			Globals.getInst().changeLogLevel(Level.TRACE);
+			Globals.getInst().symbolicExecLogger.setLevel(Level.TRACE);
+			Globals.getInst().parserLogger.setLevel(Level.ERROR);
 		}
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 	}
-
-	private MugglClassLoader classLoader;
 
 	@Before
 	public void setUp() throws Exception {
@@ -49,14 +49,13 @@ public class TestLambda extends TestSkeleton {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
-	public final void testMugglLambdaFiltering()
+	@Test // should at least finish sucessfully
+	public final void testApplicationMugglExecuteSimpleSymbolic()
 			throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals(3,
-				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-						de.wwu.muggl.binaryTestSuite.lambda.LambdaFiltering.class.getCanonicalName(),
-						de.wwu.muggl.binaryTestSuite.lambda.LambdaFiltering.METHOD_helperExecute_countPersons,
-						MethodType.methodType(int.class, int.class), (Object[]) new Integer[] { 25 }));
 
+		TestVMNormalMethodRunnerHelper.runMethod(classLoader, SimpleFilterArray.class.getCanonicalName(),
+				SimpleFilterArray.METHOD_testArrayEntries, MethodType.methodType(int.class, int.class),
+				(Object[]) new Object[] { new UndefinedValue() });
 	}
+
 }

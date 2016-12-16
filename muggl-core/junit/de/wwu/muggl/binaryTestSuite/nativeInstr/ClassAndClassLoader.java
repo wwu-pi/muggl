@@ -439,14 +439,14 @@ public class ClassAndClassLoader implements Serializable {
 		System.out.println("primitive (via .class): " + test_CountPrimitive());
 		System.out.println("primitive (via Object .getClass): " + test_CountPrimitiveInstances());
 		System.out.println(test_GetComponentType());
-		System.out.println(test_GetClassModifiers());
+		System.out.println("class modifiers" + test_GetClassModifiers());
 		System.out.println("declaredClasses: " + test_GetDeclaredClasses());
 		System.out.println(test_GetDeclaringClass());
 		System.out.println(test_GetClassAnnotations());
 		System.out.println(test_GetClassDeclaredMethods());
 		System.out.println(test_GetClassDeclaredFields());
 		System.out.println(test_GetClassDeclaredConstructors());
-		System.out.println(test_GetClassDeclaredFieldsCount());
+		System.out.println("declared fields count:"+test_GetClassDeclaredFieldsCount());
 		System.out.println(test_GetGetClassPrimitive());
 		System.out.println(test_ObjectClass());
 		System.out.println(test_GetDeclaringClassOnPrimitive());

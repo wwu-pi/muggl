@@ -52,7 +52,15 @@ public class TestHashMap extends TestSkeleton {
 		assertEquals("Freixenet",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader, HashMapTest.class.getCanonicalName(),
 						HashMapTest.METHOD_test_HashMap, MethodType.methodType(String.class), null));
+	}
 
+	@Test // this test causes the System.exit() to thwrow a NullPointerException. Don't know why
+	public final void test_HashMapConcurrent()
+			throws ClassFileException, InitializationException, InterruptedException {
+
+		assertEquals("Freixenet",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader, HashMapTest.class.getCanonicalName(),
+						HashMapTest.METHOD_test_HashMapConcurrent, MethodType.methodType(String.class), null));
 	}
 
 	@Test
@@ -66,7 +74,7 @@ public class TestHashMap extends TestSkeleton {
 
 	@Test
 	public final void test_HashMapInHashMap() throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals("fieldFilterMap1",
+		assertEquals("1 1",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader, HashMapTest.class.getCanonicalName(),
 						HashMapTest.METHOD_test_HashMapInHashMap, MethodType.methodType(String.class), null));
 
