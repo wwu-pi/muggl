@@ -16,8 +16,6 @@ public class NativeJavaSecurityAccessController extends NativeMethodProvider {
 	public static void doPrivileged(Frame frame, Objectref privilegedAction) {		
 		// TODO: doPrivileged this could better be replaced by a blocking call to invokestatic
 		
-		frame.getVm().fillDebugStackTraces();
-		Globals.getInst().execLogger.trace(frame.getVm().debugStackTraceMugglVM);
 		ClassFile objClassfile = privilegedAction.getInitializedClass().getClassFile();
 		Method m = objClassfile.getMethodByNameAndDescriptorOrNull(VmSymbols.RUN_METHOD_NAME, VmSymbols.VOID_OBJECT_SIGNATURE);
 		

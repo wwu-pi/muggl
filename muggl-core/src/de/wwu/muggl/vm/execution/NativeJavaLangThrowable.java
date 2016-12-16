@@ -2,6 +2,7 @@ package de.wwu.muggl.vm.execution;
 
 import java.lang.invoke.MethodType;
 
+import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.initialization.Objectref;
 
@@ -24,6 +25,7 @@ public class NativeJavaLangThrowable extends NativeMethodProvider {
 	//
 	public static Objectref fillInStackTrace(Frame frame, Objectref invokingObjectref, Integer index) {
 		frame.getVm().fillDebugStackTraces();
+		Globals.getInst().execLogger.debug(frame.getVm().debugStackTraceMugglVM);
 		// java_lang_Throwable.fill_in_stack_trace(frame, invokingObjectref);
 		return invokingObjectref;
 	}

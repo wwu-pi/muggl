@@ -4,6 +4,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.Frame;
@@ -233,7 +234,9 @@ public class NativeJavaLangClass extends NativeMethodProvider {
 	}
 
 	public static int getModifiers(Frame frame, Objectref invokingObjectref) {
-		return (invokingObjectref.asClass().getModifiers());
+		int modifs= invokingObjectref.asClass().getModifiers();
+//		System.out.print(Modifier.toString(modifs));
+		return modifs;  //& Modifier.classModifiers(); if you do this AND-ing, then you loose modifiers such as ENUM
 	}
 
 	public static boolean isArray(Frame frame, Objectref invokingObjectref) {

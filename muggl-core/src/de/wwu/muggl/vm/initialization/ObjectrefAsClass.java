@@ -104,14 +104,7 @@ public class ObjectrefAsClass {
 			// when we're here, this is the javaMirror (=class class) of an objectref we have to get
 			ClassFile orig_class = thiss.getMirrorMuggl();
 
-			return ((orig_class.isAccEnum() ? 1 : 0) * ClassFile.ACC_ENUM)
-					| ((orig_class.isAccAnnotation() ? 1 : 0) * ClassFile.ACC_ANNOTATION)
-					| ((orig_class.isAccSynthetic() ? 1 : 0) * ClassFile.ACC_SYNTHETIC)
-					| ((orig_class.isAccAbstract() ? 1 : 0) * ClassFile.ACC_ABSTRACT)
-					| ((orig_class.isAccInterface() ? 1 : 0) * ClassFile.ACC_INTERFACE)
-					| ((orig_class.isAccSuper() ? 1 : 0) * ClassFile.ACC_SUPER)
-					| ((orig_class.isAccFinal() ? 1 : 0) * ClassFile.ACC_FINAL)
-					| ((orig_class.isAccPublic() ? 1 : 0) * ClassFile.ACC_PUBLIC);
+			return orig_class.getAccessFlags();
 		}
 	}
 

@@ -24,6 +24,7 @@ import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.MugglToJavaConversion;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.InitializedClass;
@@ -1434,12 +1435,22 @@ public abstract class VirtualMachine extends Thread {
 			Universe.genesis(this);
 			this.stack.clear();
 			setUpThreads();
+		}else {
+//			this.stack = new Stack<Object>();
+//			Frame frame = new Frame(this);
+//			this.currentFrame = frame;
+//			this.stack.push(frame);
+//			Universe.genesis(this);
+//			this.stack.clear();
+//			if(this instanceof SymbolicVirtualMachine){
+//				SymbolicVirtualMachine tsVM = (SymbolicVirtualMachine) this;
+//				tsVM.doNotProcessSolutions();
+//				tsVM.getSolutionProcessor().setDoNotSaveTheNextSolution(true);
+//			}
+//			setUpThreads();
+			Globals.getInst().execLogger.warn("Thread set-up deactivated in symbolic vm");
+			
 		}
-		// if(this instanceof SymbolicVirtualMachine){
-		// SymbolicVirtualMachine tsVM = (SymbolicVirtualMachine) this;
-		// tsVM.doNotProcessSolutions();
-		// tsVM.getSolutionProcessor().setDoNotSaveTheNextSolution(true);
-		// }
 		this.universeSetupFinished = true;
 	}
 }

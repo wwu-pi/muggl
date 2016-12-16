@@ -54,6 +54,7 @@ import de.wwu.muggl.solvers.expressions.Term;
  */
 public class NativeWrapper {
 
+	private static Hashtable<Long, Objectref> fieldOffset = new Hashtable<>();
 	private static Hashtable<String, MethodHandle> registeredNatives = new Hashtable<>();
 	private static MethodHandles.Lookup lookup = MethodHandles.lookup();
 	
@@ -397,18 +398,35 @@ public class NativeWrapper {
 		return false;
 	}
 	
+	// not factored out to separate class so you can capture *every* invocation at the end of the if
 	private static boolean sunPackageSpecialHandling(Frame frame, Method method, ClassFile methodClassFile,
 			ReferenceValue invokingRefVal, Object[] parameters)
 			throws VmRuntimeException, ForwardingUnsuccessfulException, ExecutionException {
 		if (methodClassFile.getName().equals("sun.misc.Unsafe")) {
 			if (method.getName().equals("compareAndSwapObject")) {
+				if(parameters[0] instanceof Arrayref) {
+					((Arrayref)parameters[0]).putElement(((Long)parameters[1]).intValue(), parameters[3]);
+					frame.getOperandStack().push(true);
+					return true;
+				}	
+				Globals.getInst().execLogger.debug("CompareAndSwapObject: not implemented");
 				frame.getOperandStack().push(true);
 				return true;
-			} else if (method.getName().equals("compareAndSwapInt")) {
-				frame.getOperandStack().push(true);
-				return true;
-			} else if (method.getName().equals("compareAndSwapLong")) {
-				frame.getOperandStack().push(true);
+			} else if (method.getName().equals("compareAndSwapLong") || method.getName().equals("compareAndSwapInt")) {
+				Objectref op = (Objectref) parameters[0];
+				
+				Objectref field = fieldOffset.get((long) parameters[1]);
+				// extract field name
+				Objectref fieldNameObjr =(Objectref) field.getField(field.getInitializedClass().getClassFile().getFieldByName("name"));
+				String fieldNamestr =frame.getVm().getStringCache().getStringObjrefValue(fieldNameObjr);
+				
+				Object fieldVal = op.getField(op.getInitializedClass().getClassFile().getFieldByName(fieldNamestr));
+				
+				if(fieldVal.equals(parameters[2])){
+					op.putField(op.getInitializedClass().getClassFile().getFieldByName(fieldNamestr), parameters[3]);
+					frame.getOperandStack().push(true);
+				}else
+					frame.getOperandStack().push(false);
 				return true;
 			} else if(method.getName().equals("defineAnonymousClass")){
 				byte[] classBytes = ((Arrayref)parameters[1]).getElements();
@@ -429,30 +447,47 @@ public class NativeWrapper {
 				clazz.getMirrorMuggl().getTheInitializedClass(frame.getVm(), true);
 				return true;			
 			}else if(method.getName().equals("getObjectVolatile")){
+				System.out.println("getObjectVolatile: " + parameters[0] + " "+parameters[1]);
+				frame.getVm().fillDebugStackTraces();
+				System.out.println(frame.getVm().debugStackTraceMugglVM);
 				if(parameters[0] instanceof Arrayref) {
 					frame.getOperandStack().push(((Arrayref)parameters[0]).getElement(((Long)parameters[1]).intValue()));
 				}			
 				else if (parameters[0] instanceof Objectref && java_lang_Class.is_instance((Objectref)parameters[0])) {
-					frame.getOperandStack().push(((Objectref)parameters[0]).getMirrorMuggl().getFields()[((Long)parameters[1]).intValue()]);			
+					Objectref clazz = (Objectref)parameters[0];
+					
+					Objectref field = fieldOffset.get((long) parameters[1]);
+					// extract field name
+					Objectref fieldNameObjr =(Objectref) field.getField(field.getInitializedClass().getClassFile().getFieldByName("name"));
+					String fieldNamestr =frame.getVm().getStringCache().getStringObjrefValue(fieldNameObjr);
+					
+					Object fieldVal = clazz.getMirrorMuggl().getInitializedClass().getField(clazz.getMirrorMuggl().getFieldByName(fieldNamestr));
+					frame.getOperandStack().push(fieldVal);			
 				}
 				else
 					frame.getOperandStack().push(null);
 				return true;
 			}else if(method.getName().equals("staticFieldBase")){
-//				Objectref obj1 = (Objectref) parameters[0];
-//				if(obj1.getInitializedClass().getClassFile().getName().equals("java.lang.reflect.Field")) {
-//					frame.getOperandStack().push(obj1.getField(obj1.getInitializedClass().getClassFile().getFieldByName("clazz")));
-//				}
-//				else
-					frame.getOperandStack().push(null);
-				return true;
-			}else if(method.getName().equals("staticFieldOffset")){
 				Objectref obj1 = (Objectref) parameters[0];
 				if(obj1.getInitializedClass().getClassFile().getName().equals("java.lang.reflect.Field")) {
 					frame.getOperandStack().push(obj1.getField(obj1.getInitializedClass().getClassFile().getFieldByName("clazz")));
 				}
 				else
 					frame.getOperandStack().push(null);
+				return true;
+			}else if(method.getName().equals("staticFieldOffset")){
+				// we cannot really give a "memory address". All we can do is cache it in a hashmap
+				// by the instantiation number and return the number.
+				Objectref obj1 = (Objectref) parameters[0];
+				fieldOffset.put(obj1.getInstantiationNumber(), obj1);
+				frame.getOperandStack().push(obj1.getInstantiationNumber());
+				return true;
+			}else if(method.getName().equals("objectFieldOffset")){
+				// we cannot really give a "memory address". All we can do is cache it in a hashmap
+				// by the instantiation number and return the number.
+				Objectref obj1 = (Objectref) parameters[0];
+				fieldOffset.put(obj1.getInstantiationNumber(), obj1);
+				frame.getOperandStack().push(obj1.getInstantiationNumber());
 				return true;
 			}
 			else		

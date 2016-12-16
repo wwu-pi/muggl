@@ -262,10 +262,15 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 					}
 				} catch (ForwardingUnsuccessfulException e) {
 					// Ignore it, but log it.
-					if (!frame.isHiddenFrame())
+					if (!frame.isHiddenFrame()){
 						Globals.getInst().execLogger.warn(
 								"Forwarding of the native method " + method.getPackageAndName()
 								+ " was not successfull. The reason is: " + e.getMessage());
+						
+						frame.getVm().fillDebugStackTraces();
+						Globals.getInst().execLogger.debug(frame.getVm().debugStackTraceMugglVM);
+						
+					}
 				}
 				/*
 				 * Either push a zero / null value for the native method's return type, or

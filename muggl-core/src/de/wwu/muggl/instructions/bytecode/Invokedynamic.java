@@ -1,5 +1,7 @@
 package de.wwu.muggl.instructions.bytecode;
 
+import java.util.Stack;
+
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.MethodResolutionError;
 import de.wwu.muggl.instructions.general.Invoke;
@@ -11,7 +13,11 @@ import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
+import de.wwu.muggl.vm.classfile.structures.attributes.elements.BootstrapMethod;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantInterfaceMethodref;
+import de.wwu.muggl.vm.classfile.structures.constants.ConstantInvokeDynamic;
+import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodHandle;
+import de.wwu.muggl.vm.classfile.structures.constants.ConstantNameAndType;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
@@ -260,37 +266,41 @@ public class Invokedynamic extends Invoke implements Instruction {
 	 */
 	protected void invoke(Frame frame, boolean symbolic) throws ClassFileException,
 			ExecutionException, VmRuntimeException {
-		throw new ExecutionException("invokedynamic is not implemented");
 		// Preparations.
-//		Stack<Object> stack = frame.getOperandStack();
-//		int index = this.otherBytes[0] << ONE_BYTE | this.otherBytes[1];
-//		Constant constant = frame.getConstantPool()[index];
-//
-//		// check validity of constant pool entry
-//		if (!(constant instanceof ConstantInvokeDynamic)) {
-//			throw new ExecutionException(
-//					"1Error while executing instruction " + getName()
-//						+ ": Expected runtime constant pool item at index " + constant.getStringValue()
-//						+ "to be a symbolic reference to a call site specifier.");
-//		}
-//		
-//		// resolve reference to MethodHandle, MethodType and arguments
-//		// from the bootstrap section
-//		BootstrapMethod bootstrapMethod = frame.getMethod().getClassFile().getBootstrapMethods().getBootstrapMethods()[((ConstantInvokeDynamic) constant).getBootstrapMethodAttrIndex()];		
-//		// on error with bootstrapMethod resolution -> BootstrapMethodError wrapping E
-//		
-//		ConstantMethodHandle methodHandle = (ConstantMethodHandle) frame.getConstantPool()[bootstrapMethod.getBootstrapMethodRef()];
-//		Constant[] arguments = new Constant[bootstrapMethod.getNumBootstrapArguments()];
-//		for (int i = 0; i< bootstrapMethod.getNumBootstrapArguments(); i++) {
-//			arguments[i] = frame.getConstantPool()[bootstrapMethod.getBootstrapArguments()[i]];
-//		}
-//		// invokevirtual java.lang.invoke.MethodHandle.invoke (.Lookup;String;.MethodType  {Class/.MethodHandle/MethodType/String/int/float/long/double}):java.lang.invoke.CallSite
-//		
-//		// result shall be a reference to an object (of class or subclass .CallSite) <- The Call Site Object
-//		
-//		// execute invokevirtual java.lang.invoke.MethodHandle.invokeExact (..descriptor of call Site specifier) 
-//		// Get the name and the descriptor.
-//		String[] nameAndType = getNameAndType(constant);
+		Stack<Object> stack = frame.getOperandStack();
+		int index = this.otherBytes[0] << ONE_BYTE | this.otherBytes[1];
+		Constant constant = frame.getConstantPool()[index];
+
+		// check validity of constant pool entry
+		if (!(constant instanceof ConstantInvokeDynamic)) {
+			throw new ExecutionException(
+					"1Error while executing instruction " + getName()
+						+ ": Expected runtime constant pool item at index " + constant.getStringValue()
+						+ "to be a symbolic reference to a call site specifier.");
+		}
+		ConstantInvokeDynamic constID = (ConstantInvokeDynamic) constant;
+		
+		ConstantNameAndType callSiteDescriptor = (ConstantNameAndType) frame.getMethod().getClassFile().getConstantPool()[constID.getNameAndTypeIndex()];
+		// resolve reference to MethodHandle, MethodType and arguments from the bootstrap section
+		BootstrapMethod bootstrapMethod = frame.getMethod().getClassFile().getBootstrapMethods().getBootstrapMethods()[constID.getBootstrapMethodAttrIndex()];		
+		// on error with bootstrapMethod resolution -> BootstrapMethodError wrapping E
+
+		ConstantMethodHandle bootstrapMH = (ConstantMethodHandle) frame.getConstantPool()[bootstrapMethod.getBootstrapMethodRef()];
+		Constant[] bootstrapArgConst = new Constant[bootstrapMethod.getNumBootstrapArguments()];
+		for (int i = 0; i< bootstrapMethod.getNumBootstrapArguments(); i++) {
+			bootstrapArgConst[i] = frame.getConstantPool()[bootstrapMethod.getBootstrapArguments()[i]];
+		}
+		
+		// construct a java.lang.invoke.MethodHandle from the methodHandle and call invoke on it
+		
+		// result shall be a reference to an object (of class or subclass .CallSite) <- The Call Site Object
+
+		// then get the target of the callSiteObject
+		
+		
+		// and execute invokevirtual java.lang.invoke.MethodHandle.invokeExact on it (descriptor of call Site specifier) 
+
+		String[] nameAndType = getNameAndType(constant);
 //		ClassFile methodClassFile = getMethodClassFile(constant, frame.getVm().getClassLoader());
 //
 //		// Try to resolve method from this class.
