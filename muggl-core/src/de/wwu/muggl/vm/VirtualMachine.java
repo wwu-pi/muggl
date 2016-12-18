@@ -435,7 +435,6 @@ public abstract class VirtualMachine extends Thread {
 			InvalidInstructionInitialisationException, InterruptedException {
 
 		// here you are at openjdk/hotspot/src/share/vm/runtime/thread.cpp:3497
-		// this is a nearly literal translation, respect GPL !
 
 		// instead of using our vmSybols Literals, we can refer to the class from the RuntimeClassLib
 		initialize_class(java.lang.String.class.getCanonicalName());
@@ -451,16 +450,12 @@ public abstract class VirtualMachine extends Thread {
 		initialize_class(java.lang.Thread.class.getCanonicalName());
 
 		Objectref thread_object = create_initial_thread(thread_group);
-		// really superflous, did that in create_initial_thread
-		// main_thread->set_threadObj(thread_object);
-		// Set thread status to running since main thread has
-		// been started and running.
 		java_lang_thread.set_thread_status(thread_object, java.lang.Thread.State.RUNNABLE);
 
-		// // The VM creates & returns objects of this class. Make sure it's initialized.
+		// The VM creates & returns objects of this class. Make sure it's initialized.
 		initialize_class(java.lang.Class.class.getCanonicalName());
-		//
-		// // The VM preresolves methods to these classes. Make sure that they get initialized
+		
+		// The VM preresolves methods to these classes. Make sure that they get initialized
 		initialize_class(java.lang.reflect.Method.class.getCanonicalName());
 		initialize_class("java.lang.ref.Finalizer"); // java.lang.ref.Finalizer.class.getCanonicalName() does not work
 														// because its not visible
@@ -469,17 +464,6 @@ public abstract class VirtualMachine extends Thread {
 		// // get the Java runtime name after java.lang.System is initialized
 		// JDK_Version::set_runtime_name(get_java_runtime_name(THREAD));
 		// JDK_Version::set_runtime_version(get_java_runtime_version(THREAD));
-		//
-		// an instance of OutOfMemory exception has been allocated earlier
-		// TODO shall we initialize exceptions at boot?
-		// initialize_class(vmSymbols::java_lang_OutOfMemoryError(), CHECK_0);
-		// initialize_class(vmSymbols::java_lang_NullPointerException(), CHECK_0);
-		// initialize_class(vmSymbols::java_lang_ClassCastException(), CHECK_0);
-		// initialize_class(vmSymbols::java_lang_ArrayStoreException(), CHECK_0);
-		// initialize_class(vmSymbols::java_lang_ArithmeticException(), CHECK_0);
-		// initialize_class(vmSymbols::java_lang_StackOverflowError(), CHECK_0);
-		// initialize_class(vmSymbols::java_lang_IllegalMonitorStateException(), CHECK_0);
-		// initialize_class(vmSymbols::java_lang_IllegalArgumentException(), CHECK_0);
 		//
 	}
 
@@ -547,7 +531,7 @@ public abstract class VirtualMachine extends Thread {
 	private void call_initializeSystemClass() throws ClassFileException, ExecutionException,
 			InvalidInstructionInitialisationException, InterruptedException {
 
-		ClassFile initClassF = this.classLoader.getClassAsClassFile("java.lang.System");
+		ClassFile initClassF = this.classLoader.getClassAsClassFile(java.lang.System.class.getCanonicalName());
 		Method initMethod = initClassF.getMethodByNameAndDescriptor("initializeSystemClass", MethodType.methodType(void.class).toMethodDescriptorString());
 		// method is static - no parameters
 		Object[] arguments = new Object[0];

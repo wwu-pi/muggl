@@ -35,86 +35,17 @@ public class Universe {
 
 	private static ClassFile[] _typeArrayKlassObjs = new ClassFile[de.wwu.muggl.vm.VmSymbols.BasicType.T_VOID.value
 			+ 1];
-//	private static ClassFile _boolArrayKlassObj;
-//	private static ClassFile _charArrayKlassObj;
-//	private static ClassFile _singleArrayKlassObj;
-//	private static ClassFile _doubleArrayKlassObj;
-//	private static ClassFile _byteArrayKlassObj;
-//	private static ClassFile _shortArrayKlassObj;
-//	private static ClassFile _intArrayKlassObj;
-//	private static ClassFile _longArrayKlassObj;
+
+	// openJDK would have references to ClassFiles for _boolArrayKlassObj and so on.
+	// currently not needed in Muggl
 
 	public static void genesis(VirtualMachine vm) {
-
-		// _boolArrayKlassObj = TypeArrayKlass.create_klass(T_BOOLEAN, sizeof(jboolean));
-		// _charArrayKlassObj = TypeArrayKlass.create_klass(T_CHAR, sizeof(jchar));
-		// _singleArrayKlassObj = TypeArrayKlass.create_klass(T_FLOAT, sizeof(jfloat));
-		// _doubleArrayKlassObj = TypeArrayKlass.create_klass(T_DOUBLE, sizeof(jdouble));
-		// _byteArrayKlassObj = TypeArrayKlass.create_klass(T_BYTE, sizeof(jbyte));
-		// _shortArrayKlassObj = TypeArrayKlass.create_klass(T_SHORT, sizeof(jshort));
-		// _intArrayKlassObj = TypeArrayKlass.create_klass(T_INT, sizeof(jint));
-		// _longArrayKlassObj = TypeArrayKlass.create_klass(T_LONG, sizeof(jlong));
-		//
-		// _typeArrayKlassObjs[BasicType.T_BOOLEAN.value] = _boolArrayKlassObj;
-		// _typeArrayKlassObjs[BasicType.T_CHAR.value] = _charArrayKlassObj;
-		// _typeArrayKlassObjs[BasicType.T_FLOAT.value] = _singleArrayKlassObj;
-		// _typeArrayKlassObjs[BasicType.T_DOUBLE.value] = _doubleArrayKlassObj;
-		// _typeArrayKlassObjs[BasicType.T_BYTE.value] = _byteArrayKlassObj;
-		// _typeArrayKlassObjs[BasicType.T_SHORT.value] = _shortArrayKlassObj;
-		// _typeArrayKlassObjs[BasicType.T_INT.value] = _intArrayKlassObj;
-		// _typeArrayKlassObjs[BasicType.T_LONG.value] = _longArrayKlassObj;
-		//
-		// ClassLoaderData* null_cld = ClassLoaderData.the_null_class_loader_data();
-		//
-		// _the_array_interfaces_array = MetadataFactory.new_array<Klass*>(null_cld, 2, NULL);
-		// _the_empty_int_array = MetadataFactory.new_array<int>(null_cld, 0);
-		// _the_empty_short_array = MetadataFactory.new_array<u2>(null_cld, 0);
-		// _the_empty_method_array = MetadataFactory.new_array<Method*>(null_cld, 0);
-		// _the_empty_klass_array = MetadataFactory.new_array<Klass*>(null_cld, 0);
-
 		VmSymbols.initialize();
 
 		new SystemDictionary(vm);
-
-		// Klass* ok = SystemDictionary.Object_klass();
-		//
-		// _the_null_string = StringTable.intern("null");
-		// _the_min_jint_string = StringTable.intern("-2147483648");
-		//
-		// if (UseSharedSpaces) {
-		// // Verify shared interfaces array.
-		// assert(_the_array_interfaces_array->at(0) ==
-		// SystemDictionary.Cloneable_klass(), "u3");
-		// assert(_the_array_interfaces_array->at(1) ==
-		// SystemDictionary.Serializable_klass(), "u3");
-		// } else {
-		// // Set up shared interfaces array. (Do this before supers are set up.)
-		// _the_array_interfaces_array->at_put(0, SystemDictionary.Cloneable_klass());
-		// _the_array_interfaces_array->at_put(1, SystemDictionary.Serializable_klass());
-		// }
 		//
 		// initialize_basic_type_klass(_boolArrayKlassObj);
-		// initialize_basic_type_klass(_charArrayKlassObj);
-		// initialize_basic_type_klass(_singleArrayKlassObj);
-		// initialize_basic_type_klass(_doubleArrayKlassObj);
-		// initialize_basic_type_klass(_byteArrayKlassObj);
-		// initialize_basic_type_klass(_shortArrayKlassObj);
-		// initialize_basic_type_klass(_intArrayKlassObj);
-		// initialize_basic_type_klass(_longArrayKlassObj);
 	}
-
-	// private static void initialize_basic_type_klass(ClassFile classFile) {
-	// SystemDictionary.gI().Object_klass
-	// Klass* ok = SystemDictionary::Object_klass();
-	// if (UseSharedSpaces) {
-	// assert(k->super() == ok, "u3");
-	// k->restore_unshareable_info(CHECK);
-	// } else {
-	// k->initialize_supers(ok, CHECK);
-	// }
-	// k->append_to_sibling_list();
-	//
-	// }
 
 	public static Objectref get_main_thread_group() {
 		return main_thread_group;

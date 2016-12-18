@@ -8,6 +8,9 @@ import de.wwu.muggl.vm.initialization.InitializedClass;
 /**
  * Equivalence of openjdk/hotspot/src/share/vm/classfile/systemDictionary.{c|h}pp Singleton
  * 
+ * You could see this as dictionary for initialized classes that are often used and that you don't want to get each time
+ * by the class loader
+ * 
  * @author max
  *
  */
@@ -29,7 +32,7 @@ public class SystemDictionary {
 	public InitializedClass boolean_klass;
 	public InitializedClass char_klass;
 	public InitializedClass string_klass;
-	
+
 	public InitializedClass MethodType_klass;
 
 	protected SystemDictionary(VirtualMachine vm) {
@@ -105,13 +108,14 @@ public class SystemDictionary {
 			Throwable_klass = vm.classLoader.getClassAsClassFile(VmSymbols.java_lang_Throwable)
 					.getTheInitializedClass(vm, true);
 
-			for (int i = BasicType.T_BOOLEAN.value; i <= BasicType.T_VOID.value; i++) {		
-				if(VmSymbols.basicType2JavaClassName(VmSymbols.BasicTypeArr[i]) != VmSymbols.ILLEGAL_TYPE) {
-					ClassFile cf = vm.classLoader.getClassAsClassFile(VmSymbols.basicType2JavaClassName(VmSymbols.BasicTypeArr[i]));
-					new InitializedClass(cf, vm, true);	
+			for (int i = BasicType.T_BOOLEAN.value; i <= BasicType.T_VOID.value; i++) {
+				if (VmSymbols.basicType2JavaClassName(VmSymbols.BasicTypeArr[i]) != VmSymbols.ILLEGAL_TYPE) {
+					ClassFile cf = vm.classLoader
+							.getClassAsClassFile(VmSymbols.basicType2JavaClassName(VmSymbols.BasicTypeArr[i]));
+					new InitializedClass(cf, vm, true);
 				}
 			}
-			
+
 			// char and String had been initialized for the StringCache, but their static initializer not executed. Do
 			// this now
 			ClassFile charCF = vm.classLoader.getClassAsClassFile(VmSymbols.java_lang_Char);
@@ -119,10 +123,10 @@ public class SystemDictionary {
 
 			ClassFile stringCF = vm.classLoader.getClassAsClassFile(VmSymbols.java_lang_String);
 			string_klass = new InitializedClass(stringCF, vm, true);
-			
+
 			// do not do this here because this will trigger static initialization!
-//			ClassFile MethodTypeCF = vm.classLoader.getClassAsClassFile(VmSymbols.java_lang_invoke_MethodType);
-//			MethodType_klass =  new InitializedClass(MethodTypeCF, vm, true);
+			// ClassFile MethodTypeCF = vm.classLoader.getClassAsClassFile(VmSymbols.java_lang_invoke_MethodType);
+			// MethodType_klass = new InitializedClass(MethodTypeCF, vm, true);
 
 		} catch (ClassFileException e) {
 			e.printStackTrace();
