@@ -83,7 +83,6 @@ class TestCaseEliminationAlgorithms {
 	 * @throws TestCaseEliminationException
 	 *             On fatal problems while eliminating the test cases.
 	 */
-	@SuppressWarnings("null")
 	TestCaseSolution eliminateSolutions() throws InterruptedException, TestCaseEliminationException {
 		// Already running?
 		if (this.eliminationStarted) {

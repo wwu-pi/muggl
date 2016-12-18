@@ -22,7 +22,6 @@ public class FSub extends Sub implements Instruction {
 	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void execute(Frame frame) throws ExecutionException {
 		Stack<Object> stack = frame.getOperandStack();
 		Float value2 = (Float) stack.pop();

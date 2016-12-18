@@ -26,7 +26,6 @@ public abstract class Neg extends GeneralInstruction implements JumpNever, Stack
 	 * @throws SymbolicExecutionException Thrown in case of fatal problems during the symbolic execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
 		Stack<Object> stack = frame.getOperandStack();
 		Term term = (Term) stack.pop();

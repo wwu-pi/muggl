@@ -127,7 +127,6 @@ public abstract class TypedInstruction {
 	 * @throws VmRuntimeException If a runtime exception happened and should be handled by
 	 *         the exception handler.
 	 */
-	@SuppressWarnings("unused")
 	public Object validateAndTruncateValue(Object value, Object arrayref, Frame frame) throws ExecutionException, VmRuntimeException {
 		String[] desiredTypes = getDesiredTypes();
 		boolean matchedOneType = false;
@@ -164,7 +163,6 @@ public abstract class TypedInstruction {
 	 * @param type The type of the object, which determines the truncation strategy.
 	 * @return The (probably truncated) value.
 	 */
-	@SuppressWarnings("unused")
 	protected Object truncateValue(Object value, String type) {
 		return value;
 	}
@@ -184,7 +182,6 @@ public abstract class TypedInstruction {
 	 * @throws VmRuntimeException If a runtime exception happened and should be handled by
 	 *         the exception handler.
 	 */
-	@SuppressWarnings("unused")
 	public Term validateAndTruncateSymbolicValue(Term term, Object arrayref, Frame frame) throws SymbolicExecutionException, VmRuntimeException {
 		int[] desiredTypes = getDesiredSymbolicalTypes();
 		boolean matchedOneType = false;

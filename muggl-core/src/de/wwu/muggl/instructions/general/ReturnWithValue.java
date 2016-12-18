@@ -58,7 +58,6 @@ public abstract class ReturnWithValue extends ReturnWithoutOrWithoutValue implem
 	 * @throws SymbolicExecutionException Thrown in case of fatal problems during the symbolic execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
 		frame.returnFromMethod(frame.getOperandStack().pop());
 	}

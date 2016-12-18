@@ -94,7 +94,6 @@ public class ReferenceInstruction extends TypedInstruction {
 	 * @throws VmRuntimeException If a runtime exception happened and should be handled by the exception handler.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public Object validateAndTruncateValue(Object value, Object arrayref, Frame frame) throws ExecutionException, VmRuntimeException {
 		// A null value is always assignment compatible.
 		if (value == null) return value;

@@ -34,7 +34,6 @@ public class PrintStreamWrapper extends PrintStream {
 	 * machine. It is then read when this wrapper is actually used and supplied as an argument to
 	 * the static method {@link #writeToLogfileImplementation(String, String)}.
 	 */
-	@SuppressWarnings("unused")
 	private String wrapperFor;
 
 	/**

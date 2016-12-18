@@ -24,7 +24,6 @@ public class DNeg extends Neg implements Instruction {
 	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void execute(Frame frame) throws ExecutionException {
 		Stack<Object> stack = frame.getOperandStack();
 		stack.push((Double) stack.pop() * -1D);

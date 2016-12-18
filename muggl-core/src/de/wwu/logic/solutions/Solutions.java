@@ -26,7 +26,6 @@ public final class Solutions<T> implements Iterable<Solution<T>> {
 	 * 
 	 * @param solution An EmptySolution object.
 	 */
-	@SuppressWarnings("unused")
 	public Solutions(EmptySolution solution) {
 		this();
 	}

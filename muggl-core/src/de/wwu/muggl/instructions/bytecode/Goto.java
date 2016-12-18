@@ -31,7 +31,6 @@ public class Goto extends de.wwu.muggl.instructions.general.UnconditionalJump im
 	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void execute(Frame frame) throws ExecutionException {
 		frame.getVm().addToPC(getJumpIncrement());
 	}
@@ -42,7 +41,6 @@ public class Goto extends de.wwu.muggl.instructions.general.UnconditionalJump im
 	 * @throws SymbolicExecutionException Thrown in case of fatal problems during the symbolic execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
 		frame.getVm().addToPC(getJumpIncrement());
 	}

@@ -32,7 +32,6 @@ public class Ret extends de.wwu.muggl.instructions.general.RetAbstract implement
 	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void execute(Frame frame) throws ExecutionException {
 		frame.getVm().setPC((Integer) frame.getLocalVariables()[getLocalVariableIndex()]);
 	}
@@ -43,7 +42,6 @@ public class Ret extends de.wwu.muggl.instructions.general.RetAbstract implement
 	 * @param index The index to set the pc to.
 	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
 	 */
-	@SuppressWarnings("unused")
 	public void execute(Frame frame, int index) throws ExecutionException {
 		frame.getVm().setPC(index);
 	}
@@ -54,7 +52,6 @@ public class Ret extends de.wwu.muggl.instructions.general.RetAbstract implement
 	 * @throws SymbolicExecutionException Thrown in case of fatal problems during the symbolic execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
 		frame.getVm().setPC(this.otherBytes[0]);
 
@@ -66,7 +63,6 @@ public class Ret extends de.wwu.muggl.instructions.general.RetAbstract implement
 	 * @param index The index to set the pc to.
 	 * @throws SymbolicExecutionException Thrown in case of fatal problems during the symbolic execution.
 	 */
-	@SuppressWarnings("unused")
 	public void executeSymbolically(Frame frame, int index) throws SymbolicExecutionException {
 		frame.getVm().setPC(index);
 	}

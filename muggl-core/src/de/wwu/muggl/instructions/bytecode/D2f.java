@@ -25,7 +25,6 @@ public class D2f extends Conversion implements Instruction {
 	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void execute(Frame frame) throws ExecutionException {
 		Stack<Object> stack = frame.getOperandStack();
 		stack.push(new Float(((Double) stack.pop()).floatValue()));

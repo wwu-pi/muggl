@@ -22,7 +22,6 @@ public class LMul extends Mul implements Instruction {
 	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void execute(Frame frame) throws ExecutionException {
 		Stack<Object> stack = frame.getOperandStack();
 		Long value2 = (Long) stack.pop();

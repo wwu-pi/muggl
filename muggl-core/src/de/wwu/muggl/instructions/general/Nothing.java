@@ -25,7 +25,6 @@ public abstract class Nothing extends GeneralInstruction implements JumpNever {
 	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void execute(Frame frame) throws ExecutionException {
 		// do nothing
 	}
@@ -36,7 +35,6 @@ public abstract class Nothing extends GeneralInstruction implements JumpNever {
 	 * @throws SymbolicExecutionException Thrown in case of fatal problems during the symbolic execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
 		// do nothing
 	}

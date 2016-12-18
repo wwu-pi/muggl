@@ -24,7 +24,6 @@ public class Impdep2 extends DebugInstruction implements Instruction {
 	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
 	 */
 	@Override
-	@SuppressWarnings("unused")
 	public void execute(Frame frame) throws ExecutionException {
 		if (Globals.getInst().logger.isEnabledFor(Level.WARN)) Globals.getInst().logger.warn("Gracefully skipping instruction breakpoint. It is not supposed to appear in any class.");
 	}

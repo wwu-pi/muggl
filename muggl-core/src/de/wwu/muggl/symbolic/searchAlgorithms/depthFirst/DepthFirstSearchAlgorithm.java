@@ -224,7 +224,6 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 	 * @param vm The currently executing SymbolicalVirtualMachine.
 	 * @return false in any case.
 	 */
-	@SuppressWarnings("unused")
 	protected boolean trackBackFailed(SymbolicVirtualMachine vm) {
 		if (Globals.getInst().symbolicExecLogger.isTraceEnabled())
 			Globals.getInst().symbolicExecLogger.trace("No more tracking back is possible. Visited " + this.numberOfVisitedBranches + " branches in total.");
