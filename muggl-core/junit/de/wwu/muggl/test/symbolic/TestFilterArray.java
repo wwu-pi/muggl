@@ -10,7 +10,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.wwu.muggl.binaryTestSuite.SimpleFilterArray;
-import de.wwu.muggl.binaryTestSuite.TestSimpleForSymbolic;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeletonSymbolic;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;

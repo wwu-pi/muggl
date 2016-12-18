@@ -14,7 +14,6 @@ import org.junit.Test;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
-import de.wwu.muggl.util.PrintNumberList;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;

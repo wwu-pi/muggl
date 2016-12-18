@@ -24,7 +24,6 @@ import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.MugglToJavaConversion;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.InitializedClass;

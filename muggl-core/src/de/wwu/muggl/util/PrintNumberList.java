@@ -1,7 +1,6 @@
 package de.wwu.muggl.util;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * "Continual example"
