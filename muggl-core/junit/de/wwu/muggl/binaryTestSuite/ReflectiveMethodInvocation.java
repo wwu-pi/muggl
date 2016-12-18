@@ -77,6 +77,22 @@ public class ReflectiveMethodInvocation {
 		return (String) ret;
 	}
 
+	public static String METHOD_test_invokeInstanceMethodWithArgByNameLookup = "test_invokeInstanceMethodWithArgByNameLookup";
+
+	public static String test_invokeInstanceMethodWithArgByNameLookup() {
+		Object ret = null;
+		ReflectiveMethodInvocation test = new ReflectiveMethodInvocation();
+		try {
+			ret = ReflectiveMethodInvocation.class.getMethod("InstArgString", int.class).invoke(test,
+					new Object[] { 3 });
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException
+				| NoSuchMethodException e) {
+			e.printStackTrace();
+			return "failed...";
+		}
+		return (String) ret;
+	}
+
 	public static void main(String[] args) {
 		System.out.println(test_invokeMethodReturnPrimitive());
 	}

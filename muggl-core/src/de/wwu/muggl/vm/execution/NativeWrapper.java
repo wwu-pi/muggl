@@ -467,7 +467,38 @@ public class NativeWrapper {
 				else
 					frame.getOperandStack().push(null);
 				return true;
-			}else if(method.getName().equals("staticFieldBase")){
+			}else if(method.getName().equals("getInt")){
+				if(parameters[0] instanceof Arrayref) {
+					frame.getOperandStack().push(((Arrayref)parameters[0]).getElement(((Long)parameters[1]).intValue()));
+				}			
+				else if (parameters[0] instanceof Objectref && java_lang_Class.is_instance((Objectref)parameters[0])) {
+					Objectref clazz = (Objectref)parameters[0];
+					
+					Objectref field = fieldOffset.get((long) parameters[1]);
+					// extract field name
+					Objectref fieldNameObjr =(Objectref) field.getField(field.getInitializedClass().getClassFile().getFieldByName("name"));
+					String fieldNamestr =frame.getVm().getStringCache().getStringObjrefValue(fieldNameObjr);
+					
+					Object fieldVal = clazz.getMirrorMuggl().getInitializedClass().getField(clazz.getMirrorMuggl().getFieldByName(fieldNamestr));
+					frame.getOperandStack().push(fieldVal);			
+				}else if (parameters[0] instanceof Objectref) {
+					// Object instance
+					Objectref clazz = (Objectref)parameters[0];
+					
+					Objectref field = fieldOffset.get((long) parameters[1]);
+					// extract field name
+					Objectref fieldNameObjr =(Objectref) field.getField(field.getInitializedClass().getClassFile().getFieldByName("name"));
+					String fieldNamestr =frame.getVm().getStringCache().getStringObjrefValue(fieldNameObjr);
+					
+					Object fieldVal = clazz.getField(clazz.getInitializedClass().getClassFile().getFieldByName(fieldNamestr));
+					
+					frame.getOperandStack().push(fieldVal);			
+				}
+				else
+					frame.getOperandStack().push(null);
+				return true;
+			}
+			else if(method.getName().equals("staticFieldBase")){
 				Objectref obj1 = (Objectref) parameters[0];
 				if(obj1.getInitializedClass().getClassFile().getName().equals("java.lang.reflect.Field")) {
 					frame.getOperandStack().push(obj1.getField(obj1.getInitializedClass().getClassFile().getFieldByName("clazz")));
@@ -489,8 +520,14 @@ public class NativeWrapper {
 				fieldOffset.put(obj1.getInstantiationNumber(), obj1);
 				frame.getOperandStack().push(obj1.getInstantiationNumber());
 				return true;
-			}
-			else		
+			}else if(method.getName().equals("arrayIndexScale")){
+				// always return 1
+				frame.getOperandStack().push((int)1);
+				return true;
+			}else if(method.getName().equals("arrayBaseOffset")){
+				frame.getOperandStack().push((int)0);
+				return true;
+			}else		
 				Globals.getInst().execLogger.warn("you are calling sun.misc.Unsafe. THIS IS NOT IMPLEMENTED!");
 
 		} else if (methodClassFile.getName().equals("sun.reflect.NativeMethodAccessorImpl")

@@ -10,8 +10,8 @@ import java.lang.reflect.Field;
  */
 public class ReflectionField {
 
-	public int maxtest = 3;
-	public Object maxtest2 = Integer.valueOf(5);
+	public int primFieldInt = 3;
+	public Object refFieldInteger = Integer.valueOf(5);
 
 	public static String METHOD_test_getFieldValueReflectiveIntPrim = "test_getFieldValueReflectiveIntPrim";
 
@@ -19,7 +19,7 @@ public class ReflectionField {
 	public static int test_getFieldValueReflectiveIntPrim() {
 		ReflectionField inst = new ReflectionField();
 		try {
-			Field f = inst.getClass().getField("maxtest");
+			Field f = inst.getClass().getField("primFieldInt");
 			f.setAccessible(true);
 			return (int) f.get(inst);
 
@@ -29,12 +29,20 @@ public class ReflectionField {
 		return (Integer) null;
 	}
 
+	public static int test_getFieldValueReflectiveIntPrim1()
+			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		ReflectionField inst = new ReflectionField();
+		Field f = inst.getClass().getField("primFieldInt");
+		f.setAccessible(true);
+		return (int) f.get(inst);
+	}
+
 	public static String METHOD_test_getFieldValueReflectiveObj = "test_getFieldValueReflectiveObj";
 
 	public static Object test_getFieldValueReflectiveObj() {
 		ReflectionField inst = new ReflectionField();
 		try {
-			Field f = inst.getClass().getField("maxtest2");
+			Field f = inst.getClass().getField("refFieldInteger");
 			f.setAccessible(true);
 			return f.get(inst);
 

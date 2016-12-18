@@ -79,4 +79,15 @@ public class TestReflectiveMethodInvocation extends TestSkeleton {
 
 	}
 
+	@Test // läuft
+	public final void test_invokeInstanceMethodWithArgByLookup()
+			throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("hello, world!3",
+				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.ReflectiveMethodInvocation.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.ReflectiveMethodInvocation.METHOD_test_invokeInstanceMethodWithArgByNameLookup,
+						MethodType.methodType(String.class), new Object[0]));
+
+	}
+
 }

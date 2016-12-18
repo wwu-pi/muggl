@@ -537,7 +537,7 @@ class DUGenerator {
 			} else if (instruction instanceof Put) {
 				DefUseVariable variable;
 				Field attribute;
-				ClassFile classFile = this.initialMethod.getClassFile();
+				ClassFile classFile = method.getClassFile();
 				try {
 					attribute = ((Put) instruction).getFieldNoExecution(classFile, classFile.getClassLoader());
 				

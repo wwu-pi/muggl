@@ -1,3 +1,5 @@
+package de.wwu.muggl.binaryTestSuite;
+
 import java.lang.invoke.CallSite;
 import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
@@ -29,23 +31,23 @@ import java.util.function.Consumer;
  */
 public class ListIncGlobalCount {
 	public static int counter;
-
-	public class mConsumer implements Consumer<Integer> {
-		@Override
-		public void accept(Integer t) {
-			if (t >= 10)
-				counter++;
-		}
-	};
+	public static int filter;
 
 	public static Consumer<Integer> accept() {
-		return (new ListIncGlobalCount()).new mConsumer();
+		return new Consumer<Integer>() {
+			@Override
+			public void accept(Integer t) {
+				if (t > filter)
+					counter++;
+			}
+		};
 	}
 
 	// Execute the "accept" method directly
-	public static int executeWithoutLambda() {
+	public static int executeWithoutLambda(int b) {
 		counter = 0;
-		List<Integer> numbers = Arrays.asList(1, 10, 11);
+		filter = b;
+		List<Integer> numbers = Arrays.asList(1, 2, 10);
 		numbers.forEach(accept());
 		return counter;
 	}
@@ -59,9 +61,9 @@ public class ListIncGlobalCount {
 
 	public static int executeLambdaPure() {
 		counter = 0;
-		List<Integer> numbers = Arrays.asList(1, 10, 11);
+		List<Integer> numbers = Arrays.asList(1);
 		numbers.forEach(x -> {
-			if (x >= 10)
+			if (x > 10)
 				counter++;
 		});
 		return counter;
@@ -89,7 +91,7 @@ public class ListIncGlobalCount {
 
 	public static void main(String[] args) {
 		System.out.println(executeLambdaCompiledJVM());
-		System.out.println(executeWithoutLambda());
+		System.out.println(executeWithoutLambda(2));
 		System.out.println(executeLambdaPure());
 	}
 }
