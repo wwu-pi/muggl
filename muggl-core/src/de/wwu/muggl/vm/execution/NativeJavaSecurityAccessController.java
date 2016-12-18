@@ -3,7 +3,6 @@ package de.wwu.muggl.vm.execution;
 import java.lang.invoke.MethodType;
 import java.security.PrivilegedAction;
 
-import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;

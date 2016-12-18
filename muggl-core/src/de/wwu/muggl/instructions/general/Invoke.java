@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Level;
-
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;

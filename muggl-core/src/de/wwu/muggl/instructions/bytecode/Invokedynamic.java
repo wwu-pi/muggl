@@ -264,6 +264,7 @@ public class Invokedynamic extends Invoke implements Instruction {
 	 * @throws ExecutionException In case of fatal problems during the execution.
 	 * @throws VmRuntimeException If runtime exceptions occur.
 	 */
+	@SuppressWarnings("unused")
 	protected void invoke(Frame frame, boolean symbolic) throws ClassFileException,
 			ExecutionException, VmRuntimeException {
 		// Preparations.

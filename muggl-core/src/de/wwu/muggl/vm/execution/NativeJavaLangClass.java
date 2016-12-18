@@ -4,8 +4,6 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.SystemDictionary;

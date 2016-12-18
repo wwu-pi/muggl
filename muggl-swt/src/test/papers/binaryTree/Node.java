@@ -268,7 +268,6 @@ class Node {
 	 * @param currentLevel
 	 * @param maximumDeepness
 	 */
-	@SuppressWarnings("null") // There is no risk of a null pointer, even though eclipse claims it.
 	private void toString(Node node, String[] levels, long currentLevel, long maximumDeepness, int startAt, int entryLength) {
 		if (currentLevel > maximumDeepness) {
 			return;
