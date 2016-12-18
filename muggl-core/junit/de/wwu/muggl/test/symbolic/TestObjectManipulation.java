@@ -17,7 +17,6 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.solvers.expressions.BooleanConstant;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.test.TestSkeletonSymbolic;
-import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.execution.ConversionException;
@@ -53,7 +52,7 @@ public class TestObjectManipulation extends TestSkeletonSymbolic {
 	public final void testPutstaticNull() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 
-		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+		assertTrue((boolean) TestVMSymbolicMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.Putfield.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.Putfield.METHOD_testPutStaticNull, MethodType.methodType(boolean.class),
 				null));
@@ -64,7 +63,7 @@ public class TestObjectManipulation extends TestSkeletonSymbolic {
 	public final void testPutfieldNull() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 
-		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+		assertTrue((boolean) TestVMSymbolicMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.PutfieldNoStaticInitializers.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.Putfield.METHOD_testPutfieldNull, MethodType.methodType(boolean.class),
 				null));
@@ -75,7 +74,7 @@ public class TestObjectManipulation extends TestSkeletonSymbolic {
 	public final void testPutStaticBoolean() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 
-		Object res = TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+		Object res = TestVMSymbolicMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.PutfieldNoStaticInitializers.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.Putfield.METHOD_testPutStaticBoolean,
 				MethodType.methodType(boolean.class, boolean.class), new Object[] { new UndefinedValue() });
@@ -86,7 +85,7 @@ public class TestObjectManipulation extends TestSkeletonSymbolic {
 	public final void testPutStaticBooleanConst() throws ClassFileException, InitializationException,
 			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
 
-		Object res = TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+		Object res = TestVMSymbolicMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.PutfieldNoStaticInitializers.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.Putfield.METHOD_testPutStaticBoolean,
 				MethodType.methodType(boolean.class, boolean.class),
@@ -100,7 +99,7 @@ public class TestObjectManipulation extends TestSkeletonSymbolic {
 	public final void testPutStaticInt() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 
-		Object res = TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+		Object res = TestVMSymbolicMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.PutfieldNoStaticInitializers.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.Putfield.METHOD_testPutStaticInt,
 				MethodType.methodType(boolean.class, int.class), new Object[] { new UndefinedValue() });
@@ -112,7 +111,7 @@ public class TestObjectManipulation extends TestSkeletonSymbolic {
 	public final void testPutStaticIntConstant() throws ClassFileException, InitializationException,
 			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
 
-		Object res = TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+		Object res = TestVMSymbolicMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.PutfieldNoStaticInitializers.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.Putfield.METHOD_testPutStaticInt,
 				MethodType.methodType(boolean.class, int.class), new Object[] { IntConstant.FIVE });

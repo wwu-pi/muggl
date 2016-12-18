@@ -51,7 +51,7 @@ public class TestReflectiveMethodInvocation extends TestSkeletonSymbolic {
 	public final void testApplicationMugglExecuteCountingReflective()
 			throws ClassFileException, InitializationException, InterruptedException {
 
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+		TestVMSymbolicMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.CountWordLength.class.getCanonicalName(),
 				de.wwu.muggl.binaryTestSuite.CountWordLength.METHOD_countingreflective,
 				MethodType.methodType(int.class, int.class), (Object[]) new Object[] { IntConstant.getInstance(2) });

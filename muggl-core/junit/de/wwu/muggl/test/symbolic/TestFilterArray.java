@@ -12,7 +12,6 @@ import org.junit.Test;
 import de.wwu.muggl.binaryTestSuite.SimpleFilterArray;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeletonSymbolic;
-import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.initialization.InitializationException;
@@ -52,7 +51,7 @@ public class TestFilterArray extends TestSkeletonSymbolic {
 	public final void testApplicationMugglExecuteSimpleSymbolic()
 			throws ClassFileException, InitializationException, InterruptedException {
 
-		TestVMNormalMethodRunnerHelper.runMethod(classLoader, SimpleFilterArray.class.getCanonicalName(),
+		TestVMSymbolicMethodRunnerHelper.runMethod(classLoader, SimpleFilterArray.class.getCanonicalName(),
 				SimpleFilterArray.METHOD_testArrayEntries, MethodType.methodType(int.class, int.class),
 				(Object[]) new Object[] { new UndefinedValue() });
 	}
