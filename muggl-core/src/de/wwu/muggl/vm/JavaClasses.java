@@ -32,13 +32,13 @@ public final class JavaClasses {
 		public static void set_priority(Objectref java_thread, int prio) {
 			ClassFile methodClassFile = java_thread.getInitializedClass().getClassFile();
 			Field field = methodClassFile.getFieldByName(VmSymbols.PRIORITY_NAME);
-			java_thread.getInitializedClass().putField(field, prio);
+			java_thread.putField(field, prio);
 		}
 
 		public static void set_thread_status(Objectref java_thread, java.lang.Thread.State runnable) {
 			ClassFile methodClassFile = java_thread.getInitializedClass().getClassFile();
 			Field field = methodClassFile.getFieldByName(VmSymbols.THREADSTATUS_NAME);
-			java_thread.getInitializedClass().putField(field, runnable.ordinal());
+			java_thread.putField(field, runnable.ordinal());
 		}
 	}
 

@@ -151,8 +151,9 @@ public abstract class VirtualMachine extends Thread {
 	private static Objectref threadObj = null;
 
 	/**
-	 * System properties for the Muggl VM.
+	 * System properties for the Muggl VM. Extracted from the mandatory properties in the Java API
 	 */
+	// FIXME: correctly implement these
 	public Hashtable<String, String> systemProperties = new Hashtable<String, String>() {
 		private static final long serialVersionUID = 3991769537861501908L;
 		{

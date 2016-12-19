@@ -136,6 +136,7 @@ public class NativeJavaLangClass extends NativeMethodProvider {
 				// allow. This happens when mirrors are not (yet) initialized
 				return null;
 			} else if (mirror == null) {
+				// this might (legally) happen while the basic Mirrors are not (yet) instantiated!
 				throw new ForwardingUnsuccessfulException(
 						"ClassNotFoundException, getPrimitiveClass failed on: " + arg);
 			} else {

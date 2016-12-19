@@ -56,7 +56,7 @@ public class TestVMClassInitialization extends TestSkeleton {
 						"listSystemProperties", MethodType.methodType(int.class), null)) > 1);
 	}
 
-	@Test
+	@Test // so yeah, currently, they are no there.
 	public final void testGetVMPropertiesMandatory()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,

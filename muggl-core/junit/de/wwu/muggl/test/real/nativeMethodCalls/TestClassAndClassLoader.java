@@ -3,6 +3,7 @@ package de.wwu.muggl.test.real.nativeMethodCalls;
 import static org.junit.Assert.*;
 
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Modifier;
 
 import org.apache.log4j.Level;
 import org.hamcrest.CoreMatchers;
@@ -11,6 +12,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
@@ -190,11 +193,17 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	@Test // läuft
 	public final void test_GetClassModifiers()
 			throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals(1,
-				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
-						de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.METHOD_test_GetClassModifiers,
-						MethodType.methodType(int.class), null));
+
+		int reflectiveAccessFlags = (int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.METHOD_test_GetClassModifiers,
+				MethodType.methodType(int.class), null);
+
+		// muggl does return the full range
+		assertEquals(ClassFile.ACC_PUBLIC | ClassFile.ACC_SUPER, reflectiveAccessFlags);
+
+		// but java reflection only uses a subset
+		assertEquals(ClassAndClassLoader.class.getModifiers(), reflectiveAccessFlags & Modifier.classModifiers());
 
 	}
 

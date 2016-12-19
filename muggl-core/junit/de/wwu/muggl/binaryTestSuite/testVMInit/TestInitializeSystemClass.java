@@ -68,7 +68,9 @@ public class TestInitializeSystemClass {
 
 		AccessController.doPrivileged(new PrivilegedAction<Object>() {
 			public Object run() {
-				return values[0] = Integer.getInteger("TestProperty");
+				// TestProperty is not there, so should return null
+				// but not fail, because system properties are wrongly initialized!
+				return values[0] = Integer.getInteger("TestProperty", 99);
 			}
 		});
 

@@ -7,17 +7,17 @@ package de.wwu.muggl.binaryTestSuite;
  *
  */
 public class StringHandling {
-	
+
 	public static String METHOD_StringFromChar = "StringFromChar";
 
 	public static boolean StringFromChar() {
-		char[] d = {'c','d'};
+		char[] d = { 'c', 'd' };
 		String test = new String(d, 0, 2);
 		return test.equals("cd");
 	}
 
 	public static String METHOD_StringReferenceEquality = "StringReferenceEquality";
-	
+
 	public static boolean StringReferenceEquality() {
 		return "testing" == "testing";
 	}
@@ -43,11 +43,13 @@ public class StringHandling {
 
 	public static String METHOD_CharLength = "CharLength";
 
+	// inspired by the static fields in java.lang.CharacterDataLatin1 which would previously fail to instantiate
+	// (assertions are helpful)
 	public static int CharLength() {
 		final char B[] = ("\000\001").toCharArray();
 		return B.length;
 	}
-	
+
 	public static void main(String[] args) {
 		System.out.println(CharLength());
 		System.out.println(StringFromChar());

@@ -9,7 +9,7 @@ public class TestSkeletonSymbolic extends TestSkeleton {
 	public static void setUpBeforeClass2() throws Exception {
 		Options.getInst().symbolicMode = true;
 		Options.getInst().logicMode = false;
-		Options.getInst().testClassesDirectory = "/tmp/";
+		Options.getInst().testClassesDirectory = "/tmp";
 	}
 
 }

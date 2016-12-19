@@ -28,8 +28,8 @@ public class TestGetThreadProperties extends TestSkeleton {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		if (!isForbiddenChangingLogLevel) {
-			Globals.getInst().changeLogLevel(Level.WARN);
-			Globals.getInst().parserLogger.setLevel(Level.WARN);
+			Globals.getInst().changeLogLevel(Level.DEBUG);
+			Globals.getInst().parserLogger.setLevel(Level.ERROR);
 		}
 	}
 
