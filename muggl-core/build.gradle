@@ -16,6 +16,10 @@ test {
     testLogging {
         events "started", "passed", "skipped", "failed"
     }
+    
+    tasks.withType(Test) {
+    enableAssertions = false // as long as the org.jacop has the failing assertion
+}
 }
 
 eclipse.jdt.file {

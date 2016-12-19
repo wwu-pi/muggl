@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE TesttoolConfiguration SYSTEM "solver-config.dtd">
+<TesttoolConfiguration>
+  <SolverSystem>
+    <General>
+        <solverlog level="FINE" filename="log/solverlog.html"/>
+      <logfile filename="log/solvermanagerlog.xml" />
+      <InternalVariablesNames prefix="iv" postfix="" ></InternalVariablesNames>
+      <SolutionPreCalculation enabled="yes"/>
+      <SolverManagerListener class="de.wwu.testtool.solver.listener.TexLogListener"
+                             enabled="yes"
+                             filename="log/solvercalls.tex"/>
+      <SolverManagerListener class="de.wwu.testtool.solver.events.SQLLogger"
+                             enabled="no"
+                             jdbcurl="jdbc:postgresql://persephone.uni-muenster.de:5432/testtool"
+                             user="ttpublic"
+                             passwd="ttpublic"
+                             driver="org.postgresql.Driver"/>
+     <SolverManagerListener enabled="yes" 
+                            class="de.wwu.testtool.solver.listener.LogListener"/>
+     <SolverManagerListener enabled="no" 
+                            class="de.wwu.testtool.solver.listener.XMLListener"/>
+    </General>
+    <ConstraintStack>
+      <ConstraintSetTransformerListForStackElements>
+        <ConstraintSetTransformer class="de.wwu.testtool.solver.SimpleConstraintSetOptimizer"
+                                  enabled="no"/>
+        <ConstraintSetTransformer class="de.wwu.testtool.solver.SimpleConstraintSetOptimizer2"
+                                  enabled="yes"/>
+      </ConstraintSetTransformerListForStackElements>
+      <ConstraintSetTransformerListForGetSystemMethod>
+        <ConstraintSetTransformer class="de.wwu.testtool.solver.SimpleConstraintSetOptimizer"
+                                  enabled="no"/>
+        <ConstraintSetTransformer class="de.wwu.testtool.solver.SimpleConstraintSetOptimizer2"
+                                  enabled="yes"/>
+      </ConstraintSetTransformerListForGetSystemMethod>
+    </ConstraintStack>
+    <SolverList>
+      <!-- ********************
+           ** Boolean Solver **
+           ******************** -->
+      <Solver class="de.wwu.testtool.solver.tsolver.BooleanSolver"
+              enabled="yes"
+              priority="1"/>
+      <!-- ********************
+           ** Old Simplex Solver **
+           ******************** -->
+      <Solver class="de.wwu.testtool.solver.tsolver.SimplexSolverCL"
+              enabled="yes"
+              priority="2">
+        <NumberFactory selected="Fraction">
+          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.muggl.solvers.solver.numbers.DoubleWrapper" />
+          <NumberFactoryOption name="Fraction" class="de.wwu.muggl.solvers.solver.numbers.Fraction" /> 
+        </NumberFactory>
+
+      </Solver>
+      <!-- ********************
+           ** New Simplex Solver **
+           ******************** -->
+      <Solver class="de.wwu.testtool.solver.tsolver.SimplexSolver"
+              enabled="yes"
+              priority="1">
+        <NumberFactory selected="DoubleWrapper">
+          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.muggl.solvers.solver.numbers.DoubleWrapper" />
+          <NumberFactoryOption name="Fraction" class="de.wwu.muggl.solvers.solver.numbers.Fraction" /> 
+        </NumberFactory>
+        <param name="timeout" value="60000"/>
+	    <param name="useGomoryCuts" value="true"/>
+	    <param name="useAdditionalVarPreferredForBranchAndBound" value="true"/>
+	    <param name="zeroThreshold" value="1E-12"/>
+	    <param name="useZeroThresholdingForGomoryCuts" value="true"/>
+	    <param name="useZeroThresholdingForPivoting" value="true"/>
+	    <param name="usePostSolvingForRoundingErrors" value="true"/>
+	    <param name="postSolvingViolatingFactor" value="10."/>
+	    <param name="postSolvingRuns" value="10"/>
+	    <param name="useDoubleWrapper" value="true"/>
+	    <param name="useIncrementalSolving" value="true"/>
+	    <param name="useBacktracking" value="true"/>
+      </Solver>
+      <!-- ************************
+           ** Elimination Solver **
+           ************************ -->
+      <Solver class="de.wwu.testtool.solver.tsolver.EliminationSolver"
+              enabled="yes"
+              priority="3">
+        <NumberFactory selected="Fraction">
+          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.muggl.solvers.solver.numbers.DoubleWrapper" />
+          <NumberFactoryOption name="Fraction" class="de.wwu.muggl.solvers.solver.numbers.Fraction" /> 
+        </NumberFactory>
+      </Solver>
+      <!-- *************************
+           ** LeastSquaresSolverr **
+           ************************* -->
+      <Solver class="de.wwu.testtool.solver.tsolver.LeastSquaresSolver"
+              enabled="no"
+              priority="5">
+        <NumberFactory selected="Fraction">
+          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.muggl.solvers.solver.numbers.DoubleWrapper" />
+          <NumberFactoryOption name="Fraction" class="de.wwu.muggl.solvers.solver.numbers.Fraction" /> 
+        </NumberFactory>
+      </Solver>
+      <!-- **********************
+           ** Bisection Solver **
+           ********************** -->
+      <Solver class="de.wwu.testtool.solver.tsolver.BisectionSolver"
+              enabled="yes"
+              priority="6">
+        <NumberFactory selected="Fraction">
+          <NumberFactoryOption name="DoubleWrapper" class="de.wwu.muggl.solvers.solver.numbers.DoubleWrapper" />
+          <NumberFactoryOption name="Fraction" class="de.wwu.muggl.solvers.solver.numbers.Fraction" /> 
+        </NumberFactory>
+        <param name="timeout" value="10000"/> <!-- ms -->
+        <param name="minFloat" value="-10000">
+          <description>
+            Specifies the lower bound of values for variables of type float
+            The smallest possible number is "-Float.MAX_VALUE" as described in
+            the Java Language Specification.
+          </description>
+        </param>
+        <param name="maxFloat" value="10000">
+          <description>
+            Specifies the upper bound of values for variables of type float
+            The biggest possible number is "Float.MAX_VALUE" as described in
+            the Java Language Specification.
+          </description>
+        </param>
+        <param name="minDouble" value="-10000">
+          <description>
+            Specifies the lower bound of values for variables of type double.
+            The smallest possible number is "-Double.MAX_VALUE" as described in
+            the Java Language Specification.
+          </description>
+        </param>
+        <param name="maxDouble" value="10000">
+          <description>
+            Specifies the upper bound of values for variables of type double.
+            The biggest possible number is "Double.MAX_VALUE" as described in
+            the Java Language Specification.
+          </description>
+        </param>
+      </Solver>
+      <!-- ******************************
+           ** DefaultValueGuess Solver **
+           ****************************** -->
+      <Solver class="de.wwu.testtool.solver.tsolver.DefaultValueGuessSolver"
+              enabled="yes"
+              priority="4">
+        <param name="timeout" value="1000"/>
+      </Solver>
+    </SolverList>
+  </SolverSystem>
+</TesttoolConfiguration>
