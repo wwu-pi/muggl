@@ -1184,6 +1184,11 @@ public final class System {
 
         lineSeparator = props.getProperty("line.separator");
         sun.misc.Version.init();
+        
+        // mxs modified: faked until we get the property initialization done
+        props.put("file.separator", "/");
+        props.put("path.separator", "/");
+        
 //mxs modified
 //        FileInputStream fdIn = new FileInputStream(FileDescriptor.in);
 //        FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
@@ -1208,6 +1213,7 @@ public final class System {
         // The main thread is not added to its thread group in the same
         // way as other threads; we must do it ourselves here.
         Thread current = Thread.currentThread();
+        System.out.println(current.getPriority());
         current.getThreadGroup().add(current);
 
         // register shared secrets
