@@ -673,16 +673,7 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
 		return true;
 	}
 
-	/**
-	 * Generate a new choice point.
-	 * 
-	 * @param instruction The instruction that wants to generate the choice points.
-	 * @param constraintExpression The ConstraintExpression describing the choice a if it is
-	 *        conditional jump Instruction. May be null.
-
-	 * @throws SymbolicExecutionException If the instruction supplied is no conditional jump, no
-	 *         load instruction or if an Exception is thrown during the choice point generation.
-	 */
+	@Override
 	public void generateNewChoicePoint(GeneralInstructionWithOtherBytes instruction,
 			ConstraintExpression constraintExpression)
 			throws SymbolicExecutionException {
@@ -963,6 +954,7 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
 	 * 
 	 * @param increment The time needed for a choice point generation.
 	 */
+	@Override
 	public void increaseTimeChoicePointGeneration(long increment) {
 		this.timeChoicePointGeneration += increment;
 	}
@@ -982,6 +974,7 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
 	 * 
 	 * @param increment The time needed for a solving action.
 	 */
+	@Override
 	public void increaseTimeSolvingForChoicePointGeneration(long increment) {
 		this.timeSolvingChoicePoints += increment;
 	}
