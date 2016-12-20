@@ -6,12 +6,14 @@ import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
+import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.solvers.expressions.Term;
 
 /**
@@ -61,8 +63,13 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 	 */
 	@Override
 	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
-		Term term2 = (Term) frame.getOperandStack().pop();
-		Term term1 = (Term) frame.getOperandStack().pop();
+		// Get operands from stack
+		Object op2 = frame.getOperandStack().pop();
+		Object op1 = frame.getOperandStack().pop();
+
+		// Convert to Terms
+		Term term2 = convertToSymbolicTerm(op2);
+		Term term1 = convertToSymbolicTerm(op1);
 
 		// Check if both values are constant.
 		if (term1.isConstant() && term2.isConstant()) {
@@ -75,9 +82,22 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 		} else {
 			// Create the ConstraintExpression and generate a new ChoicePoint. It will set the pc.
 			ConstraintExpression expression = getConstraintExpression(term1, term2);
-			((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, expression);
+			((SearchingVM) frame.getVm()).generateNewChoicePoint(this, expression);
 		}
 	}
+
+	private Term convertToSymbolicTerm(Object o) {
+		if (o instanceof Term) {
+			return (Term)o;
+		} else if (o instanceof Integer) {
+			// TODO handle further types
+			return NumericConstant.getInstance(((Number)o).intValue(), NumericConstant.INT);
+		}
+		
+		// No suitable type found. // TODO proper exception!
+		throw new RuntimeException(new ConversionException("Could not convert from " + o.getClass().getName() + " to symbolic term"));
+	}
+
 
 	/**
 	 * Get the number of other bytes for this instruction.
