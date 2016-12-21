@@ -737,6 +737,8 @@ public class NativeWrapper {
 		if (methodClassFile.getPackageName().equals("de.wwu.muggl.vm.execution.nativeWrapping")) {
 			// A reference value has been replaced by an instance of a wrapper class provided by this application.
 			if (methodClassFile.getName().equals("de.wwu.muggl.vm.execution.nativeWrapping.PrintStreamWrapper")) {
+				// mock PrintStream for System.out and System.err
+				
 				// There is a wrapper for the PrintStream out of the java.lang.System class with only one method wrapped.
 				if (method.getName().equals("writeToLogfile")) {
 					// Fetch the field representing the String value.
@@ -765,6 +767,24 @@ public class NativeWrapper {
 					// There is no return value.
 					return new UndefinedValue();
 				}
+			} else if (methodClassFile.getName()
+					.equals("de.wwu.muggl.vm.execution.nativeWrapping.VMPropertiesWrapper")) {
+				// mock sun.misc.VM for Properties
+				if (method.getName().equals("getPropertyFromHostVM")) {
+					Object keyObject = parameters[1];
+					String key = null;
+					if (keyObject != null) {
+						if (keyObject instanceof String) {
+							key = (String) keyObject;
+						} else {
+							key = stringObjectrefToString((Objectref) keyObject);
+						}
+					}
+					
+					// get value from sun.misc.VM and push it to stack [ECLIPSE USERS: Ignore the error about sun.misc.VM. This compiles.
+					return sun.misc.VM.getSavedProperty(key); // return value may be null on purpose.
+				}
+				
 			} else {
 				// There was no implementation found.
 				throw new ForwardingUnsuccessfulException(
