@@ -305,12 +305,14 @@ public class StringCache {
 	 * @return The hash code value.
 	 */
 	private int getHashCode(char[] characters) {
-		int length = characters.length;
-		int hashCode = 0;
-		for (int a = 0; a < length; a++) {
-			hashCode += (int) (characters[a] * Math.pow(31, length - a - 1));
-		}
-		return hashCode;
+		// the following does not return the same results as the Java API for "Monday".
+		// int length = characters.length;
+		// int hashCode = 0;
+		// for (int a = 0; a < length; a++) {
+		// hashCode += (int) (characters[a] * Math.pow(31, length - a - 1));
+		// }
+
+		return String.copyValueOf(characters).hashCode();
 	}
 
 	/**

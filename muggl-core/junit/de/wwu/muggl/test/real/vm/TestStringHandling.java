@@ -88,6 +88,17 @@ public class TestStringHandling extends TestSkeleton {
 	}
 	
 	@Test
+	public final void Test_StringHashCodeStable() throws ClassFileException, InitializationException, InterruptedException,
+			InvalidInstructionInitialisationException, ConversionException {
+
+		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+				de.wwu.muggl.binaryTestSuite.StringHandling.class.getCanonicalName(),
+				de.wwu.muggl.binaryTestSuite.StringHandling.METHOD_StringHashCodeStable, MethodType.methodType(boolean.class),
+				null));
+
+	}
+	
+	@Test
 	public final void Test_StringFromChar() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 

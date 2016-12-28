@@ -41,6 +41,16 @@ public class StringHandling {
 		return "testing".startsWith("tes");
 	}
 
+	public static String METHOD_StringHashCodeStable = "StringHashCodeStable";
+
+	/**
+	 * Muggl implementation of hashCode for Strings should be same as for Java API
+	 * @return
+	 */
+	public static boolean StringHashCodeStable() {
+		return "This is a Java string".hashCode() == 586653468;
+	}
+	
 	public static String METHOD_CharLength = "CharLength";
 
 	// inspired by the static fields in java.lang.CharacterDataLatin1 which would previously fail to instantiate
