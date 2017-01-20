@@ -297,6 +297,7 @@ public class ExceptionHandler {
 	public static boolean checkForExceptionMatch(String handledExceptionName,
 			String catchingExceptionName, MugglClassLoader classLoader) throws ExecutionException {
 		catchingExceptionName = catchingExceptionName.replace("/", "."); // TODO this needs fixing at some points. This conversion should not be necessary.
+		handledExceptionName = handledExceptionName.replace("/", "."); // TODO this needs fixing at some points. This conversion should not be necessary.
 		
 		// First possibility: Direct match.
 		if (handledExceptionName.equals(catchingExceptionName)) return true;
