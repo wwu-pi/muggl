@@ -303,6 +303,10 @@ public class JaCoPSolverManager implements SolverManager {
 	}
 
 	private void addShutdownHook() {
+		if (Runtime.getRuntime() == null) {
+			// Can't do anything. However, this.finalize does not do anything, either.
+			return;
+		}
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
