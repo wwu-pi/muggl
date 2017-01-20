@@ -46,9 +46,19 @@ public class TestException extends TestSkeleton {
 	public void tearDown() throws Exception {
 	}
 
+	@Test // Known to fail: PC is set incorrectly.
+	public final void testExceptionTable() throws ClassFileException, InitializationException, InterruptedException {
+		assertEquals("",(String)TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+						de.wwu.muggl.binaryTestSuite.ExceptionStackTrace.class.getCanonicalName(),
+						de.wwu.muggl.binaryTestSuite.ExceptionStackTrace.METHOD_testExceptionTable,
+						MethodType.methodType(String.class), null));
+
+	}
+
 	@Test
 	public final void testExceptionStackTrace() throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals("",(String)TestVMNormalMethodRunnerHelper.runMethod(classLoader,
+		assertEquals("java.lang.IllegalArgumentException: no arguments at all...null",
+				(String)TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.ExceptionStackTrace.class.getCanonicalName(),
 						de.wwu.muggl.binaryTestSuite.ExceptionStackTrace.METHOD_testExceptionStackTrace,
 						MethodType.methodType(String.class), null));
