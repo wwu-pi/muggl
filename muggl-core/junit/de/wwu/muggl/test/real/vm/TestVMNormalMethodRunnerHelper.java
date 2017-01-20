@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import java.lang.invoke.MethodType;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -30,6 +31,8 @@ public class TestVMNormalMethodRunnerHelper {
 
 	public static void runMethodNoArgVoid(MugglClassLoader classLoader, final String classFileName,
 			final String methodName) throws ClassFileException, InitializationException, InterruptedException {
+		Options.getInst().symbolicMode = false;
+		
 		ClassFile classFile = classLoader.getClassAsClassFile(classFileName, true);
 
 		Method method = classFile.getMethodByNameAndDescriptor(methodName, "()V");
@@ -83,6 +86,8 @@ public class TestVMNormalMethodRunnerHelper {
 	public static Object runMethod(MugglClassLoader classLoader, final String classFileName, final String methodName,
 			final MethodType methodType, final Object[] args)
 			throws ClassFileException, InitializationException, InterruptedException {
+		Options.getInst().symbolicMode = false;
+		
 		ClassFile classFile = classLoader.getClassAsClassFile(classFileName, true);
 
 		Method method = classFile.getMethodByNameAndDescriptor(methodName, methodType.toMethodDescriptorString());
@@ -187,6 +192,8 @@ public class TestVMNormalMethodRunnerHelper {
 	public static Object runMethodSymbolic(MugglClassLoader classLoader, final String classFileName, final String methodName,
 			final MethodType methodType, final Object[] args)
 			throws ClassFileException, InitializationException, InterruptedException {
+		Options.getInst().symbolicMode = true;
+		
 		ClassFile classFile = classLoader.getClassAsClassFile(classFileName, true);
 
 		Method method = classFile.getMethodByNameAndDescriptor(methodName, methodType.toMethodDescriptorString());
