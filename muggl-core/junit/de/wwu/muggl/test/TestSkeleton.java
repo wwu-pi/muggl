@@ -25,8 +25,8 @@ public class TestSkeleton {
 	 */
 	public final static boolean isForbiddenChangingLogLevel = true;
 
-	public final static String[] mugglClassLoaderPaths = new String[] { "./", "./junit-res/" };
-
+	public final static String[] mugglClassLoaderPaths = new String[] { "./system-classes/", "./junit-res/" };
+	
 	@BeforeClass
 	public static void setUpBeforeClass1() throws Exception {
 		Globals.getInst().changeLogLevel(Level.ERROR);
