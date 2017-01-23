@@ -9,6 +9,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.wwu.muggl.binaryTestSuite.ReflectionField;
@@ -59,6 +60,7 @@ public class TestReflectiveFieldAccess extends TestSkeleton {
 	}
 
 	@Test
+	@Ignore // TODO: Add assertion
 	public final void testReflectiveFieldAccessObj()
 			throws ClassFileException, InitializationException, NoSuchMethodError, InterruptedException {
 		Objectref res = (Objectref) TestVMNormalMethodRunnerHelper.runMethod(classLoader,

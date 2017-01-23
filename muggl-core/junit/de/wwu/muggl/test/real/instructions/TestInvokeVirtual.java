@@ -9,6 +9,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
@@ -70,6 +71,7 @@ public class TestInvokeVirtual extends TestSkeleton {
 	
 
 	@Test
+	@Ignore 
 	public final void testApplicationMugglVMInvokeVirtualExecution2()
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,

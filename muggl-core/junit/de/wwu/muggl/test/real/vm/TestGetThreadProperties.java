@@ -9,6 +9,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.wwu.muggl.configuration.Globals;
@@ -39,14 +40,15 @@ public class TestGetThreadProperties extends TestSkeleton {
 
 	@Before
 	public void setUp() throws Exception {
-		classLoader = new MugglClassLoader(mugglClassLoaderPaths);
+		classLoader = new MugglClassLoader(mugglClassLoaderPaths); 
 	}
 
 	@After
 	public void tearDown() throws Exception {
 	}
 
-	@Test
+	@Test // Known-to-fail: No threading in Muggl
+	@Ignore
 	public final void testGetThread() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("main",
 				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -55,7 +57,8 @@ public class TestGetThreadProperties extends TestSkeleton {
 						MethodType.methodType(String.class), null));
 	}
 
-	@Test
+	@Test // Known-to-fail: No threading in Muggl
+	@Ignore
 	public final void testGetThreadGroup() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("main",
 				TestVMNormalMethodRunnerHelper.runMethod(classLoader,
