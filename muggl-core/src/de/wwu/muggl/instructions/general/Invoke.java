@@ -237,7 +237,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 								frame.getOperandStack().push(returnval);
 							}
 						} else {
-							throw new ForwardingUnsuccessfulException("No wrapping handler for the native method was found.");
+							throw new ForwardingUnsuccessfulException("No wrapping handler for the native method " + method.getFullNameWithParameterTypesAndNames() + " was found.");
 						}
 						if (!frame.isHiddenFrame()
 								&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
@@ -278,6 +278,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 				 * Either push a zero / null value for the native method's return type, or
 				 * completely ignore it.
 				 */
+				//TODO don't native methods *also* write return values? check for conflicts. -JD
 				if (Options.getInst().assumeNativeReturnValuesToBeZeroNull) {
 					pushZeroOrNull(stack, method, symbolic);
 					if (!frame.isHiddenFrame())

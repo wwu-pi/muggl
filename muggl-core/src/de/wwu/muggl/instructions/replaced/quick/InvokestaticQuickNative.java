@@ -129,6 +129,7 @@ public class InvokestaticQuickNative extends InvokestaticQuickAbstract {
 			// Forward native methods?
 			if (Options.getInst().forwardJavaPackageNativeInvoc) {
 				// Try to forward.
+				// TODO compare to de.wwu.muggl.instructions.general.Invoke!
 				if (method.getClassFile().getPackageName().startsWith("java.") || method.getClassFile().getPackageName().startsWith("sun.")) {
 					NativeWrapper.forwardNativeInvocation(frame, method, this.methodClassFile, null, parameters);
 				} else if (method.getClassFile().getPackageName().equals("de.wwu.muggl.vm.execution.nativeWrapping")) {
@@ -145,7 +146,7 @@ public class InvokestaticQuickNative extends InvokestaticQuickAbstract {
 						frame.getOperandStack().push(returnval);
 					}
 				} else {
-					throw new ForwardingUnsuccessfulException("No wrapping handler for the native method was found.");
+					throw new ForwardingUnsuccessfulException("No wrapping handler for the native method " + method.getFullNameWithParameterTypesAndNames() + " was found.");
 				}
 				if (Globals.getInst().execLogger.isDebugEnabled())
 					Globals.getInst().execLogger.debug(
@@ -161,10 +162,15 @@ public class InvokestaticQuickNative extends InvokestaticQuickAbstract {
 			}
 		} catch (ForwardingUnsuccessfulException e) {
 			// Ignore it, but log it.
-			if (Globals.getInst().execLogger.isDebugEnabled())
-				Globals.getInst().execLogger.debug(
+			if (!frame.isHiddenFrame()){
+				Globals.getInst().execLogger.warn(
 						"Forwarding of the native method " + method.getPackageAndName()
-						+ " was not successfull. The reason is: " + e.getMessage());
+								+ " was not successfull. The reason is: " + e.getMessage());
+
+				frame.getVm().fillDebugStackTraces();
+				Globals.getInst().execLogger.debug(frame.getVm().debugStackTraceMugglVM);
+
+			}
 		}
 		/*
 		 * Either push a zero / null value for the native method's return type, or
@@ -185,9 +191,7 @@ public class InvokestaticQuickNative extends InvokestaticQuickAbstract {
 		if (super.accSynchronized) {
 			frame.getVm().getMonitorForStaticInvocation(this.methodClassFile).monitorExit();
 		}
-
-		// Finished.
-		return;
+		
 	}
 
 }
