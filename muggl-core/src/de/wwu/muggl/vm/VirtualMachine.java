@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
+import de.wwu.muggl.vm.execution.NativeSunMiscVM;
 import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
@@ -1410,6 +1412,10 @@ public abstract class VirtualMachine extends Thread {
 			InvalidInstructionInitialisationException, InterruptedException {
 		if (this.universeSetupFinished)
 			return;
+
+		// Register native mocks that require a classloader
+		NativeSunMiscVM.initialiseAndRegister(this.getClassLoader());
+
 		// prepare a "parent" null frame for the universe genesis
 		if (!Options.getInst().symbolicMode) {
 			this.stack = new Stack<Object>();
