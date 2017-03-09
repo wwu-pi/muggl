@@ -85,7 +85,15 @@ public class AAstore extends Astore implements Instruction {
 			// Preparations.
 			Stack<Object> stack = frame.getOperandStack();
 			Object value = stack.pop();
-			int index = ((IntConstant) stack.pop()).getValue();
+			Object top = stack.pop();
+			int index;
+			if (top instanceof IntConstant) {
+				index = ((IntConstant) top).getValue();
+			} else if (top instanceof Integer) {
+				index = (Integer) top;
+			} else {
+				throw new SymbolicExecutionException("The found index was of an unsupported value type.");
+			}
 
 			// Runtime exception: arrayref is null
 			if (stack.peek() == null) {
