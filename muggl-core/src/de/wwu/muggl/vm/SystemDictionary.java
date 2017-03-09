@@ -112,17 +112,23 @@ public class SystemDictionary {
 				if (VmSymbols.basicType2JavaClassName(VmSymbols.BasicTypeArr[i]) != VmSymbols.ILLEGAL_TYPE) {
 					ClassFile cf = vm.classLoader
 							.getClassAsClassFile(VmSymbols.basicType2JavaClassName(VmSymbols.BasicTypeArr[i]));
-					new InitializedClass(cf, vm, true);
+					// In some cases, a particular class is *already initialised* before this happens,
+					// e.g. java.lang.Character because of StringCache. This creates problems with class comparisons,
+					// e.g. for arraycopy type checks. Therefore, create a new instance only if required.
+					cf.getTheInitializedClass(vm, true);
 				}
 			}
 
 			// char and String had been initialized for the StringCache, but their static initializer not executed. Do
 			// this now
+			// The above comment is wrong, at least for j.l.Character (indirectly via StringCache::provideStringReference).
+			// Anyway, given that this *could be* true sometimes, using getTheInitializedClass gives the opportunity to
+			// execute it, if this has not happened yet.
 			ClassFile charCF = vm.classLoader.getClassAsClassFile(VmSymbols.java_lang_Char);
-			char_klass = new InitializedClass(charCF, vm, true);
+			char_klass = charCF.getTheInitializedClass(vm, true);
 
 			ClassFile stringCF = vm.classLoader.getClassAsClassFile(VmSymbols.java_lang_String);
-			string_klass = new InitializedClass(stringCF, vm, true);
+			string_klass = stringCF.getTheInitializedClass(vm, true);
 
 			// do not do this here because this will trigger static initialization!
 			// ClassFile MethodTypeCF = vm.classLoader.getClassAsClassFile(VmSymbols.java_lang_invoke_MethodType);
