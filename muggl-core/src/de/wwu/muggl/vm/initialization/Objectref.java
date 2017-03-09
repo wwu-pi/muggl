@@ -3,13 +3,12 @@ package de.wwu.muggl.vm.initialization;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import de.wwu.muggl.configuration.Options;
-import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.vm.Universe;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.VmSymbols.BasicType;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.Field;
+import de.wwu.muggl.vm.execution.NativeWrapper;
 import de.wwu.muggl.vm.threading.Monitor;
 
 /**
@@ -83,20 +82,7 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 		String dbghint = (debugHelperString != null) ? " dbghint: " + this.debugHelperString : "";
 		if(this.staticReference.getClassFile().getName().equals("java.lang.String") && (dbghint.length()==0)) {
 			if (!this.fields.isEmpty()) {
-				// Get the array of characters.
-				Arrayref arrayref = (Arrayref) this.getField(this.getInitializedClass().getClassFile().getFieldByName("value"));
-
-				// Convert it.
-				boolean symbolicalMode = Options.getInst().symbolicMode;
-				char[] characters = new char[arrayref.length];
-				for (int a = 0; a < arrayref.length; a++) {
-					if (symbolicalMode) {
-						characters[a] = (char) ((IntConstant) arrayref.getElement(a)).getIntValue();
-					} else {
-						characters[a] = (Character) arrayref.getElement(a);
-					}
-				}
-				dbghint = " val:" + String.valueOf(characters);			
+				dbghint = " val:" + NativeWrapper.stringObjectrefToString(this);;
 			}
 		}
 		return "Objectref " + this.staticReference.getClassFile().getName() + " (id: " + this.instantiationNumber

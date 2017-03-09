@@ -376,7 +376,7 @@ public class NativeWrapper {
 	 * @param frame The currently executed frame.
 	 * @param method The method to forward.
 	 * @param methodClassFile The methods' ClassFile.
-	 * @param invokingObjectref The object reference invoking the method. Should be null for static
+	 * @param invokingRefVal The reference value invoking the method. Should be null for static
 	 *        method calls.
 	 * @param parameters The parameters for the invocation of the method.
 	 * @return true, if special handling was successful; false otherwise.
@@ -742,20 +742,7 @@ public class NativeWrapper {
 					String stringValue = null;
 					// Get the value to print if it is not null.
 					if (stringObjectref != null) {
-						Field stringValueField = stringObjectref.getInitializedClass()
-								.getClassFile().getFieldByNameAndDescriptor("value", "[C");
-						Arrayref characters = (Arrayref) stringObjectref.getField(stringValueField);
-
-						// Build the String.
-						StringBuffer sb = new StringBuffer(characters.length);
-						for (int a = 0; a < characters.length; a++) {
-							if (characters.getElement(a) instanceof IntConstant) {
-								sb.append( (char)((IntConstant)characters.getElement(a)).getValue() );
-							} else {
-								sb.append( characters.getElement(a).toString() );
-							}
-						}
-						stringValue = sb.toString();
+						stringValue = stringObjectrefToString(stringObjectref);
 					}
 
 					// Get the information what kind of PrintStream is wrapped here.
@@ -786,6 +773,25 @@ public class NativeWrapper {
 
 		// There was no implementation found.
 		throw new ForwardingUnsuccessfulException("No wrapping handler for the native method was found.");
+	}
+
+	//TODO refactor this into somewhere else (maybe into Objectref)
+	public static String stringObjectrefToString(Objectref stringObjectref) {
+		//TODO perform checks that this is actually a stringobjectref! See e.g. Objectref#toString()
+		Field stringValueField = stringObjectref.getInitializedClass()
+				.getClassFile().getFieldByNameAndDescriptor("value", "[C");
+		Arrayref characters = (Arrayref) stringObjectref.getField(stringValueField);
+
+		// Build the String.
+		char[] chars = new char[characters.length];
+		for (int a = 0; a < characters.length; a++) {
+			if (characters.getElement(a) instanceof IntConstant) {
+				chars[a] = (char)((IntConstant)characters.getElement(a)).getValue();
+			} else {
+				chars[a] = (Character) characters.getElement(a);
+			}
+		}
+		return String.valueOf(chars);
 	}
 
 	/**
