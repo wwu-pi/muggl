@@ -136,6 +136,7 @@ public class SystemDictionary {
 
 		} catch (ClassFileException e) {
 			e.printStackTrace();
+			System.exit(1);
 		}
 
 	}
