@@ -12,6 +12,7 @@ import de.wwu.muggl.instructions.replaced.replacer.InvokestaticReplacer;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.Method;
+import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.exceptions.ExceptionHandler;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
@@ -139,7 +140,10 @@ public class InvokestaticQuickNative extends InvokestaticQuickAbstract {
 					}
 
 					// Invoke the wrapper.
-					NativeWrapper.forwardToACustomWrapper(super.method, this.methodClassFile, parameters, invokingObjectref);
+					Object returnval = NativeWrapper.forwardToACustomWrapper(super.method, this.methodClassFile, parameters, invokingObjectref);
+					if (!(returnval instanceof UndefinedValue)) {
+						frame.getOperandStack().push(returnval);
+					}
 				} else {
 					throw new ForwardingUnsuccessfulException("No wrapping handler for the native method was found.");
 				}

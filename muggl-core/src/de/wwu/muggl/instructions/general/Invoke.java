@@ -18,6 +18,7 @@ import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.Method;
+import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodref;
 import de.wwu.muggl.vm.exceptions.ExceptionHandler;
@@ -231,7 +232,10 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 							}
 
 							// Invoke the wrapper.
-							NativeWrapper.forwardToACustomWrapper(method, methodClassFile, parameters, invokingObjectref);
+							Object returnval = NativeWrapper.forwardToACustomWrapper(method, methodClassFile, parameters, invokingObjectref);
+							if (!(returnval instanceof UndefinedValue)) {
+								frame.getOperandStack().push(returnval);
+							}
 						} else {
 							throw new ForwardingUnsuccessfulException("No wrapping handler for the native method was found.");
 						}
