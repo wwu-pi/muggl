@@ -239,9 +239,9 @@ public final class Globals {
 
 			// log to console as well
 			ConsoleAppender appender = new ConsoleAppender();
-			appender.setWriter(new PrintWriter(System.out));
+			appender.setWriter(new PrintWriter(System.err));
 			appender.setLayout(new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN));
-			appender.setName("stdout");
+			appender.setName("stderr");
 			this.logger.addAppender(appender);
 			this.execLogger.addAppender(appender);
 			this.parserLogger.addAppender(appender);
@@ -273,9 +273,8 @@ public final class Globals {
 		this.loggers.add(this.executionInstructionLogger);
 
 		// Set the basic level for logging.
-		Iterator<Logger> iterator = this.loggers.iterator();
-		while (iterator.hasNext()) {
-			iterator.next().setLevel(Level.INFO); 
+		for (Logger logger1 : this.loggers) {
+			logger1.setLevel(Level.INFO);
 		}
 		
 		// Finished
@@ -299,9 +298,8 @@ public final class Globals {
 	 * @param level The new log level.
 	 */
 	public void changeLogLevel(Level level) {
-		Iterator<Logger> iterator = this.loggers.iterator();
-		while (iterator.hasNext()) {
-			iterator.next().setLevel(level);
+		for (Logger logger1 : this.loggers) {
+			logger1.setLevel(level);
 		}
 		if (Globals.getInst().logger.isInfoEnabled())
 			Globals.getInst().logger.info("Changed logging level to " + level.toString());
