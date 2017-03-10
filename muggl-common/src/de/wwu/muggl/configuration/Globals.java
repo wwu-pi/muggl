@@ -171,7 +171,11 @@ public final class Globals {
 	 * Per-Package options for logging. white & blacklist take string start so imaging <entry>* whitelist overwrites
 	 * blacklist
 	 */
-	public static final List<String> logPackageBlacklist = Arrays.asList("sun.misc.FDBigInteger","jdk.internal.org.objectweb","java.lang.Integer","java.util.Arrays","java.lang.String.","java.lang.AbstractStringBuilder","java.lang.CharacterData","java.lang.Byte$ByteCache","java.lang.Short$ShortCache","java.lang.Character$CharacterCache","java.lang.Long$LongCache", "java.lang.Number", "java.lang.String.replace", "java.lang.Class.desiredAssertionStatus");
+	public static final List<String> logPackageBlacklist = Arrays.asList("sun.misc.FDBigInteger",
+			"jdk.internal.org.objectweb","java.lang.Integer","java.util.Arrays","java.lang.String.",
+			"java.lang.AbstractStringBuilder","java.lang.CharacterData","java.lang.Byte$ByteCache",
+			"java.lang.Short$ShortCache","java.lang.Character$CharacterCache","java.lang.Long$LongCache",
+			"java.lang.Number", "java.lang.String.replace", "java.lang.Class.desiredAssertionStatus");
 	public static final List<String> logPackageWhitelist = Arrays.asList("java.util.HashMap.putVal", "java.lang.Class",
 			"java.lang.Enum");
 
