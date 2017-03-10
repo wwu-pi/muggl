@@ -785,7 +785,7 @@ public class MugglToJavaConversion {
 		} catch (Exception e) {
 			// Inserting the fields failed.
 			throw new ConversionException(
-					"Creating a new java class failed sine the fields could not be inserted. The root cause is: "
+					"Creating a new java class " + objectref.getName() + " failed since the fields could not be inserted. The root cause is: "
 							+ e.getClass().getName() + " (" + e.getMessage() + ")");
 		}
 	}
