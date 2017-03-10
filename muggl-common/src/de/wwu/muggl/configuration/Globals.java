@@ -191,8 +191,8 @@ public final class Globals {
 		JAR_FILE_NAME = "muggl.jar";
 		WINDOWS_TITLE = "Muggl";
 		WINDOWS_TITLE_CONNECTOR = " - ";
-		VERSION_MAJOR = "1";
-		VERSION_MINOR = "00";
+		VERSION_MAJOR = "0";
+		VERSION_MINOR = "3.1-SNAPSHOT";
 		VERSION_RELEASE = "Alpha (unreleased)";
 		VERSION_STATUS = " unstable / experimental";
 
