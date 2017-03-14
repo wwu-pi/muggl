@@ -1110,8 +1110,8 @@ public abstract class VirtualMachine extends Thread {
 			// Method allowed?
 			if (!method.getName().equals(VmSymbols.CLASS_INITIALIZER_NAME)) throw new ExceptionInInitializerError("Only a method with signature <clinit> might be used for class initialization.");
 
-			Boolean parentFrameIsHidden = currentFrame.isHiddenFrame();
-			if (!currentFrame.isHiddenFrame()
+			Boolean parentFrameIsHidden = currentFrame != null && currentFrame.isHiddenFrame();
+			if (!parentFrameIsHidden
 					&& Globals.getInst().logBasedOnWhiteBlacklist(method.getClassFile().getName()).orElse(true))
 				Globals.getInst().execLogger
 						.trace("Now executing the static initializer of " + method.getClassFile().getName() + ".");
