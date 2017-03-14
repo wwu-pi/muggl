@@ -101,6 +101,8 @@ public class FileSelectionComposite extends Composite {
 	final Button hideInitCheckButton;
 	private final FormData mainOnlyCheckFormData;
 	final Button mainOnlyCheckButton;
+	private final FormData debugOperandStackFormData;
+	final Button debugOperandStackCheckButton;
 	private final FormData modeSelectionFormData;
 	private final Group modeSelectionGroup;
 	private final FormData normalModeRadioFormData;
@@ -283,11 +285,22 @@ public class FileSelectionComposite extends Composite {
 		this.mainOnlyCheckButton.setText("Show public static void main(String[] args)-Method only");
 		this.mainOnlyCheckButton.setSelection(false);
 		this.mainOnlyCheckButton.setLayoutData(this.mainOnlyCheckFormData);
+		
+		this.debugOperandStackFormData = new FormData();
+		this.debugOperandStackFormData.top = new FormAttachment(this.mainOnlyCheckButton, 5, SWT.BOTTOM);
+		this.debugOperandStackFormData.bottom = new FormAttachment(this.mainOnlyCheckButton, 20, SWT.BOTTOM);
+		this.debugOperandStackFormData.left = new FormAttachment(this.fileList, 10, SWT.RIGHT);
+		this.debugOperandStackFormData.right = new FormAttachment(this.fileList, 360, SWT.RIGHT);
+
+		this.debugOperandStackCheckButton = new Button(this, SWT.CHECK);
+		this.debugOperandStackCheckButton.setText("Print operand stack (debug)");
+		this.debugOperandStackCheckButton.setSelection(false);
+		this.debugOperandStackCheckButton.setLayoutData(this.debugOperandStackFormData);
 
 		// Set up the widgets: option widgets, setting of predefined data.
 		this.predefinedDataSelectionFormData = new FormData();
-		this.predefinedDataSelectionFormData.top = new FormAttachment(this.mainOnlyCheckButton, 7, SWT.BOTTOM);
-		this.predefinedDataSelectionFormData.bottom = new FormAttachment(this.mainOnlyCheckButton, 93, SWT.BOTTOM);
+		this.predefinedDataSelectionFormData.top = new FormAttachment(this.debugOperandStackCheckButton, 7, SWT.BOTTOM);
+		this.predefinedDataSelectionFormData.bottom = new FormAttachment(this.debugOperandStackCheckButton, 93, SWT.BOTTOM);
 		this.predefinedDataSelectionFormData.left = new FormAttachment(this.fileList, 10, SWT.RIGHT);
 		this.predefinedDataSelectionFormData.right = new FormAttachment(this.fileList, 360, SWT.RIGHT);
 
@@ -711,6 +724,16 @@ public class FileSelectionComposite extends Composite {
 	    		} catch (ClassFileException e) {
 	    			StaticGuiSupport.showMessageBox(FileSelectionComposite.this.shell, "Error", "Could not reload the methods due to a ClassFileException, so the listing might be incorrect.\n\nRoot cause is: " + e.getMessage(), SWT.OK | SWT.ICON_ERROR);
 	    		}
+	    	}
+	    });
+	    
+	    /*
+	     * Set the execution mode to normal.
+	     */
+	    this.debugOperandStackCheckButton.addListener(SWT.Selection, new Listener() {
+	    	public void handleEvent(Event event) {
+	    		boolean selection = ((Button)event.widget).getSelection();
+	    		Options.getInst().debugOperandStack = selection;
 	    	}
 	    });
 
