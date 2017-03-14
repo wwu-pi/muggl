@@ -46,6 +46,12 @@ public final class Options {
 	 * The current entries of the class path.
 	 */
 	public List<String> classPathEntries;
+	
+	/**
+	 * Flag to set the mode in which the operand stack should be printed for each execution on
+	 * the standard output. This should only be used for debug purposes.
+	 */
+	public boolean debugOperandStack;
 
 	/**
 	 * Switch between normal and symbolic execution mode. The normal execution mode works with
