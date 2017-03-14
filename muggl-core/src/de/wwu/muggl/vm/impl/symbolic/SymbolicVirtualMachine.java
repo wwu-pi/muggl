@@ -431,7 +431,31 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 		int oldpc = this.pc;
 		Frame oldFrame = this.currentFrame;
 		super.executedInstructions++;
+
+		// execute the instruction symbolically
 		instruction.executeSymbolically(this.currentFrame);
+		
+		// check if debug print mode is set -> print operand stack after instruction execution
+		if(Options.getInst().debugOperandStack) {
+			String methodName = method.getName();
+			String className = method.getClassFile().getName();
+			String instructionName = instruction.getName();
+			Globals.getInst().execLogger.info("*** executed " + className+"#"+methodName +", pc="+pc+", instruction="+instructionName);
+			for(Object stackElement : this.currentFrame.getOperandStack()) {
+				String elementString = "null";
+				if(stackElement != null) {
+					elementString = stackElement.toString();
+				}
+				// fill up to length of 150 with spaces
+				elementString = String.format("%1$-150s", elementString);
+				Globals.getInst().execLogger.info("| " + elementString + " |");
+			}
+			if(this.currentFrame.getOperandStack().size() == 0) {
+				Globals.getInst().execLogger.info("| " + String.format("%1$-150s", " ") + " |");
+			}
+			Globals.getInst().execLogger.info("----------------------------------------------------------------------------------------------------------------------------------------------------------");
+		}
+		
 		if (this.measureExecutionTime)
 			this.timeExecutionInstruction += System.nanoTime() - this.timeExecutionInstructionTemp;
 
