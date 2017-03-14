@@ -484,7 +484,7 @@ public class MugglClassLoader extends ClassLoader {
 			throws ClassFileException, IOException {
 		String nameForJarFileSearch = name.replace(".", "/") + ".class";
 		
-		String[] mugglClassPath = System.getProperty("java.class.path").split(":");
+		String[] mugglClassPath = System.getProperty("java.class.path").split(File.pathSeparator);
 		
 		for (String entry : mugglClassPath) {
 			if (isJarFile(entry)) {
@@ -521,8 +521,13 @@ public class MugglClassLoader extends ClassLoader {
 				String fullPath = jarFile.getName() + "|" + entry.getName();
 
 				// Return the ClassFile.
-				return new ClassFile(this, jarFile.getInputStream(entry), jarFile
-						.getInputStream(entry), entry.getSize(), fullPath);
+				try {
+					return new ClassFile(this, jarFile.getInputStream(entry), jarFile
+							.getInputStream(entry), entry.getSize(), fullPath);
+				} catch(Exception e) {
+					e.printStackTrace();
+					return null;
+				}
 			}
 		}
 		return null;
