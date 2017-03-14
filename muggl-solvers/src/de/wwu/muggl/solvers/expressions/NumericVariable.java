@@ -90,12 +90,10 @@ public class NumericVariable extends Term implements Variable, Comparable<Variab
      * @see de.wwu.muggl.solvers.expressions.Expression
      */
     public NumericVariable(String name, byte type, boolean isInternal) {
-	if (type == Expression.BOOLEAN)
-	    throw new IllegalArgumentException("Type boolean is not allowed for NumericVariables");
-	this.name = name;
-	this.type = type;
-	this.internalID = internalIDcounter++;
-	this.isInternal = isInternal;
+		this.name = name;
+		this.type = type;
+		this.internalID = internalIDcounter++;
+		this.isInternal = isInternal;
     }
 
     /**
@@ -119,27 +117,27 @@ public class NumericVariable extends Term implements Variable, Comparable<Variab
      * @see de.wwu.muggl.solvers.expressions.Expression
      */
     private NumericVariable(String name, String type, boolean isInternal){
-	if (type.equalsIgnoreCase("boolean"))
-	    throw new IllegalArgumentException("Type boolean is not allowed for NumericVariables");
-	this.name = name;
-	this.isInternal = isInternal;
-	this.internalID = internalIDcounter++;
-	if (type.equalsIgnoreCase("byte"))
-	    this.type = Expression.BYTE;
-	if (type.equalsIgnoreCase("short"))
-	    this.type = Expression.SHORT;
-	if (type.equalsIgnoreCase("char"))
-	    this.type = Expression.CHAR;
-	if (type.equalsIgnoreCase("int"))
-	    this.type = Expression.INT;
-	if (type.equalsIgnoreCase("long"))
-	    this.type = Expression.LONG;
-	if (type.equalsIgnoreCase("float"))
-	    this.type = Expression.FLOAT;
-	if (type.equalsIgnoreCase("double"))
-	    this.type = Expression.DOUBLE;
-	if (this.type == 0)
-	    throw new IllegalArgumentException("unknown type " + type);
+		this.name = name;
+		this.isInternal = isInternal;
+		this.internalID = internalIDcounter++;
+		if (type.equalsIgnoreCase("byte"))
+		    this.type = Expression.BYTE;
+		if (type.equalsIgnoreCase("short"))
+		    this.type = Expression.SHORT;
+		if (type.equalsIgnoreCase("char"))
+		    this.type = Expression.CHAR;
+		if (type.equalsIgnoreCase("int"))
+		    this.type = Expression.INT;
+		if (type.equalsIgnoreCase("long"))
+		    this.type = Expression.LONG;
+		if (type.equalsIgnoreCase("float"))
+		    this.type = Expression.FLOAT;
+		if (type.equalsIgnoreCase("double"))
+		    this.type = Expression.DOUBLE;
+		if (type.equalsIgnoreCase("boolean"))
+		    this.type = Expression.BOOLEAN;
+		if (this.type == 0)
+		    throw new IllegalArgumentException("unknown type " + type);
     }
 
     /**
