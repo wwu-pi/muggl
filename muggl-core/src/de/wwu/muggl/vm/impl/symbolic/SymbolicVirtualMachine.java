@@ -822,15 +822,6 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
 	}
 
 	/**
-	 * Setter for the stack of this symbolic virtual machine.
-	 * 
-	 * @param stack The new stack.
-	 */
-	public void setStack(Stack<Object> stack) {
-		this.stack = stack;
-	}
-
-	/**
 	 * Make sure the virtual machine will not continue execution.
 	 */
 	public void abortExecution() {

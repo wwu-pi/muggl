@@ -130,7 +130,10 @@ public class SystemDictionary {
 			ClassFile stringCF = vm.classLoader.getClassAsClassFile(VmSymbols.java_lang_String);
 			string_klass = stringCF.getTheInitializedClass(vm, true);
 
-			// do not do this here because this will trigger static initialization!
+			ClassFile integerCacheCF = vm.classLoader.getClassAsClassFile(VmSymbols.java_lang_Integer_IntegerCache);
+			InitializedClass integerCache_klass = integerCacheCF.getTheInitializedClass(vm, true);
+
+					// do not do this here because this will trigger static initialization!
 			// ClassFile MethodTypeCF = vm.classLoader.getClassAsClassFile(VmSymbols.java_lang_invoke_MethodType);
 			// MethodType_klass = new InitializedClass(MethodTypeCF, vm, true);
 

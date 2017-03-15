@@ -22,8 +22,8 @@ public class VmSymbols {
 			java_lang_Double = "java/lang/Double", java_lang_Float = "java/lang/Float",
 			java_lang_Long = "java/lang/Long", java_lang_Short = "java/lang/Short",
 			java_lang_Boolean = "java/lang/Boolean", java_lang_Void = "java/lang/Void",
-			java_lang_Integer = "java/lang/Integer", java_lang_Object = "java/lang/Object",
-			java_lang_String = "java/lang/String";
+			java_lang_Integer = "java/lang/Integer", java_lang_Integer_IntegerCache = "java/lang/Integer$IntegerCache",
+			java_lang_Object = "java/lang/Object", java_lang_String = "java/lang/String";
 
 	public static final String java_lang_reflect_Field = "java/lang/reflect/Field";
 	public static final String java_lang_Class = "java/lang/Class";
