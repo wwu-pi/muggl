@@ -1418,7 +1418,9 @@ public abstract class VirtualMachine extends Thread {
 
 		// prepare a "parent" null frame for the universe genesis
 		if (!Options.getInst().symbolicMode) {
-			this.stack = new Stack<Object>();
+			if (this.stack == null) {
+				this.stack = new Stack<>();
+			}
 			Frame frame = new Frame(this);
 			this.currentFrame = frame;
 			this.stack.push(frame);
