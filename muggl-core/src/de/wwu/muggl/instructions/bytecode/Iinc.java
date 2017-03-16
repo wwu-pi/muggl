@@ -99,7 +99,7 @@ public class Iinc extends de.wwu.muggl.instructions.general.IntegerIncremenet im
 			if (frame.getLocalVariables()[localVariable].getClass().getName().endsWith("UndefinedValue")) {
 				// Define and load the new value.
 				IntegerInstruction integerInstruction = new IntegerInstruction();
-				Variable variable = integerInstruction.getNewVariable(frame.getMethod(), localVariable);
+				Variable variable = integerInstruction.getNewVariable(frame.getMethod(), localVariable, (SymbolicVirtualMachine)frame.getVm());
 				frame.setLocalVariable(localVariable, variable);
 				frame.getMethod().setVariable(localVariable, variable);
 			}
