@@ -14,14 +14,33 @@ public interface Expression{
      * @author Marko Ernsting
      */
     public enum Type{ 
-	BOOLEAN,
-	BYTE,
-    	CHAR,
-	DOUBLE,
-	FLOAT,
-	INT,
-	LONG,
-	SHORT,
+		BOOLEAN,
+		BYTE,
+	    CHAR,
+		DOUBLE,
+		FLOAT,
+		INT,
+		LONG,
+		SHORT;
+	
+    	/**
+    	 * Get the expression type by the given <code>typeString</code>.
+    	 * @param typeString
+    	 * @return the expression type (>=0), or -1 if not existent
+    	 */
+    	public static byte getPrimitiveTypeByString(String typeString) {
+    		switch(typeString) {
+				case "java.lang.Byte"      : return Expression.BYTE;
+				case "java.lang.Short"     : return Expression.SHORT;
+				case "java.lang.Integer"   : return Expression.INT;
+				case "java.lang.Long"      : return Expression.LONG;
+				case "java.lang.Character" : return Expression.CHAR;
+				case "java.lang.Boolean"   : return Expression.BOOLEAN;
+				case "java.lang.Float"     : return Expression.FLOAT;
+				case "java.lang.Double"    : return Expression.DOUBLE;
+				default: return -1;
+    		}
+		}
     }
 
     /**
