@@ -47,11 +47,11 @@ import org.jacop.floats.core.FloatDomain;
 import org.jacop.floats.core.FloatIntervalDomain;
 import org.jacop.floats.core.FloatVar;
 
-import de.wwu.muggl.solvers.expressions.TypeCast;
 import de.wwu.muggl.solvers.expressions.BinaryOperation;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.solvers.expressions.Difference;
 import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.Expression;
 import de.wwu.muggl.solvers.expressions.FloatConstant;
 import de.wwu.muggl.solvers.expressions.GreaterOrEqual;
 import de.wwu.muggl.solvers.expressions.GreaterThan;
@@ -69,7 +69,12 @@ import de.wwu.muggl.solvers.expressions.Or;
 import de.wwu.muggl.solvers.expressions.Product;
 import de.wwu.muggl.solvers.expressions.Sum;
 import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.TypeCast;
 import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muggl.solvers.expressions.ref.ObjectReferenceConstraint;
+import de.wwu.muggl.solvers.expressions.ref.ObjectReferenceIsNotNullConstraint;
+import de.wwu.muggl.solvers.expressions.ref.ObjectReferenceIsNullConstraint;
+import de.wwu.muggl.solvers.expressions.ref.meta.ReferenceVariable;
 
 /**
  * JaCoPTransformer
@@ -99,9 +104,26 @@ public class JaCoPTransformer {
 			imposeEquation((HasLeftAndRightTerms) ce, store);
 		} else if (ce instanceof Or) {
 			imposeDisjunction((Or)ce, store);
+		} else if (ce instanceof ObjectReferenceConstraint) {
+			imposeObjectReference((ObjectReferenceConstraint)ce, store);
 		} else {
 			throw new IllegalArgumentException("Unknown constraint type " + ce.getClass().getName());
 		}
+	}
+
+	private static void imposeObjectReference(ObjectReferenceConstraint ce, JacopMugglStore store) {
+		ReferenceVariable refVar = ce.getObjectRef();
+		NumericConstant nc = null;
+		if(ce instanceof ObjectReferenceIsNullConstraint) {
+			nc = NumericConstant.getOne(Expression.BOOLEAN);
+		} else if(ce instanceof ObjectReferenceIsNotNullConstraint) {
+			nc = NumericConstant.getZero(Expression.BOOLEAN);
+		} else {
+			throw new IllegalArgumentException("Unknown constraint type " + ce.getClass().getName());
+		}
+		
+		NumericVariable nv = refVar.getIsNullVariable();
+		transformAndImpose(NumericEqual.newInstance(nv, nc), store);
 	}
 
 	private static void imposeDisjunction(Or ce, JacopMugglStore store) {
