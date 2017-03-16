@@ -52,6 +52,11 @@ public final class Options {
 	 * the standard output. This should only be used for debug purposes.
 	 */
 	public boolean debugOperandStack;
+	
+	/**
+	 * Flag to hide native operations (i.e. java.lang. package) from being debug-printed.
+	 */
+	public boolean hideNativeOperandStackOperations;
 
 	/**
 	 * Switch between normal and symbolic execution mode. The normal execution mode works with
