@@ -436,10 +436,13 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 		instruction.executeSymbolically(this.currentFrame);
 		
 		// check if debug print mode is set -> print operand stack after instruction execution
-		if(Options.getInst().debugOperandStack) {
+		String instructionName = instruction.getName();	
+		if(Options.getInst().debugOperandStack 
+				&& (!Options.getInst().hideNativeOperandStackOperations
+					|| (Options.getInst().hideNativeOperandStackOperations && !method.getClassFile().getName().startsWith("java.")))) {
 			String methodName = method.getName();
 			String className = method.getClassFile().getName();
-			String instructionName = instruction.getName();
+					
 			Globals.getInst().execLogger.info("*** executed " + className+"#"+methodName +", pc="+pc+", instruction="+instructionName);
 			for(Object stackElement : this.currentFrame.getOperandStack()) {
 				String elementString = "null";
