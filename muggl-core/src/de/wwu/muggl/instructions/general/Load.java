@@ -187,7 +187,7 @@ public abstract class Load extends GeneralInstructionWithOtherBytes implements L
 						}
 					} else {
 						// Create and push an non array type.
-						Variable variable = this.typedInstruction.getNewVariable(frame.getMethod(), localVariable);
+						Variable variable = this.typedInstruction.getNewVariable(frame.getMethod(), localVariable, (SymbolicVirtualMachine)frame.getVm());
 						frame.setLocalVariable(localVariable, variable);
 						frame.getMethod().setVariable(localVariable, variable);
 					}
