@@ -24,11 +24,11 @@ public interface Expression{
 		SHORT;
 	
     	/**
-    	 * Get the expression type by the given <code>typeString</code>.
+    	 * Get the expression type by the given primitive wrapper type of <code>typeString</code>.
     	 * @param typeString
     	 * @return the expression type (>=0), or -1 if not existent
     	 */
-    	public static byte getPrimitiveTypeByString(String typeString) {
+    	public static byte getPrimitiveWrapperTypeByString(String typeString) {
     		switch(typeString) {
 				case "java.lang.Byte"      : return Expression.BYTE;
 				case "java.lang.Short"     : return Expression.SHORT;
@@ -38,6 +38,20 @@ public interface Expression{
 				case "java.lang.Boolean"   : return Expression.BOOLEAN;
 				case "java.lang.Float"     : return Expression.FLOAT;
 				case "java.lang.Double"    : return Expression.DOUBLE;
+				default: return -1;
+    		}
+		}
+    	
+    	public static byte getPrimitiveTypeByString(String typeString) {
+    		switch(typeString) {
+				case "byte"      : return Expression.BYTE;
+				case "short"     : return Expression.SHORT;
+				case "int"       : return Expression.INT;
+				case "long"      : return Expression.LONG;
+				case "char"      : return Expression.CHAR;
+				case "boolean"   : return Expression.BOOLEAN;
+				case "float"     : return Expression.FLOAT;
+				case "double"    : return Expression.DOUBLE;
 				default: return -1;
     		}
 		}

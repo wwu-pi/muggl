@@ -66,7 +66,7 @@ public class ReferenceInstruction extends TypedInstruction {
 				
 		// variable is either (1) wrapper for a primitive type, (2) array reference, or (3) object reference
 		
-		byte dataType = Expression.Type.getPrimitiveTypeByString(type);
+		byte dataType = Expression.Type.getPrimitiveWrapperTypeByString(type);
 		// (1) wrapper for primitive data type
 		if(dataType != -1) {
 			return new PrimitiveDatatypeWrapperVariable(name, new InitializedClass(classFile, vm), dataType, vm);

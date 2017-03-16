@@ -86,12 +86,12 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 		}
 		
 		// 2) primitive data type wrapper
-		else if(Expression.Type.getPrimitiveTypeByString(type) != -1) {
+		else if(Expression.Type.getPrimitiveWrapperTypeByString(type) != -1) {
 			try {
 				ClassFile classFile = vm.getClassLoader().getClassAsClassFile(type);
 				fieldVar = new PrimitiveDatatypeWrapperVariable(
 						name, new InitializedClass(classFile, vm), 
-						Expression.Type.getPrimitiveTypeByString(type),	vm);
+						Expression.Type.getPrimitiveWrapperTypeByString(type),	vm);
 			} catch(ClassFileException e) {
 				throw new ReferenceVariableException("Cannot create primitive type wrapper variable." + e);
 			}
