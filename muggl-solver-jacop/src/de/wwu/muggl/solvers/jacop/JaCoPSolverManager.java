@@ -92,7 +92,8 @@ public class JaCoPSolverManager implements SolverManager {
 	 */
 	@Override
 	public void addConstraint(ConstraintExpression ce) {
-
+		Globals.getInst().symbolicExecLogger.info("*** JaCoPSolver: add constraint: " + ce);
+		
 		jacopStore.setLevel(jacopStore.level + 1);
 		JaCoPTransformer.transformAndImpose(ce, jacopStore);
 
