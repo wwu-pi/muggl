@@ -103,6 +103,8 @@ public class FileSelectionComposite extends Composite {
 	final Button mainOnlyCheckButton;
 	private final FormData debugOperandStackFormData;
 	final Button debugOperandStackCheckButton;
+	private final FormData hideNativeOperandStackOperationsFormData; // TODO
+	final Button hideNativeOperandStackOperationsCheckButton; // TODO
 	private final FormData modeSelectionFormData;
 	private final Group modeSelectionGroup;
 	private final FormData normalModeRadioFormData;
@@ -290,13 +292,25 @@ public class FileSelectionComposite extends Composite {
 		this.debugOperandStackFormData.top = new FormAttachment(this.mainOnlyCheckButton, 5, SWT.BOTTOM);
 		this.debugOperandStackFormData.bottom = new FormAttachment(this.mainOnlyCheckButton, 20, SWT.BOTTOM);
 		this.debugOperandStackFormData.left = new FormAttachment(this.fileList, 10, SWT.RIGHT);
-		this.debugOperandStackFormData.right = new FormAttachment(this.fileList, 360, SWT.RIGHT);
+		this.debugOperandStackFormData.right = new FormAttachment(this.fileList, 200, SWT.RIGHT);
 
 		this.debugOperandStackCheckButton = new Button(this, SWT.CHECK);
 		this.debugOperandStackCheckButton.setText("Print operand stack (debug)");
 		this.debugOperandStackCheckButton.setSelection(false);
 		this.debugOperandStackCheckButton.setLayoutData(this.debugOperandStackFormData);
+		
+		this.hideNativeOperandStackOperationsFormData = new FormData();
+		this.hideNativeOperandStackOperationsFormData.top = new FormAttachment(this.mainOnlyCheckButton, 5, SWT.BOTTOM);
+		this.hideNativeOperandStackOperationsFormData.bottom = new FormAttachment(this.mainOnlyCheckButton, 20, SWT.BOTTOM);
+		this.hideNativeOperandStackOperationsFormData.left = new FormAttachment(this.fileList, 210, SWT.RIGHT);
+		this.hideNativeOperandStackOperationsFormData.right = new FormAttachment(this.fileList, 360, SWT.RIGHT);
 
+		this.hideNativeOperandStackOperationsCheckButton = new Button(this, SWT.CHECK);
+		this.hideNativeOperandStackOperationsCheckButton.setText("Hide native methods!");
+		this.hideNativeOperandStackOperationsCheckButton.setSelection(false);
+		this.hideNativeOperandStackOperationsCheckButton.setEnabled(false);
+		this.hideNativeOperandStackOperationsCheckButton.setLayoutData(this.hideNativeOperandStackOperationsFormData);
+		
 		// Set up the widgets: option widgets, setting of predefined data.
 		this.predefinedDataSelectionFormData = new FormData();
 		this.predefinedDataSelectionFormData.top = new FormAttachment(this.debugOperandStackCheckButton, 7, SWT.BOTTOM);
@@ -728,12 +742,23 @@ public class FileSelectionComposite extends Composite {
 	    });
 	    
 	    /*
-	     * Set the execution mode to normal.
+	     * Set the print operand stack flag.
 	     */
 	    this.debugOperandStackCheckButton.addListener(SWT.Selection, new Listener() {
 	    	public void handleEvent(Event event) {
 	    		boolean selection = ((Button)event.widget).getSelection();
 	    		Options.getInst().debugOperandStack = selection;
+	    		hideNativeOperandStackOperationsCheckButton.setEnabled(selection);
+	    	}
+	    });
+	    
+	    /*
+	     * Set the hide native method debug-print.
+	     */
+	    this.hideNativeOperandStackOperationsCheckButton.addListener(SWT.Selection, new Listener() {
+	    	public void handleEvent(Event event) {
+	    		boolean selection = ((Button)event.widget).getSelection();
+	    		Options.getInst().hideNativeOperandStackOperations = selection;
 	    	}
 	    });
 
