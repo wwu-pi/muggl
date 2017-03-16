@@ -58,6 +58,17 @@ public interface SolverManager {
     public boolean hasSolution() throws SolverUnableToDecideException, TimeoutException;
 
     /**
+     * Set the level of the solver manager to a previous level.
+     * Given <code>level</code> must be leq than <code>currentLevel</code>.
+     */
+    public void resetConstraintLevel(int level);
+    
+    /**
+     * Returns the current level of the solver manager, this is needed to identify different solving states. 
+     */
+    public int getConstraintLevel();
+    
+    /**
      * Removes the lastly added constraint from the constraint stack.
      */
     public void removeConstraint();

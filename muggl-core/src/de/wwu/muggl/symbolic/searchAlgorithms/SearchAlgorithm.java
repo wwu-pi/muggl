@@ -91,7 +91,7 @@ public interface SearchAlgorithm {
 	 *        conditional jump Instruction.
 	 */
 	void generateNewChoicePoint(SymbolicVirtualMachine vm,
-			GeneralInstructionWithOtherBytes instruction, ConstraintExpression constraintExpression);
+			GeneralInstructionWithOtherBytes instruction, ConstraintExpression constraintExpression) throws SymbolicExecutionException;
 
 	/**
 	 * Generate a new LongComparisonChoicePoint. Set it as the current choice point.

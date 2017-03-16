@@ -3,10 +3,12 @@ package de.wwu.muggl.symbolic.generating;
 import java.util.Stack;
 
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
+import de.wwu.muggl.symbolic.searchAlgorithms.choice.ConstraintResetChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.MugglToJavaConversion;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 
 /**
@@ -18,7 +20,7 @@ import de.wwu.muggl.solvers.expressions.ConstraintExpression;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-03-16
  */
-public class GeneratorChoicePoint implements ChoicePoint {
+public class GeneratorChoicePoint extends ConstraintResetChoicePoint {
 	// Fields regarding the choice point.
 	/**
 	 * The identification number of the choice point.
@@ -58,10 +60,12 @@ public class GeneratorChoicePoint implements ChoicePoint {
 	 * @param index The index into the local variable table to store the generated array at.
 	 * @param pc The pc of the instruction that generates the ChoicePoint.
 	 * @throws ConversionException If converting the first provided object failed.
+	 * @throws SymbolicExecutionException 
 	 * @throws NullPointerException If the supplied generator or frame is null.
 	 */
 	public GeneratorChoicePoint(Generator generator, Frame frame, int index, int pc)
-			throws ConversionException {
+			throws ConversionException, SymbolicExecutionException {
+		super(frame);
 		// Checking for null.
 		if (generator == null)
 			throw new NullPointerException("The supplied Generator must not be null.");
@@ -92,10 +96,11 @@ public class GeneratorChoicePoint implements ChoicePoint {
 	 * @param pc The pc of the instruction that generates the ChoicePoint.
 	 * @param parent The parent ChoicePoint.
 	 * @throws ConversionException If converting the first provided object failed.
+	 * @throws SymbolicExecutionException 
 	 * @throws NullPointerException If the supplied generator or frame is null.
 	 */
 	public GeneratorChoicePoint(Generator generator, Frame frame, int index, int pc, ChoicePoint parent)
-			throws ConversionException {
+			throws ConversionException, SymbolicExecutionException {
 		this(generator, frame, index, pc);
 		if (parent != null) {
 			this.number = parent.getNumber() + 1;

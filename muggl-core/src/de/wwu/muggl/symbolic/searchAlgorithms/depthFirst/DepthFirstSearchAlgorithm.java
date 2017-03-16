@@ -147,7 +147,10 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 			recoverState(vm);
 
 			// Second step: If one has been set, remove the ConstraintExpression from the ConstraintStack of the SolverManager.
-			if (this.currentChoicePoint.changesTheConstraintSystem()) solverManager.removeConstraint();
+			if (this.currentChoicePoint.changesTheConstraintSystem()) {
+				int constraintLevel = this.currentChoicePoint.getConstraintLevel();
+				solverManager.resetConstraintLevel(constraintLevel);
+			}
 			
 			// Third step: Load its' parent. This will also free the memory of the current choice point.
 			this.currentChoicePoint = this.currentChoicePoint.getParent();
@@ -178,7 +181,8 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 		// Perform operations specific to the constraint system.
 		if (this.currentChoicePoint.changesTheConstraintSystem()) {
 			// Remove the Constraint and get the new one.
-			solverManager.removeConstraint();
+			int constraintLevel = this.currentChoicePoint.getConstraintLevel();
+			solverManager.resetConstraintLevel(constraintLevel);
 			solverManager.addConstraint(this.currentChoicePoint.getConstraintExpression());
 
 			// Check if the new branch can be visited at all, or if it causes an equation violation.
@@ -421,7 +425,8 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 	 *        conditional jump Instruction.
 	 */
 	public void generateNewChoicePoint(SymbolicVirtualMachine vm,
-			GeneralInstructionWithOtherBytes instruction, ConstraintExpression constraintExpression) {
+			GeneralInstructionWithOtherBytes instruction, ConstraintExpression constraintExpression) 
+	throws SymbolicExecutionException{
 		if (this.measureExecutionTime) this.timeChoicePointGenerationTemp = System.nanoTime();
 		try {
 			this.currentChoicePoint = new ConditionalJumpChoicePointDepthFirst(

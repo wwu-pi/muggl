@@ -100,4 +100,14 @@ public class SolverManagerNew implements SolverManager, MuconstSolverManager {
 	
     }
 
+	@Override
+	public void resetConstraintLevel(int level) {
+		throw new RuntimeException("This method is not implemented, btw: who uses this class anyway?");
+	}
+
+	@Override
+	public int getConstraintLevel() {
+		throw new RuntimeException("This method is not implemented, btw: who uses this class anyway?");
+	}
+
 }

@@ -188,4 +188,9 @@ public interface ChoicePoint {
 	 */
 	String getChoicePointType();
 
+	/**
+	 * Get the level of the constraint solver at time of choice point creation.
+	 * Needed to reset the choice point.
+	 */
+	int getConstraintLevel();
 }

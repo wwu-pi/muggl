@@ -1,7 +1,9 @@
 package de.wwu.muggl.symbolic.searchAlgorithms.choice.conditionalJump;
 
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
+import de.wwu.muggl.symbolic.searchAlgorithms.choice.ConstraintResetChoicePoint;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 
 /**
@@ -19,7 +21,7 @@ import de.wwu.muggl.solvers.expressions.ConstraintExpression;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-03-14
  */
-public abstract class ConditionalJumpChoicePoint implements ChoicePoint {
+public abstract class ConditionalJumpChoicePoint extends ConstraintResetChoicePoint {
 	// General fields needed for each ChoicePoint, regardless of the search algorithm.
 	/**
 	 * The identification number of the choice point.
@@ -59,8 +61,10 @@ public abstract class ConditionalJumpChoicePoint implements ChoicePoint {
 	 * @param pcNext The pc of the instruction after the conditional jump instruction.
 	 * @param pcWithJump The pc the conditional jump would jump to.
 	 * @param constraintExpression The ConstraintExpression describing the choice of the conditional jump.
+	 * @throws SymbolicExecutionException 
 	 */
-	public ConditionalJumpChoicePoint(Frame frame, int pc, int pcNext, int pcWithJump, ConstraintExpression constraintExpression) {
+	public ConditionalJumpChoicePoint(Frame frame, int pc, int pcNext, int pcWithJump, ConstraintExpression constraintExpression) throws SymbolicExecutionException {
+		super(frame);
 		// Possible exceptions.
 		if (frame == null) throw new NullPointerException("The Frame must not be null.");
 		if (constraintExpression == null) throw new NullPointerException("The ConstraintExpression must not be null.");

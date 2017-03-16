@@ -6,6 +6,7 @@ import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
+import de.wwu.muggl.symbolic.searchAlgorithms.choice.ConstraintResetChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
@@ -26,7 +27,7 @@ import de.wwu.muggl.solvers.expressions.Term;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-03-10
  */
-public abstract class SwitchingChoicePoint implements ChoicePoint {
+public abstract class SwitchingChoicePoint extends ConstraintResetChoicePoint {
 	// Fields regarding the choice point.
 	private long number;
 	private ChoicePoint parent;
@@ -86,6 +87,7 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 	 */
 	public SwitchingChoicePoint(Frame frame, int pc, int pcNext, Term termFromStack,
 			IntConstant[] keys, int[] pcs) throws SymbolicExecutionException {
+		super(frame);
 		// Checking the parameters.
 		if (keys == null)
 			throw new NullPointerException("Keys must not be null");

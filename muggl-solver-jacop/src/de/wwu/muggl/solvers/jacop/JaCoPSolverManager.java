@@ -340,4 +340,25 @@ public class JaCoPSolverManager implements SolverManager {
 		totalConstraintsChecked = 0;
 	}
 
+	@Override
+	public void resetConstraintLevel(int level) {
+		if (jacopStore.level <= level) {
+			throw new IllegalStateException(
+					"Trying previous level does not exist, current level is="+jacopStore.level);
+		}
+		
+		int reverlevels = jacopStore.level-level;
+		
+		for(int i=1; i<=reverlevels; i++) {
+			jacopStore.removeLevel(jacopStore.level);
+			jacopStore.setLevel(jacopStore.level - 1);
+			listeners.fireConstraintRemoved(this);
+		}
+	}
+
+	@Override
+	public int getConstraintLevel() {
+		return jacopStore.level;
+	}
+
 }

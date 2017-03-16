@@ -6,6 +6,7 @@ import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
+import de.wwu.muggl.symbolic.searchAlgorithms.choice.ConstraintResetChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
@@ -27,7 +28,7 @@ import de.wwu.muggl.solvers.expressions.Term;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-03-10
  */
-public class LongComparisonChoicePoint implements ChoicePoint {
+public class LongComparisonChoicePoint extends ConstraintResetChoicePoint {
 	// Fields regarding the choice point.
 	private long number;
 	private ChoicePoint parent;
@@ -54,6 +55,7 @@ public class LongComparisonChoicePoint implements ChoicePoint {
 	 */
 	public LongComparisonChoicePoint(Frame frame, int pc, int pcNext, Term leftTerm, Term rightTerm)
 			throws SymbolicExecutionException {
+		super(frame);
 		// Basic initialization.
 		this.number = 0;
 		this.parent = null;

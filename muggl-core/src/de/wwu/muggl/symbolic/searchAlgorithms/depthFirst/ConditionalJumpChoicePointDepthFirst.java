@@ -11,6 +11,7 @@ import de.wwu.muggl.symbolic.searchAlgorithms.choice.SolvingException;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.conditionalJump.ConditionalJumpChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
@@ -46,8 +47,9 @@ public class ConditionalJumpChoicePointDepthFirst extends ConditionalJumpChoiceP
 	 * @param pcNext The pc of the instruction after the conditional jump instruction.
 	 * @param pcWithJump The pc the conditional jump would jump to.
 	 * @param constraintExpression The ConstraintExpression describing the choice of the conditional jump.
+	 * @throws SymbolicExecutionException 
 	 */
-	public ConditionalJumpChoicePointDepthFirst(Frame frame, int pc, int pcNext, int pcWithJump, ConstraintExpression constraintExpression) {
+	public ConditionalJumpChoicePointDepthFirst(Frame frame, int pc, int pcNext, int pcWithJump, ConstraintExpression constraintExpression) throws SymbolicExecutionException {
 		super(frame, pc, pcNext, pcWithJump, constraintExpression);
 		this.measureExecutionTime = Options.getInst().measureSymbolicExecutionTime;
 	}
@@ -62,9 +64,10 @@ public class ConditionalJumpChoicePointDepthFirst extends ConditionalJumpChoiceP
 	 * @param parent The parent ChoicePoint
 	 * @throws EquationViolationException If the new equation violates the choice point parents' equations.
 	 * @throws SolvingException If the solving of a newly added ConstraintExpression failed.
+	 * @throws SymbolicExecutionException 
 	 */
 	public ConditionalJumpChoicePointDepthFirst(Frame frame, int pc, int pcNext, int pcWithJump, ConstraintExpression constraintExpression, ChoicePoint parent)
-		throws EquationViolationException, SolvingException {
+		throws EquationViolationException, SolvingException, SymbolicExecutionException {
 		super(frame, pc, pcNext, pcWithJump, constraintExpression);
 
 		// Just continue if the parent is set.

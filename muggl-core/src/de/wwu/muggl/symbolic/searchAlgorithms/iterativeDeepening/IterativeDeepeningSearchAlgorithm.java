@@ -212,7 +212,7 @@ public class IterativeDeepeningSearchAlgorithm extends DepthFirstSearchAlgorithm
 	 */
 	@Override
 	public void generateNewChoicePoint(SymbolicVirtualMachine vm,
-			GeneralInstructionWithOtherBytes instruction, ConstraintExpression constraintExpression) {
+			GeneralInstructionWithOtherBytes instruction, ConstraintExpression constraintExpression) throws SymbolicExecutionException {
 		this.currentLevelOfDeepness++;
 		if (this.currentLevelOfDeepness >= this.maximumDepth) {
 			this.thereWereMorePossibilities = true;

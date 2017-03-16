@@ -8,6 +8,7 @@ import de.wwu.muggl.instructions.typed.TypedInstruction;
 import de.wwu.muggl.symbolic.generating.ArrayElementsGenerator;
 import de.wwu.muggl.symbolic.generating.ArrayElementsGeneratorProvider;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
+import de.wwu.muggl.symbolic.searchAlgorithms.choice.ConstraintResetChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -41,7 +42,7 @@ import de.wwu.muggl.solvers.expressions.NumericVariable;
  * @author Tim Majchrzak
  * @version 1.0.0, 2011-01-05
  */
-public class ArrayInitializationChoicePoint implements ChoicePoint {
+public class ArrayInitializationChoicePoint extends ConstraintResetChoicePoint {
 	// Fields regarding the choice point.
 	/**
 	 * The identification number of the choice point.
@@ -215,6 +216,7 @@ public class ArrayInitializationChoicePoint implements ChoicePoint {
 	 * @throws SymbolicExecutionException On fatal errors using the expression system of the solver.
 	 */
 	private ArrayInitializationChoicePoint(Frame frame, int pc) throws SymbolicExecutionException {
+		super(frame);
 		// Basic initialization.
 		this.number = 0;
 		this.parent = null;
