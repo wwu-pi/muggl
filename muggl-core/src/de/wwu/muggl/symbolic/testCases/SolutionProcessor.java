@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Level;
 
@@ -19,6 +19,17 @@ import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.expressions.Constant;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muggl.symbolic.var.PrimitiveDatatypeWrapperVariable;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
@@ -32,14 +43,6 @@ import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 import de.wwu.muggl.vm.support.CheckingArrayList;
-import de.wwu.muggl.solvers.expressions.BooleanConstant;
-import de.wwu.muggl.solvers.expressions.Constant;
-import de.wwu.muggl.solvers.expressions.DoubleConstant;
-import de.wwu.muggl.solvers.expressions.FloatConstant;
-import de.wwu.muggl.solvers.expressions.IntConstant;
-import de.wwu.muggl.solvers.expressions.LongConstant;
-import de.wwu.muggl.solvers.expressions.Term;
-import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * The SolutionProcessor stores information about the solutions found during the symbolic execution
@@ -468,7 +471,7 @@ public class SolutionProcessor {
 			// Iterate through all solutions.
 			while (solution != null) {
 				int addDelta = 0;
-
+				testMethodStringBuilder.append("\t\t//solution: " + solution.getSolution()+"\r\n");
 				/*
 				 * Distinguish between parameters that will actually lead to a return value and
 				 * those, that will lead to an uncaught exception.
@@ -815,7 +818,31 @@ public class SolutionProcessor {
 							referenceValueInstantiationStringBuilder.append("\tprivate " + parameterType + " reference" + referenceValueCounter + ";\r\n");
 							referenceValueInitializationStringBuilder.append("\t\tthis.reference" + referenceValueCounter + " = ");
 							if (parameters[a] != null) {
-								referenceValueInitializationStringBuilder.append("new " + ((ReferenceValue) parameters[a]).getInitializedClass().getClassFile().getCanonicalName() + "(" + initializationStringForReferenceValue + ");\r\n");
+								if(parameters[a] instanceof PrimitiveDatatypeWrapperVariable) {
+									PrimitiveDatatypeWrapperVariable primWrapVar = (PrimitiveDatatypeWrapperVariable)parameters[a];
+									NumericVariable nvIsNull = primWrapVar.getIsNullVariable();
+									NumericConstant ncIsNull = (NumericConstant)solution.getSolution().getValue(nvIsNull);
+									int isNull = 1;
+									if(ncIsNull != null) {
+										isNull = ncIsNull.getIntValue();
+									}
+									if(isNull == 1) {
+										referenceValueInitializationStringBuilder.append("null;\r\n");
+									} else {
+										NumericVariable nv = primWrapVar.getInternalVariable();
+										NumericConstant nc = (NumericConstant)solution.getSolution().getValue(nv);
+										int value = 0; // default value
+										if(nc != null) {
+											value = nc.getIntValue();
+										}
+										// TODO: double and float
+										referenceValueInitializationStringBuilder.append("new " + ((ReferenceValue) parameters[a]).getInitializedClass().getClassFile().getCanonicalName() + "(");
+										referenceValueInitializationStringBuilder.append(value);
+										referenceValueInitializationStringBuilder.append(");\r\n");
+									}
+								} else {
+									referenceValueInitializationStringBuilder.append("new " + ((ReferenceValue) parameters[a]).getInitializedClass().getClassFile().getCanonicalName() + "(" + initializationStringForReferenceValue + ");\r\n");
+								}
 							} else {
 								referenceValueInitializationStringBuilder.append("null;\r\n");
 							}
