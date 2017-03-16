@@ -21,6 +21,9 @@ import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.LongConstant;
 import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muggl.symbolic.var.ArrayrefVariable;
+import de.wwu.muggl.symbolic.var.ObjectrefVariable;
+import de.wwu.muggl.symbolic.var.PrimitiveDatatypeWrapperVariable;
 
 /**
  * This class represents a solution found by the symbolic virtual machine. It holds
@@ -372,6 +375,12 @@ public class TestCaseSolution {
 			if (this.variables[a] instanceof Arrayref) {
 				// Process the array.
 				parameters[a] = convertArrayrefIntoConstantArray((Arrayref) this.variables[a], a);
+			} else if(this.variables[a] instanceof PrimitiveDatatypeWrapperVariable) {
+				parameters[a] = this.variables[a];
+			} else if(this.variables[a] instanceof ObjectrefVariable) {
+				parameters[a] = this.variables[a];
+			} else if(this.variables[a] instanceof ArrayrefVariable) {
+				parameters[a] = this.variables[a];
 			} else { // TODO: Object references?
 				int[] index = {a};
 				parameters[a] = provideConstantForVariable((Term) this.variables[a], index, false);
