@@ -6,6 +6,7 @@ import de.wwu.muggl.instructions.general.Astore;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.typed.ReferenceInstruction;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.ArrayRestore;
+import de.wwu.muggl.symbolic.var.ArrayrefVariable;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.exceptions.ExceptionHandler;
@@ -17,6 +18,7 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
 
 /**
  * Implementation of the instruction  <code>aastore</code>.
@@ -84,35 +86,27 @@ public class AAstore extends Astore implements Instruction {
 			// Preparations.
 			Stack<Object> stack = frame.getOperandStack();
 			Object value = stack.pop();
-			int index = ((IntConstant) stack.pop()).getValue();
+			Object indexObj = stack.pop();
+			Object arrayObject = stack.pop();
 
 			// Runtime exception: arrayref is null
-			if (stack.peek() == null) {
+			if (arrayObject == null) {
 				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
 			}
-
-			// Unexpected exception: arrayref does not point to an array.
-			if (!((Arrayref) stack.peek()).isArray()) {
-				throw new SymbolicExecutionException("Could not  " + getName() + ": Expected an array, but did not get one.");
+			
+			// check if it is an (1) array-reference variable or an (2) array-reference
+			// (1) array-reference variable
+			if (arrayObject instanceof ArrayrefVariable) {
+				storeArrayrefVariable((ArrayrefVariable)arrayObject, (NumericVariable)indexObj, value);
+			// (2) array-reference
+			} else if(arrayObject instanceof Arrayref) {
+				int index = ((IntConstant)indexObj).getValue();
+				storeArrayref((Arrayref)arrayObject, index, value, (SymbolicVirtualMachine)frame.getVm());
+			// (3) ERR
+			} else {
+				throw new SymbolicExecutionException("Object value must be an array-reference (variable), but was: " + arrayObject);
 			}
-			Arrayref arrayref  = (Arrayref) stack.pop();
-
-			// Save the current value, if necessary.
-			if (((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().savingArrayValues()) {
-				ArrayRestore arrayValue = new ArrayRestore(arrayref, index, value);
-				((SymbolicVirtualMachine) frame.getVm()).getSearchAlgorithm().saveArrayValue(arrayValue);
-			}
-
-			// Set the value into the array and save it.
-			try {
-				arrayref.putElement(index, value);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				// Runtime exception array index out of bounds.
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ArrayIndexOutOfBoundsException", e.getMessage()));
-			} catch (ArrayStoreException e) {
-				// Runtime exception: Array store exception.
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ArrayStoreException", e.getMessage()));
-			}
+			
 		} catch (VmRuntimeException e) {
 			SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
 			try {
@@ -122,6 +116,34 @@ public class AAstore extends Astore implements Instruction {
 			}
 		} catch (SymbolicExecutionException e) {
 			executionFailedSymbolically(e);
+		}
+	}
+
+	private void storeArrayrefVariable(ArrayrefVariable arrayRefVar, NumericVariable indexObj, Object value) {
+		arrayRefVar.addElementAt(indexObj, value);
+	}
+
+	private void storeArrayref(Arrayref arrayRef, int index, Object value, SymbolicVirtualMachine vm) throws VmRuntimeException, SymbolicExecutionException {
+		// Unexpected exception: arrayref does not point to an array.
+		if (!arrayRef.isArray()) {
+			throw new SymbolicExecutionException("Could not  " + getName() + ": Expected an array, but did not get one.");
+		}
+
+		// Save the current value, if necessary.
+		if (vm.getSearchAlgorithm().savingArrayValues()) {
+			ArrayRestore arrayValue = new ArrayRestore(arrayRef, index, value);
+			vm.getSearchAlgorithm().saveArrayValue(arrayValue);
+		}
+
+		// Set the value into the array and save it.
+		try {
+			arrayRef.putElement(index, value);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			// Runtime exception array index out of bounds.
+			throw new VmRuntimeException(vm.generateExc("java.lang.ArrayIndexOutOfBoundsException", e.getMessage()));
+		} catch (ArrayStoreException e) {
+			// Runtime exception: Array store exception.
+			throw new VmRuntimeException(vm.generateExc("java.lang.ArrayStoreException", e.getMessage()));
 		}
 	}
 
