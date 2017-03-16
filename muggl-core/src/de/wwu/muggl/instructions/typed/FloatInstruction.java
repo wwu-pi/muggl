@@ -1,9 +1,10 @@
 package de.wwu.muggl.instructions.typed;
 
-import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.solvers.expressions.Expression;
 import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muggl.vm.classfile.structures.Method;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 
 /**
  * This class provides static methods to be accessed by instructions typed as an Float.
@@ -42,7 +43,7 @@ public class FloatInstruction extends TypedInstruction {
 	 * @return An instance of NumericVariable.
 	 */
 	@Override
-	public Variable getNewVariable(Method method, int localVariable) {
+	public Variable getNewVariable(Method method, int localVariable, SymbolicVirtualMachine vm) {
 		return new NumericVariable(generateVariableNameByNumber(method, localVariable), Expression.FLOAT, false);
 	}
 

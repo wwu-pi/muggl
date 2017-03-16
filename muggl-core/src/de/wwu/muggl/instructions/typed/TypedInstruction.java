@@ -1,13 +1,14 @@
 package de.wwu.muggl.instructions.typed;
 
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.Variable;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.muggl.solvers.expressions.Expression;
-import de.wwu.muggl.solvers.expressions.Term;
-import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 
 /**
  * This abstract class is to be extended by all classes that offer static methods for typed instructions.
@@ -67,7 +68,7 @@ public abstract class TypedInstruction {
 	 * @param localVariable The index into the local variables (required for the correct naming of the variable generated).
 	 * @return An instance of Variable without a super term set.
 	 */
-	public abstract Variable getNewVariable(Method method, int localVariable);
+	public abstract Variable getNewVariable(Method method, int localVariable, SymbolicVirtualMachine vm);
 
 	/**
 	 * Get a String array representation of the desired types of this instruction. This method is used to

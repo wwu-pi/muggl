@@ -1,12 +1,20 @@
 package de.wwu.muggl.instructions.typed;
 
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.VirtualMachine;
+import de.wwu.muggl.vm.classfile.ClassFile;
+import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionAlgorithms;
 import de.wwu.muggl.vm.execution.ExecutionException;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
+import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
+import de.wwu.muggl.solvers.expressions.Expression;
 import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muggl.symbolic.var.ObjectrefVariable;
+import de.wwu.muggl.symbolic.var.PrimitiveDatatypeWrapperVariable;
 
 /**
  * This class provides static methods to be accessed by instructions typed as a reference.
@@ -46,9 +54,39 @@ public class ReferenceInstruction extends TypedInstruction {
 	 * @return null.
 	 */
 	@Override
-	public Variable getNewVariable(Method method, int localVariable) {
-		return null; // TODO
+	public Variable getNewVariable(Method method, int localVariable, SymbolicVirtualMachine vm) {
+		String name = generateVariableNameByNumber(method, localVariable);
+		String type = method.getParameterTypeAtIndex(localVariable);
+		ClassFile classFile = null;
+		try {
+			classFile = vm.getClassLoader().getClassAsClassFile(type);
+		} catch(ClassFileException e) {
+			return null;
+		}
+				
+		// variable is either (1) wrapper for a primitive type, (2) array reference, or (3) object reference
+		
+		byte dataType = Expression.Type.getPrimitiveTypeByString(type);
+		// (1) wrapper for primitive data type
+		if(dataType != -1) {
+			return new PrimitiveDatatypeWrapperVariable(name, new InitializedClass(classFile, vm), dataType, vm);
+		} 
+		
+		// (2) array reference
+		else if(false) {
+			// TODO
+		}
+		
+		// (3) object reference
+		else {
+			
+			return new ObjectrefVariable(name, new InitializedClass(classFile, vm), vm);
+		}
+		
+		return null; // TODO: throw exception, if neither primitive-type-wrapper, nor array-reference, nor object-reference
 	}
+
+
 
 	/**
 	 * Get a String array representation of the desired types of this instruction. This method is used to
