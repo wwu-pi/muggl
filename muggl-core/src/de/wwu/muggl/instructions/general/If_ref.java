@@ -4,9 +4,14 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
+import de.wwu.muggl.solvers.expressions.ref.ObjectReferenceIsNullConstraint;
+import de.wwu.muggl.solvers.expressions.ref.meta.ReferenceVariable;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
+import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 
 /**
  * Abstract instruction with some concrete methods for comparison instructions for checking
@@ -49,10 +54,21 @@ public abstract class If_ref extends GeneralInstructionWithOtherBytes implements
 	 * @param frame The currently executed frame.
 	 */
 	@Override
-	public void executeSymbolically(Frame frame) {
+	public void executeSymbolically(Frame frame) throws NoExceptionHandlerFoundException, SymbolicExecutionException {
 		Object value = frame.getOperandStack().pop();
-		if (compare(value))
-			frame.getVm().setPC(getJumpTarget());
+
+		// check if the value is a reference that can be null
+		if(value instanceof ReferenceVariable) {
+			ObjectReferenceIsNullConstraint objRefNullCstr = new ObjectReferenceIsNullConstraint((ReferenceVariable)value);
+			try {
+				((SymbolicVirtualMachine)frame.getVm()).generateNewChoicePoint(this, objRefNullCstr);
+			} catch (SymbolicExecutionException e) {
+				executionFailedSymbolically(e);
+			}
+		} else {
+			if (compare(value))
+				frame.getVm().setPC(getJumpTarget());
+		}
 	}
 
 	/**
