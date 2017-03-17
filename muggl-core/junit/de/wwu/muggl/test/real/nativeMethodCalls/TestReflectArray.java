@@ -1,21 +1,20 @@
 package de.wwu.muggl.test.real.nativeMethodCalls;
 
-import static org.junit.Assert.*;
-
-import java.lang.invoke.MethodType;
-
-import org.apache.log4j.Level;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import de.wwu.muggl.NotYetSupported;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.test.real.vm.TestVMNormalMethodRunnerHelper;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
+import org.apache.log4j.Level;
+import org.junit.*;
+import org.junit.experimental.categories.Category;
+
+import java.lang.invoke.MethodType;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * 
@@ -114,6 +113,7 @@ public class TestReflectArray extends TestSkeleton {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_NewArray() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(0,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -123,6 +123,7 @@ public class TestReflectArray extends TestSkeleton {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_NewMultiArray() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(3,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -132,6 +133,7 @@ public class TestReflectArray extends TestSkeleton {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_IsArrayClass() throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(), "test_IsArrayClass",
@@ -140,6 +142,7 @@ public class TestReflectArray extends TestSkeleton {
 	}
 	
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_ArrayCopyOf() throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(), 

@@ -1,20 +1,19 @@
 package de.wwu.muggl.test.real.vm;
 
-import static org.junit.Assert.*;
-
-import java.lang.invoke.MethodType;
-
-import org.apache.log4j.Level;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import de.wwu.muggl.NotYetSupported;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
+import org.apache.log4j.Level;
+import org.junit.*;
+import org.junit.experimental.categories.Category;
+
+import java.lang.invoke.MethodType;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * 
@@ -73,6 +72,7 @@ public class TestVMBoxing extends TestSkeleton {
 	}
 
 	@Test
+	@Category(NotYetSupported.class)
 	public final void testBoxBooleanGetField2()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals((boolean) false,
@@ -82,6 +82,7 @@ public class TestVMBoxing extends TestSkeleton {
 	}
 
 	@Test
+	@Category(NotYetSupported.class)
 	public final void testBoxBooleanGetFieldWrapped()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals((boolean) false,

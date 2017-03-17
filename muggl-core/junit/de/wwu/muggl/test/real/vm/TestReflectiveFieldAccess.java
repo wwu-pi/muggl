@@ -1,17 +1,6 @@
 package de.wwu.muggl.test.real.vm;
 
-import static org.junit.Assert.assertEquals;
-
-import java.lang.invoke.MethodType;
-
-import org.apache.log4j.Level;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-
+import de.wwu.muggl.NotYetSupported;
 import de.wwu.muggl.binaryTestSuite.ReflectionField;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
@@ -19,6 +8,13 @@ import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
+import org.apache.log4j.Level;
+import org.junit.*;
+import org.junit.experimental.categories.Category;
+
+import java.lang.invoke.MethodType;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * 
@@ -50,6 +46,7 @@ public class TestReflectiveFieldAccess extends TestSkeleton {
 	}
 
 	@Test
+	@Category(NotYetSupported.class)
 	public final void testReflectiveFieldAccessIntPrim()
 			throws ClassFileException, InitializationException, NoSuchMethodError, InterruptedException {
 

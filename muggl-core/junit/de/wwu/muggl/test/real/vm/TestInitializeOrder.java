@@ -1,14 +1,6 @@
 package de.wwu.muggl.test.real.vm;
 
-import static org.junit.Assert.*;
-
-import java.lang.invoke.MethodType;
-import org.apache.log4j.Level;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import de.wwu.muggl.NotYetSupported;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.test.TestSkeleton;
@@ -16,6 +8,13 @@ import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
+import org.apache.log4j.Level;
+import org.junit.*;
+import org.junit.experimental.categories.Category;
+
+import java.lang.invoke.MethodType;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test when the class and object initializers are called.
@@ -48,6 +47,7 @@ public class TestInitializeOrder extends TestSkeleton {
 	}
 
 	@Test
+	@Category(NotYetSupported.class)
 	public final void testInitializations() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 
@@ -59,6 +59,7 @@ public class TestInitializeOrder extends TestSkeleton {
 	}
 
 	@Test
+	@Category(NotYetSupported.class)
 	public final void testInitializationsArray() throws ClassFileException, InitializationException,
 			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
 
@@ -70,6 +71,7 @@ public class TestInitializeOrder extends TestSkeleton {
 	}
 
 	@Test
+	@Category(NotYetSupported.class)
 	public final void testInitializationsArrayNull() throws ClassFileException, InitializationException,
 			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
 

@@ -1,14 +1,6 @@
 package de.wwu.muggl.test.symbolic;
 
-import java.lang.invoke.MethodType;
-
-import org.apache.log4j.Level;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import de.wwu.muggl.NotYetSupported;
 import de.wwu.muggl.binaryTestSuite.TestSimpleForSymbolic;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeletonSymbolic;
@@ -16,6 +8,11 @@ import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
+import org.apache.log4j.Level;
+import org.junit.*;
+import org.junit.experimental.categories.Category;
+
+import java.lang.invoke.MethodType;
 
 /**
  * 
@@ -48,6 +45,7 @@ public class TestCalculationSimple extends TestSkeletonSymbolic {
 	}
 
 	@Test // should at least finish sucessfully
+	@Category(NotYetSupported.class)
 	public final void testApplicationMugglExecuteSimpleSymbolic()
 			throws ClassFileException, InitializationException, InterruptedException {
 
