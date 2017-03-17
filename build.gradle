@@ -9,12 +9,14 @@ allprojects {
 	apply plugin: 'java' // required for adding JUnit 4 dep
 	apply plugin: 'eclipse'
 	apply plugin: 'maven'
+	apply plugin: 'jacoco'
 	group = 'de.wwu.muggl'
 	version = '0.3.1-SNAPSHOT'
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
 
 	repositories {
+	    jcenter()
 	    mavenCentral()
 	    maven { url 'http://maven-eclipse.github.io/maven' }
 		flatDir { dirs '../lib' }
@@ -22,6 +24,13 @@ allprojects {
 
 	dependencies {
             testCompile "junit:junit:4.+"
+	}
+	
+	jacocoTestReport {
+    		reports {
+       			xml.enabled = true
+        		html.enabled = true
+    		}
 	}
 }
 
