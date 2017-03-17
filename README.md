@@ -14,3 +14,6 @@ In order to **generate an eclipse project** for development and execution:
 
 In order to create a **deployable jar** file:
 - (todo)
+
+### Builds
+[![Build Status](https://travis-ci.org/wwu-pi/muggl.svg?branch=master)](https://travis-ci.org/wwu-pi/muggl)
