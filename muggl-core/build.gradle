@@ -16,6 +16,10 @@ test {
     testLogging {
         events "started", "passed", "skipped", "failed"
     }
+
+    useJUnit {
+        excludeCategories 'de.wwu.muggl.NotYetSupported'
+    }
     
     tasks.withType(Test) {
     enableAssertions = false // as long as the org.jacop has the failing assertion
