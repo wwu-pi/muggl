@@ -1,18 +1,6 @@
 package de.wwu.muggl.test.real.nativeMethodCalls;
 
-import static org.junit.Assert.*;
-
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Modifier;
-
-import org.apache.log4j.Level;
-import org.hamcrest.CoreMatchers;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import de.wwu.muggl.NotYetSupported;
 import de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
@@ -26,6 +14,15 @@ import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
+import org.apache.log4j.Level;
+import org.hamcrest.CoreMatchers;
+import org.junit.*;
+import org.junit.experimental.categories.Category;
+
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.*;
 
 /**
  * 
@@ -126,6 +123,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_GetClassPrimitiveNames()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("booleanbyteshortcharintlongfloatdoubleObjectvoid",
@@ -229,6 +227,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_GetClassNameObj() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("java.lang.Integer",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -280,6 +279,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_GetComponentType2()
 			throws ClassFileException, InitializationException, InterruptedException {
 
@@ -303,6 +303,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_GetGetClassPrimitive()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("char",
@@ -376,6 +377,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_IsPrimitive() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(90,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -396,6 +398,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_IsPrimitiveInstances()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(64,
@@ -407,6 +410,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_isInstance() throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.nativeInstr.ClassAndClassLoader.class.getCanonicalName(),
@@ -416,6 +420,7 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void test_isAssignableFrom() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(2,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,

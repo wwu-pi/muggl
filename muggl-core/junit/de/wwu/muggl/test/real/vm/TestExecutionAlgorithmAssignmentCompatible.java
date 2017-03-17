@@ -1,12 +1,6 @@
 package de.wwu.muggl.test.real.vm;
 
-import static org.junit.Assert.*;
-
-import java.lang.invoke.MethodType;
-import org.apache.log4j.Level;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import de.wwu.muggl.NotYetSupported;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.test.TestSkeleton;
 import de.wwu.muggl.vm.Application;
@@ -17,6 +11,14 @@ import de.wwu.muggl.vm.execution.ExecutionAlgorithms;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
+import org.apache.log4j.Level;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import java.lang.invoke.MethodType;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the "Assignment compatibility" logic JVM spec § 4.9.2 and JLS §5.2
@@ -98,12 +100,14 @@ public class TestExecutionAlgorithmAssignmentCompatible extends TestSkeleton {
 	}
 
 	@Test
+	@Category(NotYetSupported.class)
 	public void runTest17() throws ExecutionException {
 		assertTrue("should be legal: int:java.lang.Byte",
 				ea.checkForAssignmentCompatibility((int) 1, "java.lang.Byte", application.getVirtualMachine(), false));
 	}
 
 	@Test
+	@Category(NotYetSupported.class)
 	public void runTest16() throws ExecutionException {
 		assertTrue("should be legal: int:java.lang.Charater", ea.checkForAssignmentCompatibility((int) 1,
 				"java.lang.Character", application.getVirtualMachine(), false));

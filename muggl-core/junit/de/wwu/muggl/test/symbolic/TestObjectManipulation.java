@@ -1,17 +1,6 @@
 package de.wwu.muggl.test.symbolic;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.lang.invoke.MethodType;
-
-import org.apache.log4j.Level;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import de.wwu.muggl.NotYetSupported;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.solvers.expressions.BooleanConstant;
@@ -22,6 +11,14 @@ import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
+import org.apache.log4j.Level;
+import org.junit.*;
+import org.junit.experimental.categories.Category;
+
+import java.lang.invoke.MethodType;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestObjectManipulation extends TestSkeletonSymbolic {
 	MugglClassLoader classLoader;
@@ -71,6 +68,7 @@ public class TestObjectManipulation extends TestSkeletonSymbolic {
 	}
 
 	@Test
+	@Category(NotYetSupported.class)
 	public final void testPutStaticBoolean() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 
@@ -82,6 +80,7 @@ public class TestObjectManipulation extends TestSkeletonSymbolic {
 	}
 
 	@Test // uncovers flaws in the AssignmentCompatibility check
+	@Category(NotYetSupported.class)
 	public final void testPutStaticBooleanConst() throws ClassFileException, InitializationException,
 			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
 
@@ -96,6 +95,7 @@ public class TestObjectManipulation extends TestSkeletonSymbolic {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void testPutStaticInt() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 
@@ -108,6 +108,7 @@ public class TestObjectManipulation extends TestSkeletonSymbolic {
 	}
 
 	@Test // läuft
+	@Category(NotYetSupported.class)
 	public final void testPutStaticIntConstant() throws ClassFileException, InitializationException,
 			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
 
