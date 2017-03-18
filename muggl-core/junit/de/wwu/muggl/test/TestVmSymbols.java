@@ -1,11 +1,12 @@
 package de.wwu.muggl.test;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
+import de.wwu.muggl.Supported;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.VmSymbols.BasicType;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test for checking that the various basicType conversion work well.
@@ -17,6 +18,7 @@ public class TestVmSymbols extends TestSkeleton {
 
 	// Signature <--> basic Type
 	@Test
+	@Category(Supported.class)
 	public final void test_SignatureConv() {
 		assertEquals("B", VmSymbols.SIGNATURE_BYTE);
 

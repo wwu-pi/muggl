@@ -20,11 +20,12 @@ test {
 
     useJUnit {
         excludeCategories 'de.wwu.muggl.NotYetSupported'
+        includeCategories 'de.wwu.muggl.Supported'
     }
 	//TODO maxParallelForks = 2
     tasks.withType(Test) {
-    enableAssertions = false // as long as the org.jacop has the failing assertion
-}
+        enableAssertions = false // as long as the org.jacop has the failing assertion
+    }
 }
 
 eclipse.jdt.file {
