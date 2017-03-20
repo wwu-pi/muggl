@@ -34,4 +34,7 @@ public class SymbolicArray {
 		this.symElementMap.put(index, element);
 	}
 	
+	public Map<NumericVariable, Object> getSymElementMap() {
+		return this.symElementMap;
+	}
 }
