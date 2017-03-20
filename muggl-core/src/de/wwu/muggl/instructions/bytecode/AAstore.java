@@ -17,6 +17,8 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.NumericVariable;
 
@@ -98,6 +100,15 @@ public class AAstore extends Astore implements Instruction {
 			// (1) array-reference variable
 			if (arrayObject instanceof ArrayrefVariable) {
 				storeArrayrefVariable((ArrayrefVariable)arrayObject, (NumericVariable)indexObj, value);
+				boolean hasSolution = false;
+				try {
+					hasSolution = ((SymbolicVirtualMachine)frame.getVm()).getSolverManager().hasSolution();
+				} catch (TimeoutException | SolverUnableToDecideException e) {
+					executionFailedSymbolically(e); return;
+				}
+				if(!hasSolution) {
+					throw new SymbolicExecutionException("Not solvable");
+				}
 			// (2) array-reference
 			} else if(arrayObject instanceof Arrayref) {
 				int index = ((IntConstant)indexObj).getValue();
