@@ -16,6 +16,7 @@ import de.wwu.muggl.instructions.general.Load;
 import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
+import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.symbolic.flow.coverage.CoverageController;
 import de.wwu.muggl.symbolic.generating.Generator;
@@ -433,6 +434,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 		super.executedInstructions++;
 
 		// execute the instruction symbolically
+		Globals.getInst().execLogger.info("*** execute " + method.getClassFile().getName()+"#"+method+", pc="+pc+", instruction="+instruction.getName());
 		instruction.executeSymbolically(this.currentFrame);
 		
 		// check if debug print mode is set -> print operand stack after instruction execution
@@ -550,8 +552,12 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 				returnValue = new UndefinedValue();
 			}
 
+			Solution solution = this.solverManager.getSolution();
+			Globals.getInst().symbolicExecLogger.info("*** Solution: " + solution);
+			Globals.getInst().symbolicExecLogger.info("*** Return Value: " + returnValue+"\n");
+			
 			// Add the solutions.
-			this.solutionProcessor.addSolution(this.solverManager.getSolution(), returnValue,
+			this.solutionProcessor.addSolution(solution, returnValue,
 					this.threwAnUncaughtException, this.coverage.getCFCoverageMap(), this.coverage
 							.getDUCoverageAsBoolean());
 
