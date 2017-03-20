@@ -3,9 +3,9 @@ package de.wwu.muggl.solvers.jacop;
 import java.util.ArrayList;
 
 import org.jacop.constraints.Constraint;
+import org.jacop.constraints.LinearInt;
 import org.jacop.constraints.PrimitiveConstraint;
 import org.jacop.constraints.SumInt;
-import org.jacop.constraints.SumWeight;
 import org.jacop.constraints.XeqC;
 import org.jacop.constraints.XeqY;
 import org.jacop.constraints.XgtC;
@@ -60,6 +60,7 @@ import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.LessOrEqual;
 import de.wwu.muggl.solvers.expressions.LessThan;
 import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.Max;
 import de.wwu.muggl.solvers.expressions.Modulo;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.solvers.expressions.NumericEqual;
@@ -106,9 +107,22 @@ public class JaCoPTransformer {
 			imposeDisjunction((Or)ce, store);
 		} else if (ce instanceof ObjectReferenceConstraint) {
 			imposeObjectReference((ObjectReferenceConstraint)ce, store);
+		} else if (ce instanceof Max) {
+			imposeMaxConstraint((Max)ce, store);
 		} else {
 			throw new IllegalArgumentException("Unknown constraint type " + ce.getClass().getName());
 		}
+	}
+
+	private static void imposeMaxConstraint(Max ce, JacopMugglStore store) {
+		ArrayList<IntVar> varList = new ArrayList<>();
+		for(NumericVariable nv : ce.getVariableSet()) {
+			IntVar termVar = normaliseIntegerTerm(nv, store);
+			varList.add(termVar);
+		}
+		IntVar maxVar = normaliseIntegerTerm(ce.getMaxVar(), store);
+		org.jacop.constraints.Max jacopMax = new org.jacop.constraints.Max(varList, maxVar);
+		store.impose(jacopMax);
 	}
 
 	private static void imposeObjectReference(ObjectReferenceConstraint ce, JacopMugglStore store) {
@@ -541,7 +555,7 @@ public class JaCoPTransformer {
 		if (allWeightsOne) {
 			sumConstraint = new SumInt(store, termList, "==", intermediateVariable);
 		} else {
-			sumConstraint = new SumWeight(termList, weightList, intermediateVariable);
+			sumConstraint = new LinearInt(store, termList, weightList, "==", 0);
 		}
 
 		store.impose(sumConstraint);
