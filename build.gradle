@@ -25,19 +25,6 @@ allprojects {
         testCompile "junit:junit:4.+"
     }
 
-    jacocoTestReport {
-        group = 'Coverage'
-
-        additionalSourceDirs = project.files(sourceSets.main.allSource.srcDirs)
-        sourceDirectories = project.files(sourceSets.main.allSource.srcDirs)
-        classDirectories = project.files(sourceSets.main.output)
-
-        reports {
-            xml.enabled = true
-            html.enabled = true
-            csv.enabled false
-        }
-    }
 }
 
 tasks.withType(JavaCompile) {
@@ -45,34 +32,23 @@ tasks.withType(JavaCompile) {
 }
 
 // Gather all reports
-task jacocoCombinedTestReport(type: JacocoReport, group: 'Coverage') {
-    dependsOn(subprojects.jacocoTestReport)
+task codeCoverageReport(type: JacocoReport) {
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
 
-    additionalSourceDirs = files(subprojects.sourceSets.main.allSource.srcDirs)
-    sourceDirectories = files(subprojects.sourceSets.main.allSource.srcDirs)
-    classDirectories = files(subprojects.sourceSets.main.output)
-    executionData = files(subprojects.jacocoTestReport.executionData)
+    subprojects.each {
+        sourceSets it.sourceSets.main
+    }
 
     reports {
         xml.enabled true
-        html.enabled true
-        html.destination "${buildDir}/reports/jacoco"
+        xml.destination "${buildDir}/reports/jacoco/report.xml"
+        html.enabled false
         csv.enabled false
     }
-
-    doFirst {
-        executionData = files(executionData.findAll { it.exists() })
-    }
 }
 
-coveralls {
-    sourceDirs = subprojects.sourceSets.main.allSource.srcDirs.flatten()
-    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoCombinedTestReport/jacocoCombinedTestReport.xml"
-}
-
-tasks.coveralls {
-    group = 'Coverage'
-    dependsOn jacocoCombinedTestReport
+codeCoverageReport.dependsOn {
+    subprojects*.test
 }
 
 def static getSwtVersion(){
