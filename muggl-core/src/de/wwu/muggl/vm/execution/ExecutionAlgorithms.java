@@ -96,14 +96,21 @@ public class ExecutionAlgorithms {
 
 
 					// Can the type be wrapped up?
-					if (!(name.equals("java.lang.Boolean") || name.equals("java.lang.Byte")
+					if (name.equals("java.lang.Boolean") || name.equals("java.lang.Byte")
 							|| name.equals("java.lang.Character") || name.equals("java.lang.Short")
 							|| name.equals("java.lang.Integer") || name.equals("java.lang.Double")
-							|| name.equals("java.lang.Float") || name.equals("java.lang.Long")))
-						throw new ExecutionException("The check for assigment compatibility failed unexpectedly as only the wrapper classes of java.lang might be wrapped into ReferenceValues for the assignment compatibility check.");
+							|| name.equals("java.lang.Float") || name.equals("java.lang.Long")) {
 
-					// Get the Objectref
-					source = this.classLoader.getClassAsClassFile(name).getAPrimitiveWrapperObjectref(vm);
+						// Get the Objectref
+						source = this.classLoader.getClassAsClassFile(name).getAPrimitiveWrapperObjectref(vm);
+					} else {
+						// Get an Objectref of a non-primitive type.
+						// getTheInitializedClass cannot be called here, since the VM is unknown!
+						// However, since it is a `source` Objectref, I think we can safely assume that
+						// The VM has already initialised this!
+						source = this.classLoader.getClassAsClassFile(name).getInitializedClass().getANewInstance();
+					}
+
 
 					// Source is an arrayref?
 					if (arrayDimensions > 0) {
