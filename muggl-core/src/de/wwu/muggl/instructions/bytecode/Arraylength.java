@@ -1,11 +1,11 @@
 package de.wwu.muggl.instructions.bytecode;
 
+import java.lang.reflect.Array;
 import java.util.Stack;
 
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
-import de.wwu.muggl.vm.exceptions.ExceptionHandler;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
@@ -33,13 +33,20 @@ public class Arraylength extends de.wwu.muggl.instructions.general.ArraylengthAb
 			Stack<Object> stack = frame.getOperandStack();
 			Object stackTop = stack.pop();
 			// Unexpected exception: arrayref does not point to an array at all.
-			if (stackTop != null && !(stackTop instanceof Arrayref)) {
+			if (stackTop != null && !(stackTop instanceof Arrayref) && !stackTop.getClass().isArray()) {
 				throw new ExecutionException("Could not get the arraylength since the element on top of the stack is not an array.");
 			}
-			Arrayref arrayref = (Arrayref) stackTop;
+
+			int length;
+
+			if (stackTop instanceof Arrayref) {
+				length = ((Arrayref) stackTop).length;
+			} else {
+				length = Array.getLength(stackTop);
+			}
 
 			// Push the length of the array.
-			stack.push(arrayref.length);
+			stack.push(length);
 		} catch (ExecutionException e) {
 			executionFailed(e);
 		}
