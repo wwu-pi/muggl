@@ -38,19 +38,8 @@ public class Arraylength extends de.wwu.muggl.instructions.general.ArraylengthAb
 			}
 			Arrayref arrayref = (Arrayref) stackTop;
 
-			// Runtime exception: arrayref is null.
-			if (arrayref == null)
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
-
 			// Push the length of the array.
 			stack.push(arrayref.length);
-		} catch (VmRuntimeException e) {
-			ExceptionHandler handler = new ExceptionHandler(frame, e);
-			try {
-				handler.handleException();
-			} catch (ExecutionException e2) {
-				executionFailed(e2);
-			}
 		} catch (ExecutionException e) {
 			executionFailed(e);
 		}
