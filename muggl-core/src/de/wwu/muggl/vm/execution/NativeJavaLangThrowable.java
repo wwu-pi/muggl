@@ -25,7 +25,8 @@ public class NativeJavaLangThrowable extends NativeMethodProvider {
 	//
 	public static Objectref fillInStackTrace(Frame frame, Objectref invokingObjectref, Integer index) {
 		frame.getVm().fillDebugStackTraces();
-		Globals.getInst().execLogger.debug(frame.getVm().debugStackTraceMugglVM);
+		Globals.getInst().execLogger.debug("Creating stack trace: \n" + frame.getVm().debugStackTraceMugglVM);
+		// TODO put stacktrace into invokingObjectref, cf. below
 		// java_lang_Throwable.fill_in_stack_trace(frame, invokingObjectref);
 		return invokingObjectref;
 	}
