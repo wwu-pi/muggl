@@ -4,8 +4,10 @@ package de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements;
  * This TrailElement indicates that the current PC has changed and can be used to set the PC
  * previously executed as the current one.
  *
- * @author Tim Majchrzak
- * @version 1.0.0, 2008-08-29
+ * On restore, this.pc has to be set in the VM.
+ *
+ * @author Jan Dageförde
+ * @version 2017-04-19
  */
 public class PCChange implements TrailElement {
 

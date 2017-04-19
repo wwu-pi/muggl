@@ -115,7 +115,7 @@ public class ExceptionHandler {
 										.getVm().getClassLoader()))) {
 					// Handling successful!
 					this.frame.getOperandStack().clear();
-					this.frame.getVm().setPC(exceptionTable[a].getHandlerPc());
+					this.frame.getVm().changeCurrentPC(exceptionTable[a].getHandlerPc());
 					this.frame.setPc(exceptionTable[a].getHandlerPc());
 					this.frame.getOperandStack().push(this.objectref);
 					this.handlingFinished = true;
