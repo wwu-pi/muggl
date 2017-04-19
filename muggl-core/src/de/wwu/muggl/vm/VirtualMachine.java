@@ -932,7 +932,7 @@ public abstract class VirtualMachine extends Thread {
 	}
 
 	/**
-	 * Setter for the current Frame. This method bypasses hangeCurrentFrame(Frame).<br />
+	 * Setter for the current Frame. This method bypasses changeCurrentFrame(Frame).<br />
 	 * <br />
 	 * WARNING: This method should only be used if you know what you are doing.
 	 *
@@ -952,7 +952,10 @@ public abstract class VirtualMachine extends Thread {
 	}
 
 	/**
-	 * Setter for the pc.
+	 * Setter for the pc. This method bypasses changeCurrentPC(int).<br />
+	 * <br />
+	 * WARNING: This method should only be used if you know what you are doing.
+	 * @see #changeCurrentPC
 	 * @param pc The new pc value as an int.
 	 */
 	public void setPC(int pc) {
@@ -1248,7 +1251,7 @@ public abstract class VirtualMachine extends Thread {
 	}
 
 	/**
-	 * Change the current frame. Never change this.currentFrame directly,
+	 * Change the current frame. Never change this.currentFrame/setFrame() directly,
 	 * as concrete vm implementations might override this method in order
 	 * to keep track of current frame changes.
 	 *
@@ -1256,6 +1259,17 @@ public abstract class VirtualMachine extends Thread {
 	 */
 	public void changeCurrentFrame(Frame frame) {
 		this.currentFrame = frame;
+	}
+
+	/**
+	 * Change the current PC. Never change this.pc/setPC() directly,
+	 * as concrete vm implementations might override this method in order
+	 * to keep track of current PC changes.
+	 *
+	 * @param pc The PC to become the current PC.
+	 */
+	public void changeCurrentPC(int pc) {
+		this.pc = pc;
 	}
 
 	/**
