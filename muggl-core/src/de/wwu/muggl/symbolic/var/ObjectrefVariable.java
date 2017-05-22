@@ -3,6 +3,8 @@ package de.wwu.muggl.symbolic.var;
 import java.io.PrintStream;
 
 import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
 import de.wwu.muggl.solvers.expressions.Expression;
 import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.solvers.expressions.TypeCheckException;
@@ -93,7 +95,7 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 						name, new InitializedClass(classFile, vm), 
 						Expression.Type.getPrimitiveWrapperTypeByString(type),	vm);
 			} catch(ClassFileException e) {
-				throw new ReferenceVariableException("Cannot create primitive type wrapper variable." + e);
+				throw new ReferenceVariableException("Cannot create primitive type wrapper variable.", e);
 			}
 		}
 		
@@ -104,7 +106,9 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 				ClassFile classFile = vm.getClassLoader().getClassAsClassFile(arrayType);
 				fieldVar = new ArrayrefVariable(varName, vm.getAnObjectref(classFile), vm);
 			} catch(ClassFileException e) {
-				throw new RuntimeException(e);
+				throw new ReferenceVariableException(e);
+			} catch (TimeoutException | SolverUnableToDecideException e) {
+				throw new ReferenceVariableException(e);
 			}
 		}
 		
@@ -114,7 +118,7 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 				ClassFile classFile = vm.getClassLoader().getClassAsClassFile(type);
 				fieldVar = new ObjectrefVariable(varName, new InitializedClass(classFile, vm), vm);
 			} catch(ClassFileException e) {
-				throw new RuntimeException(e);
+				throw new ReferenceVariableException(e);
 			}
 		}
 		
