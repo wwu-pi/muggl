@@ -15,6 +15,9 @@ sourceSets {
 	main.java.exclude "test/logicjava/**/*"
 }
 
+if(getSwtArch() == 'cocoa.macosx.x86_64') {
+  applicationDefaultJvmArgs.add('-XstartOnFirstThread');
+}
 mainClassName = 'de.wwu.muggl.ui.UiStarter'
 
 eclipse.jdt.file {
