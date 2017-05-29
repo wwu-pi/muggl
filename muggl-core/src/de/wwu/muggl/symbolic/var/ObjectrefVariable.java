@@ -132,6 +132,11 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 	public NumericVariable getIsNullVariable() {
 		return this.isNull;
 	}
+	
+	@Override
+	public String toString() {
+		return "Variable: " + super.toString();
+	}
 
 	@Override
 	public String toString(boolean useInternalVariableNames) {
