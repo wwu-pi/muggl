@@ -4,6 +4,7 @@ import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.Get;
 import de.wwu.muggl.instructions.interfaces.Instruction;
+import de.wwu.muggl.symbolic.var.ObjectrefVariable;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -14,6 +15,7 @@ import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Objectref;
 
@@ -43,8 +45,10 @@ public class Getfield extends Get implements Instruction {
 	@Override
 	public void execute(Frame frame) throws ExecutionException {
 		try {
+			// Preparations. Per spec, the type of objectref must not be an array type!
+			Objectref objectref = (Objectref) frame.getOperandStack().pop();
 			// Fetch and push the value.
-			frame.getOperandStack().push(getFieldValue(frame));
+			frame.getOperandStack().push(getFieldValue(frame, objectref));
 		} catch (VmRuntimeException e) {
 			ExceptionHandler handler = new ExceptionHandler(frame, e);
 			try {
@@ -66,11 +70,24 @@ public class Getfield extends Get implements Instruction {
 	@Override
 	public void executeSymbolically(Frame frame) throws NoExceptionHandlerFoundException, SymbolicExecutionException {
 		try {
-			// Get the fields' value.
-			Object value = getFieldValue(frame);
-
-			// Push it.
-			frame.getOperandStack().push(value);
+			// Preparations. Per spec, the type of objectref must not be an array type!
+			Objectref objectref = (Objectref) frame.getOperandStack().pop();
+			
+			if(objectref instanceof ObjectrefVariable) {
+				// If the object reference is a symbolic variable
+				// it can happen that the reference can
+				// (1) either be a null-reference or
+				// (2) a not-null-reference.
+				// We must check, if both options are possible,
+				// and in case they are, we generate a new choice point.
+				((SymbolicVirtualMachine) frame.getVm()).generateNewGetFieldChoicePoint(this, (ObjectrefVariable)objectref);
+			} else {
+				// Get the fields' value.
+				Object value = getFieldValue(frame, objectref);
+	
+				// Push it.
+				frame.getOperandStack().push(value);
+			}
 		} catch (VmRuntimeException e) {
 			SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
 			try {
@@ -92,9 +109,7 @@ public class Getfield extends Get implements Instruction {
 	 * @throws ExecutionException In case of fatal problems during the execution.
 	 * @throws VmRuntimeException If the Field could not be found, wrapping a NoSuchFieldError.
 	 */
-	private Object getFieldValue(Frame frame) throws ExecutionException, VmRuntimeException {
-		// Preparations. Per spec, the type of objectref must not be an array type!
-		Objectref objectref = (Objectref) frame.getOperandStack().pop();
+	private Object getFieldValue(Frame frame, Objectref objectref) throws ExecutionException, VmRuntimeException {
 		ClassFile methodClassFile = frame.getMethod().getClassFile();
 		Field field = getField(frame, methodClassFile, methodClassFile.getClassLoader());
 
