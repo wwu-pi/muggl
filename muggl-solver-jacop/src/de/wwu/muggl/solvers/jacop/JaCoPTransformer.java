@@ -467,9 +467,11 @@ public class JaCoPTransformer {
 			IntVar intVar = (IntVar) store.getVariable((Variable)integerTerm);
 			
 			if (intVar == null) {
-				intVar = new IntVar(store, 
-					((NumericVariable)integerTerm).getInternalName(), 
-					DOMAIN_INTEGER);
+				if(((NumericVariable)integerTerm).getType() == Expression.BOOLEAN) {
+					intVar = new IntVar(store, ((NumericVariable)integerTerm).getInternalName(), 0, 1);
+				} else {
+					intVar = new IntVar(store, ((NumericVariable)integerTerm).getInternalName(), DOMAIN_INTEGER);
+				}
 				// add to cache
 				store.addVariable((Variable)integerTerm, intVar);
 			}
