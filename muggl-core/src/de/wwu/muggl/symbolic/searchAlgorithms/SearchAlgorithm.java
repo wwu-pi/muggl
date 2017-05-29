@@ -1,5 +1,6 @@
 package de.wwu.muggl.symbolic.searchAlgorithms;
 
+import de.wwu.muggl.instructions.bytecode.Getfield;
 import de.wwu.muggl.instructions.bytecode.LCmp;
 import de.wwu.muggl.instructions.general.CompareFp;
 import de.wwu.muggl.instructions.general.GeneralInstructionWithOtherBytes;
@@ -9,6 +10,8 @@ import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.ArrayRestore;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.FieldPut;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.Restore;
+import de.wwu.muggl.symbolic.var.ObjectrefVariable;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
@@ -145,6 +148,16 @@ public interface SearchAlgorithm {
 	void generateNewChoicePoint(SymbolicVirtualMachine vm, Switch instruction, Term termFromStack,
 			IntConstant[] keys, int[] pcs, IntConstant low, IntConstant high)
 			throws SymbolicExecutionException;
+	
+	/**
+	 * Generate a new GETFIELD on a object-reference (which might be null) choice point.
+	 * 
+	 * @param vm The currently executing SymbolicalVirtualMachine.
+	 * @param instruction The GETFIELD Instruction generating the ChoicePoint.
+	 * @param objectRefVar The object reference variable, which might be a null reference.
+	 * @throws VmRuntimeException In case the GETFIELD instruction must throw a NullPointerException, i.e. the objectRefVar is a null-reference.
+	 */
+	void generateNewGetFieldChoicePoint(SymbolicVirtualMachine vm, Getfield instruction, ObjectrefVariable objectRefVar) throws VmRuntimeException;
 
 	/**
 	 * Return a String representation of this search algorithms name.

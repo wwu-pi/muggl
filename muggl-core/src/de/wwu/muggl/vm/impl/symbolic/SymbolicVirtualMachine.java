@@ -8,6 +8,7 @@ import org.apache.log4j.Level;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
+import de.wwu.muggl.instructions.bytecode.Getfield;
 import de.wwu.muggl.instructions.bytecode.LCmp;
 import de.wwu.muggl.instructions.bytecode.Newarray;
 import de.wwu.muggl.instructions.general.CompareFp;
@@ -28,6 +29,7 @@ import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.FrameChan
 import de.wwu.muggl.symbolic.searchAlgorithms.iterativeDeepening.IterativeDeepeningSearchAlgorithm;
 import de.wwu.muggl.symbolic.structures.Loop;
 import de.wwu.muggl.symbolic.testCases.SolutionProcessor;
+import de.wwu.muggl.symbolic.var.ObjectrefVariable;
 import de.wwu.muggl.vm.Application;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VirtualMachine;
@@ -36,6 +38,7 @@ import de.wwu.muggl.vm.classfile.Limitations;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.initialization.InitializationException;
@@ -825,6 +828,28 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 		this.searchAlgorithm.generateNewChoicePoint(this, instruction, termFromStack, keys, pcs,
 				low, high);
 	}
+	
+	/**
+	 * Generate a new choice point for the instruction GETFIELD.
+	 * If this instruction is invoked on a symbolic object reference variable,
+	 * it can happen that this object reference can (1) either be <code>null</code>
+	 * or (2) not <code>null</code>. We generate a choice point (if both options are possible)
+	 * to handle both cases.
+	 * @param instruction the GETFIELD instruction
+	 * @param objectRefVar the object variable reference, which might be (or not be) <code>null</code>.
+	 * @throws VmRuntimeException In case the GETFIELD instruction must throw a NullPointerException, i.e. the objectRefVar is a null-reference.
+	 */
+	public void generateNewGetFieldChoicePoint(Getfield instruction, ObjectrefVariable objectRefVar) throws VmRuntimeException {
+		// Counting the instructions before a new solution is found?
+		if (this.maximumInstructionsBeforeFindingANewSolution != -1) {
+			if (this.onlyCountChoicePointGeneratingInstructions)
+				this.instructionsExecutedSinceLastSolution++;
+		}
+
+		// Create the choice point.
+		this.searchAlgorithm.generateNewGetFieldChoicePoint(this, instruction, objectRefVar);
+	}
+	
 
 	/**
 	 * Sets nextFrameIsAlreadyLoaded to true.

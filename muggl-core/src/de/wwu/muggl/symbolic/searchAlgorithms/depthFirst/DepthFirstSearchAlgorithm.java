@@ -7,6 +7,7 @@ import org.apache.log4j.Level;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.MugglException;
 import de.wwu.muggl.configuration.Options;
+import de.wwu.muggl.instructions.bytecode.Getfield;
 import de.wwu.muggl.instructions.bytecode.LCmp;
 import de.wwu.muggl.instructions.bytecode.Lookupswitch;
 import de.wwu.muggl.instructions.general.CompareDouble;
@@ -26,6 +27,7 @@ import de.wwu.muggl.symbolic.searchAlgorithms.choice.SolvingException;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.array.ArrayInitializationChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.fpComparison.DoubleComparisonChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.fpComparison.FloatComparisonChoicePoint;
+import de.wwu.muggl.symbolic.searchAlgorithms.choice.getfield.GetFieldChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.longComparison.LongComparisonChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.switching.LookupswitchChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.switching.SwitchingChoicePoint;
@@ -42,6 +44,8 @@ import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.StaticFie
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.VmPop;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.VmPush;
+import de.wwu.muggl.symbolic.var.ObjectrefVariable;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicFrame;
@@ -580,7 +584,31 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 		this.numberOfVisitedBranches++;
 		if (this.measureExecutionTime) vm.increaseTimeChoicePointGeneration(System.nanoTime() - this.timeChoicePointGenerationTemp);
 	}
+	
+	
+	public void generateNewGetFieldChoicePoint(SymbolicVirtualMachine vm, Getfield instruction, ObjectrefVariable objectRefVar) throws VmRuntimeException {	
+		if (this.measureExecutionTime) this.timeChoicePointGenerationTemp = System.nanoTime();
+		try {
+			this.currentChoicePoint = new GetFieldChoicePoint(
+					vm.getCurrentFrame(),
+					vm.getPc(),
+					vm.getPc() + 1 + instruction.getNumberOfOtherBytes(),
+					objectRefVar,
+					this.currentChoicePoint);
 
+			// Count up for the jumping branch.
+			this.numberOfVisitedBranches++;
+			if (this.measureExecutionTime) vm.increaseTimeChoicePointGeneration(System.nanoTime() - this.timeChoicePointGenerationTemp);
+		} catch (EquationViolationException e) {
+			if (this.measureExecutionTime) vm.increaseTimeChoicePointGeneration(System.nanoTime() - this.timeChoicePointGenerationTemp);
+			trackBack(vm);
+		} catch (SolvingException e) {
+			trackBack(vm);
+		} catch (SymbolicExecutionException e) {
+			trackBack(vm);
+		}		
+	}	
+	
 	/**
 	 * Return a String representation of this search algorithms name.
 	 * @return A String representation of this search algorithms name.
