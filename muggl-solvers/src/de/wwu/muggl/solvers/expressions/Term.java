@@ -63,7 +63,7 @@ public abstract class Term implements Expression {
      * otherwise.
      */
     public static boolean isIntegerType(byte type) {
-	return ((type == Expression.BYTE) || (type == Expression.CHAR) || (type == Expression.SHORT) || (type == Expression.INT) || (type == Expression.LONG));
+	return ((type == Expression.BYTE) || (type == Expression.CHAR) || (type == Expression.SHORT) || (type == Expression.INT) || (type == Expression.LONG) || (type == Expression.BOOLEAN));
     }
 
     /**
