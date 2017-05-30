@@ -46,7 +46,7 @@ public abstract class FieldAccess extends GeneralInstructionWithOtherBytes {
 	 * @throws NoSuchFieldError If the Field could not be found.
 	 * @throws VmRuntimeException On runtime exceptions.
 	 */
-	protected Field getField(Frame frame, ClassFile methodClassFile, MugglClassLoader classLoader)
+	public Field getField(Frame frame, ClassFile methodClassFile, MugglClassLoader classLoader)
 			throws ExecutionException, VmRuntimeException {
 		int index = this.otherBytes[0] << ONE_BYTE | this.otherBytes[1];
 		Constant constant = methodClassFile.getConstantPool()[index];
