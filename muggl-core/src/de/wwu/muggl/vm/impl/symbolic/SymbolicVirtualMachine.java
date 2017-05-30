@@ -41,6 +41,7 @@ import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.ExecutionException;
+import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
@@ -262,13 +263,16 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 		boolean firstRun = true;
 		// Symbolic loop - the end of the program flow is not necessarily the end of the execution.
 		while (true) {
+			Frame executedFrame = null;
 			try {
 				// Run the program.
 				if (firstRun) {
 					super.runMainLoop(visualStartingFrame);
+					executedFrame = visualStartingFrame;
 					firstRun = false;
 				} else {
 					super.runMainLoop(this.currentFrame);
+					executedFrame = currentFrame;
 				}
 			} catch (NoExceptionHandlerFoundException e) {
 				/*
@@ -323,8 +327,23 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 					this.timeSolutionGeneration += System.nanoTime()
 							- this.timeSolutionGenerationTemp;
 			}
-			// Track back if desired and possible.
-			if (this.doNotTryToTrackBack || !this.searchAlgorithm.trackBack(this)) break;
+			
+			
+			try {
+				// Track back if desired and possible.
+				if (this.doNotTryToTrackBack || !this.searchAlgorithm.trackBack(this)) break;
+			} catch(VmRuntimeException e) {
+				SymbolicExceptionHandler handler = new SymbolicExceptionHandler(executedFrame, e);
+				try {
+					handler.handleException();
+				} catch (ExecutionException e2) {
+					if (e2 instanceof NoExceptionHandlerFoundException) {
+						this.threwAnUncaughtException = true;
+						this.returnedObject = e;
+						saveSolution();
+					}
+				}
+			}
 		}
 
 		/*
@@ -696,7 +715,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	 */
 	public void generateNewChoicePoint(GeneralInstructionWithOtherBytes instruction,
 			ConstraintExpression constraintExpression)
-			throws SymbolicExecutionException {
+			throws SymbolicExecutionException, VmRuntimeException {
 		// Counting the instructions before a new solution is found?
 		if (this.maximumInstructionsBeforeFindingANewSolution != -1) {
 			if (this.onlyCountChoicePointGeneratingInstructions)
@@ -724,7 +743,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	 */
 	public void generateNewChoicePoint(GeneralInstructionWithOtherBytes instruction,
 			Generator generator, String type)
-			throws SymbolicExecutionException {
+			throws SymbolicExecutionException, VmRuntimeException {
 		// Counting the instructions before a new solution is found?
 		if (this.maximumInstructionsBeforeFindingANewSolution != -1) {
 			if (this.onlyCountChoicePointGeneratingInstructions)
@@ -761,7 +780,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	 *         generation.
 	 */
 	public void generateNewChoicePoint(LCmp instruction, Term leftTerm, Term rightTerm)
-			throws SymbolicExecutionException {
+			throws SymbolicExecutionException, VmRuntimeException {
 		// Counting the instructions before a new solution is found?
 		if (this.maximumInstructionsBeforeFindingANewSolution != -1) {
 			if (this.onlyCountChoicePointGeneratingInstructions)
@@ -786,7 +805,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	 *         generation.
 	 */
 	public void generateNewChoicePoint(CompareFp instruction, boolean less, Term leftTerm,
-			Term rightTerm) throws SymbolicExecutionException {
+			Term rightTerm) throws SymbolicExecutionException, VmRuntimeException {
 		// Counting the instructions before a new solution is found?
 		if (this.maximumInstructionsBeforeFindingANewSolution != -1) {
 			if (this.onlyCountChoicePointGeneratingInstructions)
@@ -817,7 +836,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	 *         generation.
 	 */
 	public void generateNewChoicePoint(Switch instruction, Term termFromStack, IntConstant[] keys,
-			int[] pcs, IntConstant low, IntConstant high) throws SymbolicExecutionException {
+			int[] pcs, IntConstant low, IntConstant high) throws SymbolicExecutionException, VmRuntimeException {
 		// Counting the instructions before a new solution is found?
 		if (this.maximumInstructionsBeforeFindingANewSolution != -1) {
 			if (this.onlyCountChoicePointGeneratingInstructions)
