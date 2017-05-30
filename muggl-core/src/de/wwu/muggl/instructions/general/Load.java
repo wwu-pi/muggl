@@ -12,11 +12,13 @@ import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.MugglToJavaConversion;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
+import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.muggl.solvers.expressions.Variable;
 
@@ -177,9 +179,18 @@ public abstract class Load extends GeneralInstructionWithOtherBytes implements L
 							throw new SymbolicExecutionException("Multidimensional arrays are not yet supported in symbolic execution mode.");
 						}
 
-						// Generate an ArrayInitializationChoicePoint.
-						((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, null, null);
-						
+						try {
+							// Generate an ArrayInitializationChoicePoint.
+							((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, null, null);
+						} catch (VmRuntimeException e) {
+							SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
+							try {
+								handler.handleException();
+							} catch (ExecutionException e2) {
+								executionFailedSymbolically(e2);
+							}
+						}
+							
 						if (localVariables[localVariable] == null) {
 							frame.getMethod().setGeneratedValue(localVariable, null);
 						} else {

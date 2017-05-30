@@ -5,6 +5,8 @@ import java.util.Stack;
 import de.wwu.muggl.configuration.MugglException;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 
 /**
@@ -180,7 +182,7 @@ public interface ChoicePoint {
 	/**
 	 * Apply any state changes required for the current choice.
 	 */
-	void applyStateChanges();
+	void applyStateChanges() throws SymbolicExecutionException, VmRuntimeException;
 
 	/**
 	 * Get a string representation of the type of choice point.

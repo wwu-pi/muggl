@@ -8,8 +8,12 @@ import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
+import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
+import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Term;
@@ -60,7 +64,7 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 	 * @throws SymbolicExecutionException Thrown in case of fatal problems during the symbolic execution.
 	 */
 	@Override
-	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
+	public void executeSymbolically(Frame frame) throws SymbolicExecutionException, NoExceptionHandlerFoundException {
 		Term term2 = (Term) frame.getOperandStack().pop();
 		Term term1 = (Term) frame.getOperandStack().pop();
 
@@ -75,7 +79,16 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 		} else {
 			// Create the ConstraintExpression and generate a new ChoicePoint. It will set the pc.
 			ConstraintExpression expression = getConstraintExpression(term1, term2);
-			((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, expression);
+			try {
+				((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, expression);
+			} catch (VmRuntimeException e) {
+				SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
+				try {
+					handler.handleException();
+				} catch (ExecutionException e2) {
+					executionFailedSymbolically(e2);
+				}
+			}
 		}
 	}
 

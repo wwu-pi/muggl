@@ -2,11 +2,18 @@ package de.wwu.muggl.instructions.bytecode;
 
 import java.util.Stack;
 
+import org.apache.log4j.Level;
+
+import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.general.CompareLong;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
+import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.LongConstant;
 import de.wwu.muggl.solvers.expressions.Term;
@@ -47,7 +54,7 @@ public class LCmp extends CompareLong implements Instruction {
 	 */
 	@Override
 	public void executeSymbolically(Frame frame)
-			throws SymbolicExecutionException {
+			throws SymbolicExecutionException, NoExceptionHandlerFoundException {
 		try {
 			Stack<Object> stack = frame.getOperandStack();
 			Term term2 = (Term) stack.pop();
@@ -66,10 +73,19 @@ public class LCmp extends CompareLong implements Instruction {
 					stack.push(IntConstant.getInstance(0));
 				}
 			} else {
-			/*
-			 * Create the ConstraintExpression and generate a new ChoicePoint. It will set the pc.
-			 */
-			((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, term1, term2);
+				/*
+				 * Create the ConstraintExpression and generate a new ChoicePoint. It will set the pc.
+				 */
+				try {
+					((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, term1, term2);
+				} catch (VmRuntimeException e) {
+					SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
+					try {
+						handler.handleException();
+					} catch (ExecutionException e2) {
+						executionFailedSymbolically(e2);
+					}
+				}
 			}
 		} catch (SymbolicExecutionException e) {
 			symbolicExecutionFailedWithAnExecutionException(e);

@@ -10,8 +10,11 @@ import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
+import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 
 /**
  * Abstract instruction with some concrete methods for comparison instructions for checking
@@ -61,7 +64,14 @@ public abstract class If_ref extends GeneralInstructionWithOtherBytes implements
 		if(value instanceof ReferenceVariable) {
 			ObjectReferenceIsNullConstraint objRefNullCstr = new ObjectReferenceIsNullConstraint((ReferenceVariable)value);
 			try {
-				((SymbolicVirtualMachine)frame.getVm()).generateNewChoicePoint(this, objRefNullCstr);
+					((SymbolicVirtualMachine)frame.getVm()).generateNewChoicePoint(this, objRefNullCstr);
+			} catch (VmRuntimeException e) {
+				SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
+				try {
+					handler.handleException();
+				} catch (ExecutionException e2) {
+					executionFailedSymbolically(e2);
+				}
 			} catch (SymbolicExecutionException e) {
 				executionFailedSymbolically(e);
 			}

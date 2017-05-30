@@ -8,8 +8,11 @@ import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
+import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Term;
@@ -84,7 +87,17 @@ public abstract class If extends GeneralInstructionWithOtherBytes implements Jum
 				// Create the ConstraintExpression and generate a new ChoicePoint. It will set the pc.
 				Term term2 = IntConstant.getInstance(0);
 				ConstraintExpression expression = getConstraintExpression(term1, term2);
-				((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, expression);
+					
+				try {
+					((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, expression);
+				} catch (VmRuntimeException e) {
+					SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
+					try {
+						handler.handleException();
+					} catch (ExecutionException e2) {
+						executionFailedSymbolically(e2);
+					}
+				}
 			}
 		} catch (SymbolicExecutionException e) {
 			executionFailedSymbolically(e);

@@ -4,8 +4,12 @@ import java.util.Stack;
 
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
+import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
+import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.solvers.expressions.DoubleConstant;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Term;
@@ -56,7 +60,7 @@ public abstract class CompareDouble extends CompareFp {
 	 *         execution.
 	 */
 	@Override
-	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
+	public void executeSymbolically(Frame frame) throws SymbolicExecutionException, NoExceptionHandlerFoundException {
 		try {
 			Stack<Object> stack = frame.getOperandStack();
 			Term term2 = (Term) stack.pop();
@@ -77,12 +81,21 @@ public abstract class CompareDouble extends CompareFp {
 					stack.push(IntConstant.getInstance(0));
 				}
 			} else {
-				/*
-				 * Create the ConstraintExpression and generate a new ChoicePoint. It will set the
-				 * pc.
-				 */
-				((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this,
-						pushMinusOneForNaN(), term1, term2);
+				try {
+					/*
+					 * Create the ConstraintExpression and generate a new ChoicePoint. It will set the
+					 * pc.
+					 */
+					((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this,
+							pushMinusOneForNaN(), term1, term2);
+				} catch (VmRuntimeException e) {
+					SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
+					try {
+						handler.handleException();
+					} catch (ExecutionException e2) {
+						executionFailedSymbolically(e2);
+					}
+				}
 			}
 		} catch (SymbolicExecutionException e) {
 			symbolicExecutionFailedWithAnExecutionException(e);

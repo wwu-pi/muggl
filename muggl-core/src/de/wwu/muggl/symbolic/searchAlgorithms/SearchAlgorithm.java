@@ -46,7 +46,7 @@ public interface SearchAlgorithm {
 	 * @param vm The currently executing SymbolicalVirtualMachine.
 	 * @return true, if tracking back was successfull and the execution can be continued, false, if there was no possibility for tracking back and then execution should hence be stopped.
 	 */
-	boolean trackBack(SymbolicVirtualMachine vm);
+	boolean trackBack(SymbolicVirtualMachine vm) throws VmRuntimeException;
 
 	/**
 	 * Recover that state at the ChoicePoint currentChoicePoint.
@@ -67,9 +67,10 @@ public interface SearchAlgorithm {
 	 * @throws ConversionException If converting the first provided object failed.
 	 * 
 	 * @throws SymbolicExecutionException If a type is encountered that no array can be created for.
+	 * @throws VmRuntimeException 
 	 */
 	void generateNewChoicePoint(SymbolicVirtualMachine vm, int localVariableIndex,
-			Generator generator) throws ConversionException, SymbolicExecutionException;
+			Generator generator) throws ConversionException, SymbolicExecutionException, VmRuntimeException;
 
 	/**
 	 * Generate a new ArrayInitializationChoicePoint for instruction <code>anewarray</code>. Set it
@@ -80,9 +81,10 @@ public interface SearchAlgorithm {
 	 * @param type A String representation of the type.
 	 * 
 	 * @throws SymbolicExecutionException If a type is encountered that no array can be created for.
+	 * @throws VmRuntimeException 
 	 */
 	void generateNewChoicePoint(SymbolicVirtualMachine vm, String type)
-			throws SymbolicExecutionException;
+			throws SymbolicExecutionException, VmRuntimeException;
 
 	/**
 	 * Generate a new ConditionalJumpChoicePoint. Set it as the current choice point and mark that
@@ -92,9 +94,10 @@ public interface SearchAlgorithm {
 	 * @param instruction The Instruction generating the ChoicePoint.
 	 * @param constraintExpression The ConstraintExpression describing the choice at this
 	 *        conditional jump Instruction.
+	 * @throws VmRuntimeException 
 	 */
 	void generateNewChoicePoint(SymbolicVirtualMachine vm,
-			GeneralInstructionWithOtherBytes instruction, ConstraintExpression constraintExpression) throws SymbolicExecutionException;
+			GeneralInstructionWithOtherBytes instruction, ConstraintExpression constraintExpression) throws SymbolicExecutionException, VmRuntimeException;
 
 	/**
 	 * Generate a new LongComparisonChoicePoint. Set it as the current choice point.
@@ -104,9 +107,10 @@ public interface SearchAlgorithm {
 	 * @param leftTerm The term of long variables and constants of the left hand side of the comparison.
 	 * @param rightTerm The term of long variables and constants of the right hand side of the comparison.
 	 * @throws SymbolicExecutionException If an Exception is thrown during the choice point generation.
+	 * @throws VmRuntimeException 
 	 */
 	void generateNewChoicePoint(SymbolicVirtualMachine vm, LCmp instruction,
-			Term leftTerm, Term rightTerm) throws SymbolicExecutionException;
+			Term leftTerm, Term rightTerm) throws SymbolicExecutionException, VmRuntimeException;
 
 	/**
 	 * Generate a new FpComparisonChoicePoint. Set it as the current choice point.
@@ -121,9 +125,10 @@ public interface SearchAlgorithm {
 	 *        comparison.
 	 * @throws SymbolicExecutionException If an Exception is thrown during the choice point
 	 *         generation.
+	 * @throws VmRuntimeException 
 	 */
 	void generateNewChoicePoint(SymbolicVirtualMachine vm, CompareFp instruction,
-			boolean less, Term leftTerm, Term rightTerm) throws SymbolicExecutionException;
+			boolean less, Term leftTerm, Term rightTerm) throws SymbolicExecutionException, VmRuntimeException;
 
 	/**
 	 * Generate a new SwitchingComparisonChoicePoint. Set it as the current choice point.
@@ -144,10 +149,11 @@ public interface SearchAlgorithm {
 	 *         is tableswitch and at least one of the boundaries is null.
 	 * @throws SymbolicExecutionException If an Exception is thrown during the choice point
 	 *         generation.
+	 * @throws VmRuntimeException 
 	 */
 	void generateNewChoicePoint(SymbolicVirtualMachine vm, Switch instruction, Term termFromStack,
 			IntConstant[] keys, int[] pcs, IntConstant low, IntConstant high)
-			throws SymbolicExecutionException;
+			throws SymbolicExecutionException, VmRuntimeException;
 	
 	/**
 	 * Generate a new GETFIELD on a object-reference (which might be null) choice point.

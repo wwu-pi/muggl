@@ -16,6 +16,11 @@ import de.wwu.muggl.instructions.general.GeneralInstructionWithOtherBytes;
 import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.solvers.SolverManager;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.symbolic.flow.coverage.CGCoverageTrailElement;
 import de.wwu.muggl.symbolic.flow.coverage.DUCoverageTrailElement;
 import de.wwu.muggl.symbolic.generating.Generator;
@@ -45,16 +50,13 @@ import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElem
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.VmPop;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.VmPush;
 import de.wwu.muggl.symbolic.var.ObjectrefVariable;
+import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ConversionException;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicFrame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
-import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
-import de.wwu.muggl.solvers.exceptions.TimeoutException;
-import de.wwu.muggl.solvers.expressions.ConstraintExpression;
-import de.wwu.muggl.solvers.expressions.IntConstant;
-import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * This class implements the depth first search algorithm.<br />
@@ -137,7 +139,7 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 	 *         there was no possibility for tracking back and then execution should hence be
 	 *         stopped.
 	 */
-	public boolean trackBack(SymbolicVirtualMachine vm) {
+	public boolean trackBack(SymbolicVirtualMachine vm) throws VmRuntimeException {
 		if (this.measureExecutionTime) this.timeBacktrackingTemp = System.nanoTime();
 		// Only track back if there ever was a ChoicePoint generated at all. Otherwise, no tracking back is possible.
 		if (this.currentChoicePoint == null) return false;
@@ -216,7 +218,13 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 		recoverState(vm);
 
 		// Does the choice point require any state specific changes beside those already done?
-		if (this.currentChoicePoint.enforcesStateChanges()) this.currentChoicePoint.applyStateChanges();
+		if (this.currentChoicePoint.enforcesStateChanges()) {
+			try {
+				this.currentChoicePoint.applyStateChanges();
+			} catch (SymbolicExecutionException e) {
+				return trackBack(vm);
+			}
+		}
 
 		// Tracking back was successful.
 		if (Globals.getInst().symbolicExecLogger.isTraceEnabled())
@@ -365,7 +373,7 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 	 */
 	public void generateNewChoicePoint(
 			SymbolicVirtualMachine vm, int localVariableIndex, Generator generator
-			) throws ConversionException, SymbolicExecutionException {
+			) throws ConversionException, SymbolicExecutionException, VmRuntimeException {
 		if (this.measureExecutionTime) this.timeChoicePointGenerationTemp = System.nanoTime();
 		// If a custom generator is present, generate a GeneratorChoicePoint.
 		if (generator != null) {
@@ -404,7 +412,7 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 	 * @throws SymbolicExecutionException If a type is encountered that no array can be created for.
 	 */
 	public void generateNewChoicePoint(SymbolicVirtualMachine vm, String type)
-			throws SymbolicExecutionException {
+			throws SymbolicExecutionException, VmRuntimeException {
 		if (this.measureExecutionTime) this.timeChoicePointGenerationTemp = System.nanoTime();	
 		this.currentChoicePoint = new ArrayInitializationChoicePoint(vm.getCurrentFrame(), vm
 				.getPc(), type, this.currentChoicePoint);
@@ -430,7 +438,7 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 	 */
 	public void generateNewChoicePoint(SymbolicVirtualMachine vm,
 			GeneralInstructionWithOtherBytes instruction, ConstraintExpression constraintExpression) 
-	throws SymbolicExecutionException{
+	throws SymbolicExecutionException, VmRuntimeException {
 		if (this.measureExecutionTime) this.timeChoicePointGenerationTemp = System.nanoTime();
 		try {
 			this.currentChoicePoint = new ConditionalJumpChoicePointDepthFirst(
@@ -464,7 +472,7 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 	 * @throws SymbolicExecutionException If an Exception is thrown during the choice point generation.
 	 */
 	public void generateNewChoicePoint(SymbolicVirtualMachine vm, LCmp instruction,
-			Term leftTerm, Term rightTerm) throws SymbolicExecutionException {
+			Term leftTerm, Term rightTerm) throws SymbolicExecutionException, VmRuntimeException {
 		if (this.measureExecutionTime) this.timeChoicePointGenerationTemp = System.nanoTime();
 		this.currentChoicePoint = new LongComparisonChoicePoint(
 				vm.getCurrentFrame(),
@@ -497,7 +505,7 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 	 *         generation.
 	 */
 	public void generateNewChoicePoint(SymbolicVirtualMachine vm, CompareFp instruction,
-			boolean less, Term leftTerm, Term rightTerm) throws SymbolicExecutionException {
+			boolean less, Term leftTerm, Term rightTerm) throws SymbolicExecutionException, VmRuntimeException {
 		if (this.measureExecutionTime) this.timeChoicePointGenerationTemp = System.nanoTime();
 
 		if (instruction instanceof CompareDouble) {
@@ -550,7 +558,7 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 	 */
 	public void generateNewChoicePoint(SymbolicVirtualMachine vm, Switch instruction, Term termFromStack,
 			IntConstant[] keys, int[] pcs, IntConstant low, IntConstant high)
-			throws SymbolicExecutionException {
+			throws SymbolicExecutionException, VmRuntimeException {
 		if (this.measureExecutionTime) this.timeChoicePointGenerationTemp = System.nanoTime();
 
 		if (instruction instanceof Lookupswitch) {
@@ -589,12 +597,25 @@ public class DepthFirstSearchAlgorithm implements SearchAlgorithm {
 	public void generateNewGetFieldChoicePoint(SymbolicVirtualMachine vm, Getfield instruction, ObjectrefVariable objectRefVar) throws VmRuntimeException {	
 		if (this.measureExecutionTime) this.timeChoicePointGenerationTemp = System.nanoTime();
 		try {
+			Field field = null;
+			try {
+				field = instruction.getField(
+						vm.getCurrentFrame(),
+						vm.getCurrentFrame().getMethod().getClassFile(),
+						vm.getCurrentFrame().getMethod().getClassFile().getClassLoader());
+			} catch(ExecutionException e) {
+				throw new SymbolicExecutionException("Could not get field for instruction " + instruction);
+			}
+			
 			this.currentChoicePoint = new GetFieldChoicePoint(
 					vm.getCurrentFrame(),
 					vm.getPc(),
 					vm.getPc() + 1 + instruction.getNumberOfOtherBytes(),
 					objectRefVar,
+					field,
 					this.currentChoicePoint);
+			
+			this.currentChoicePoint.applyStateChanges();
 
 			// Count up for the jumping branch.
 			this.numberOfVisitedBranches++;

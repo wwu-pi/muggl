@@ -6,8 +6,12 @@ import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.attributes.NoMoreCodeBytesException;
+import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
+import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Term;
 
@@ -85,7 +89,7 @@ public class Lookupswitch extends Switch implements Instruction {
 	 * @throws SymbolicExecutionException Thrown in case of fatal problems during the symbolic execution.
 	 */
 	@Override
-	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
+	public void executeSymbolically(Frame frame) throws SymbolicExecutionException, NoExceptionHandlerFoundException {
 		Term key = (Term) frame.getOperandStack().pop();
 		// Check if the key is constant.
 		if (key.isConstant()) {
@@ -103,8 +107,17 @@ public class Lookupswitch extends Switch implements Instruction {
 				pcs[a] = this.lineNumber + this.offsets[a - 1];
 			}
 
-			// Create a choice point.
-			((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, key, keys, pcs, null, null);
+			try {
+				// Create a choice point.
+				((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, key, keys, pcs, null, null);
+			} catch (VmRuntimeException e) {
+				SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
+				try {
+					handler.handleException();
+				} catch (ExecutionException e2) {
+					executionFailedSymbolically(e2);
+				}
+			}
 		}
 	}
 

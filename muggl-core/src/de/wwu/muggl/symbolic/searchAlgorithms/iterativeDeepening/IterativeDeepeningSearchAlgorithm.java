@@ -7,6 +7,7 @@ import de.wwu.muggl.instructions.general.GeneralInstructionWithOtherBytes;
 import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.symbolic.generating.Generator;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.DepthFirstSearchAlgorithm;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
@@ -81,7 +82,7 @@ public class IterativeDeepeningSearchAlgorithm extends DepthFirstSearchAlgorithm
 	 * @return true, if tracking back was successful and the execution can be continued, false, if there was no possibility for tracking back and then execution should hence be stopped.
 	 */
 	@Override
-	public boolean trackBack(SymbolicVirtualMachine vm) {
+	public boolean trackBack(SymbolicVirtualMachine vm) throws VmRuntimeException {
 		if (this.currentLevelOfDeepness > this.maximumDepthReached) this.maximumDepthReached = this.currentLevelOfDeepness;
 		return super.trackBack(vm);
 	}
@@ -188,7 +189,7 @@ public class IterativeDeepeningSearchAlgorithm extends DepthFirstSearchAlgorithm
 	@Override
 	public void generateNewChoicePoint(
 			SymbolicVirtualMachine vm, int localVariableIndex, Generator generator
-			) throws ConversionException, SymbolicExecutionException {
+			) throws ConversionException, SymbolicExecutionException, VmRuntimeException {
 		this.currentLevelOfDeepness++;
 		if (this.currentLevelOfDeepness >= this.maximumDepth) {
 			this.thereWereMorePossibilities = true;
@@ -212,7 +213,8 @@ public class IterativeDeepeningSearchAlgorithm extends DepthFirstSearchAlgorithm
 	 */
 	@Override
 	public void generateNewChoicePoint(SymbolicVirtualMachine vm,
-			GeneralInstructionWithOtherBytes instruction, ConstraintExpression constraintExpression) throws SymbolicExecutionException {
+			GeneralInstructionWithOtherBytes instruction, ConstraintExpression constraintExpression) 
+					throws SymbolicExecutionException, VmRuntimeException {
 		this.currentLevelOfDeepness++;
 		if (this.currentLevelOfDeepness >= this.maximumDepth) {
 			this.thereWereMorePossibilities = true;
@@ -240,7 +242,7 @@ public class IterativeDeepeningSearchAlgorithm extends DepthFirstSearchAlgorithm
 	 */
 	@Override
 	public void generateNewChoicePoint(SymbolicVirtualMachine vm, LCmp instruction,
-			Term leftTerm, Term rightTerm) throws SymbolicExecutionException {
+			Term leftTerm, Term rightTerm) throws SymbolicExecutionException, VmRuntimeException {
 		this.currentLevelOfDeepness++;
 		if (this.currentLevelOfDeepness >= this.maximumDepth) {
 			this.thereWereMorePossibilities = true;
@@ -270,7 +272,7 @@ public class IterativeDeepeningSearchAlgorithm extends DepthFirstSearchAlgorithm
 	 */
 	@Override
 	public void generateNewChoicePoint(SymbolicVirtualMachine vm, CompareFp instruction,
-			boolean less, Term leftTerm, Term rightTerm) throws SymbolicExecutionException {
+			boolean less, Term leftTerm, Term rightTerm) throws SymbolicExecutionException, VmRuntimeException {
 		this.currentLevelOfDeepness++;
 		if (this.currentLevelOfDeepness >= this.maximumDepth) {
 			this.thereWereMorePossibilities = true;
@@ -307,7 +309,7 @@ public class IterativeDeepeningSearchAlgorithm extends DepthFirstSearchAlgorithm
 	@Override
 	public void generateNewChoicePoint(SymbolicVirtualMachine vm, Switch instruction, Term termFromStack,
 			IntConstant[] keys, int[] pcs, IntConstant low, IntConstant high)
-			throws SymbolicExecutionException {
+			throws SymbolicExecutionException, VmRuntimeException {
 		this.currentLevelOfDeepness++;
 		if (this.currentLevelOfDeepness >= this.maximumDepth) {
 			this.thereWereMorePossibilities = true;
