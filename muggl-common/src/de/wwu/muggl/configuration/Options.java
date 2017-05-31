@@ -70,6 +70,13 @@ public final class Options {
 	 * operation is enabled.
 	 */
 	public boolean logicMode;
+	
+	/**
+	 * The JPA mode supports dependency injection of entity manager and the
+	 * proper handling of all methods from the javax.persistence package,
+	 * e.g., the handling of EntityManager#persist(x) methods, etc.
+	 */
+	public boolean jpaMode;
 
 	/**
 	 * If the execution mode is not symbolic, the arguments of the initial method have to be

@@ -115,6 +115,8 @@ public class FileSelectionComposite extends Composite {
 	private final Button logicModeRadioButton;
 	private final FormData stepByStepCheckFormData;
 	private final Button stepByStepCheckButton;
+	private final FormData jpaModeCheckFormData;
+	private final Button jpaModeCheckButton;
 	private final FormData predefinedDataSelectionFormData;
 	private final Group predefinedDataSelectionGroup;
 	private final FormData methodParametersLabelFormData;
@@ -457,6 +459,17 @@ public class FileSelectionComposite extends Composite {
 		this.stepByStepCheckButton.setText("Single steps");
 		this.stepByStepCheckButton.setSelection(true);
 		this.stepByStepCheckButton.setLayoutData(this.stepByStepCheckFormData);
+		
+		this.jpaModeCheckFormData = new FormData();
+		this.jpaModeCheckFormData.top = new FormAttachment(this.symbolicModeRadioButton, 10, SWT.TOP);
+		this.jpaModeCheckFormData.bottom = new FormAttachment(this.symbolicModeRadioButton, 25, SWT.TOP);
+		this.jpaModeCheckFormData.left = new FormAttachment(this.symbolicModeRadioButton, 5, SWT.RIGHT);
+		this.jpaModeCheckFormData.right = new FormAttachment(this.symbolicModeRadioButton, 80, SWT.RIGHT);
+		
+		this.jpaModeCheckButton = new Button(this.modeSelectionGroup, SWT.CHECK);
+		this.jpaModeCheckButton.setText("JPA Mode");
+		this.jpaModeCheckButton.setSelection(false);
+		this.jpaModeCheckButton.setLayoutData(this.jpaModeCheckFormData);
 
 		this.executeButtonFormData = new FormData();
 		this.executeButtonFormData.top = new FormAttachment(this.predefinedDataSelectionGroup, 9, SWT.BOTTOM);
@@ -759,6 +772,16 @@ public class FileSelectionComposite extends Composite {
 	    	public void handleEvent(Event event) {
 	    		boolean selection = ((Button)event.widget).getSelection();
 	    		Options.getInst().hideNativeOperandStackOperations = selection;
+	    	}
+	    });
+	    
+	    /*
+	     * Set JPA mode.
+	     */
+	    this.jpaModeCheckButton.addListener(SWT.Selection, new Listener() {
+	    	public void handleEvent(Event event) {
+	    		boolean selection = ((Button)event.widget).getSelection();
+	    		Options.getInst().jpaMode = selection;
 	    	}
 	    });
 
