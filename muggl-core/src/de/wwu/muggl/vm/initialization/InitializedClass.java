@@ -2,7 +2,10 @@ package de.wwu.muggl.vm.initialization;
 
 import java.util.HashMap;
 
+import de.wwu.muggl.configuration.JavaEEConstants;
+import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.MethodResolutionError;
+import de.wwu.muggl.javaee.jpa.MugglEntityManager;
 import de.wwu.muggl.vm.VirtualMachine;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -11,6 +14,8 @@ import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeConstantValue;
+import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeVisibleAnnotations;
+import de.wwu.muggl.vm.classfile.structures.attributes.elements.Annotation;
 
 /**
  * This class represents a statically initialized ClassFile. It is used to offer access to the
@@ -178,9 +183,45 @@ public class InitializedClass extends FieldContainer {
 	 * @return A new instance of this Objectref.
 	 */
 	public Objectref getANewInstance() {
-		return new Objectref(this, false);
+		Objectref objectRef = new Objectref(this, false);
+		if(Options.getInst().javaEEMode) {
+			injectDependencyFields(objectRef);
+		}
+		return objectRef;
 	}
 
+	/**
+	 * Inject dependencies for special annotated fields.
+	 * @param objectRef the object reference to inject dependencies for.
+	 */
+	protected void injectDependencyFields(Objectref objectRef) {
+		Constant[] constantPool = this.representedClassFile.getConstantPool();
+		for(Field field : this.representedClassFile.getFields()) {
+			for (Attribute attribute : field.getAttributes()) {
+				if (attribute.getStructureName().equals("attribute_runtime_visible_annotation")) {
+					AttributeRuntimeVisibleAnnotations attributeAnnotation = (AttributeRuntimeVisibleAnnotations) attribute;
+					for(Annotation annotation : attributeAnnotation.getAnnotations()) {
+						checkAnnotationForDependency(objectRef, field, annotation, constantPool);
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Check if any dependency injection is supported for the given annotation on the given field of the given object reference.
+	 * @param objectRef the object reference to inject dependencies for.
+	 * @param field the field of the object reference to check for dependency injection
+	 * @param annotation the annotation at the field to check for supported dependency injection
+	 * @param constantPool the constant pool of the class of the object reference
+	 */
+	private void checkAnnotationForDependency(Objectref objectRef, Field field, Annotation annotation, Constant[] constantPool) {
+		String annotationName = constantPool[annotation.getTypeIndex()].getStringValue();
+		if(annotationName.equals(JavaEEConstants.ANNOTATION_PERSISTENCE_CONTEXT)) {
+			objectRef.fields.put(field, MugglEntityManager.getInstance());
+		}
+	}
+	
 	/**
 	 * Get a new instance of this InitializedClass that will work as a wrapper
 	 * for a primitive type. Only the following ClassFiles might be initialized
