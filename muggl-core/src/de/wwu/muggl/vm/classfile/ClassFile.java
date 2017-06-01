@@ -14,6 +14,8 @@ import java.util.Arrays;
 import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.configuration.JavaEEConstants;
+import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.FieldResolutionError;
 import de.wwu.muggl.instructions.MethodResolutionError;
 import de.wwu.muggl.vm.SystemDictionary;
@@ -30,6 +32,7 @@ import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeInvisible
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeVisibleAnnotations;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeSourceFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeUnknownSkipped;
+import de.wwu.muggl.vm.classfile.structures.attributes.elements.Annotation;
 import de.wwu.muggl.vm.classfile.structures.attributes.elements.InnerClass;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantClass;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantDouble;
@@ -355,6 +358,8 @@ public class ClassFile {
 			this.dis.close();
 			is2.close();
 		}
+		
+		analyzeClassForJavaEEFeatures();
 	}
 	
 	public ClassFile(MugglClassLoader classLoader, InputStream is, InputStream is2,
@@ -399,6 +404,29 @@ public class ClassFile {
 			// Close the streams.
 			this.dis.close();
 			is2.close();
+		}
+			
+		analyzeClassForJavaEEFeatures();
+	}
+
+	/**
+	 * Analyze this class file for some Java EE features,
+	 * such as a @PostConstruct annotated method, which must
+	 * be invoked once dependency injection is done.
+	 */
+	private void analyzeClassForJavaEEFeatures() {
+		for(Method method : this.methods) {
+			for(Attribute attribute : method.getAttributes()) {
+				if (attribute.getStructureName().equals("attribute_runtime_visible_annotation")) {
+					AttributeRuntimeVisibleAnnotations attributeAnnotation = (AttributeRuntimeVisibleAnnotations) attribute;
+					for(Annotation annotation : attributeAnnotation.getAnnotations()) {
+						String annotationName = constantPool[annotation.getTypeIndex()].getStringValue();
+						if(annotationName.equals(JavaEEConstants.ANNOTATION_POST_CONSTRUCT)) {
+							this.postConstructMethod = method;
+						}
+					}
+				}
+			}
 		}
 	}
 
