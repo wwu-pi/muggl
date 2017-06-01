@@ -6,6 +6,7 @@ import java.util.Stack;
 import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.configuration.MugglException;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.bytecode.Getfield;
@@ -43,6 +44,8 @@ import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.InitializationException;
+import de.wwu.muggl.vm.initialization.InitializedClass;
+import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
@@ -1174,4 +1177,42 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 		return info;
 	}
 
+	@Override
+	public Objectref getAnObjectref(ClassFile classFile) {
+		Objectref objectRef = super.getAnObjectref(classFile);
+		
+		if(Options.getInst().javaEEMode) {
+			// check for @PostConstruct method existence
+			// if it exists, create a new frame for that method and execute it
+			if(classFile.getPostConstructMethod() != null) {
+				try {
+					invokePostConstructMethod(classFile.getPostConstructMethod(), objectRef);
+				} catch (SymbolicExecutionException e) {
+					if (Globals.getInst().symbolicExecLogger.isEnabledFor(Level.ERROR)) {
+						Globals.getInst().symbolicExecLogger.error("Cannot execute the @PostConstruct method on object reference: " + objectRef, e);
+					}
+				}
+			}
+		}
+		
+		return objectRef;
+	}
+
+	/**
+	 * Execute the given method annotated with @PostConstruct on the given object reference.
+	 * @param postConstructMethod the method annotated with @PostConstruct
+	 * @param objectRef the object reference to invoke the method on
+	 */
+	private void invokePostConstructMethod(Method postConstructMethod, Objectref objectRef) throws SymbolicExecutionException {
+		try{
+			Object[] methodArgs = {objectRef};
+			Frame oldFrame = this.currentFrame;
+			Frame frame = createFrame(null, postConstructMethod, methodArgs);
+			this.currentFrame = frame;
+			executeFrame(false);
+			this.currentFrame = oldFrame;
+		} catch(MugglException | InterruptedException e) {
+			throw new SymbolicExecutionException("Cannot execute the @PostConstruct method on object reference: " + objectRef, e);
+		}
+	}
 }
