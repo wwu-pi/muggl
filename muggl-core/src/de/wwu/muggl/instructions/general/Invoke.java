@@ -13,6 +13,7 @@ import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableDefining;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvocation;
+import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeManager;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
@@ -182,7 +183,11 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 			// special execution of the method
 			SpecialMethodInvocation smi = SpecialMethodInvokeManager.getInst().getSpecialMethodInvocation(
 					methodClassFile.getName(), nameAndType[0], nameAndType[1]);
-			smi.execute(frame);
+			try {
+				smi.execute(frame, parameters);
+			} catch (SpecialMethodInvokeException e) {
+				throw new SymbolicExecutionException("Could not invoke special method: " + smi, e);
+			}
 			
 			// Finish.
 			return;
