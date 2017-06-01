@@ -12,6 +12,8 @@ import de.wwu.muggl.instructions.interfaces.control.JumpInvocation;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableDefining;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
+import de.wwu.muggl.javaee.invoke.SpecialMethodInvocation;
+import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeManager;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -176,6 +178,16 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 			return;
 		}
 		
+		if(isSpecialJavaEEMethodInvocation(methodClassFile, nameAndType)) {
+			// special execution of the method
+			SpecialMethodInvocation smi = SpecialMethodInvokeManager.getInst().getSpecialMethodInvocation(
+					methodClassFile.getName(), nameAndType[0], nameAndType[1]);
+			smi.execute(frame);
+			
+			// Finish.
+			return;
+		}
+		
 		/*
 		 * Do the checks for static/non-static methods calls and get the {@link ClassFile} of the
 		 * object reference to invoke the method on for non-static ones.
@@ -316,6 +328,18 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 
 		// Finish.
 		frame.getVm().setReturnFromCurrentExecution(true);
+	}
+
+	/**
+	 * Check if there is a special Java EE method invocation required.
+	 * @param methodClassFile the method class file
+	 * @param nameAndType the name and type(signature) of the method
+	 * @return true, if method requires special Java EE handling
+	 */
+	private boolean isSpecialJavaEEMethodInvocation(ClassFile methodClassFile, String[] nameAndType) {
+		return Options.getInst().javaEEMode 
+				&& SpecialMethodInvokeManager.getInst().isSpecialMethod(
+						methodClassFile.getName(), nameAndType[0], nameAndType[1]);
 	}
 
 	/**
