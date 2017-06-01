@@ -44,7 +44,7 @@ public class DefUseChainsInitial extends DefUseChains {
 								+ this.method.getFullNameWithParameterTypesAndNames()
 								+ " were not generated successfully due to a "
 								+ "DUGenerationException. This is not "
-								+ "expected to happen and might hint to serious problems.");
+								+ "expected to happen and might hint to serious problems.", e);
 		} catch (InvalidInstructionInitialisationException e) {
 			/*
 			 * This execution is thrown when the parsing of the bytecode representation to
@@ -57,7 +57,7 @@ public class DefUseChainsInitial extends DefUseChains {
 								+ this.method.getFullNameWithParameterTypesAndNames()
 								+ " were not generated successfully due to a "
 								+ "InvalidInstructionInitialisationException. This is not "
-								+ "expected to happen and might hint to serious problems.");
+								+ "expected to happen and might hint to serious problems.", e);
 		}
 
 		// Finished.
