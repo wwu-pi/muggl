@@ -253,6 +253,7 @@ public class ClassFile {
 	private Field[]				fields;
 	private int					methodsCount;
 	private Method[]			methods;
+	private Method              postConstructMethod; // in Java EE mode, this method is the method annotated with @PostConstruct (if it exists)
 	private int					attributeCount;
 	private Attribute[]			attributes;
 
@@ -1723,6 +1724,15 @@ public class ClassFile {
 	 */
 	public Objectref getMirrorJava() {
 		return mirrorJava;
+	}
+	
+	/**
+	 * If Java EE mode is enabled, and the class has a method
+	 * annotated with @PostConstruct, such a method will be returned.
+	 * @return the method annotated with @PostConstruct (if it exists, and Java EE mode is enabled)
+	 */
+	public Method getPostConstructMethod() {
+		return this.postConstructMethod;
 	}
 	
 }
