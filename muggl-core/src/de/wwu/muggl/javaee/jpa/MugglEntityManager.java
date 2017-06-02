@@ -1,17 +1,22 @@
 package de.wwu.muggl.javaee.jpa;
 
+import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
+
+/**
+ * Special class for the JPA entity manager.
+ * 
+ * @author Andreas Fuchs
+ */
 public class MugglEntityManager {
+
+	protected SymbolicDatabase database;
 	
-	private static MugglEntityManager instance;
-	
-	private MugglEntityManager() {
+	public MugglEntityManager(SymbolicVirtualMachine vm) {
+		this.database = new SymbolicDatabase(vm);
 	}
 
-	public synchronized static MugglEntityManager getInstance() {
-		if(instance == null) {
-			instance = new MugglEntityManager();
-		}
-		return instance;
+	public SymbolicDatabase getDB() {
+		return this.database;
 	}
-
+	
 }
