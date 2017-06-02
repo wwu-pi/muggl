@@ -124,7 +124,10 @@ public abstract class GeneralInstruction {
 		}
 
 		// Proceed normally.
-		if (Globals.getInst().execLogger.isEnabledFor(Level.WARN)) Globals.getInst().execLogger.warn("Symbolic execution of " + getName() + " failed. Reason: " + e.getMessage());
+		if (Globals.getInst().execLogger.isEnabledFor(Level.WARN)) {
+			Globals.getInst().execLogger.warn("Symbolic execution of " + getName() + " failed. Reason: " + e.getMessage(), e);
+		}
+		
 		if (e.getMessage().contains("Root Reason is:"))
 			throw new SymbolicExecutionException(e.getMessage());
 		throw new SymbolicExecutionException("Symbolic execution of " + getName() + " failed. Root Reason is: " + e.getMessage());
