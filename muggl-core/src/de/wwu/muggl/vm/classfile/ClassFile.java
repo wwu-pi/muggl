@@ -320,8 +320,7 @@ public class ClassFile {
 			if (!fullPath.toLowerCase().endsWith(".class")) {
 				fullPath += ".class";
 			}
-			if (Globals.getInst().logger.isInfoEnabled())
-				Globals.getInst().logger.info("Parsing class " + fullPath);
+			Globals.getInst().parserLogger.info("Parsing class " + fullPath);
 			this.fullPath = fullPath;
 			this.loadingNumber = classLoader.getNextLoadingNumber();
 			this.readingData = true;
@@ -365,8 +364,7 @@ public class ClassFile {
 			if (!fullPath.toLowerCase().endsWith(".class")) {
 				fullPath += ".class";
 			}
-			if (Globals.getInst().logger.isInfoEnabled())
-				Globals.getInst().logger.info("Parsing class " + fullPath);
+			Globals.getInst().parserLogger.info("Parsing class " + fullPath);
 			
 			this.loadingNumber = classLoader.getNextLoadingNumber();
 			this.readingData = true;
@@ -905,14 +903,12 @@ public class ClassFile {
 			}
 			Globals.getInst().parserLogger.debug("Parsing completed successfully for " + getName());
 		} catch (ClassFileException e) {
-			if (Globals.getInst().logger.isEnabledFor(Level.WARN))
-				Globals.getInst().logger.warn("Parsing class " + this.name
-						+ " failed with a ClassFileException with reason " + e.getMessage());
+			Globals.getInst().parserLogger.warn("Parsing class " + this.name
+					+ " failed with a ClassFileException with reason " + e.getMessage());
 			throw e;
 		} catch (IOException e) {
-			if (Globals.getInst().logger.isEnabledFor(Level.WARN))
-				Globals.getInst().logger.warn("Parsing class " + this.name
-						+ " failed with a IOException with reason " + e.getMessage());
+			Globals.getInst().parserLogger.warn("Parsing class " + this.name
+					+ " failed with a IOException with reason " + e.getMessage());
 			throw e;
 		}
 	}
