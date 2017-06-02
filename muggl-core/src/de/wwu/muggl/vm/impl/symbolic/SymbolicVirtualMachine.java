@@ -18,8 +18,14 @@ import de.wwu.muggl.instructions.general.Load;
 import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
+import de.wwu.muggl.javaee.jpa.MugglEntityManager;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
+import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
+import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.symbolic.flow.coverage.CoverageController;
 import de.wwu.muggl.symbolic.generating.Generator;
 import de.wwu.muggl.symbolic.searchAlgorithms.SearchAlgorithm;
@@ -44,14 +50,8 @@ import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.InitializationException;
-import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
-import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
-import de.wwu.muggl.solvers.exceptions.TimeoutException;
-import de.wwu.muggl.solvers.expressions.ConstraintExpression;
-import de.wwu.muggl.solvers.expressions.IntConstant;
-import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * This concrete class represents a virtual machine for the symbolic execution of java bytecode,
@@ -76,6 +76,9 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 	// Solution related fields.
 	private SolutionProcessor		solutionProcessor;
 	private boolean					doNotProcessSolutions;
+	
+	// The symbolic database
+	private MugglEntityManager        mugglEntityManager;
 
 	// Fields for the execution time measured.
 	private boolean					measureExecutionTime;
@@ -193,6 +196,7 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 		} catch (ClassNotFoundException e) {
 			throw new InitializationException("Solver manager of class " + options.solverManager + " does not exist.");
 		}
+		this.mugglEntityManager = new MugglEntityManager(this);
 		this.searchAlgorithm = searchAlgorithm;
 		this.coverage = new CoverageController(this);
 		this.trackCoverage = options.useCFCoverage && options.useDUCoverage;
@@ -1214,5 +1218,13 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 		} catch(MugglException | InterruptedException e) {
 			throw new SymbolicExecutionException("Cannot execute the @PostConstruct method on object reference: " + objectRef, e);
 		}
+	}
+	
+	/**
+	 * Get the Muggl entity manager.
+	 * @return the symbolic database.
+	 */
+	public MugglEntityManager getMugglEntityManager() {
+		return this.mugglEntityManager;
 	}
 }
