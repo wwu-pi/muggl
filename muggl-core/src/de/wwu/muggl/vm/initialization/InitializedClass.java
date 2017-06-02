@@ -16,6 +16,7 @@ import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeConstantValue;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeVisibleAnnotations;
 import de.wwu.muggl.vm.classfile.structures.attributes.elements.Annotation;
+import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 
 /**
  * This class represents a statically initialized ClassFile. It is used to offer access to the
@@ -42,6 +43,9 @@ import de.wwu.muggl.vm.classfile.structures.attributes.elements.Annotation;
 public class InitializedClass extends FieldContainer {
 	// The only field - the represented ClassFile.
 	private ClassFile representedClassFile;
+	
+	// The VM used to initialize this class
+	private VirtualMachine vm;
 
 	public InitializedClass(ClassFile representedClassFile, VirtualMachine vm) {
 		this(representedClassFile, vm, false);
@@ -60,6 +64,9 @@ public class InitializedClass extends FieldContainer {
 				
 		// Set the represented ClassFile.
 		this.representedClassFile = representedClassFile;
+		
+		// Set the VM
+		this.vm = vm;
 		
 		// do this early, in case anyone in the static initializer calls itself
 		// e.g. java.lang.invoke.Invokers -.-
@@ -218,7 +225,7 @@ public class InitializedClass extends FieldContainer {
 	private void checkAnnotationForDependency(Objectref objectRef, Field field, Annotation annotation, Constant[] constantPool) {
 		String annotationName = constantPool[annotation.getTypeIndex()].getStringValue();
 		if(annotationName.equals(JavaEEConstants.ANNOTATION_PERSISTENCE_CONTEXT)) {
-			objectRef.fields.put(field, MugglEntityManager.getInstance());
+			objectRef.fields.put(field, ((SymbolicVirtualMachine)vm).getMugglEntityManager());
 		}
 	}
 	
