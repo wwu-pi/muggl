@@ -2,6 +2,7 @@ package de.wwu.muggl.javaee.invoke.impl;
 
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvocation;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
+import de.wwu.muggl.javaee.invoke.SpecialMethodUtil;
 import de.wwu.muggl.javaee.jpa.MugglEntityManager;
 import de.wwu.muggl.javaee.jpa.SymbolicDatabaseException;
 import de.wwu.muggl.solvers.expressions.IntConstant;
@@ -33,7 +34,11 @@ public class MugglEntityManagerFind implements SpecialMethodInvocation {
 		
 		MugglEntityManager mem = (MugglEntityManager)mugglEntityManagerObj;
 		
-		String className = getClassName(parameters[1]);
+		if(parameters[1] instanceof Objectref) {
+			throw new SpecialMethodInvokeException("Expected first argument to be of type Objectref, but was: " + parameters[1]);
+		}
+		
+		String className = SpecialMethodUtil.getInstance().getClassNameFromObjectRef((Objectref)parameters[1]);
 		Object idValue = parameters[2];
 		
 		// check if the symbolic database already has an entity of the same type with the same identifier
@@ -64,35 +69,6 @@ public class MugglEntityManagerFind implements SpecialMethodInvocation {
 		} catch (SymbolicDatabaseException e) {
 			throw new SpecialMethodInvokeException("Error while generating find result object", e);
 		}
-	}
-	
-	private String getClassName(Object object) throws SpecialMethodInvokeException {
-		if(object instanceof ObjectrefVariable) {
-			throw new SpecialMethodInvokeException("Objectref-Variables are not supported yet");
-		}
-		
-		if(object instanceof Objectref) {
-			Objectref objRef = (Objectref)object;
-			Field nameField = objRef.getInitializedClass().getClassFile().getFieldByNameAndDescriptor("name", "Ljava/lang/String;");
-			Objectref nameObjRef = (Objectref)objRef.getField(nameField); // Objectref of type String, now get the char array of it for the 'real' string values
-			Field valueField = nameObjRef.getInitializedClass().getClassFile().getFieldByNameAndDescriptor("value", "[C");
-			Arrayref valueArray = (Arrayref)nameObjRef.getField(valueField);
-			StringBuffer sb = new StringBuffer();
-			for(int i=0; i<valueArray.length; i++) {
-				Object c = valueArray.getElement(i);
-				if(c instanceof IntConstant)  {
-					IntConstant ic = (IntConstant)c;
-					int iVal = ic.getIntValue();
-					char charVal = (char)iVal;
-					sb.append(charVal);
-				} else {
-					throw new SpecialMethodInvokeException("String value char array of type: " + c + " not supported yet");
-				}
-			}
-			return sb.toString();
-		}
-		
-		throw new SpecialMethodInvokeException("Only object reference types supported yet");
 	}
 
 	@Override
