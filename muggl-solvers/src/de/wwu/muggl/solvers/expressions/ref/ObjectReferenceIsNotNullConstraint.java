@@ -11,7 +11,7 @@ public class ObjectReferenceIsNotNullConstraint extends ObjectReferenceConstrain
 
 	@Override
 	public ConstraintExpression negate() {
-		return new ObjectReferenceIsNotNullConstraint(this.objRef);
+		return new ObjectReferenceIsNullConstraint(this.objRef);
 	}
 	
 	@Override
