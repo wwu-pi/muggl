@@ -3,6 +3,10 @@ package de.wwu.muggl.instructions.bytecode;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.If_ref;
 import de.wwu.muggl.instructions.interfaces.Instruction;
+import de.wwu.muggl.solvers.expressions.ref.ObjectReferenceConstraint;
+import de.wwu.muggl.solvers.expressions.ref.ObjectReferenceIsNotNullConstraint;
+import de.wwu.muggl.solvers.expressions.ref.ObjectReferenceIsNullConstraint;
+import de.wwu.muggl.solvers.expressions.ref.meta.ReferenceVariable;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 
 /**
@@ -46,4 +50,8 @@ public class Ifnull extends If_ref implements Instruction {
 		return false;
 	}
 
+	@Override
+	protected ObjectReferenceConstraint getObjectReferenceConstraint(ReferenceVariable variable) {
+		return new ObjectReferenceIsNullConstraint(variable);
+	}
 }

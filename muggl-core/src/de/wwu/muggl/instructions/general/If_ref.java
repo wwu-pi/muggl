@@ -4,6 +4,7 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
+import de.wwu.muggl.solvers.expressions.ref.ObjectReferenceConstraint;
 import de.wwu.muggl.solvers.expressions.ref.ObjectReferenceIsNullConstraint;
 import de.wwu.muggl.solvers.expressions.ref.meta.ReferenceVariable;
 import de.wwu.muggl.vm.Frame;
@@ -62,9 +63,9 @@ public abstract class If_ref extends GeneralInstructionWithOtherBytes implements
 
 		// check if the value is a reference that can be null
 		if(value instanceof ReferenceVariable) {
-			ObjectReferenceIsNullConstraint objRefNullCstr = new ObjectReferenceIsNullConstraint((ReferenceVariable)value);
+			ObjectReferenceConstraint refCstr = getObjectReferenceConstraint((ReferenceVariable)value);
 			try {
-					((SymbolicVirtualMachine)frame.getVm()).generateNewChoicePoint(this, objRefNullCstr);
+					((SymbolicVirtualMachine)frame.getVm()).generateNewChoicePoint(this, refCstr);
 			} catch (VmRuntimeException e) {
 				SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
 				try {
@@ -97,6 +98,15 @@ public abstract class If_ref extends GeneralInstructionWithOtherBytes implements
 	 * @return true if the expected condition is met, false otherwise.
 	 */
 	protected abstract boolean compare(Object value);
+	
+	/**
+	 * Get an object reference constraint, 
+	 * e.g., a 'object reference is not null' or a 'object reference is null' constraint
+	 * @param variable the object reference variable to be null / not null
+	 * @return the constraint
+	 */
+	protected abstract ObjectReferenceConstraint getObjectReferenceConstraint(ReferenceVariable variable);
+	
 
 	/**
 	 * Return the target pc of the possible jump.
