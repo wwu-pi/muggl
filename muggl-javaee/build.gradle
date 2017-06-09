@@ -1,0 +1,17 @@
+apply plugin: 'java'
+
+dependencies {
+	compile 'javax.ejb:ejb-api:3.0'
+	compile 'javax.validation:validation-api:1.0.0.GA'
+	compile 'javax:javaee-api:7.0'
+} 
+
+sourceSets {
+	main.java.srcDir "src"
+}
+
+eclipse.jdt.file {
+	withProperties { jdt ->
+		setProperties(jdt)
+	}
+}
