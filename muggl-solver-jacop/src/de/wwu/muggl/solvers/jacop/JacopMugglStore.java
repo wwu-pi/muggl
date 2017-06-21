@@ -3,6 +3,8 @@ package de.wwu.muggl.solvers.jacop;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jacop.core.IntVar;
 import org.jacop.core.Store;
@@ -29,10 +31,20 @@ public class JacopMugglStore extends Store {
 	 * HashMap maintaining the bijective mapping between variables of the two systems.
 	 */
 	private HashMap<Var, Variable> jacopToMugglVariable;
+	/**
+	 * Save constraint level of the jacop variable.
+	 */
+	private HashMap<Integer, Set<Var>> jacopVarLevel;
+	/**
+	 * Save constraint level of the jacop variable.
+	 */
+	private HashMap<Integer, Set<Variable>> mugglVarLevel;
 
 	public JacopMugglStore() {
 		jacopToMugglVariable = new HashMap<Var, Variable>();
 		mugglToJacopVariable = new HashMap<Variable, Var>();
+		jacopVarLevel = new HashMap<>();
+		mugglVarLevel = new HashMap<>();
 	}
 
 	/**
@@ -61,6 +73,22 @@ public class JacopMugglStore extends Store {
 	public void addVariable(Variable mugglVariable, Var jacopVariable) {
 		mugglToJacopVariable.put(mugglVariable, jacopVariable);
 		jacopToMugglVariable.put(jacopVariable, mugglVariable);
+		
+		// save constraint level of JACOP variable added
+		Set<Var> j = jacopVarLevel.get(level);
+		if(j == null) {
+			j = new HashSet<>();
+		}
+		j.add(jacopVariable);
+		jacopVarLevel.put(level, j);
+		
+		// save constraint level of MUGGL variable added
+		Set<Variable> m = mugglVarLevel.get(level);
+		if(m == null) {
+			m = new HashSet<>();
+		}
+		m.add(mugglVariable);
+		mugglVarLevel.put(level, m);
 	}
 	
 	/**
@@ -94,6 +122,16 @@ public class JacopMugglStore extends Store {
 		}
 		
 		return floatVars.toArray(new FloatVar[]{});
+	}
+
+	public void removeVariables(int level) {
+		Set<Var> j = this.jacopVarLevel.get(level);
+		if(j != null) {
+			for(Var vj : j) {
+				Variable vm = this.jacopToMugglVariable.remove(vj);
+				this.mugglToJacopVariable.remove(vm);
+			}
+		}
 	}
 
 }

@@ -352,6 +352,7 @@ public class JaCoPSolverManager implements SolverManager {
 		
 		for(int i=1; i<=reverlevels; i++) {
 			jacopStore.removeLevel(jacopStore.level);
+			jacopStore.removeVariables(jacopStore.level);
 			jacopStore.setLevel(jacopStore.level - 1);
 			listeners.fireConstraintRemoved(this);
 		}
