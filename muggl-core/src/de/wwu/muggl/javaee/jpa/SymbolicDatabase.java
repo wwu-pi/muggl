@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import de.wwu.muggl.symbolic.var.ObjectrefVariable;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
@@ -82,7 +81,8 @@ public class SymbolicDatabase {
 	}	
 
 	protected boolean isIdValueEqual(Object idValue1, Object idValue2) {
-		// 
+		// TODO more sophisticated checking
+		if(idValue1 == idValue2) return true;
 		return false;
 	}
 
