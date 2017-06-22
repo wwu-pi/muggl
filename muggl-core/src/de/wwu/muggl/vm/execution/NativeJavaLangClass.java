@@ -132,7 +132,8 @@ public class NativeJavaLangClass extends NativeMethodProvider {
 			if (t != BasicType.T_ILLEGAL && t != BasicType.T_OBJECT && t != BasicType.T_ARRAY) {
 				mirror = Universe.java_mirror(t);
 			}
-			if (mirror == null && t == BasicType.T_INT) {
+			if (mirror == null && 
+				(t == BasicType.T_INT || t == BasicType.T_FLOAT || t == BasicType.T_DOUBLE | t == BasicType.T_CHAR)) {
 				// allow. This happens when mirrors are not (yet) initialized
 				return null;
 			} else if (mirror == null) {
