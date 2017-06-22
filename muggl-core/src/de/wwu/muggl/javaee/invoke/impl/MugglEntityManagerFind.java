@@ -34,7 +34,7 @@ public class MugglEntityManagerFind implements SpecialMethodInvocation {
 		
 		MugglEntityManager mem = (MugglEntityManager)mugglEntityManagerObj;
 		
-		if(parameters[1] instanceof Objectref) {
+		if(!(parameters[1] instanceof Objectref)) {
 			throw new SpecialMethodInvokeException("Expected first argument to be of type Objectref, but was: " + parameters[1]);
 		}
 		
