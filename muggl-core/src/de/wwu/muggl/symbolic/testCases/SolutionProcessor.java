@@ -18,6 +18,7 @@ import org.apache.log4j.Level;
 import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
+import de.wwu.muggl.javaee.testcase.JPATestCaseBuilder;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.expressions.BooleanConstant;
 import de.wwu.muggl.solvers.expressions.Constant;
@@ -467,6 +468,11 @@ public class SolutionProcessor {
 
 			TestCaseSolution solution = this.firstSolutionFound;
 			StringBuilder testMethodStringBuilder = new StringBuilder();
+			
+			if(Options.getInst().javaEEMode) {
+				JPATestCaseBuilder jpaTCBuilder = new JPATestCaseBuilder(solution);
+				jpaTCBuilder.build();
+			}
 
 			// Iterate through all solutions.
 			while (solution != null) {
