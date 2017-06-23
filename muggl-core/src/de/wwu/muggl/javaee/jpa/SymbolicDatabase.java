@@ -87,5 +87,21 @@ public class SymbolicDatabase {
 	}
 
 
-	
+	public Map<String, Set<Objectref>> getPreExecutionRequiredData() {
+		Map<String, Set<Objectref>> data = new HashMap<>();
+		for(Integer constraintLevel : preExecutionRequired.keySet()) {
+			Map<String, Set<Objectref>> m = preExecutionRequired.get(constraintLevel);
+			for(String entityName : m.keySet()) {
+				Set<Objectref> e = m.get(entityName);
+				
+				Set<Objectref> entityData = data.get(entityName);
+				if(entityData == null) {
+					entityData = new HashSet<>();
+				}
+				entityData.addAll(e);
+				data.put(entityName, entityData);
+			}
+		}
+		return data;
+	}
 }
