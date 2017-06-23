@@ -40,19 +40,19 @@ import de.wwu.muggl.symbolic.var.PrimitiveDatatypeWrapperVariable;
  */
 public class TestCaseSolution {
 	// Fields for the solution related data.
-	private Method initialMethod;
-	private Solution solution;
-	private Object returnValue;
-	private boolean throwsAnUncaughtException;
-	private Object[] variables;
-	private String solutionComment;
-	private int parametersUnused;
-	private boolean[] dUCoverage;
-	private Map<Method, boolean[]> cFCoverageMapping;
+	protected Method initialMethod;
+	protected Solution solution;
+	protected Object returnValue;
+	protected boolean throwsAnUncaughtException;
+	protected Object[] variables;
+	protected String solutionComment;
+	protected int parametersUnused;
+	protected boolean[] dUCoverage;
+	protected Map<Method, boolean[]> cFCoverageMapping;
 
 	// Fields for chaining the solutions.
-	private TestCaseSolution predecessor;
-	private TestCaseSolution successor;
+	protected TestCaseSolution predecessor;
+	protected TestCaseSolution successor;
 
 	/**
 	 * Initialize the TestCaseSolution.
