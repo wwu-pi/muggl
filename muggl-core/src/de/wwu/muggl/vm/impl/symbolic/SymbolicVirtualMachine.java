@@ -585,10 +585,22 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 			Globals.getInst().symbolicExecLogger.info("*** Solution: " + solution);
 			Globals.getInst().symbolicExecLogger.info("*** Return Value: " + returnValue+"\n");
 			
+			
 			// Add the solutions.
-			this.solutionProcessor.addSolution(solution, returnValue,
-					this.threwAnUncaughtException, this.coverage.getCFCoverageMap(), this.coverage
-							.getDUCoverageAsBoolean());
+			if(Options.getInst().javaEEMode) {
+				// add Java EE solution
+				this.solutionProcessor.addJavaEESolution(solution, returnValue, this.mugglEntityManager.getDB(),
+						this.threwAnUncaughtException, this.coverage.getCFCoverageMap(), this.coverage
+								.getDUCoverageAsBoolean());
+			} else {
+				// add 'normal' solution
+				this.solutionProcessor.addSolution(solution, returnValue,
+						this.threwAnUncaughtException, this.coverage.getCFCoverageMap(), this.coverage
+								.getDUCoverageAsBoolean());
+			}
+			
+			
+			
 
 			// Commit the coverage of control flow edges and def-use chains.
 			this.coverage.commitAllchanges();
