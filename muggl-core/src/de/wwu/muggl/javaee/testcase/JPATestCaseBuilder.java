@@ -1,7 +1,10 @@
 package de.wwu.muggl.javaee.testcase;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.javaee.testcase.obj.ObjectBuilder;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.symbolic.testCases.TestCaseSolution;
+import de.wwu.muggl.vm.initialization.Objectref;
 
 /**
  * JUnit test case builder for classes and methods using JPA to interact with a database.
@@ -18,7 +21,10 @@ public class JPATestCaseBuilder {
 	
 	protected String classUnderTestType;
 	
+	protected ObjectBuilder objBuilder;
+	
 	public JPATestCaseBuilder(TestCaseSolution solution) {
+		this.objBuilder = new ObjectBuilder(solution.getSolution());
 		this.solution = solution;
 		this.sb = new StringBuilder();
 		this.methodUnderTestName = solution.getInitialMethod().getName();
@@ -107,7 +113,12 @@ public class JPATestCaseBuilder {
 		
 		// if method has parameters, we add them as arg0, arg1, ...
 		sb.append("this.classUnderTest."+this.methodUnderTestName+"(");
-		for(int i=0; i<this.solution.getParameters().length; i++) {
+		
+		// build the start of the parameters, if not static, start is index 1
+		int i=0;
+		if(!this.solution.getInitialMethod().isAccStatic()) { i = 1; }
+		
+		for(; i<this.solution.getParameters().length; i++) {
 			sb.append("arg"+i);
 			if(i < this.solution.getParameters().length-1) {
 				sb.append(", ");
@@ -125,21 +136,69 @@ public class JPATestCaseBuilder {
 		sb.append("\t\t");
 		// the result must equal the expected return value from the symbolic execution
 		sb.append("assertEquals(");
-		sb.append(this.solution.getReturnValue());
+		sb.append(getTransformedResultValue(this.solution.getReturnValue()));
 		sb.append(", result);\n");
 	}
 
+	private String getTransformedResultValue(Object actualReturnValue) {
+		// get the return type of the method
+		String returnType = this.solution.getInitialMethod().getReturnType();
+		
+		// check if boolean -> transform 0->false and 1->true
+		if(returnType.equals("boolean") || returnType.equals("java.lang.Boolean")) {
+			if(actualReturnValue instanceof IntConstant) {
+				IntConstant ic = (IntConstant)actualReturnValue;
+				actualReturnValue = ic.getIntValue();
+			}
+			
+			if(actualReturnValue instanceof Integer) {
+				Integer b = (Integer)actualReturnValue;
+				if(b == 0) {
+					return "false";
+				}
+				if(b == 1) {
+					return "true";
+				}
+				throw new RuntimeException("Expect boolean value to be either 0 or 1");
+			}
+		}
+		
+		// if null, return "null" string
+		if(actualReturnValue == null) {
+			return "null";
+		}
+		
+		// if no special transformation required -> simply return .toString()
+		return actualReturnValue.toString();
+	}
+
 	private void buildMethodArguments() {
+		Object[] parameters = this.solution.getParameters();
 		int i=0;
-		for(Object o : this.solution.getParameters()) {
-			generateArgument(o, i++);
+		if(!this.solution.getInitialMethod().isAccStatic()) {
+			i = 1;
+		}
+		for(;i<parameters.length; i++) {
+			generateArgument(parameters[i], i++);
 		}
 	}
 
 	private void generateArgument(Object o, int i) {
-		String argType = "Object";
 		String argName = "arg"+i;
-		sb.append("\t\t"+argType+" "+argName+" = "+o+";\n");
+		
+		if(o instanceof Objectref) {
+			generateObjectRefArgument((Objectref)o, argName);
+		}
+		
+		else {
+			sb.append("\t\t// TODO type ["+o+"]not supported yet, implement it in class " + this.getClass().getName() + "\n");
+		}
+	}
+
+	private void generateObjectRefArgument(Objectref o, String argName) {
+		String argType = o.getInitializedClass().getClassFile().getName();
+		String argValue = objBuilder.getObjectName(o, sb);
+		sb.append("\t\t"+argType+" "+argName+" = "+ argValue +";\n");
 	}
 
 	private void buildCheckPostExecutionExpectedDatabase() {
