@@ -18,6 +18,7 @@ import org.apache.log4j.Level;
 import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
+import de.wwu.muggl.javaee.jpa.SymbolicDatabase;
 import de.wwu.muggl.javaee.testcase.JPATestCaseBuilder;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.expressions.BooleanConstant;
@@ -152,6 +153,67 @@ public class SolutionProcessor {
 		}
 	}
 
+
+	/**
+	 * Add a new Solution to the List of solutions and add a corresponding return value Object to
+	 * the list of return values.
+	 *
+	 * @param solution The Solution to add.
+	 * @param returnValue The new return value.
+	 * @param symbolicDatabase the symbolic database
+	 * @param throwsAnUncaughtException Indicates whether the returnValue is an actual return value
+	 *        or an NoExceptionHandlerFoundException.
+	 * @param controlFlowCoverageMapping The mapping of methods and arrays of boolean values
+	 *        indicating which control graph edges have been covered.
+	 * @param dUCoverage An array of boolean values indicating which def-use chains have
+	 *        been covered.
+	 * @throws IllegalStateException If the method is invoked after test generation was started.
+	 */
+	public void addJavaEESolution(Solution solution, Object returnValue, SymbolicDatabase symbolicDatabase,
+			boolean throwsAnUncaughtException, Map<Method, boolean[]> controlFlowCoverageMapping,
+			boolean[] dUCoverage) {
+		if (this.testCaseGenerationStarted) {
+			throw new IllegalStateException("Test generation has started already. Cannot add any more solutions.");
+		}
+
+		// Clone the returnValue should it be a referenceValue.
+		if (returnValue instanceof ReferenceValue) {
+			if (returnValue instanceof Objectref) {
+				// TODO
+			} else if (returnValue instanceof Arrayref) {
+				returnValue = ((Arrayref) returnValue).clone();
+			}
+		}
+
+		// Add the solution.
+		if (this.latestSolutionFound == null) {
+			this.latestSolutionFound = new JavaEETestCaseSolution(
+				this.initialMethod, solution, returnValue, 
+				symbolicDatabase, throwsAnUncaughtException, 
+				prepareVariablesForTestCaseSolution(),
+				prepareDUCoverageForTestCaseSolution(dUCoverage), 
+				prepareControlFlowCoverageForTestCaseSolution(controlFlowCoverageMapping));
+		} else {
+			this.latestSolutionFound = new JavaEETestCaseSolution(
+				this.initialMethod, solution, returnValue, 
+				symbolicDatabase, throwsAnUncaughtException, 
+				prepareVariablesForTestCaseSolution(),
+				prepareDUCoverageForTestCaseSolution(dUCoverage), 
+				prepareControlFlowCoverageForTestCaseSolution(controlFlowCoverageMapping),
+				this.latestSolutionFound);
+		}
+
+		// Is it the first solution?
+		if (this.firstSolutionFound == null) {
+			this.firstSolutionFound = this.latestSolutionFound;
+		}
+
+		// Mark that there was a solution found.
+		this.foundSolution = true;
+		this.newestSolutionNumber++;
+	}
+	
+	
 	/**
 	 * Add a new Solution to the List of solutions and add a corresponding return value Object to
 	 * the list of return values.
@@ -472,6 +534,13 @@ public class SolutionProcessor {
 			if(Options.getInst().javaEEMode) {
 				JPATestCaseBuilder jpaTCBuilder = new JPATestCaseBuilder(solution);
 				jpaTCBuilder.build();
+				
+				if(solution instanceof JavaEETestCaseSolution) {
+					JavaEETestCaseSolution javaEESolution = (JavaEETestCaseSolution)solution;
+					Globals.getInst().symbolicExecLogger.info("*** JAVA EE TEST CASE SOLUTION ***");
+					Globals.getInst().symbolicExecLogger.info(javaEESolution.getPreExecutionRequiredDatabaseString());
+					Globals.getInst().symbolicExecLogger.info("******************************************************");
+				}
 			}
 
 			// Iterate through all solutions.
