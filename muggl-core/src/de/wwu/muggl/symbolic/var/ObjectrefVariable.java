@@ -127,7 +127,13 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 		return fieldVar;
 	}
 	
-
+	/**
+	 * Get the name of this variable.
+	 */
+	public String getVariableName() {
+		return this.name;
+	}
+	
 	@Override
 	public NumericVariable getIsNullVariable() {
 		return this.isNull;
