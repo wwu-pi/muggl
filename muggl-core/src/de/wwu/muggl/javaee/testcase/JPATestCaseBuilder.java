@@ -2,6 +2,7 @@ package de.wwu.muggl.javaee.testcase;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.javaee.testcase.obj.ObjectBuilder;
+import de.wwu.muggl.javaee.testcase.obj.impl.EntityObjectBuilder;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.symbolic.testCases.TestCaseSolution;
 import de.wwu.muggl.vm.initialization.Objectref;
@@ -24,7 +25,7 @@ public class JPATestCaseBuilder {
 	protected ObjectBuilder objBuilder;
 	
 	public JPATestCaseBuilder(TestCaseSolution solution) {
-		this.objBuilder = new ObjectBuilder(solution.getSolution());
+		this.objBuilder = new EntityObjectBuilder(solution.getSolution());
 		this.solution = solution;
 		this.sb = new StringBuilder();
 		this.methodUnderTestName = solution.getInitialMethod().getName();
@@ -80,6 +81,7 @@ public class JPATestCaseBuilder {
 	private void buildTestMethods() {
 		int i=0;
 		while(solution != null) {
+			objBuilder.reset();
 			buildTestMethod(solution, "test"+ i++);
 			solution = solution.getSuccessor();
 		}
