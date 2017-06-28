@@ -19,13 +19,9 @@ public class SymbolicDatabase {
 	// the current symbolic virtual machine
 	protected SymbolicVirtualMachine vm;
 	
-	// helper class to analyze entity class files
-	protected JPAEntityClassAnalyzer entityAnalyzer;
-	
 	public SymbolicDatabase(SymbolicVirtualMachine vm) {
 		this.vm = vm;
 		this.preExecutionRequired = new HashMap<>();
-		this.entityAnalyzer = new JPAEntityClassAnalyzer(vm);
 	}	
 	
 	/**
@@ -34,7 +30,7 @@ public class SymbolicDatabase {
 	 * @param constraintLevel the constraint level to add the entity for
 	 */
 	public void addRequiredEntity(Objectref dbObjRef, int constraintLevel) throws SymbolicDatabaseException {
-		if(!entityAnalyzer.isEntityClass(dbObjRef)) {
+		if(!JPAEntityClassAnalyzer.getInst().isEntityType(dbObjRef)) {
 			throw new SymbolicDatabaseException("Given object-reference must be an entity type, e.g., its class must be annoated with @Entity.");
 		}
 		
@@ -67,7 +63,7 @@ public class SymbolicDatabase {
 			for(String entityName : entityMap.keySet()) {
 				// filter for entities of specified class
 				if(entityName.equals(entityClassName)) {
-					Field idField = entityAnalyzer.getIdField(entityName);
+					Field idField = JPAEntityClassAnalyzer.getInst().getIdField(entityName, this.vm);
 					for(Objectref objRef : entityMap.get(entityName)) {
 						Object o = objRef.getField(idField);
 						if(isIdValueEqual(o, idValue)) {
