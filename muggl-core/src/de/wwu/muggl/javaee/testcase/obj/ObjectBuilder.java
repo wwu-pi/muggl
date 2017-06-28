@@ -1,7 +1,9 @@
 package de.wwu.muggl.javaee.testcase.obj;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
@@ -14,7 +16,7 @@ import de.wwu.muggl.vm.initialization.Objectref;
  * 
  * @author Andreas Fuchs
  */
-public class ObjectBuilder {
+public abstract class ObjectBuilder {
 
 	// the generated names of the object references
 	protected Map<Objectref, String> objectRefNameMap;
@@ -22,9 +24,15 @@ public class ObjectBuilder {
 	// the constraint solver solution
 	protected Solution solution;
 	
+	// the packages that are required for the objects that were built
+	// e.g., instead of "foo.bar.Foobar f = new foo.bar.Foobar()";
+	// we generate an "import foo.bar.Foobar;" and a "Foobar f = new Foobar()";
+	protected Set<String> requiredPackages;
+	
 	public ObjectBuilder(Solution solution) {
 		this.objectRefNameMap = new HashMap<>();
 		this.solution = solution;
+		this.requiredPackages = new HashSet<>();
 	}
 
 	/**
@@ -39,35 +47,22 @@ public class ObjectBuilder {
 		
 		if(objName == null) {
 			// object has not yet been generated, so generate it!
-			objName  = generateNewObject(o, sb);
+			objName = generateNewObject(o, sb);
 			this.objectRefNameMap.put(o, objName);
 		}
 		
 		return objName;
 	}
 
-	private String generateNewObject(Objectref o, StringBuilder sb) {
-		String objName = generateNewName(o);
-		sb.append("\t\t// generate new object for : " + objName + "\n");
-		return objName;
-	}
+	protected abstract String generateNewObject(Objectref o, StringBuilder sb);
 	
-	private String generateNewName(Objectref o) {
-		
-		// check if object is null
-		if(isNull(o)) {
-			return "null";
-		}
-		
-		if(o instanceof ObjectrefVariable) {
-			ObjectrefVariable v = (ObjectrefVariable)o;
-			return v.getVariableName();
-		}
-		
-		return "obj"+o.getInstantiationNumber();
-	}
-
-	private boolean isNull(Objectref o) {		
+	
+	/**
+	 * Check if hte given objectref is a NULL reference.
+	 * @param o
+	 * @return
+	 */
+	protected boolean isNull(Objectref o) {		
 		if(o == null) {
 			// check here: either return 'true' because object reference is indeed null
 			// or implement new symbolic execution handling
@@ -100,6 +95,35 @@ public class ObjectBuilder {
 		// if not an object reference VARIABLE, it can never be null
 		return false;
 	}
+
+	/**
+	 * Resets this object builder cache, i.e. the generated object names, etc.
+	 */
+	public void reset() {
+		this.objectRefNameMap = new HashMap<>();
+	}
 	
+	
+	/**
+	 * Get a primitive (int, double, boolean, etc.) value as a string representation.
+	 */
+	protected String getPrimitiveFieldValueAsString(Object value) {
+		if(value instanceof Objectref) {
+			throw new RuntimeException("This method is not meant to be used for object references");
+		}	
+		
+		if(value instanceof NumericConstant) {
+			NumericConstant nc = (NumericConstant)value;
+			return ""+nc.getIntValue();
+		}
+		
+		if(value instanceof NumericVariable) {
+			NumericVariable nv = (NumericVariable)value;
+			NumericConstant nc = (NumericConstant)solution.getValue(nv);
+			return getPrimitiveFieldValueAsString(nc);
+		}
+		
+		throw new RuntimeException("Generating a string representation for value ["+value+"] not supported yet");
+	}
 	
 }
