@@ -9,7 +9,11 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
  */
 public class MugglEntityManager {
 
+	// the symoblic database
 	protected SymbolicDatabase database;
+	
+	// helper class to analyze entity class files
+	protected JPAEntityClassAnalyzer entityAnalyzer;
 	
 	public MugglEntityManager(SymbolicVirtualMachine vm) {
 		this.database = new SymbolicDatabase(vm);
@@ -19,4 +23,7 @@ public class MugglEntityManager {
 		return this.database;
 	}
 	
+	public JPAEntityClassAnalyzer getEntityAnalyzer() {
+		return this.entityAnalyzer;
+	}
 }
