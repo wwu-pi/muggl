@@ -534,14 +534,21 @@ public class SolutionProcessor {
 			if(Options.getInst().javaEEMode) {
 				JPATestCaseBuilder jpaTCBuilder = new JPATestCaseBuilder(solution);
 				jpaTCBuilder.build();
-				
-				if(solution instanceof JavaEETestCaseSolution) {
-					JavaEETestCaseSolution javaEESolution = (JavaEETestCaseSolution)solution;
-					Globals.getInst().symbolicExecLogger.info("*** JAVA EE TEST CASE SOLUTION ***");
-					Globals.getInst().symbolicExecLogger.info(javaEESolution.getPreExecutionRequiredDatabaseString());
-					Globals.getInst().symbolicExecLogger.info("******************************************************");
+				while(solution != null) {
+					if(solution instanceof JavaEETestCaseSolution) {
+						JavaEETestCaseSolution javaEESolution = (JavaEETestCaseSolution)solution;
+						Globals.getInst().symbolicExecLogger.info("*** JAVA EE TEST CASE SOLUTION ***\n");
+						Globals.getInst().symbolicExecLogger.info(javaEESolution.getPreExecutionRequiredDatabaseString());
+						Globals.getInst().symbolicExecLogger.info("******************************************************");
+					}
+					
+					solution = solution.getSuccessor();
 				}
+				
 			}
+			
+			
+			
 
 			// Iterate through all solutions.
 			while (solution != null) {
