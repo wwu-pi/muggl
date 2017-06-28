@@ -21,7 +21,7 @@ import de.wwu.muggl.vm.initialization.Objectref;
  */
 public class JPAEntityClassAnalyzer {
 	
-	protected SymbolicVirtualMachine vm;
+	private static JPAEntityClassAnalyzer instance;
 	
 	// key = entity class name
 	// value = the id field of this entity
@@ -31,13 +31,25 @@ public class JPAEntityClassAnalyzer {
 	// value = flag to indicate that the class is an entity class or not
 	protected Map<String, Boolean> isEntityClassMap;
 	
-	public JPAEntityClassAnalyzer(SymbolicVirtualMachine vm) {
-		this.vm = vm;
+	private JPAEntityClassAnalyzer() {
 		this.entityIdFieldMap = new HashMap<>();
 		this.isEntityClassMap = new HashMap<>();
 	}
+	
+	public static synchronized JPAEntityClassAnalyzer getInst() {
+		if(instance == null) {
+			instance = new JPAEntityClassAnalyzer();
+		}
+		return instance;
+	}
 
-	public boolean isEntityClass(Objectref dbObjRef) {
+	/**
+	 * Check if the object reference is of an entity type, 
+	 * i.e. its class or one of its super classes is annotated with @Id 
+	 * @param dbObjRef the object reference to check if it is an entity type
+	 * @return
+	 */
+	public boolean isEntityType(Objectref dbObjRef) {
 		ClassFile classFile = dbObjRef.getInitializedClass().getClassFile();
 		String entityClassName = classFile.getName();
 		
@@ -68,10 +80,11 @@ public class JPAEntityClassAnalyzer {
 	/**
 	 * Get the field that is annotated with @Id for the given entity class.
 	 * @param entityName the name of the entity class
+	 * @param vm the symbolic virtual machine
 	 * @return the field that is annotated with @Id
 	 * @throws SymbolicDatabaseException when class file analyzing fails
 	 */
-	public Field getIdField(String entityName) throws SymbolicDatabaseException {
+	public Field getIdField(String entityName, SymbolicVirtualMachine vm) throws SymbolicDatabaseException {
 		Field idField = this.entityIdFieldMap.get(entityName);
 		if(idField == null) {
 			 try {
@@ -95,13 +108,15 @@ public class JPAEntityClassAnalyzer {
 				// if not found for the given entity -> check its superclass
 				ClassFile superClass = entityClassFile.getSuperClassFile();
 				if(superClass != null) {
-					return getIdField(superClass.getName());
+					return getIdField(superClass.getName(), vm);
+				} else {
+					throw new SymbolicDatabaseException("Could not find id field of entity class: " + entityName);
 				}
 			} catch (ClassFileException e) {
 				throw new SymbolicDatabaseException("Could not find entity class: " + entityName, e);
 			}
 		}
 		
-		throw new SymbolicDatabaseException("Could not find id field of entity class: " + entityName);
+		return idField;
 	}
 }
