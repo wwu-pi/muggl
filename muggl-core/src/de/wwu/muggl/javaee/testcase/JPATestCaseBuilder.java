@@ -3,8 +3,11 @@ package de.wwu.muggl.javaee.testcase;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.javaee.testcase.obj.ObjectBuilder;
 import de.wwu.muggl.javaee.testcase.obj.impl.EntityObjectBuilder;
+import de.wwu.muggl.solvers.expressions.Expression;
 import de.wwu.muggl.solvers.expressions.IntConstant;
-import de.wwu.muggl.symbolic.testCases.TestCaseSolution;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
+import de.wwu.muggl.symbolic.testCases.JavaEETestCaseSolution;
 import de.wwu.muggl.vm.initialization.Objectref;
 
 /**
@@ -14,7 +17,7 @@ import de.wwu.muggl.vm.initialization.Objectref;
  */
 public class JPATestCaseBuilder {
 
-	protected TestCaseSolution solution;
+	protected JavaEETestCaseSolution solution;
 	
 	protected StringBuilder sb;
 
@@ -24,7 +27,7 @@ public class JPATestCaseBuilder {
 	
 	protected ObjectBuilder objBuilder;
 	
-	public JPATestCaseBuilder(TestCaseSolution solution) {
+	public JPATestCaseBuilder(JavaEETestCaseSolution solution) {
 		this.objBuilder = new EntityObjectBuilder(solution.getSolution());
 		this.solution = solution;
 		this.sb = new StringBuilder();
@@ -83,11 +86,11 @@ public class JPATestCaseBuilder {
 		while(solution != null) {
 			objBuilder.reset();
 			buildTestMethod(solution, "test"+ i++);
-			solution = solution.getSuccessor();
+			solution = (JavaEETestCaseSolution)solution.getSuccessor();
 		}
 	}
 
-	private void buildTestMethod(TestCaseSolution solution, String testMethodName) {
+	private void buildTestMethod(JavaEETestCaseSolution solution, String testMethodName) {
 		sb.append("\t@Test\n");
 		sb.append("\t// Solution: "+solution.getSolution()+"\n");
 		sb.append("\t// Return value: "+solution.getReturnValue()+"\n");
@@ -99,8 +102,7 @@ public class JPATestCaseBuilder {
 	}
 
 	private void buildPreExecutionRequiredDatabase() {
-		sb.append("\t\t// pre-execution required data\n");
-		sb.append("\t\t// no data is required to exists before MUT is invoked\n");
+		sb.append(solution.getPreExecutionRequiredDatabaseString());
 	}
 	
 	private void buildInvokeMethodUnderTest() {
@@ -165,6 +167,16 @@ public class JPATestCaseBuilder {
 			}
 		}
 		
+		if(actualReturnValue instanceof NumericVariable) {
+			NumericVariable nv = (NumericVariable)actualReturnValue;
+			NumericConstant nc = (NumericConstant)solution.getSolution().getValue(nv);
+			return getNumericConstantString(nc);
+		}
+		
+		if(actualReturnValue instanceof NumericConstant) {
+			return getNumericConstantString((NumericConstant)actualReturnValue);
+		}
+		
 		// if null, return "null" string
 		if(actualReturnValue == null) {
 			return "null";
@@ -172,6 +184,17 @@ public class JPATestCaseBuilder {
 		
 		// if no special transformation required -> simply return .toString()
 		return actualReturnValue.toString();
+	}
+	
+	private String getNumericConstantString(NumericConstant nc) {
+		switch(nc.getType()) {
+			case Expression.INT    : return nc.getIntValue()+"";
+			case Expression.LONG   : return nc.getLongValue()+"L";
+			case Expression.SHORT  : return nc.getIntValue()+"s";
+			case Expression.DOUBLE : return nc.getDoubleValue()+"";
+			case Expression.FLOAT  : return nc.getFloatValue()+"";
+			default: return null;
+		}
 	}
 
 	private void buildMethodArguments() {
@@ -181,7 +204,7 @@ public class JPATestCaseBuilder {
 			i = 1;
 		}
 		for(;i<parameters.length; i++) {
-			generateArgument(parameters[i], i++);
+			generateArgument(parameters[i], i);
 		}
 	}
 
@@ -192,8 +215,24 @@ public class JPATestCaseBuilder {
 			generateObjectRefArgument((Objectref)o, argName);
 		}
 		
+		else if(o instanceof NumericConstant) {
+			generateNumericConstantArgument((NumericConstant)o, argName);
+		}
+		
 		else {
 			sb.append("\t\t// TODO type ["+o+"]not supported yet, implement it in class " + this.getClass().getName() + "\n");
+		}
+	}
+
+	private void generateNumericConstantArgument(NumericConstant o, String argName) {
+		String value = getNumericConstantString(o);
+		switch(o.getType()) {
+			case Expression.INT    : { sb.append("\t\tint " + argName + " = " + value +    ";\n");  break; }
+			case Expression.LONG   : { sb.append("\t\tlong " + argName + " = " + value +   ";\n");  break; }
+			case Expression.SHORT  : { sb.append("\t\tshort " + argName + " = " + value +  ";\n");  break; }
+			case Expression.DOUBLE : { sb.append("\t\tdouble " + argName + " = " + value + ";\n");  break; }
+			case Expression.FLOAT  : { sb.append("\t\tfloat " + argName + " = " + value +  ";\n");  break; }
+			default: sb.append("\t\t// type : " + o.getType() + " not supported yet for numeric values, implement it in class: " + this.getClass().getName());
 		}
 	}
 
