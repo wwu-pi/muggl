@@ -532,7 +532,7 @@ public class SolutionProcessor {
 			StringBuilder testMethodStringBuilder = new StringBuilder();
 			
 			if(Options.getInst().javaEEMode) {
-				JPATestCaseBuilder jpaTCBuilder = new JPATestCaseBuilder(solution);
+				JPATestCaseBuilder jpaTCBuilder = new JPATestCaseBuilder((JavaEETestCaseSolution)solution);
 				jpaTCBuilder.build();
 				while(solution != null) {
 					if(solution instanceof JavaEETestCaseSolution) {
