@@ -2,8 +2,11 @@ package de.wwu.muggl.javaee.testcase.obj.impl;
 
 import de.wwu.muggl.javaee.testcase.obj.ObjectBuilder;
 import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.Field;
+import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
 
 public class EntityObjectBuilder extends ObjectBuilder {
@@ -15,6 +18,12 @@ public class EntityObjectBuilder extends ObjectBuilder {
 	@Override
 	protected String generateNewObject(Objectref o, StringBuilder sb) {
 		ClassFile classFile = o.getInitializedClass().getClassFile();
+		
+		// check for special objects to be built
+		if(classFile.getName().equals(String.class.getName())) {
+			return generateNewStringObject(o,sb);
+		}
+		
 		requiredPackages.add(classFile.getName());
 		
 		String className = classFile.getClassName();
@@ -38,15 +47,90 @@ public class EntityObjectBuilder extends ObjectBuilder {
 		return objName;
 	}
 	
+	
+	private String generateNewStringObject(Objectref o, StringBuilder sb) {
+		String objName = generateNewName(o);
+		sb.append("\t\tString "+objName+" = new String(\"");
+		Field valueField = o.getInitializedClass().getClassFile().getFieldByName("value");
+		Object stringValueObj = o.getField(valueField);
+		if(stringValueObj != null) {
+			Arrayref valueCharArray = (Arrayref)stringValueObj;
+			for(int i=0;i<valueCharArray.length; i++) {
+				Object charEle = valueCharArray.getElement(i);
+				if(charEle instanceof NumericConstant) {
+					NumericConstant nc = (NumericConstant)charEle;
+					char c = (char)nc.getIntValue();
+					sb.append(c);
+				} else if(charEle instanceof NumericVariable) {
+					NumericVariable nv = (NumericVariable)charEle;
+					NumericConstant nc = (NumericConstant)solution.getValue(nv);
+					char c = (char)nc.getIntValue();
+					sb.append(c);
+				} else if(charEle instanceof Objectref && ((Objectref)charEle).getInitializedClass().getClassFile().getName().equals(Character.class.getName())) {
+					Objectref co = (Objectref)charEle;
+					Object v = co.getInitializedClass().getClassFile().getFieldByName("value");
+					if(v != null && v instanceof NumericConstant) {
+						NumericConstant nc = (NumericConstant)v;
+						char c = (char)nc.getIntValue();
+						sb.append(c);
+					} else if(v != null && v instanceof NumericVariable) {
+						NumericVariable nv = (NumericVariable)v;
+						NumericConstant nc = (NumericConstant)solution.getValue(nv);
+						char c = (char)nc.getIntValue();
+						sb.append(c);
+					} else {
+						sb.append("?");
+					}
+				} else {
+					sb.append("?");
+				}
+			}
+		}
+		sb.append("\");\n");
+		return objName;
+	}
+
+	@Override
+	protected String generateNewArray(Arrayref a, StringBuilder sb) {
+		ClassFile referencedClassFile = a.getReferenceValue().getInitializedClass().getClassFile();
+		requiredPackages.add(referencedClassFile.getName());
+		
+		String className = referencedClassFile.getClassName();
+		
+		String arrName = a.getReferenceValue().getInitializedClass().getClassFile().getClassName().toLowerCase() + a.getReferenceValue().getInstantiationNumber();
+		
+		sb.append("\t\t"+className);
+		for(int i=0;i<a.getDimensions().length; i++) {
+			sb.append("[]");
+		}
+		sb.append(" " + arrName + " = " + className);
+		for(int i=0;i<a.getDimensions().length; i++) {
+			sb.append("[");
+			int elementsInDimension = a.getDimensions()[i];
+			sb.append(elementsInDimension);
+			sb.append("]");
+		}
+		sb.append(";\n");
+		
+		for(int i=0; i<a.length; i++) {
+			sb.append("\t\t// "+arrName+"["+i+"] = " + a.getElement(i) + "\n");
+		}
+		
+		return arrName;
+	}
+	
+	
 	private void generateFieldValue(Field field, Object value, String objName, StringBuilder sb) {
 		String setterName = "set"+field.getName().substring(0,1).toUpperCase()+field.getName().substring(1);
 		
-		if(!(value instanceof Objectref)) {
-			String primValueString = getPrimitiveFieldValueAsString(value);
+		
+		if(value instanceof Arrayref) {
+			Arrayref arrRef = (Arrayref)value;
+			String arrName = generateNewArray(arrRef, sb);
 			sb.append("\t\t"+objName+"."+setterName+"(");
-			sb.append(primValueString);
+			sb.append(arrName);
 			sb.append(");\n");
-		} else {
+		} else if(value instanceof Objectref) {
 			Objectref objRef = (Objectref)value;
 			if(objectRefNameMap.containsKey(objRef)) {
 				String valueObjName = objectRefNameMap.get(objRef);
@@ -58,6 +142,11 @@ public class EntityObjectBuilder extends ObjectBuilder {
 				this.objectRefNameMap.put(objRef, fieldObjName);
 				generateFieldValue(field, value, objName, sb);
 			}
+		} else {
+			String primValueString = getPrimitiveFieldValueAsString(value);
+			sb.append("\t\t"+objName+"."+setterName+"(");
+			sb.append(primValueString);
+			sb.append(");\n");
 		}
 	}
 
