@@ -54,7 +54,7 @@ public class JavaEETestCaseSolution extends TestCaseSolution {
 	
 	private void buildPreExecutionRequiredDatabase() {
 		dbPre.append("\t\t// pre-execution required data\n");
-		boolean preExeDataExists = true; // flag to indicate that no pre execution required data exists
+		boolean preExeDataExists = false; // flag to indicate that no pre execution required data exists
 		Map<String, Set<Objectref>> data = symbolicDatabase.getPreExecutionRequiredData();
 		for(String entityName : data.keySet()) {
 			for(Objectref objRef : data.get(entityName)) {
@@ -68,36 +68,21 @@ public class JavaEETestCaseSolution extends TestCaseSolution {
 	}
 
 	protected boolean generateData(Objectref objRef) {
-		dbPre.append("\t\t// generate data for: " + objRef+"\n");
 		if(objRef instanceof ObjectrefVariable) {
 			ObjectrefVariable objRefVar = (ObjectrefVariable) objRef;
 			NumericVariable nv = objRefVar.getIsNullVariable();
 			NumericConstant nc = (NumericConstant)this.solution.getValue(nv);
 			if(nc != null && nc.getIntValue() == 0) {
-				objectBuilder.getObjectName(objRef, dbPre);
-//				generateNotNullObjectReference(objRefVar);
+				dbPre.append("\t\t// generate data for: " + objRef+"\n");
+				String entityName = objectBuilder.getObjectName(objRef, dbPre);
+				dbPre.append("\t\tem.persist("+entityName+");\n");
 				return true;
 			}
 		}
 		return false;
 	}
-	
-//	private void generateNotNullObjectReference(Objectref objRef) {
-//		ClassFile classFile = objRef.getInitializedClass().getClassFile();
-//		String fullClassName = classFile.getName();
-//		this.requiredPackages.add(fullClassName);
-//		
-//		String className = classFile.getClassName();
-//		String objName = "foo";
-//		dbPre.append("\t\t"+className+" "+objName + " = new "+className+"();\n");
-//		
-//		
-//		
-//	}
 
 	public String getPreExecutionRequiredDatabaseString() {
 		return this.dbPre.toString();
 	}
-	
-	
 }
