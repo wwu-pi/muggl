@@ -55,6 +55,20 @@ public interface Expression{
 				default: return -1;
     		}
 		}
+    	
+    	public static String getPrimitiveWrapper(String typeString) {
+    		switch(typeString) {
+				case "byte"      : return Byte.class.getName();
+				case "short"     : return Short.class.getName();
+				case "int"       : return Integer.class.getName();
+				case "long"      : return Long.class.getName();
+				case "char"      : return Character.class.getName();
+				case "boolean"   : return Boolean.class.getName();
+				case "float"     : return Float.class.getName();
+				case "double"    : return Double.class.getName();
+				default: return null;
+			}
+    	}
     }
 
     /**
