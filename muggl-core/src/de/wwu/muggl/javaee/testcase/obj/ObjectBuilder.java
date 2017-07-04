@@ -9,6 +9,7 @@ import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.symbolic.var.ObjectrefVariable;
+import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
 
 /**
@@ -55,6 +56,9 @@ public abstract class ObjectBuilder {
 	}
 
 	protected abstract String generateNewObject(Objectref o, StringBuilder sb);
+	
+	protected abstract String generateNewArray(Arrayref o, StringBuilder sb);
+	
 	
 	
 	/**
