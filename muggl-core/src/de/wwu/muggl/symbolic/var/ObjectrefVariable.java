@@ -102,12 +102,13 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 		// 3) array reference
 		else if(type.endsWith("[]") && !type.endsWith("[][]")) {
 			String arrayType = type.substring(0, type.length()-2);
+			if(field.isPrimitiveType()) {
+				arrayType = Expression.Type.getPrimitiveWrapper(arrayType);
+			}
 			try {
 				ClassFile classFile = vm.getClassLoader().getClassAsClassFile(arrayType);
 				fieldVar = new ArrayrefVariable(varName, vm.getAnObjectref(classFile), vm);
-			} catch(ClassFileException e) {
-				throw new ReferenceVariableException(e);
-			} catch (TimeoutException | SolverUnableToDecideException e) {
+			} catch(ClassFileException | TimeoutException | SolverUnableToDecideException e) {
 				throw new ReferenceVariableException(e);
 			}
 		}
