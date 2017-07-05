@@ -163,12 +163,12 @@ public class LongComparisonChoicePoint extends ConstraintResetChoicePoint {
 			throw new IllegalStateException("There are no more choices.");
 		if (this.step == 0) {
 			this.constraintExpression = GreaterThan.newInstance(this.leftTerm, this.rightTerm);
-			this.nextValueToPush = 0;
-		} else if (this.step == 1) {
-			this.constraintExpression = LessThan.newInstance(this.leftTerm, this.rightTerm);
 			this.nextValueToPush = 1;
-		} else if (this.step == 2) {
+		} else if (this.step == 1) {
 			this.constraintExpression = NumericEqual.newInstance(this.leftTerm, this.rightTerm);
+			this.nextValueToPush = 0;
+		} else if (this.step == 2) {
+			this.constraintExpression = LessThan.newInstance(this.leftTerm, this.rightTerm);
 			this.nextValueToPush = -1;
 		}
 
