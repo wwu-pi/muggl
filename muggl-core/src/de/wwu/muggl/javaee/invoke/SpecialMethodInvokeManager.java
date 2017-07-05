@@ -11,6 +11,7 @@ import de.wwu.muggl.javaee.invoke.impl.WsRsClientEntity;
 import de.wwu.muggl.javaee.invoke.impl.WsRsClientTarget;
 import de.wwu.muggl.javaee.invoke.impl.WsRsInvocationBuilderPost;
 import de.wwu.muggl.javaee.invoke.impl.WsRsResponseGetStatus;
+import de.wwu.muggl.javaee.invoke.impl.WsRsTargetPath;
 import de.wwu.muggl.javaee.invoke.impl.WsRsTargetRequest;
 
 /**
@@ -62,6 +63,10 @@ public class SpecialMethodInvokeManager {
 		this.specialMethods.put(
 				new SpecialMethodInvocationEntry("javax.ws.rs.client.Client", "target", "(Ljava/lang/String;)Ljavax/ws/rs/client/WebTarget;"),
 				new WsRsClientTarget());
+		
+		this.specialMethods.put(
+				new SpecialMethodInvocationEntry("javax.ws.rs.client.WebTarget", "path", "(Ljava/lang/String;)Ljavax/ws/rs/client/WebTarget;"),
+				new WsRsTargetPath());
 		
 		this.specialMethods.put(
 				new SpecialMethodInvocationEntry("javax.ws.rs.client.WebTarget", "request", "([Ljava/lang/String;)Ljavax/ws/rs/client/Invocation$Builder;"),

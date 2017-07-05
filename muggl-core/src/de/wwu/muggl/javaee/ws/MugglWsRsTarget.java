@@ -10,6 +10,11 @@ public class MugglWsRsTarget extends MugglWsRs {
 	protected String targetUrl;
 	
 	/**
+	 * A path to the target.
+	 */
+	protected String path;
+	
+	/**
 	 * The Muggl JAX-RS Client that created this target object.
 	 */
 	protected MugglWsRsClient mugglWsClient;
@@ -21,6 +26,10 @@ public class MugglWsRsTarget extends MugglWsRs {
 	
 	public void setTargetUrl(String targetUrl) {
 		this.targetUrl = targetUrl;
+	}
+	
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 }
