@@ -1,6 +1,7 @@
 package de.wwu.muggl.vm.impl.symbolic;
 
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Stack;
 
 import org.apache.log4j.Level;
@@ -19,6 +20,8 @@ import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.javaee.jpa.MugglEntityManager;
+import de.wwu.muggl.javaee.rest.RESTResource;
+import de.wwu.muggl.javaee.rest.RESTResourceManager;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
@@ -588,8 +591,10 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 			
 			// Add the solutions.
 			if(Options.getInst().javaEEMode) {
+				Set<RESTResource> requiredRESTResources = RESTResourceManager.getInst().getRequiredRESTResources(this.solverManager.getConstraintLevel());
 				// add Java EE solution
-				this.solutionProcessor.addJavaEESolution(solution, returnValue, this.mugglEntityManager.getDB(),
+				this.solutionProcessor.addJavaEESolution(solution, returnValue, 
+						this.mugglEntityManager.getDB(), requiredRESTResources,
 						this.threwAnUncaughtException, this.coverage.getCFCoverageMap(), this.coverage
 								.getDUCoverageAsBoolean());
 			} else {
