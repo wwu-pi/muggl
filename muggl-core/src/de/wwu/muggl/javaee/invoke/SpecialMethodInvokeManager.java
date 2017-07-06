@@ -41,8 +41,9 @@ public class SpecialMethodInvokeManager {
 	 * @param methodSignature the method signature
 	 */
 	public SpecialMethodInvocation getSpecialMethodInvocation(String className, String methodName, String methodSignature) {
-		SpecialMethodInvocationEntry s = new SpecialMethodInvocationEntry(className, methodName, methodSignature);
-		return this.specialMethods.get(s);
+		throw new RuntimeException("Method not supported any more, use special-method-invocations");
+//		SpecialMethodInvocationEntry s = new SpecialMethodInvocationEntry(className, methodName, methodSignature);
+//		return this.specialMethods.get(s);
 	}
 	
 	/**
