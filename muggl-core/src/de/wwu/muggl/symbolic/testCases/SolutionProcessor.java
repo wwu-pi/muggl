@@ -19,6 +19,7 @@ import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.javaee.jpa.SymbolicDatabase;
+import de.wwu.muggl.javaee.rest.RESTResource;
 import de.wwu.muggl.javaee.testcase.JPATestCaseBuilder;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.expressions.BooleanConstant;
@@ -169,7 +170,8 @@ public class SolutionProcessor {
 	 *        been covered.
 	 * @throws IllegalStateException If the method is invoked after test generation was started.
 	 */
-	public void addJavaEESolution(Solution solution, Object returnValue, SymbolicDatabase symbolicDatabase,
+	public void addJavaEESolution(Solution solution, Object returnValue, 
+			SymbolicDatabase symbolicDatabase, Set<RESTResource> requiredRESTResources,
 			boolean throwsAnUncaughtException, Map<Method, boolean[]> controlFlowCoverageMapping,
 			boolean[] dUCoverage) {
 		if (this.testCaseGenerationStarted) {
@@ -189,14 +191,16 @@ public class SolutionProcessor {
 		if (this.latestSolutionFound == null) {
 			this.latestSolutionFound = new JavaEETestCaseSolution(
 				this.initialMethod, solution, returnValue, 
-				symbolicDatabase, throwsAnUncaughtException, 
+				symbolicDatabase, requiredRESTResources,
+				throwsAnUncaughtException, 
 				prepareVariablesForTestCaseSolution(),
 				prepareDUCoverageForTestCaseSolution(dUCoverage), 
 				prepareControlFlowCoverageForTestCaseSolution(controlFlowCoverageMapping));
 		} else {
 			this.latestSolutionFound = new JavaEETestCaseSolution(
 				this.initialMethod, solution, returnValue, 
-				symbolicDatabase, throwsAnUncaughtException, 
+				symbolicDatabase, requiredRESTResources,
+				throwsAnUncaughtException, 
 				prepareVariablesForTestCaseSolution(),
 				prepareDUCoverageForTestCaseSolution(dUCoverage), 
 				prepareControlFlowCoverageForTestCaseSolution(controlFlowCoverageMapping),
@@ -537,8 +541,8 @@ public class SolutionProcessor {
 				while(solution != null) {
 					if(solution instanceof JavaEETestCaseSolution) {
 						JavaEETestCaseSolution javaEESolution = (JavaEETestCaseSolution)solution;
-						Globals.getInst().symbolicExecLogger.info("*** JAVA EE TEST CASE SOLUTION ***\n");
-						Globals.getInst().symbolicExecLogger.info(javaEESolution.getPreExecutionRequiredDatabaseString());
+						Globals.getInst().symbolicExecLogger.info("*** REQUIRED WEB SERVICES ***\n");
+						Globals.getInst().symbolicExecLogger.info(javaEESolution.getRequiredWebServicesString());
 						Globals.getInst().symbolicExecLogger.info("******************************************************");
 					}
 					
