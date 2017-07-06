@@ -12,9 +12,15 @@ import de.wwu.muggl.instructions.interfaces.control.JumpInvocation;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableDefining;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
+import de.wwu.muggl.instructions.invokespecial.InvokeSpecialManager;
+import de.wwu.muggl.instructions.invokespecial.SpecialMethodEntry;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvocation;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeManager;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
+import de.wwu.muggl.solvers.expressions.FloatConstant;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.LongConstant;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -36,10 +42,6 @@ import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
-import de.wwu.muggl.solvers.expressions.DoubleConstant;
-import de.wwu.muggl.solvers.expressions.FloatConstant;
-import de.wwu.muggl.solvers.expressions.IntConstant;
-import de.wwu.muggl.solvers.expressions.LongConstant;
 
 /**
  * Abstract instruction with some concrete methods for invocation instructions. Concrete
@@ -178,6 +180,12 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 			frame.getOperandStack().push(klass.getMirrorJava());
 			return;
 		}
+		
+		SpecialMethodEntry entry = new SpecialMethodEntry(methodClassFile.getName(), nameAndType[0], nameAndType[1]);
+        if(InvokeSpecialManager.isSpecial(entry)) {
+            InvokeSpecialManager.executeSpecialMethod(entry, frame, parameters);
+            return;
+        }
 		
 		if(isSpecialJavaEEMethodInvocation(methodClassFile, nameAndType)) {
 			// special execution of the method
