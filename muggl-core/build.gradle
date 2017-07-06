@@ -8,7 +8,12 @@ dependencies {
 } 
 
 sourceSets {
-	main.java.srcDir "src"
+	main {
+	   java {
+	      srcDir "src"
+		  srcDir "src-invoke-special"
+	   }
+	}
 	test.java.srcDir "junit"
 	test.resources.srcDir "junit-res"
 }
