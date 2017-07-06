@@ -16,8 +16,11 @@ public abstract class MugglWsRs implements ReferenceValue {
 	
 	protected String jaxRsClassName;
 	
+	protected SymbolicVirtualMachine vm;
+	
 	MugglWsRs(String jaxRsClassName, SymbolicVirtualMachine vm) throws MugglWsRsException {
 		this.initNumber = globalInitNumber++;
+		this.vm = vm;
 		this.jaxRsClassName = jaxRsClassName;
 		try {
 			ClassFile cf = vm.getClassLoader().getClassAsClassFile(jaxRsClassName);
