@@ -1,5 +1,8 @@
 package de.wwu.muggl.javaee.ws;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 
 public class MugglWsRsTarget extends MugglWsRs {
@@ -15,6 +18,13 @@ public class MugglWsRsTarget extends MugglWsRs {
 	protected String path;
 	
 	/**
+	 * The template map for a path with path-parameters.
+	 * For instance, path is /customer/{id}, then id is a path parameter
+	 * and this map can set id = 123...
+	 */
+	protected Map<String, Object> templateMap;
+	
+	/**
 	 * The Muggl JAX-RS Client that created this target object.
 	 */
 	protected MugglWsRsClient mugglWsClient;
@@ -22,6 +32,7 @@ public class MugglWsRsTarget extends MugglWsRs {
 	public MugglWsRsTarget(SymbolicVirtualMachine vm, MugglWsRsClient mugglWsClient) throws MugglWsRsException {
 		super("javax.ws.rs.client.WebTarget", vm);
 		this.mugglWsClient = mugglWsClient;
+		this.templateMap = new HashMap<>();
 	}
 	
 	public void setTargetUrl(String targetUrl) {
@@ -32,4 +43,19 @@ public class MugglWsRsTarget extends MugglWsRs {
 		this.path = path;
 	}
 
+	public void setTemplate(String name, Object value) {
+		this.templateMap.put(name, value);
+	}
+
+	public String getTargetUrl() {
+		return targetUrl;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public Map<String, Object> getTemplateMap() {
+		return templateMap;
+	}
 }
