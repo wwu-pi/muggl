@@ -5,6 +5,7 @@ import org.apache.log4j.Level;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
+import de.wwu.muggl.instructions.invokespecial.InvokeSpecialManager;
 import de.wwu.muggl.util.StaticStringFormatter;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -98,6 +99,8 @@ public class Application extends Thread {
 	 */
 	@Override
 	public void run() {
+		InvokeSpecialManager.initialize();
+		
 		do {
 			try {
 				this.virtualMachine.performUniverseGenesis();
