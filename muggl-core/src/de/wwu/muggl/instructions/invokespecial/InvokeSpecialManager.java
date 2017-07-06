@@ -17,6 +17,11 @@ import de.wwu.muggl.instructions.invokespecial.meta.InvokeSpecialClass;
 import de.wwu.muggl.instructions.invokespecial.meta.InvokeSpecialMethod;
 import de.wwu.muggl.vm.Frame;
 
+/**
+ * The manager of special invocation methods.
+ * 
+ * @author Andreas Fuchs
+ */
 public class InvokeSpecialManager {
 	
 	/**
