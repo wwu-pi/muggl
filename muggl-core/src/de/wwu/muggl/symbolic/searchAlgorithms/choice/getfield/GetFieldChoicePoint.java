@@ -147,8 +147,8 @@ public class GetFieldChoicePoint extends ConstraintResetChoicePoint {
 		if(solverManager.hasSolution()) {
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException","getfield"));
 		} else {
-			this.nextChoice = this.choices.poll();
 			if(hasAnotherChoice()) {
+				this.nextChoice = this.choices.poll();
 				applyStateChanges();
 			}
 		}
