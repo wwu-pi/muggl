@@ -85,6 +85,7 @@ public class JPATestCaseBuilder {
 		int i=0;
 		while(solution != null) {
 			objBuilder.reset();
+			objBuilder.setSolution(solution.getSolution());
 			buildTestMethod(solution, "test"+ i++);
 			solution = (JavaEETestCaseSolution)solution.getSuccessor();
 		}

@@ -129,5 +129,9 @@ public abstract class ObjectBuilder {
 		
 		throw new RuntimeException("Generating a string representation for value ["+value+"] not supported yet");
 	}
+
+	public void setSolution(Solution solution) {
+		this.solution = solution;
+	}
 	
 }
