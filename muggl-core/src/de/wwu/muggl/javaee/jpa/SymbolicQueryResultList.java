@@ -24,7 +24,7 @@ public class SymbolicQueryResultList extends ObjectrefVariable {
 
 	private static InitializedClass getListReference(SymbolicVirtualMachine vm) {
 		try {
-			ClassFile listClassFile = vm.getClassLoader().getClassAsClassFile(java.util.ArrayList.class.getName());
+			ClassFile listClassFile = vm.getClassLoader().getClassAsClassFile(SymbolicArrayList.class.getName());
 			return vm.getAnObjectref(listClassFile).getInitializedClass();
 		} catch (ClassFileException e) {
 			e.printStackTrace();
