@@ -31,7 +31,7 @@ public class TypedQuery {
 	public static void getResultList(Frame frame, Object[] parameters) throws SpecialMethodInvokeException {
 		MugglTypedQuery query = getTypedQuery(frame.getOperandStack());
 		SymbolicVirtualMachine vm = (SymbolicVirtualMachine)frame.getVm();
-		frame.getOperandStack().push(new SymbolicQueryResultList("query-result", vm));
+		frame.getOperandStack().push(new SymbolicQueryResultList("query-result", query, vm));
 	}
 	
 	protected static MugglTypedQuery getTypedQuery(Stack<Object> stack) throws SpecialMethodInvokeException {

@@ -11,8 +11,12 @@ import de.wwu.muggl.vm.initialization.InitializedClass;
 
 public class SymbolicQueryResultList extends ObjectrefVariable {
 
-	public SymbolicQueryResultList(String name, SymbolicVirtualMachine vm) {
+	protected MugglTypedQuery query;
+	
+	public SymbolicQueryResultList(String name, MugglTypedQuery query, SymbolicVirtualMachine vm) {
 		super(name, getListReference(vm), vm);
+		
+		this.query = query;
 		
 		// set this list to be NOT null
 		vm.getSolverManager().addConstraint(NumericEqual.newInstance(this.isNull, NumericConstant.getZero(Expression.BOOLEAN)));
