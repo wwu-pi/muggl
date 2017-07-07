@@ -8,6 +8,7 @@ import de.wwu.muggl.instructions.invokespecial.util.SpecialMethodHelper;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
 import de.wwu.muggl.javaee.jpa.JPAEntityClassAnalyzer;
 import de.wwu.muggl.javaee.jpa.MugglEntityManager;
+import de.wwu.muggl.javaee.jpa.MugglTypedQuery;
 import de.wwu.muggl.javaee.jpa.SymbolicDatabaseException;
 import de.wwu.muggl.javaee.jpa.cstr.EntityConstraintException;
 import de.wwu.muggl.javaee.jpa.cstr.StaticConstraintManager;
@@ -90,7 +91,10 @@ public class EntityManager {
 	
 	@InvokeSpecialMethod(name="createQuery", signature="(Ljava/lang/String;Ljava/lang/Class;)Ljavax/persistence/TypedQuery;")
 	public static void createQuery(Frame frame, Object[] parameters) throws SpecialMethodInvokeException {
-		
+		MugglEntityManager entityManager = getEntityManager(frame.getOperandStack());
+		String queryString = SpecialMethodHelper.getStringFromObjectref((Objectref)parameters[1]);
+		String className = SpecialMethodHelper.getClassNameFromObjectRef((Objectref)parameters[2]);
+		frame.getOperandStack().push(new MugglTypedQuery(queryString, className));
 	}
 	
 	
