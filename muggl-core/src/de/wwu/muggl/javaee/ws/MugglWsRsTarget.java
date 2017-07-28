@@ -29,6 +29,14 @@ public class MugglWsRsTarget extends MugglWsRs {
 	 */
 	protected MugglWsRsClient mugglWsClient;
 	
+	public MugglWsRsTarget(MugglWsRsTarget original) throws MugglWsRsException {
+		this(original.vm, original.mugglWsClient);
+		this.targetUrl = original.targetUrl;
+		for(String k : original.templateMap.keySet()) {
+			this.templateMap.put(k, original.templateMap.get(k));
+		}
+	}
+	
 	public MugglWsRsTarget(SymbolicVirtualMachine vm, MugglWsRsClient mugglWsClient) throws MugglWsRsException {
 		super("javax.ws.rs.client.WebTarget", vm);
 		this.mugglWsClient = mugglWsClient;

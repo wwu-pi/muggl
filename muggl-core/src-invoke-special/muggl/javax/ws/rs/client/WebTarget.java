@@ -19,7 +19,14 @@ public class WebTarget {
 
 	@InvokeSpecialMethod(name="path", signature="(Ljava/lang/String;)Ljavax/ws/rs/client/WebTarget;")
 	public static void path(Frame frame, Object[] parameters) throws SpecialMethodInvokeException {
-		MugglWsRsTarget target = getWebTarget(frame.getOperandStack());		
+		MugglWsRsTarget originalTarget = getWebTarget(frame.getOperandStack());
+		
+		MugglWsRsTarget target = null;
+		try {
+			target = new MugglWsRsTarget(originalTarget);
+		} catch (MugglWsRsException e) {
+			throw new SpecialMethodInvokeException("Could not generate MugglWsRsTarget", e);
+		}
 		String path = SpecialMethodHelper.getStringFromObjectref((Objectref)parameters[1]);
 		target.setPath(path);
 		frame.getOperandStack().push(target);
@@ -27,7 +34,14 @@ public class WebTarget {
 	
 	@InvokeSpecialMethod(name="resolveTemplate", signature="(Ljava/lang/String;Ljava/lang/Object;)Ljavax/ws/rs/client/WebTarget;")
 	public static void resolveTemplate(Frame frame, Object[] parameters) throws SpecialMethodInvokeException {
-		MugglWsRsTarget target = getWebTarget(frame.getOperandStack());
+		MugglWsRsTarget originalTarget = getWebTarget(frame.getOperandStack());
+		
+		MugglWsRsTarget target = null;
+		try {
+			target = new MugglWsRsTarget(originalTarget);
+		} catch (MugglWsRsException e) {
+			throw new SpecialMethodInvokeException("Could not generate MugglWsRsTarget", e);
+		}
 		String name = SpecialMethodHelper.getStringFromObjectref((Objectref)parameters[1]);
 		Object value = parameters[2];
 		target.setTemplate(name, value);
