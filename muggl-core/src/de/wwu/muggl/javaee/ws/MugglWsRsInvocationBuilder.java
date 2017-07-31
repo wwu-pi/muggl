@@ -31,9 +31,8 @@ public class MugglWsRsInvocationBuilder extends MugglWsRs {
 		buildRESTResource();
 	}
 
-	private void buildRESTResource() {
-		String endpoint = this.target.getTargetUrl();
-		this.restResource = new RESTResource(endpoint);
+	private void buildRESTResource() {		
+		this.restResource = new RESTResource(this.target);
 		
 		int constraintLevel = this.vm.getSolverManager().getConstraintLevel();
 		RESTResourceManager.getInst().addRequiredResource(constraintLevel, this.restResource);
