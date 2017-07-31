@@ -6,6 +6,7 @@ import java.util.Set;
 
 import de.wwu.muggl.javaee.jpa.SymbolicDatabase;
 import de.wwu.muggl.javaee.rest.RESTResource;
+import de.wwu.muggl.javaee.testcase.RESTfulWebServiceBuilder;
 import de.wwu.muggl.javaee.testcase.obj.ObjectBuilder;
 import de.wwu.muggl.javaee.testcase.obj.impl.EntityObjectBuilder;
 import de.wwu.muggl.solvers.Solution;
@@ -65,9 +66,8 @@ public class JavaEETestCaseSolution extends TestCaseSolution {
 	}
 	
 	private void buildRequiredWebServices() {
-		for(RESTResource restResource : this.requiredRESTResources) {
-			this.wsReq.append("required resource: " + restResource + "\n");
-		}
+		RESTfulWebServiceBuilder restBuilder = new RESTfulWebServiceBuilder(this.requiredRESTResources, this.solution);
+		restBuilder.buildServices(this.wsReq);
 	}
 
 	private void buildPreExecutionRequiredDatabase() {
