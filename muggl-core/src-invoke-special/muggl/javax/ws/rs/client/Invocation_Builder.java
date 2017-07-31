@@ -6,6 +6,7 @@ import de.wwu.muggl.instructions.invokespecial.meta.InvokeSpecialClass;
 import de.wwu.muggl.instructions.invokespecial.meta.InvokeSpecialMethod;
 import de.wwu.muggl.instructions.invokespecial.util.SpecialMethodHelper;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
+import de.wwu.muggl.javaee.rest.RequestType;
 import de.wwu.muggl.javaee.ws.MugglRESTResponse;
 import de.wwu.muggl.javaee.ws.MugglWsRsInvocationBuilder;
 import de.wwu.muggl.solvers.expressions.Expression;
@@ -29,9 +30,11 @@ public class Invocation_Builder {
 		String name = "Muggl-REST-Response";
 		String className = SpecialMethodHelper.getClassNameFromObjectRef((Objectref)parameters[1]);
 		MugglRESTResponse response = generateResponse(vm, name, className);
-		frame.getOperandStack().push(response);
 		
 		builder.getRESTResource().setResponse(response);
+		builder.getRESTResource().setRequestType(RequestType.GET);
+		
+		frame.getOperandStack().push(response);
 	}
 	
 	protected static MugglRESTResponse generateResponse(SymbolicVirtualMachine vm, String name, String responseClassName) throws SpecialMethodInvokeException {
