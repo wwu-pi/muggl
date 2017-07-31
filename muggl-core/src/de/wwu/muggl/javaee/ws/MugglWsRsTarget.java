@@ -32,6 +32,7 @@ public class MugglWsRsTarget extends MugglWsRs {
 	public MugglWsRsTarget(MugglWsRsTarget original) throws MugglWsRsException {
 		this(original.vm, original.mugglWsClient);
 		this.targetUrl = original.targetUrl;
+		this.path = original.path;
 		for(String k : original.templateMap.keySet()) {
 			this.templateMap.put(k, original.templateMap.get(k));
 		}
@@ -65,5 +66,22 @@ public class MugglWsRsTarget extends MugglWsRs {
 
 	public Map<String, Object> getTemplateMap() {
 		return templateMap;
+	}
+	
+	public String getEndpointPath() {
+		if(     (targetUrl.endsWith("/") && !path.startsWith("/"))
+			|| (!targetUrl.endsWith("/") &&  path.startsWith("/"))) {
+			return targetUrl + path;
+		}
+		
+		if(targetUrl.endsWith("/") && path.startsWith("/")) {
+			return targetUrl.substring(0, targetUrl.length()-1) + path; 
+		}
+		
+		if(!targetUrl.endsWith("/") && !path.startsWith("/")) {
+			return targetUrl + "/" + path;
+		}
+		
+		throw new RuntimeException("Cannot generate endpoint path");
 	}
 }
