@@ -9,9 +9,6 @@ import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
 import de.wwu.muggl.javaee.rest.RequestType;
 import de.wwu.muggl.javaee.ws.MugglRESTResponse;
 import de.wwu.muggl.javaee.ws.MugglWsRsInvocationBuilder;
-import de.wwu.muggl.solvers.expressions.Expression;
-import de.wwu.muggl.solvers.expressions.NumericConstant;
-import de.wwu.muggl.solvers.expressions.NumericEqual;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -19,6 +16,9 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.Objectref;
 
+/**
+ * @author Andreas Fuchs
+ */
 @InvokeSpecialClass(className="javax.ws.rs.client.Invocation$Builder")
 public class Invocation_Builder {
 
@@ -42,9 +42,9 @@ public class Invocation_Builder {
 			ClassFile classFile = vm.getClassLoader().getClassAsClassFile(responseClassName);
 			InitializedClass ic = vm.getAnObjectref(classFile).getInitializedClass();
 			MugglRESTResponse response = new MugglRESTResponse(name, ic, vm);
-			// set the response object reference to be NOT null
-			vm.getSolverManager().addConstraint(NumericEqual.newInstance(
-					response.getIsNullVariable(), NumericConstant.getZero(Expression.BOOLEAN)));
+//			// set the response object reference to be NOT null
+//			vm.getSolverManager().addConstraint(NumericEqual.newInstance(
+//					response.getIsNullVariable(), NumericConstant.getZero(Expression.BOOLEAN)));
 			return response;
 		} catch (ClassFileException e) {
 			throw new SpecialMethodInvokeException("Could not generate REST response object reference", e);
