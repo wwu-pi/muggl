@@ -1,3 +1,4 @@
-include ':muggl-core', ':muggl-swt', ':muggl-solver-muconst', ':muggl-solver-jacop', ':muggl-common', ':muggl-solvers', ':sample-javaee-projects:customer-app'
+include ':muggl-core', ':muggl-swt', ':muggl-solver-muconst', ':muggl-solver-jacop', ':muggl-common', ':muggl-solvers', ':sample-javaee-projects:customer-app', ':sample-javaee-projects:customer-app', ':sample-javaee-projects:warehouse-ejb', ':sample-javaee-projects:warehouse-web'
+
 
 
