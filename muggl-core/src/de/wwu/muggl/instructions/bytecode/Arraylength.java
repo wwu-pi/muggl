@@ -13,6 +13,7 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.symbolic.var.ArrayrefVariable;
 
 /**
  * Implementation of the instruction  <code>arraylength</code>.
@@ -78,8 +79,13 @@ public class Arraylength extends de.wwu.muggl.instructions.general.ArraylengthAb
 			if (arrayref == null)
 				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
 
-			// Push the length of the array.
-			stack.push(IntConstant.getInstance(arrayref.length));
+			if(arrayref instanceof ArrayrefVariable) {
+				ArrayrefVariable arrayrefVar = (ArrayrefVariable)arrayref;
+				stack.push(arrayrefVar.getSymbolicLength());
+			} else {
+				// Push the length of the array.
+				stack.push(IntConstant.getInstance(arrayref.length));
+			}
 		} catch (VmRuntimeException e) {
 			SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
 			try {
