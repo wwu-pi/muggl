@@ -124,6 +124,9 @@ public abstract class ObjectBuilder {
 		if(value instanceof NumericVariable) {
 			NumericVariable nv = (NumericVariable)value;
 			NumericConstant nc = (NumericConstant)solution.getValue(nv);
+			if(nc == null) {
+				return ""+0;
+			}
 			return getPrimitiveFieldValueAsString(nc);
 		}
 		
