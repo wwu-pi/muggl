@@ -9,6 +9,7 @@ import de.wwu.muggl.vm.classfile.structures.attributes.AttributeConstantValue;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeDeprecated;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeInvisibleAnnotations;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeRuntimeVisibleAnnotations;
+import de.wwu.muggl.vm.classfile.structures.attributes.AttributeSignature;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeSynthetic;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeUnknownSkipped;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantUtf8;
@@ -78,6 +79,8 @@ public class Field extends FieldMethod {
 		} else if (attributeName.equals("RuntimeInvisibleAnnotations")) {
 			this.attributes[a] = new AttributeRuntimeInvisibleAnnotations(this.classFile,
 					attributeNameIndex);
+		} else if (attributeName.equals("Signature")) {
+			this.attributes[a] = new AttributeSignature(this.classFile, attributeNameIndex);
     	} else {
 			if (Globals.getInst().parserLogger.isDebugEnabled())
 				Globals.getInst().parserLogger.debug("Parsing: Encountered an unknown attribute \""
