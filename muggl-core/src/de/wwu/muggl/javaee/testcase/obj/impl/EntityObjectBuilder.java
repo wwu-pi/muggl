@@ -4,6 +4,7 @@ import de.wwu.muggl.javaee.testcase.obj.ObjectBuilder;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.solvers.expressions.NumericVariable;
+import de.wwu.muggl.symbolic.var.ArrayrefVariable;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.initialization.Arrayref;
@@ -106,18 +107,46 @@ public class EntityObjectBuilder extends ObjectBuilder {
 		sb.append(" " + arrName + " = " + className);
 		for(int i=0;i<a.getDimensions().length; i++) {
 			sb.append("[");
+			
 			int elementsInDimension = a.getDimensions()[i];
+			
+			if(a instanceof ArrayrefVariable) {
+				ArrayrefVariable arefVar = (ArrayrefVariable)a;
+				NumericVariable symbolicLengthVar = arefVar.getSymbolicLength();
+				NumericConstant lengthConstant = this.solution.getNumericValue(symbolicLengthVar);
+				if(lengthConstant == null) {
+					elementsInDimension = 0;
+				} else {
+					elementsInDimension = lengthConstant.getIntValue();
+				}
+			}
+			
 			sb.append(elementsInDimension);
 			sb.append("]");
 		}
 		sb.append(";\n");
 		
-		for(int i=0; i<a.length; i++) {
+		int length = a.length;
+		if(a instanceof ArrayrefVariable) {
+			ArrayrefVariable arefVar = (ArrayrefVariable)a;
+			NumericVariable symbolicLengthVar = arefVar.getSymbolicLength();
+			NumericConstant lengthConstant = this.solution.getNumericValue(symbolicLengthVar);
+			if(lengthConstant == null) {
+				length = 0;
+			} else {
+				length = lengthConstant.getIntValue();
+			}
+		}
+		
+		for(int i=0; i<length; i++) {
 			sb.append("\t\t// "+arrName+"["+i+"] = " + a.getElement(i) + "\n");
 		}
 		
 		return arrName;
 	}
+	
+	
+	
 	
 	
 	private void generateFieldValue(Field field, Object value, String objName, StringBuilder sb) {
@@ -149,6 +178,7 @@ public class EntityObjectBuilder extends ObjectBuilder {
 			sb.append(");\n");
 		}
 	}
+
 
 	private String generateNewName(Objectref o) {
 		return o.getInitializedClass().getClassFile().getClassName().toLowerCase() + o.getInstantiationNumber();
