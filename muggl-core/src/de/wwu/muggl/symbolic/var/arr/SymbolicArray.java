@@ -30,6 +30,10 @@ public class SymbolicArray {
 		this.elementMap.put(index, element);
 	}
 	
+	public Object getElementAt(int index) {
+		return this.elementMap.get(index);
+	}
+	
 	public void addElementAt(NumericVariable index, Object element) {
 		this.symElementMap.put(index, element);
 	}
