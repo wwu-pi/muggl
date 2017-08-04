@@ -7,6 +7,9 @@ import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Attribute;
 
+/**
+ * @author Andreas Fuchs
+ */
 public class AttributeSignature extends Attribute {
 
 	private byte[] bytes;
