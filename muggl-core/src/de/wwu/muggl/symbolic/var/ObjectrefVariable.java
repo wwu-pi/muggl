@@ -2,6 +2,8 @@ package de.wwu.muggl.symbolic.var;
 
 import java.io.PrintStream;
 
+import de.wwu.muggl.javaee.jpa.SymbolicQueryResultList;
+import de.wwu.muggl.javaee.ws.MugglRESTResponse;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
@@ -11,10 +13,18 @@ import de.wwu.muggl.solvers.expressions.TypeCheckException;
 import de.wwu.muggl.solvers.expressions.Variable;
 import de.wwu.muggl.solvers.expressions.ref.meta.ReferenceVariable;
 import de.wwu.muggl.solvers.solver.constraints.Assignment;
+import de.wwu.muggl.symbolic.var.arr.gen.ArrayElementGenerator;
+import de.wwu.muggl.symbolic.var.arr.gen.SimpleElementGenerator;
 import de.wwu.muggl.symbolic.var.meta.ReferenceVariableException;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
+import de.wwu.muggl.vm.classfile.structures.Attribute;
+import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.Field;
+import de.wwu.muggl.vm.classfile.structures.attributes.AttributeSignature;
+import de.wwu.muggl.vm.classfile.structures.attributes.AttributeSourceFile;
+import de.wwu.muggl.vm.execution.ExecutionAlgorithms;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.Objectref;
@@ -41,6 +51,11 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 	 * The virtual machine that initiates this reference variable.
 	 */
 	protected SymbolicVirtualMachine vm;
+	
+	/**
+	 * The generic types of this object reference.
+	 */
+	protected String[] genericTypes;
 
 	/**
 	 * Generate a new object reference as a variable.
@@ -102,12 +117,25 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 		// 3) array reference
 		else if(type.endsWith("[]") && !type.endsWith("[][]")) {
 			String arrayType = type.substring(0, type.length()-2);
+			
+			// check if primitive type
 			if(field.isPrimitiveType()) {
 				arrayType = Expression.Type.getPrimitiveWrapper(arrayType);
 			}
+
 			try {
 				ClassFile classFile = vm.getClassLoader().getClassAsClassFile(arrayType);
-				fieldVar = new ArrayrefVariable(varName, vm.getAnObjectref(classFile), vm);
+				Objectref ref = vm.getAnObjectref(classFile);
+				
+				String generatorType = arrayType;
+				if(this.genericTypes != null) {
+					generatorType = this.genericTypes[0];
+				}
+				
+				// create generator
+				ArrayElementGenerator generator = getElementGenerator(generatorType);
+				
+				fieldVar = new ArrayrefVariable(varName, ref, generator, vm);
 			} catch(ClassFileException | TimeoutException | SolverUnableToDecideException e) {
 				throw new ReferenceVariableException(e);
 			}
@@ -118,6 +146,25 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 			try {
 				ClassFile classFile = vm.getClassLoader().getClassAsClassFile(type);
 				fieldVar = new ObjectrefVariable(varName, new InitializedClass(classFile, vm), vm);
+
+				if(isCollectionType(fieldVar)) {
+					for(Attribute attribute : field.getAttributes()) {
+						if(attribute instanceof AttributeSignature) {
+							AttributeSignature signatureAttribute = (AttributeSignature)attribute;
+							byte index = signatureAttribute.getSignatureIndex();
+							Constant signatureConstant = this.getInitializedClass().getClassFile().getConstantPool()[index];
+							
+							String signature = ""+signatureConstant.getValue();
+							int startGeneric = signature.indexOf('<');
+							int endGeneric = signature.indexOf('>');
+							String genericString = signature.substring(startGeneric+2, endGeneric-1);
+							String generic = genericString.replace("/", ".");
+							
+							((ObjectrefVariable)fieldVar).genericTypes = new String[]{generic};
+						}
+					}
+				}
+				
 			} catch(ClassFileException e) {
 				throw new ReferenceVariableException(e);
 			}
@@ -127,7 +174,35 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 		
 		return fieldVar;
 	}
+
+	protected boolean isCollectionType(Object objectToCheck) {
+		ExecutionAlgorithms ea = new ExecutionAlgorithms(vm.getClassLoader());
+		try {
+			return ea.checkForAssignmentCompatibility(objectToCheck, "java.util.Collection", vm, false);
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 	
+	private ArrayElementGenerator getElementGenerator(String type) throws ClassFileException {
+		// check if there must be a special type of generator
+		
+		if(this instanceof SymbolicQueryResultList) {
+			throw new RuntimeException("Impl the generator!");
+		} else if(this instanceof MugglRESTResponse) {
+			throw new RuntimeException("Impl the generator!");
+		} else {
+			ClassFile elementClass = vm.getClassLoader().getClassAsClassFile(type);
+			InitializedClass ic = elementClass.getInitializedClass();
+			if(ic == null) {
+				ic = vm.getAnObjectref(elementClass).getInitializedClass();
+			}
+			return new SimpleElementGenerator(name, elementClass.getInitializedClass(), vm);
+		}
+		
+	}
+
 	/**
 	 * Get the name of this variable.
 	 */
@@ -142,7 +217,7 @@ public class ObjectrefVariable extends Objectref implements ReferenceVariable, R
 	
 	@Override
 	public String toString() {
-		return "Variable: " + super.toString();
+		return "Variable: " + super.toString() + "     ("+this.name+")";
 	}
 
 	@Override
