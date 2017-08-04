@@ -6,7 +6,6 @@ import de.wwu.muggl.instructions.invokespecial.meta.InvokeSpecialClass;
 import de.wwu.muggl.instructions.invokespecial.meta.InvokeSpecialMethod;
 import de.wwu.muggl.instructions.invokespecial.util.SpecialMethodHelper;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
-import de.wwu.muggl.javaee.rest.RESTResource;
 import de.wwu.muggl.javaee.ws.MugglWsRsException;
 import de.wwu.muggl.javaee.ws.MugglWsRsInvocationBuilder;
 import de.wwu.muggl.javaee.ws.MugglWsRsTarget;
@@ -14,6 +13,9 @@ import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.Objectref;
 
+/**
+ * @author Andreas Fuchs
+ */
 @InvokeSpecialClass(className="javax.ws.rs.client.WebTarget")
 public class WebTarget {
 

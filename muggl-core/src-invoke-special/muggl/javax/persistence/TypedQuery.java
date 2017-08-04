@@ -12,6 +12,9 @@ import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.Objectref;
 
+/**
+ * @author Andreas Fuchs
+ */
 @InvokeSpecialClass(className="javax.persistence.TypedQuery")
 public class TypedQuery {
 

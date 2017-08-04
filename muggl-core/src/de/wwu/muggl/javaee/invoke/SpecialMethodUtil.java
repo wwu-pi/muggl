@@ -11,6 +11,9 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
 
+/**
+ * @author Andreas Fuchs
+ */
 public class SpecialMethodUtil {
 	
 	protected Map<String, Objectref> classRefCache;

@@ -8,6 +8,9 @@ import de.wwu.muggl.javaee.ws.MugglWsRsException;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 
+/**
+ * @author Andreas Fuchs
+ */
 @InvokeSpecialClass(className="javax.ws.rs.client.ClientBuilder")
 public class ClientBuilder {
 	
