@@ -16,6 +16,7 @@ import de.wwu.muggl.solvers.expressions.TypeCheckException;
 import de.wwu.muggl.solvers.expressions.ref.meta.ReferenceVariable;
 import de.wwu.muggl.solvers.solver.constraints.Assignment;
 import de.wwu.muggl.symbolic.var.arr.SymbolicArray;
+import de.wwu.muggl.symbolic.var.arr.gen.ArrayElementGenerator;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
@@ -31,6 +32,11 @@ public class ArrayrefVariable extends Arrayref implements ReferenceVariable, Ref
 	 * The type of this array.
 	 */
 	protected ReferenceValue arrayType;
+	
+	/**
+	 * The generator that is able to generate new elements for this array.
+	 */
+	protected ArrayElementGenerator generator;
 	
 	/**
 	 * The length of this array.
@@ -58,7 +64,7 @@ public class ArrayrefVariable extends Arrayref implements ReferenceVariable, Ref
 	protected SymbolicVirtualMachine vm;
 	
 	/**
-	 * The symblic array for this variable.
+	 * The symbolic array for this variable.
 	 */
 	protected SymbolicArray symbolicArray;
 	
@@ -70,11 +76,12 @@ public class ArrayrefVariable extends Arrayref implements ReferenceVariable, Ref
 	 * @throws SolverUnableToDecideException 
 	 * @throws TimeoutException 
 	 */
-	public ArrayrefVariable(String name, ReferenceValue arrayType, SymbolicVirtualMachine vm) throws TimeoutException, SolverUnableToDecideException {
+	public ArrayrefVariable(String name, ReferenceValue arrayType, ArrayElementGenerator generator, SymbolicVirtualMachine vm) throws TimeoutException, SolverUnableToDecideException {
 		super(arrayType, 0);
 		this.vm = vm;
 		this.name = name;
 		this.arrayType = arrayType;
+		this.generator = generator;
 		this.symbolicArray = new SymbolicArray();
 		this.length = new NumericVariable(name+".length", Expression.INT);
 		this.maxIndex = new NumericVariable(name+".maxIndex", Expression.INT);
@@ -86,6 +93,20 @@ public class ArrayrefVariable extends Arrayref implements ReferenceVariable, Ref
 			throw new RuntimeException("Cannot generate array reference, no solution possible!");
 		}
 	}
+	
+	public NumericVariable getSymbolicLength() {
+		return this.length;
+	}
+	
+	public Object getElement(int index) {
+		Object ele = this.symbolicArray.getElementAt(index);
+		if(ele == null) {
+			ele = this.generator.generateElement();
+			this.symbolicArray.addElementAt(index, ele);
+		}
+		return ele;
+	}
+	
 	
 	
 	public void addElementAt(int index, Object element) {
