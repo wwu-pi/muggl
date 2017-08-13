@@ -5,6 +5,7 @@ import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.symbolic.var.ArrayrefVariable;
+import de.wwu.muggl.symbolic.var.ObjectrefVariable;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.initialization.Arrayref;
@@ -21,8 +22,11 @@ public class EntityObjectBuilder extends ObjectBuilder {
 		ClassFile classFile = o.getInitializedClass().getClassFile();
 		
 		// check for special objects to be built
-		if(classFile.getName().equals(String.class.getName())) {
+		if(classFile.getName().equals(java.lang.String.class.getName())) {
 			return generateNewStringObject(o,sb);
+		}
+		if(classFile.getName().equals(java.util.ArrayList.class.getName())) {
+			return generateNewArrayListObject(o,sb);
 		}
 		
 		requiredPackages.add(classFile.getName());
@@ -49,6 +53,38 @@ public class EntityObjectBuilder extends ObjectBuilder {
 	}
 	
 	
+	private String generateNewArrayListObject(Objectref o, StringBuilder sb) {
+		String objName = generateNewName(o);
+
+		String type = "Object";
+		
+		Field elementDataField = o.getInitializedClass().getClassFile().getFieldByName("elementData");
+		Object elementDataValue = o.getField(elementDataField);
+		if(elementDataValue != null) {
+			if(elementDataValue instanceof ArrayrefVariable) {
+				ArrayrefVariable arrayData = (ArrayrefVariable)elementDataValue;
+				int length = ((NumericConstant)solution.getValue(arrayData.getSymbolicLength())).getIntValue();
+				for(int i=0; i<length; i++) {
+					Object ele = arrayData.getElement(i);
+					String eleName = generateNewObject((Objectref)ele, sb);
+					sb.append("\t\tobjName.add("+eleName+");\n");
+				}
+			} else {
+				Arrayref arrayData = (Arrayref)elementDataValue;
+			}
+		}
+		
+		sb.append("\t\tjava.util.ArrayList<" + type + "> "+objName+" = ");
+		
+		if(isNull(o)) {
+			sb.append("null;\n");
+		} else {
+			sb.append("new java.util.ArrayList<>();\n");
+		}
+		
+		return objName;
+	}
+
 	private String generateNewStringObject(Objectref o, StringBuilder sb) {
 		String objName = generateNewName(o);
 		sb.append("\t\tString "+objName+" = new String(\"");
@@ -104,7 +140,7 @@ public class EntityObjectBuilder extends ObjectBuilder {
 		for(int i=0;i<a.getDimensions().length; i++) {
 			sb.append("[]");
 		}
-		sb.append(" " + arrName + " = " + className);
+		sb.append(" " + arrName + " = new " + className);
 		for(int i=0;i<a.getDimensions().length; i++) {
 			sb.append("[");
 			
@@ -139,7 +175,9 @@ public class EntityObjectBuilder extends ObjectBuilder {
 		}
 		
 		for(int i=0; i<length; i++) {
-			sb.append("\t\t// "+arrName+"["+i+"] = " + a.getElement(i) + "\n");
+			Objectref element = (Objectref) a.getElement(i);
+			String elementName = getObjectName(element, sb);
+			sb.append("\t\t"+arrName+"["+i+"] = " + elementName + ";\n");
 		}
 		
 		return arrName;
