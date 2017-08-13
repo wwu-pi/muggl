@@ -3,6 +3,9 @@ package de.wwu.muggl.instructions.bytecode;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.If_acmp;
 import de.wwu.muggl.instructions.interfaces.Instruction;
+import de.wwu.muggl.instructions.invokespecial.util.SpecialMethodHelper;
+import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
+import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
@@ -49,9 +52,28 @@ public class If_acmpne extends If_acmp implements Instruction {
 			// impossible to have the same object representing the <array>.getclass, so fake here
 			Objectref o1 = (Objectref) value1;
 			Objectref o2 = (Objectref) value2;
+			
 			if (o1.isMirroredMugglIsArray() && o2.isMirroredMugglIsArray()) {
 				return o1.getMirroredMugglArray().getReferenceValue().getInitializedClass().getClassFile() != o2
 						.getMirroredMugglArray().getReferenceValue().getInitializedClass().getClassFile();
+			}
+			
+			if(o1.getInitializedClass().getClassFile().getName().equals(java.lang.Class.class.getName())
+				&& o2.getInitializedClass().getClassFile().getName().equals(java.lang.Class.class.getName())) {
+				Field field = o1.getInitializedClass().getClassFile().getFieldByName("name");
+				Object name1 = o1.getField(field);
+				Object name2 = o2.getField(field);
+				if(name1 != null && name2 != null) {
+					if(name1 instanceof Objectref && name2 instanceof Objectref) {
+						try {
+							String n1 = SpecialMethodHelper.getStringFromObjectref((Objectref)name1);
+							String n2 = SpecialMethodHelper.getStringFromObjectref((Objectref)name2);
+							return n1.equals(n2);
+						} catch (SpecialMethodInvokeException e) {
+							e.printStackTrace();
+						}
+					}
+				}
 			}
 		}
 		
