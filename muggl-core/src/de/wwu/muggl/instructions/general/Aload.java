@@ -16,6 +16,7 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.symbolic.var.ArrayrefVariable;
 
 /**
  * Abstract instruction with some concrete methods for loading elements from an array.
@@ -102,18 +103,22 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 			if (!(arrayrefObject instanceof Arrayref)) {
 				throw new SymbolicExecutionException("Could not " + getName() + " array entry #" + index + ": Expected an array, but did not get one.");
 			}
+			
 			Arrayref arrayref = (Arrayref) arrayrefObject;
-
-			// Runtime exception array index out of bounds.
-			if (arrayref.length <= index || index < 0) {
-				throw new VmRuntimeException(frame.getVm().generateExc(
-						"java.lang.ArrayIndexOutOfBoundsException", "Array index is out of bounds"));
+			
+			if(!(arrayrefObject instanceof ArrayrefVariable)) {
+				// Runtime exception array index out of bounds.
+				if (arrayref.length <= index || index < 0) {
+					throw new VmRuntimeException(frame.getVm().generateExc(
+							"java.lang.ArrayIndexOutOfBoundsException", "Array index is out of bounds"));
+				}
 			}
-
+				
 			Object value = arrayref.getElement(index);
 
 			// Push the value.
 			stack.push(value);
+			
 		} catch (VmRuntimeException e) {
 			SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
 			try {
