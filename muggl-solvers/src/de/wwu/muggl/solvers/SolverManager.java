@@ -74,6 +74,11 @@ public interface SolverManager {
     public void removeConstraint();
 
     public void reset();
+    
+    /**
+     * Simply return all constraints as a string representation, for debugging purpose only.
+     */
+    public String getConstraintSystemString();
 
     public void finalize() throws Throwable;
     
