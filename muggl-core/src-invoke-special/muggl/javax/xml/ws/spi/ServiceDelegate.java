@@ -7,7 +7,11 @@ import de.wwu.muggl.instructions.invokespecial.meta.InvokeSpecialClass;
 import de.wwu.muggl.instructions.invokespecial.meta.InvokeSpecialMethod;
 import de.wwu.muggl.instructions.invokespecial.util.SpecialMethodHelper;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
+import de.wwu.muggl.javaee.jaxws.WebServiceManager;
 import de.wwu.muggl.javaee.jaxws.objref.MugglWSPort;
+import de.wwu.muggl.javaee.jaxws.sym.Port;
+import de.wwu.muggl.javaee.jaxws.sym.WebService;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -49,8 +53,51 @@ public class ServiceDelegate {
 		
 		MugglWSPort portRef = getWSPortObjectref(vm, serviceName, serviceClass, portName, serviceEndpointInterface, wsdlLocation);
 		
-		frame.getOperandStack().push(portRef);
+		
+		WebService webService = getWebService(vm, serviceName, wsdlLocation);
+		Port port = getPort(webService, portName, serviceEndpointInterface, vm);
+		
+		
+		frame.getOperandStack().push(port);
 	}
+	
+
+	protected static WebService getWebService(SymbolicVirtualMachine vm, Objectref serviceQNameRef, Objectref wsdlLocationRef) throws SpecialMethodInvokeException {
+		ClassFile qnameClassFile = serviceQNameRef.getInitializedClass().getClassFile();
+		Field nsField = qnameClassFile.getFieldByName("namespaceURI");
+		Field nameField = qnameClassFile.getFieldByName("localPart");
+		String serviceName = SpecialMethodHelper.getStringFromObjectref((Objectref)serviceQNameRef.getField(nameField));
+		String targetNamespace = SpecialMethodHelper.getStringFromObjectref((Objectref)serviceQNameRef.getField(nsField));
+		
+		ClassFile wsdlClassFile = wsdlLocationRef.getInitializedClass().getClassFile();
+		Field protocolField = wsdlClassFile.getFieldByName("protocol");
+		String protocol = SpecialMethodHelper.getStringFromObjectref((Objectref)wsdlLocationRef.getField(protocolField));
+		Field hostField = wsdlClassFile.getFieldByName("host");
+		String host = SpecialMethodHelper.getStringFromObjectref((Objectref)wsdlLocationRef.getField(hostField));
+		Field portField = wsdlClassFile.getFieldByName("port");
+		int port = ((NumericConstant)wsdlLocationRef.getField(portField)).getIntValue();
+		Field fileField = wsdlClassFile.getFieldByName("file");
+		String file = SpecialMethodHelper.getStringFromObjectref((Objectref)wsdlLocationRef.getField(fileField));
+		String wsdlLocation = protocol + "://" + host + ":" + port + file;
+		
+		return WebServiceManager.getInstance().getWebService(serviceName, targetNamespace, wsdlLocation);
+	}
+	
+	protected static Port getPort(WebService webService, Objectref portQName, Objectref serviceEndpointInterface, SymbolicVirtualMachine vm) throws SpecialMethodInvokeException {
+		ClassFile qnamePortName = portQName.getInitializedClass().getClassFile();
+		Field namespaceField = qnamePortName.getFieldByName("namespaceURI");
+		Field portNameField = qnamePortName.getFieldByName("localPart");
+		String portName = SpecialMethodHelper.getStringFromObjectref((Objectref)portQName.getField(portNameField));
+		String namespaceURI = SpecialMethodHelper.getStringFromObjectref((Objectref)portQName.getField(namespaceField));
+		
+		String type = SpecialMethodHelper.getClassNameFromObjectRef(serviceEndpointInterface);
+
+		Port port = new Port(webService, portName, namespaceURI, getEndpointInitializedClass(vm, type), vm);
+		
+		return port;
+	}
+	
+	
 	
 	protected static MugglWSPort getWSPortObjectref(
 			SymbolicVirtualMachine vm, Objectref serviceName, Objectref serviceClass,
