@@ -77,6 +77,29 @@ public class SpecialMethodHelper {
 	}
 	
 	/**
+	 * Create a new object reference to a java.lang.Class type.
+	 * @param vm the symbolic virtual machine
+	 * @param className the name of the class
+	 */
+	public static Objectref getClassObjectRef(SymbolicVirtualMachine vm, String className) throws SpecialMethodInvokeException {
+		// generating a 'String' object reference with the name of the class of 'objRef'
+		ClassFile classFile = null;
+		try {
+			classFile = vm.getClassLoader().getClassAsClassFile(java.lang.Class.class.getName());
+		} catch(ClassFileException e) {
+			// quite unlikely this exception, but nvmd...
+			throw new SpecialMethodInvokeException("Could not load required class file java.lang.String");
+		}
+		
+		Objectref classRef = vm.getAnObjectref(classFile);
+		Field nameField = classFile.getFieldByName("name");
+		Objectref nameObjRef = getStringObjectref(vm, className);
+		classRef.putField(nameField, nameObjRef);
+		
+		return classRef;
+	}
+	
+	/**
 	 * Get the string from an objectreference of type java.lang.String
 	 * @param objRef the object reference
 	 * @return the string from an object reference
@@ -105,6 +128,15 @@ public class SpecialMethodHelper {
 				int iVal = ic.getIntValue();
 				char charVal = (char)iVal;
 				sb.append(charVal);
+			} else if(c instanceof Objectref && ((Objectref)c).getInitializedClass().getClassFile().getName().equals(java.lang.Character.class.getName())) {
+				Objectref o = (Objectref)c;
+				Object v = o.getField(o.getInitializedClass().getClassFile().getFieldByName("value"));
+				if(v instanceof Character) {
+					char charVal = (char)v;
+					sb.append(charVal);
+				} else {
+					throw new SpecialMethodInvokeException("String value char array of type: " + c + " not supported yet");
+				}
 			} else {
 				throw new SpecialMethodInvokeException("String value char array of type: " + c + " not supported yet");
 			}
