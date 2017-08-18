@@ -110,4 +110,9 @@ public class SolverManagerNew implements SolverManager, MuconstSolverManager {
 		throw new RuntimeException("This method is not implemented, btw: who uses this class anyway?");
 	}
 
+	@Override
+	public String getConstraintSystemString() {
+		throw new RuntimeException("This method is not implemented, btw: who uses this class anyway?");
+	}
+
 }
