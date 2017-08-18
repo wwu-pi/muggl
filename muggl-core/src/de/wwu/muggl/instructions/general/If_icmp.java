@@ -4,9 +4,16 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.symbolic.var.ObjectrefVariable;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
+import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
@@ -14,15 +21,12 @@ import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
-import de.wwu.muggl.solvers.expressions.ConstraintExpression;
-import de.wwu.muggl.solvers.expressions.IntConstant;
-import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Abstract instruction with some concrete methods for comparison instructions of the group
  * if_cmp&lt;cond&gt;. Concrete instructions can be extended from this class.
  *
- * @author Tim Majchrzak
+ * @author Tim Majchrzak, Andreas Fuchs
  * @version 1.0.0, 2010-08-29
  */
 public abstract class If_icmp extends GeneralInstructionWithOtherBytes implements JumpConditional,
@@ -65,8 +69,23 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 	 */
 	@Override
 	public void executeSymbolically(Frame frame) throws SymbolicExecutionException, NoExceptionHandlerFoundException {
-		Term term2 = (Term) frame.getOperandStack().pop();
-		Term term1 = (Term) frame.getOperandStack().pop();
+		Object obj2 = frame.getOperandStack().pop();
+		Object obj1 = frame.getOperandStack().pop();
+		
+		Term term2 = null;
+		Term term1 = null;
+		
+		if(obj1 instanceof ObjectrefVariable || obj2 instanceof ObjectrefVariable) {
+			ComparePairTerms compairPair = generateComparePair(obj1, obj2);
+			if(compairPair == null) {
+				throw new RuntimeException("Could not generate the compair values for this instruction!");
+			}
+			term1 = compairPair.term1;
+			term2 = compairPair.term2;
+		} else {
+			term1 = (Term)obj1;
+			term2 = (Term)obj2;
+		}
 
 		// Check if both values are constant.
 		if (term1.isConstant() && term2.isConstant()) {
@@ -89,6 +108,55 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 					executionFailedSymbolically(e2);
 				}
 			}
+		}
+	}
+	
+	public ComparePairTerms generateComparePair(Object obj1, Object obj2) {
+		if(obj1 instanceof ObjectrefVariable) {
+			if(obj2 instanceof ObjectrefVariable) {
+				return generateComparePair((ObjectrefVariable) obj1, (ObjectrefVariable)obj2);
+			} else if(obj2 instanceof NumericVariable) {
+				return generateComparePair((ObjectrefVariable) obj1, (NumericVariable)obj2);
+			} else if(obj2 instanceof NumericConstant) {
+				return generateComparePair((ObjectrefVariable) obj1, (NumericConstant)obj2);
+			} else {
+				return null;
+			}
+		} else if(obj2 instanceof ObjectrefVariable) {
+			return generateComparePair(obj2, obj1);
+		}
+		
+		return null;
+	}
+	
+	public ComparePairTerms generateComparePair(ObjectrefVariable objRef1, ObjectrefVariable objRef2) {
+		NumericVariable nv1 = getValueFieldOfObjectref(objRef1);
+		NumericVariable nv2 = getValueFieldOfObjectref(objRef2);
+		return new ComparePairTerms(nv1, nv2);
+	}
+	
+	public ComparePairTerms generateComparePair(ObjectrefVariable objRef, NumericConstant constant) {
+		NumericVariable nv = getValueFieldOfObjectref(objRef);
+		return new ComparePairTerms(nv, constant);
+	}
+	
+	public ComparePairTerms generateComparePair(ObjectrefVariable objRef, NumericVariable variable) {
+		NumericVariable nv = getValueFieldOfObjectref(objRef);
+		return new ComparePairTerms(nv, variable);
+	}
+	
+	public NumericVariable getValueFieldOfObjectref(ObjectrefVariable objRef) {
+		ClassFile classFile = objRef.getInitializedClass().getClassFile();
+		
+		if(classFile.getName().equals(Character.class.getName())
+			|| classFile.getName().equals(Boolean.class.getName())
+			|| classFile.getName().equals(Integer.class.getName())) {
+			
+			Field valueField = classFile.getFieldByName("value");
+			Object value = objRef.getField(valueField);
+			return (NumericVariable)value;
+		} else {
+			throw new RuntimeException("Cannot get value field from object reference varialbe");
 		}
 	}
 
@@ -153,5 +221,13 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 		byte[] types = {ClassFile.T_INT, ClassFile.T_INT};
 		return types;
 	}
-
+	
+	public class ComparePairTerms {
+		protected Term term1;
+		protected Term term2;
+		public ComparePairTerms(Term term1, Term term2) {
+			this.term1 = term1;
+			this.term2 = term2;
+		}
+	}
 }
