@@ -18,6 +18,7 @@ import de.wwu.muggl.javaee.invoke.SpecialMethodInvocation;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeManager;
 import de.wwu.muggl.javaee.jaxws.objref.MugglWSPort;
+import de.wwu.muggl.javaee.jaxws.sym.Port;
 import de.wwu.muggl.solvers.expressions.DoubleConstant;
 import de.wwu.muggl.solvers.expressions.FloatConstant;
 import de.wwu.muggl.solvers.expressions.IntConstant;
@@ -194,10 +195,10 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 		// check if reference object is of type MugglWsPort,
 		// in that case, it is an interface type with a special handling
 		// i.e., we must handle the method invocation in a special way
-		if(frame.getOperandStack().size() > 0 && frame.getOperandStack().peek() instanceof MugglWSPort) {
-			MugglWSPort portRef = (MugglWSPort)frame.getOperandStack().pop();
+		if(frame.getOperandStack().size() > 0 && frame.getOperandStack().peek() instanceof Port) {
+			Port portRef = (Port)frame.getOperandStack().pop();
 			
-			portRef.invoke(frame, method);
+			portRef.invoke(frame, method, parameters);
 			
 			// Finish.			
 			return;
