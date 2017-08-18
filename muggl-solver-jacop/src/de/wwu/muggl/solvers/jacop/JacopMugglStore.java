@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.jacop.core.IntVar;
@@ -19,7 +20,7 @@ import de.wwu.muggl.solvers.expressions.Variable;
  * Specialises the JaCoP store to maintain some Muggl-specifc state of the store:
  * Correspondence between variables of the two systems 
  * 
- * @author Jan C. DagefÃ¶rde, 2015.
+ * @author Jan C. Dageförde, Andreas Fuchs 2015/2017.
  *
  */
 public class JacopMugglStore extends Store {
@@ -133,5 +134,4 @@ public class JacopMugglStore extends Store {
 			}
 		}
 	}
-
 }
