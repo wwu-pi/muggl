@@ -1,6 +1,13 @@
 package de.wwu.muggl.solvers.jacop;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
+import org.jacop.constraints.Constraint;
 import org.jacop.core.Domain;
 import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
@@ -9,6 +16,7 @@ import org.jacop.floats.core.FloatDomain;
 import org.jacop.floats.core.FloatVar;
 import org.jacop.floats.search.SmallestDomainFloat;
 import org.jacop.floats.search.SplitSelectFloat;
+import org.jacop.scala.jacop;
 import org.jacop.search.DepthFirstSearch;
 import org.jacop.search.IndomainMin;
 import org.jacop.search.Search;
@@ -19,8 +27,8 @@ import org.jacop.search.SmallestDomain;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
-import de.wwu.muggl.solvers.conf.TesttoolConfig;
 import de.wwu.muggl.solvers.conf.SolverManagerConfig;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
@@ -43,7 +51,7 @@ import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
  * JaCoP is not included; instead, it is a binary dependency of this project.
  * Refer to build.gradle for details.
  * 
- * @author Jan C. DagefÃ¶rde. 2015
+ * @author Jan C. Dageförde, Andreas Fuchs 2015/2017
  */
 public class JaCoPSolverManager implements SolverManager {
 
@@ -56,6 +64,9 @@ public class JaCoPSolverManager implements SolverManager {
 	private Logger logger;
 
 	private long totalConstraintsChecked = 0L;
+	
+	// for internal purpose
+	private Map<Integer, Set<ConstraintExpression>> constraintStack;
 
 	/**
 	 * Creates a new Solver Manager object and initializes it with a stream that
@@ -64,6 +75,8 @@ public class JaCoPSolverManager implements SolverManager {
 	public JaCoPSolverManager() {
 		addShutdownHook();
 		logger = Globals.getInst().solverLogger;
+		
+		this.constraintStack = new HashMap<>();
 
 		if (logger.isDebugEnabled())
 			logger.debug("SolverManager started");
@@ -96,6 +109,13 @@ public class JaCoPSolverManager implements SolverManager {
 		
 		jacopStore.setLevel(jacopStore.level + 1);
 		JaCoPTransformer.transformAndImpose(ce, jacopStore);
+		
+		Set<ConstraintExpression> constraintSet = this.constraintStack.get(jacopStore.level);
+		if(constraintSet == null) {
+			constraintSet = new HashSet<>();
+		}
+		constraintSet.add(ce);
+		this.constraintStack.put(jacopStore.level, constraintSet);
 
 		listeners.fireAddConstraint(this, ce, null);
 
@@ -271,6 +291,7 @@ public class JaCoPSolverManager implements SolverManager {
 					"Trying to remove constraint when level is already 0");
 		}
 		jacopStore.removeLevel(jacopStore.level);
+		constraintStack.remove(jacopStore.level);
 		jacopStore.setLevel(jacopStore.level - 1);
 
 		listeners.fireConstraintRemoved(this);
@@ -301,6 +322,7 @@ public class JaCoPSolverManager implements SolverManager {
 		// Therefore, there are no constraints at level 0 that would need to be
 		// removed.
 		totalConstraintsChecked = 0;
+		this.constraintStack = new HashMap<>();
 	}
 
 	private void addShutdownHook() {
@@ -353,6 +375,7 @@ public class JaCoPSolverManager implements SolverManager {
 		for(int i=1; i<=reverlevels; i++) {
 			jacopStore.removeLevel(jacopStore.level);
 			jacopStore.removeVariables(jacopStore.level);
+			constraintStack.remove(jacopStore.level);
 			jacopStore.setLevel(jacopStore.level - 1);
 			listeners.fireConstraintRemoved(this);
 		}
@@ -361,6 +384,19 @@ public class JaCoPSolverManager implements SolverManager {
 	@Override
 	public int getConstraintLevel() {
 		return jacopStore.level;
+	}
+
+	@Override
+	public String getConstraintSystemString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Constraints:\n");
+		for(Entry<Integer, Set<ConstraintExpression>> e: this.constraintStack.entrySet()) {
+			sb.append("\tLevel="+e.getKey()+"\n");
+			for(ConstraintExpression ce : e.getValue()) {
+				sb.append("\t  " + ce + "\n");
+			}
+		}
+		return sb.toString();
 	}
 
 }
