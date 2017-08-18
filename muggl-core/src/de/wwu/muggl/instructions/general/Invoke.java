@@ -17,6 +17,7 @@ import de.wwu.muggl.instructions.invokespecial.SpecialMethodEntry;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvocation;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
 import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeManager;
+import de.wwu.muggl.javaee.jaxws.objref.MugglWSPort;
 import de.wwu.muggl.solvers.expressions.DoubleConstant;
 import de.wwu.muggl.solvers.expressions.FloatConstant;
 import de.wwu.muggl.solvers.expressions.IntConstant;
@@ -145,6 +146,15 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 		String[] nameAndType = getNameAndType(constant);
 		ClassFile methodClassFile = getMethodClassFile(constant, frame.getVm().getClassLoader());
 
+		Globals.getInst().execLogger.info("\t\tinvoke method...: " 
+				+ methodClassFile 
+				+ " - " + nameAndType[0] 
+				+ " - " + nameAndType[1]);
+		
+		if(methodClassFile.getName().startsWith("java.lang.ref") || methodClassFile.getName().startsWith("sun.reflect.")) {
+			throw new RuntimeException("Reflection not supported!");
+		}
+		
 		// Try to resolve method from this class.
 		ResolutionAlgorithms resolution = new ResolutionAlgorithms(frame.getVm().getClassLoader());
 		Method method;
@@ -181,9 +191,24 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 			return;
 		}
 		
+		// check if reference object is of type MugglWsPort,
+		// in that case, it is an interface type with a special handling
+		// i.e., we must handle the method invocation in a special way
+		if(frame.getOperandStack().size() > 0 && frame.getOperandStack().peek() instanceof MugglWSPort) {
+			MugglWSPort portRef = (MugglWSPort)frame.getOperandStack().pop();
+			
+			portRef.invoke(frame, method);
+			
+			// Finish.			
+			return;
+		}
+		
+		// check if an special method invocation is implemented
 		SpecialMethodEntry entry = new SpecialMethodEntry(methodClassFile.getName(), nameAndType[0], nameAndType[1]);
         if(InvokeSpecialManager.isSpecial(entry)) {
             InvokeSpecialManager.executeSpecialMethod(entry, frame, parameters);
+            
+            // Finish.
             return;
         }
 		
