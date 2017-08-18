@@ -1,5 +1,6 @@
 package de.wwu.muggl.instructions.general;
 
+import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.FieldResolutionError;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.vm.Frame;
@@ -89,6 +90,7 @@ public abstract class FieldAccess extends GeneralInstructionWithOtherBytes {
 			throw new VmRuntimeException(frame.getVm().generateExc(
 					"java.lang.NoSuchFieldError", e.getMessage()));
 		}
+		Globals.getInst().execLogger.info("\t\tgetfield: " + field.getName());
 		return field;
 	}
 
