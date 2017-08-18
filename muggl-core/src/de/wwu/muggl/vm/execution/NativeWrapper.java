@@ -807,10 +807,13 @@ public class NativeWrapper {
 		// Build the String.
 		char[] chars = new char[characters.length];
 		for (int a = 0; a < characters.length; a++) {
-			if (characters.getElement(a) instanceof IntConstant) {
-				chars[a] = (char)((IntConstant)characters.getElement(a)).getValue();
-			} else {
-				chars[a] = (Character) characters.getElement(a);
+			Object ele = characters.getElement(a);
+			if(ele != null) {
+				if (characters.getElement(a) instanceof IntConstant) {
+					chars[a] = (char)((IntConstant)characters.getElement(a)).getValue();
+				} else {
+					chars[a] = (Character) characters.getElement(a);
+				}
 			}
 		}
 		return String.valueOf(chars);
