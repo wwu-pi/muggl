@@ -32,4 +32,8 @@ public class WebService {
 	public String getWsdlLocation() {
 		return wsdlLocation;
 	}
+	
+	public Set<Port> getPorts() {
+		return this.ports;
+	}
 }
