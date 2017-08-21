@@ -87,6 +87,12 @@ public class EntityObjectBuilder extends ObjectBuilder {
 
 	private String generateNewStringObject(Objectref o, StringBuilder sb) {
 		String objName = generateNewName(o);
+		
+		if(isNull(o)) {
+			sb.append("\t\tString "+objName+" = null;\n");
+			return objName;
+		}
+		
 		sb.append("\t\tString "+objName+" = new String(\"");
 		Field valueField = o.getInitializedClass().getClassFile().getFieldByName("value");
 		Object stringValueObj = o.getField(valueField);
