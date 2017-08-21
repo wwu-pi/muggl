@@ -36,6 +36,10 @@ public class Port extends ObjectrefVariable {
 		this.methodCounterMap = new HashMap<>();
 	}
 	
+	public String getPortName() {
+		return this.portName;
+	}
+	
 	private static String getPortInternalName(String name) {
 		return name + counter++;
 	}
@@ -47,6 +51,10 @@ public class Port extends ObjectrefVariable {
 		}
 		opList.add(operation);
 		this.operations.put(operation.getMethod(), opList);
+	}
+	
+	public Map<Method, LinkedList<Operation>> getOperationMap() {
+		return this.operations;
 	}
 
 	public void invoke(Frame frame, Method method, Object[] parameters) {
