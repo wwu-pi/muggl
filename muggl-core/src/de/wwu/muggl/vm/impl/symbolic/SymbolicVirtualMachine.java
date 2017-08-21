@@ -19,6 +19,7 @@ import de.wwu.muggl.instructions.general.Load;
 import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
+import de.wwu.muggl.javaee.jaxws.WebServiceManager;
 import de.wwu.muggl.javaee.jpa.MugglEntityManager;
 import de.wwu.muggl.javaee.rest.RESTResource;
 import de.wwu.muggl.javaee.rest.RESTResourceManager;
@@ -584,17 +585,30 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 				returnValue = new UndefinedValue();
 			}
 
+			Globals.getInst().symbolicExecLogger.info("*** Constraints:\n"+this.solverManager.getConstraintSystemString()+"\n");
 			Solution solution = this.solverManager.getSolution();
 			Globals.getInst().symbolicExecLogger.info("*** Solution: " + solution);
 			Globals.getInst().symbolicExecLogger.info("*** Return Value: " + returnValue+"\n");
 			
+//			for(Entry<Integer, LinkedList<WebServiceResponse>> entry : MugglWebServiceManager.getResponseMap().entrySet()) {
+//				System.out.println("*** ON LEVEL: " + entry.getKey());
+//				for(WebServiceResponse response : entry.getValue()) {
+//					System.out.println("\t\t"+response);
+//					
+//				}
+//			}
+//			
+//			SolutionManager.addSolution(
+//					this.solverManager.getConstraintSystemString(), 
+//					""+returnValue, 
+//					""+solution);
 			
 			// Add the solutions.
 			if(Options.getInst().javaEEMode) {
 				Set<RESTResource> requiredRESTResources = RESTResourceManager.getInst().getRequiredRESTResources(this.solverManager.getConstraintLevel());
 				// add Java EE solution
 				this.solutionProcessor.addJavaEESolution(solution, returnValue, 
-						this.mugglEntityManager.getDB(), requiredRESTResources,
+						this.mugglEntityManager.getDB(), requiredRESTResources, WebServiceManager.getInstance().getWebServiceSet(),
 						this.threwAnUncaughtException, this.coverage.getCFCoverageMap(), this.coverage
 								.getDUCoverageAsBoolean());
 			} else {

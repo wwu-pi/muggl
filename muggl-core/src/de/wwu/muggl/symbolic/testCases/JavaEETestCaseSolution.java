@@ -7,7 +7,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import de.wwu.muggl.javaee.jaxws.MugglWebServiceManager;
+import de.wwu.muggl.javaee.jaxws.WebServiceManager;
 import de.wwu.muggl.javaee.jaxws.WebServiceResponse;
+import de.wwu.muggl.javaee.jaxws.sym.WebService;
 import de.wwu.muggl.javaee.jpa.SymbolicDatabase;
 import de.wwu.muggl.javaee.rest.RESTResource;
 import de.wwu.muggl.javaee.testcase.JAXWSBuilder;
@@ -35,7 +37,7 @@ public class JavaEETestCaseSolution extends TestCaseSolution {
 	
 	protected Set<RESTResource> requiredRESTResources;
 	
-	protected Map<Integer, LinkedList<WebServiceResponse>> jaxWsResponses;
+	protected Set<WebService> webServiceSet;
 	
 	// the string builder for the pre-execution required database state
 	protected StringBuilder dbPre;
@@ -45,26 +47,26 @@ public class JavaEETestCaseSolution extends TestCaseSolution {
 	
 	public JavaEETestCaseSolution(Method initialMethod, Solution solution, Object returnValue,
 			SymbolicDatabase symbolicDatabase, 
-			Set<RESTResource> requiredRESTResources, Map<Integer, LinkedList<WebServiceResponse>> jaxWsResponses,
+			Set<RESTResource> requiredRESTResources, Set<WebService> webServiceSet,
 			boolean throwsAnUncaughtException,
 			Object[] variables, boolean[] dUCoverage, Map<Method, boolean[]> cFCoverageMapping) {
 		super(initialMethod, solution, returnValue, throwsAnUncaughtException, variables, dUCoverage, cFCoverageMapping);
 		this.symbolicDatabase = symbolicDatabase;
 		this.requiredRESTResources = requiredRESTResources;
-		this.jaxWsResponses = jaxWsResponses;
+		this.webServiceSet = webServiceSet;
 		init();
 	}
 
 	public JavaEETestCaseSolution(Method initialMethod, Solution solution, Object returnValue,
 			SymbolicDatabase symbolicDatabase, 
-			Set<RESTResource> requiredRESTResources, Map<Integer, LinkedList<WebServiceResponse>> jaxWsResponses,
+			Set<RESTResource> requiredRESTResources, Set<WebService> webServiceSet,
 			boolean throwsAnUncaughtException,
 			Object[] variables, boolean[] dUCoverage, Map<Method, boolean[]> cFCoverageMapping,
 			TestCaseSolution latestSolutionFound) {
 		super(initialMethod, solution, returnValue, throwsAnUncaughtException, variables, dUCoverage, cFCoverageMapping, latestSolutionFound);
 		this.symbolicDatabase = symbolicDatabase;
 		this.requiredRESTResources = requiredRESTResources;
-		this.jaxWsResponses = jaxWsResponses;
+		this.webServiceSet = webServiceSet;
 		init();
 	}
 
@@ -82,16 +84,8 @@ public class JavaEETestCaseSolution extends TestCaseSolution {
 	}
 	
 	private void buildJAXWS() {
-		JAXWSBuilder jaxWSBuilder = new JAXWSBuilder(this.jaxWsResponses, this.solution);
-		
-		Map<Integer, LinkedList<WebServiceResponse>> map = MugglWebServiceManager.getResponseMap();
-		
-//		MugglWebServiceManager.getResponseMap()
-//		for(Entry<Integer, LinkedList<WebServiceResponse>> entry : map.entrySet()) {
-//			
-//		}
-		System.out.println("map: " + map);
-		throw new RuntimeException("build the jax ws!");
+		JAXWSBuilder jaxWSBuilder = new JAXWSBuilder(this.webServiceSet, this.solution, this.initialMethod);
+		jaxWSBuilder.build("C:\\_WORK\\_muggl\\_workspace-ws\\counter-client-test\\gen-tests");		
 	}
 	
 	private void buildREST() {
