@@ -34,4 +34,8 @@ public class WebServiceManager {
 		this.webSerivceSet.add(webService);
 		return webService;
 	}
+	
+	public Set<WebService> getWebServiceSet() {
+		return this.webSerivceSet;
+	}
 }
