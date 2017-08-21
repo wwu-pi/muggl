@@ -18,4 +18,8 @@ public class Operation {
 	public Method getMethod() {
 		return this.method;
 	}
+	
+	public Variable getOutput() {
+		return this.output;
+	}
 }
