@@ -222,7 +222,7 @@ public class MugglToJavaConversion {
 		}
 
 		return object;
-	}	
+	}
 
 	/**
 	 * Convert java objects to Muggl objects. This method will process any kind of java objects

@@ -30,6 +30,7 @@ import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.Objectref;
+import de.wwu.muggl.vm.initialization.PrimitiveWrappingImpossibleException;
 import de.wwu.muggl.vm.initialization.ThrowableGenerator;
 import de.wwu.muggl.vm.initialization.strings.StringCache;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -246,8 +247,19 @@ public abstract class VirtualMachine extends Thread {
 					// Check if predefined parameters have to be modified.
 					if (predefinedParameters[a] != null && predefinedParameters[a].getClass().isArray()) {
 						// If predefined parameters are arrays, they have to be converted to Arrayref objects.
+						// First we need to check whether the array wraps a primitive type or a reference type.
+						boolean isPrimitive;
+						try {
+							ClassFile c = this.getClassLoader().getClassAsClassFile(
+									predefinedParameters[a].getClass());
+							c.getAPrimitiveWrapperObjectref(this);
+							// Success, so type is primitive;
+							isPrimitive = true;
+						} catch (PrimitiveWrappingImpossibleException e) {
+							isPrimitive = false;
+						}
 						MugglToJavaConversion conversion = new MugglToJavaConversion(this);
-						Arrayref arrayref = (Arrayref) conversion.toMuggl(predefinedParameters[a], true);
+						Arrayref arrayref = (Arrayref) conversion.toMuggl(predefinedParameters[a], isPrimitive);
 						arguments[a + addOne] = arrayref;
 					} else if (this.initialMethod.isAccVarargs()
 							&& a == predefinedParameters.length - 1
