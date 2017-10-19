@@ -6,13 +6,18 @@ import java.util.Properties;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
+import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.initialization.Arrayref;
+import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.Objectref;
 
 public class NativeJavaLangSystem extends NativeMethodProvider {
 	public static String pkg = "java.lang.System";
+	private static ClassFile CLASS_VM = null;
+	private static ClassFile CLASS_VMPROPERTIESWRAPPER = null;
 
 	public static void arraycopy(Frame frame, Object p0, Object p1, Object p2, Object p3, Object p4)
 			throws VmRuntimeException {
@@ -112,7 +117,10 @@ public class NativeJavaLangSystem extends NativeMethodProvider {
 	}
 
 	
-	public static Objectref initProperties(Frame frame, Objectref arg1) {		
+	public static Objectref initProperties(Frame frame, Objectref arg1) {
+		InitializedClass sunMiscVm = CLASS_VM.getTheInitializedClass(frame.getVm());
+		Field savedProps = CLASS_VM.getFieldByName("props");
+		sunMiscVm.putField(savedProps, frame.getVm().getAnObjectref(CLASS_VMPROPERTIESWRAPPER));
 		frame.getVm().systemProperties.forEach((String k,String v)->{
 			try {
 				frame.getVm().set_property(arg1,k,v);
