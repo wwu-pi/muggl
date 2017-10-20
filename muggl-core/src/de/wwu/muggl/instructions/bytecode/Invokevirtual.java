@@ -17,7 +17,9 @@ import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodref;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.BoxingConversion;
+import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.ExecutionException;
+import de.wwu.muggl.vm.execution.MugglToJavaConversion;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
@@ -74,6 +76,17 @@ public class Invokevirtual extends Invoke implements Instruction {
 			objectref = (ReferenceValue) rawRefVAl;
 		} else {
 			objectref = BoxingConversion.Boxing(frame.getVm(), rawRefVAl);
+			if (objectref == null) {
+				try {
+					// Not a primitive, not an Objectref - must be an *actual* object! (surprise...). Wrap it.
+					final MugglToJavaConversion converter = new MugglToJavaConversion(frame.getVm());
+					objectref = (ReferenceValue) converter.toMuggl(rawRefVAl, false);
+				} catch (ConversionException e) {
+					e.printStackTrace();
+					// Wrapping failed.
+					throw new VmRuntimeException(frame.getVm().generateExc("java.lang.RuntimeException", "To-objectref conversion failed in checkStaticMethod in Invokevirtual " + nameAndType[0]+ " "+ nameAndType[1]));
+				}
+			}
 		}
 		parameters[0] = objectref;
 

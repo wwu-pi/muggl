@@ -20,10 +20,9 @@ public class BoxingConversion {
 			referenceValue = vm.getClassLoader().getClassAsClassFile(object.getClass().getName())
 					.getAPrimitiveWrapperObjectref(vm);
 		} catch (PrimitiveWrappingImpossibleException | ClassFileException e) {
-			e.printStackTrace();
+			// Expected for non-primitive input objects. Continue.
 		}
 
-		System.out.println(object.getClass().getName());
 		try {
 			switch (object.getClass().getName()) {
 			case "java.lang.Boolean":
@@ -44,6 +43,7 @@ public class BoxingConversion {
 			}
 		} catch (ClassFileException e) {
 			e.printStackTrace();
+			System.out.println("(caught; not rethrown)");
 		}
 
 		return referenceValue;
