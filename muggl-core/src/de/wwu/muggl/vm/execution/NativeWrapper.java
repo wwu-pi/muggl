@@ -65,7 +65,7 @@ public class NativeWrapper {
 		NativeJavaLangObject.registerNatives();
 		NativeJavaLangReflectArray.registerNatives();
 		NativeJavaLangString.registerNatives();
-		NativeJavaLangSystem.registerNatives();
+		//NativeJavaLangSystem.registerNatives(); NOT registered here, because a valid VM must be present for initialisation!
 		NativeJavaLangThrowable.registerNatives();
 		NativeJavaSecurityAccessController.registerNatives();
 		//NativeSunMiscVM NOT registered here, because a valid VM must be present for initialisation!

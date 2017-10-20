@@ -13,11 +13,19 @@ import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.Objectref;
+import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 public class NativeJavaLangSystem extends NativeMethodProvider {
-	public static String pkg = "java.lang.System";
+	public static String handledClassFQ = "java.lang.System";
 	private static ClassFile CLASS_VM = null;
 	private static ClassFile CLASS_VMPROPERTIESWRAPPER = null;
+
+	public static void initialiseAndRegister(MugglClassLoader classLoader) throws ClassFileException {
+		CLASS_VM = classLoader.getClassAsClassFile(handledClassFQ);
+		CLASS_VMPROPERTIESWRAPPER = classLoader.getClassAsClassFile(
+				de.wwu.muggl.vm.execution.nativeWrapping.VMPropertiesWrapper.class.getCanonicalName());
+		registerNatives();
+	}
 
 	public static void arraycopy(Frame frame, Object p0, Object p1, Object p2, Object p3, Object p4)
 			throws VmRuntimeException {
@@ -131,12 +139,12 @@ public class NativeJavaLangSystem extends NativeMethodProvider {
 		return arg1;
 	}
 	public static void registerNatives() {
-		NativeWrapper.registerNativeMethod(NativeJavaLangSystem.class, pkg, "arraycopy",
+		NativeWrapper.registerNativeMethod(NativeJavaLangSystem.class, handledClassFQ, "arraycopy",
 				MethodType.methodType(void.class, Frame.class, Object.class, Object.class, Object.class, Object.class,
 						Object.class),
 				MethodType.methodType(void.class, Object.class, int.class, Object.class, int.class, int.class));
 
-		NativeWrapper.registerNativeMethod(NativeJavaLangSystem.class, pkg, "initProperties",
+		NativeWrapper.registerNativeMethod(NativeJavaLangSystem.class, handledClassFQ, "initProperties",
 				MethodType.methodType(Objectref.class, Frame.class, Objectref.class),
 				MethodType.methodType(Properties.class, Properties.class));
 	}

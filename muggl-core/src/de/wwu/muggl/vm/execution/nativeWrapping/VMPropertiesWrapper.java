@@ -30,6 +30,18 @@ public class VMPropertiesWrapper extends Properties {
 		return false;
 	}
 
+	@Override
+	public synchronized Object remove(Object o) {
+		// Don't actually remove.
+		return getProperty((String)o);
+	}
+
+	@Override
+	public synchronized Object setProperty(String s, String s1) {
+		// Don't actually set.
+		return null;
+	}
+
 	private native String getPropertyFromHostVM(String key);
 
 	

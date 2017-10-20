@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import de.wwu.muggl.vm.execution.NativeJavaLangSystem;
 import de.wwu.muggl.vm.execution.NativeSunMiscVM;
 import org.apache.log4j.Level;
 
@@ -473,6 +474,7 @@ public abstract class VirtualMachine extends Thread {
 		initialize_class(java.lang.reflect.Method.class.getCanonicalName());
 		initialize_class("java.lang.ref.Finalizer"); // java.lang.ref.Finalizer.class.getCanonicalName() does not work
 														// because its not visible
+
 		call_initializeSystemClass();
 
 		// // get the Java runtime name after java.lang.System is initialized
@@ -1441,6 +1443,7 @@ public abstract class VirtualMachine extends Thread {
 
 		// Register native mocks that require a classloader
 		NativeSunMiscVM.initialiseAndRegister(this.getClassLoader());
+		NativeJavaLangSystem.initialiseAndRegister(this.getClassLoader());
 
 		// prepare a "parent" null frame for the universe genesis
 		if (!Options.getInst().symbolicMode) {
