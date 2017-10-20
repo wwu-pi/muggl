@@ -55,9 +55,6 @@ public class Checkcast extends CheckcastInstanceof implements Instruction, JumpE
 			if (!(constant instanceof ConstantClass))
 				throw new ExecutionException("The constant_pool entry fetched does not have the correct type.");
 
-			if(objectref != null && !(objectref instanceof ReferenceValue)) {
-				Globals.getInst().execLogger.error("checkcast can only deal with referenceValues! Put: " + objectref.getClass().getName() + " prim?:" + objectref.getClass().isPrimitive());
-			}
 			// objectref must be either null or is assignment compatible (can be cast to) the expected class.
 			String castingToClassName = ((ConstantClass) constant).getName();
 			ExecutionAlgorithms ea = new ExecutionAlgorithms(frame.getVm().getClassLoader());
