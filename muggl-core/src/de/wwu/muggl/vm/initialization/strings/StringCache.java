@@ -207,10 +207,11 @@ public class StringCache {
 		boolean symbolicalMode = Options.getInst().symbolicMode;
 		char[] characters = new char[arrayref.length];
 		for (int a = 0; a < arrayref.length; a++) {
-			if (symbolicalMode) {
-				characters[a] = (char) ((IntConstant) arrayref.getElement(a)).getIntValue();
+			Object elem = arrayref.getElement(a);
+			if (elem instanceof IntConstant) {
+				characters[a] = (char) ((IntConstant) elem).getIntValue();
 			} else {
-				characters[a] = (Character) arrayref.getElement(a);
+				characters[a] = (Character) elem;
 			}
 		}
 
