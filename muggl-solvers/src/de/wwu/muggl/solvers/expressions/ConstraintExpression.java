@@ -1,6 +1,7 @@
 package de.wwu.muggl.solvers.expressions;
 
 import java.io.PrintStream;
+import java.io.Serializable;
 
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.solver.constraints.Assignment;
@@ -12,9 +13,11 @@ import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
  * SolverManager.
  * @author Christoph Lembeck
  */
-public abstract class ConstraintExpression implements Expression{
+public abstract class ConstraintExpression implements Expression, Serializable{
 
-    /**
+	private static final long serialVersionUID = -3951087045006672696L;
+
+	/**
      * Transforms the constraint that is represented by this expression into
      * an easier manageable ComposedConstraint object that will later be processed
      * by the SolverManager.

@@ -1,5 +1,7 @@
 package de.wwu.testtool.solver;
 
+import java.util.Stack;
+
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.solvers.conf.SolverManagerConfig;
@@ -108,6 +110,12 @@ public class SolverManagerNew implements SolverManager, MuconstSolverManager {
 	@Override
 	public int getConstraintLevel() {
 		throw new RuntimeException("This method is not implemented, btw: who uses this class anyway?");
+	}
+
+	@Override
+	public Stack<ConstraintExpression> getConstraints() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

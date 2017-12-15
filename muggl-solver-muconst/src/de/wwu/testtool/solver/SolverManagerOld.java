@@ -1,12 +1,14 @@
 package de.wwu.testtool.solver;
 
+import java.util.Stack;
+
 import org.apache.log4j.Logger;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
-import de.wwu.muggl.solvers.conf.TesttoolConfig;
 import de.wwu.muggl.solvers.conf.SolverManagerConfig;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
 import de.wwu.muggl.solvers.exceptions.IncorrectSolverException;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
@@ -15,10 +17,10 @@ import de.wwu.muggl.solvers.solver.HasSolutionInformation;
 import de.wwu.muggl.solvers.solver.Solver;
 import de.wwu.muggl.solvers.solver.constraints.Assignment;
 import de.wwu.muggl.solvers.solver.constraints.ComposedConstraint;
-import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
 import de.wwu.muggl.solvers.solver.constraints.ConstraintStack;
 import de.wwu.muggl.solvers.solver.constraints.ConstraintSystem;
 import de.wwu.muggl.solvers.solver.constraints.SingleConstraint;
+import de.wwu.muggl.solvers.solver.constraints.SingleConstraintSet;
 import de.wwu.muggl.solvers.solver.listener.SolverManagerListener;
 import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
 import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
@@ -49,7 +51,6 @@ public class SolverManagerOld implements SolverManager, MuconstSolverManager {
 	 * Constraint solver logger
 	 * @author rafa
 	 */
-	// 
 	private Logger logger;
 	
 	/**
@@ -587,7 +588,7 @@ public class SolverManagerOld implements SolverManager, MuconstSolverManager {
 	 */
 	@Deprecated
 	@Override
-	public void resetCounter() {
+	public void resetCounter() {	
 		totalConstraintsChecked = 0;
 	}
 
@@ -599,6 +600,12 @@ public class SolverManagerOld implements SolverManager, MuconstSolverManager {
 	@Override
 	public int getConstraintLevel() {
 		throw new RuntimeException("This method is not implemented, btw: who uses this class anyway?");
+	}
+
+	@Override
+	public Stack<ConstraintExpression> getConstraints() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

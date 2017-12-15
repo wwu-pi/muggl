@@ -7,7 +7,7 @@ import de.wwu.muggl.solvers.solver.constraints.Assignment;
  * @author Christoph Lembeck
  * 
  */
-public interface Expression{
+public interface Expression {
 
     /**
      * TODOME: change type to this style

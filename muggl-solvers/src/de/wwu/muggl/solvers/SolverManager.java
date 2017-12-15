@@ -1,6 +1,7 @@
 package de.wwu.muggl.solvers;
 
-import de.wwu.muggl.solvers.Solution;
+import java.util.Stack;
+
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
@@ -11,7 +12,7 @@ import de.wwu.muggl.solvers.expressions.ConstraintExpression;
  * - substitutions in constraints
  * - statistics and logging
  * - pass constraints to appropriate solvers
- * @author Marko Ernsting
+ * @author Marko Ernsting, Vincent von Hof
  */
 public interface SolverManager {
 
@@ -67,6 +68,11 @@ public interface SolverManager {
      * Returns the current level of the solver manager, this is needed to identify different solving states. 
      */
     public int getConstraintLevel();
+    
+    /**
+     * Returns for the current level of the solver manager, all constraints that apply.
+     */
+    public Stack<ConstraintExpression> getConstraints();
     
     /**
      * Removes the lastly added constraint from the constraint stack.

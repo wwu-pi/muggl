@@ -1,5 +1,6 @@
 package de.wwu.pi.wh.res;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class OrderDetails {
@@ -7,6 +8,7 @@ public class OrderDetails {
 	protected Date date;
 	protected Item item;
 	protected long quantity;
+	protected ArrayList<Stock> stocks;
 	
 	public OrderDetails() {
 	}

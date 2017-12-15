@@ -1,5 +1,6 @@
 package de.wwu.muggl.solvers.expressions;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import de.wwu.muggl.solvers.Solution;
@@ -13,9 +14,11 @@ import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
  * @author Christoph Lembeck
  */
 @SuppressWarnings("all")
-public abstract class Term implements Expression {
+public abstract class Term implements Expression, Serializable {
 
-    /**
+	private static final long serialVersionUID = -4922030845857479526L;
+
+	/**
      * Checks whether the two passed types may be combined by any operation
      * without an explicit type cast.
      * @param typeA the first type for that the check should be performed.

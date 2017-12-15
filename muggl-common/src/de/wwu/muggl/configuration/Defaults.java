@@ -282,4 +282,10 @@ final class Defaults {
 	 */
 	public static final String SOLVER_MANAGER = "de.wwu.muggl.solvers.jacop.JaCoPSolverManager";
 	
+	/**
+	 * Path to the configuration file.
+	 * @see Options#configurationFile
+	 */
+	public static final String WS_STORE_FILE =  "./store/ws.store";
+	
 }

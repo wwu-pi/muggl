@@ -22,6 +22,8 @@ import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.javaee.jpa.MugglEntityManager;
 import de.wwu.muggl.javaee.rest.RESTResource;
 import de.wwu.muggl.javaee.rest.RESTResourceManager;
+import de.wwu.muggl.javaee.ws.MugglWsConstraintSystem;
+import de.wwu.muggl.persister.DiskObjectPersister;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
@@ -592,6 +594,18 @@ public class SymbolicVirtualMachine extends VirtualMachine {
 			// Add the solutions.
 			if(Options.getInst().javaEEMode) {
 				Set<RESTResource> requiredRESTResources = RESTResourceManager.getInst().getRequiredRESTResources(this.solverManager.getConstraintLevel());
+				// Load previous solutions
+				MugglWsConstraintSystem oldStore = new DiskObjectPersister<MugglWsConstraintSystem>().load();
+				Globals.getInst().symbolicExecLogger.info("*** Loading Solution: " + oldStore.constraints.size());
+				Globals.getInst().symbolicExecLogger.info("*** Loading Solution: " + oldStore.constraints.get(0).toString());
+				
+				// Save constraints for later runs.
+				Globals.getInst().symbolicExecLogger.info("*** SAVING Solution: " + solution);
+				MugglWsConstraintSystem store = new MugglWsConstraintSystem();
+				store.rResources = requiredRESTResources;
+				store.constraints = this.solverManager.getConstraints();
+				new DiskObjectPersister<MugglWsConstraintSystem>().write(store);
+				
 				// add Java EE solution
 				this.solutionProcessor.addJavaEESolution(solution, returnValue, 
 						this.mugglEntityManager.getDB(), requiredRESTResources,

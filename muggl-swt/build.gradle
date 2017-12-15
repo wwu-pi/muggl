@@ -1,10 +1,9 @@
-
 apply plugin: 'java'
 apply plugin: 'application'
 
 dependencies {
 	compile project(':muggl-core')
-	compile project(':muggl-common')
+	compile project(':muggl-common') // TODO is already included in core?
 	compile 'junit:junit:4.+'
 	compile 'org.eclipse.swt:org.eclipse.swt.'+getSwtArch()+':'+getSwtVersion()
 }

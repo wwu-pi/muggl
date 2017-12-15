@@ -1,3 +1,4 @@
+
 package de.wwu.pi.wh.ex;
 
 public class WarehouseException extends Exception {

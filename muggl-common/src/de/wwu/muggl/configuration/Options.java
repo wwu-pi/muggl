@@ -558,6 +558,11 @@ public final class Options {
 	 * @see de.wwu.muggl.solvers.SolverManager 
 	 */
 	public String solverManager;
+
+	/**
+	 * The path and filename of the file storing webservice constraint system definitions.
+	 */
+	public String wsStoreFile;
 	
 	// Singleton.
 	private static final Options OPTIONS = new Options();
@@ -636,6 +641,7 @@ public final class Options {
 		this.dynReplaceInstWithOptimizedOnes = Defaults.DYN_REPLACE_INSTR_WITH_OPTIMIZED_ONES;
 		this.htmlLogging = Defaults.HTML_LOGGING;
 		this.solverManager = Defaults.SOLVER_MANAGER;
+		this.wsStoreFile = Defaults.WS_STORE_FILE;
 	}
 
 	/**

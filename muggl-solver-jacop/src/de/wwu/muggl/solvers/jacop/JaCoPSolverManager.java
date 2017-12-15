@@ -1,5 +1,9 @@
 package de.wwu.muggl.solvers.jacop;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
+
 import org.apache.log4j.Logger;
 import org.jacop.core.Domain;
 import org.jacop.core.IntDomain;
@@ -19,8 +23,8 @@ import org.jacop.search.SmallestDomain;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
-import de.wwu.muggl.solvers.conf.TesttoolConfig;
 import de.wwu.muggl.solvers.conf.SolverManagerConfig;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
@@ -43,7 +47,7 @@ import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
  * JaCoP is not included; instead, it is a binary dependency of this project.
  * Refer to build.gradle for details.
  * 
- * @author Jan C. Dageförde. 2015
+ * @author Jan C. Dageförde. 2015, Andreas Fuchs 2016, Vincent von Hof 2017
  */
 public class JaCoPSolverManager implements SolverManager {
 
@@ -56,6 +60,9 @@ public class JaCoPSolverManager implements SolverManager {
 	private Logger logger;
 
 	private long totalConstraintsChecked = 0L;
+	
+	// Store muggl constraints before converting 
+	private Map<Integer, ConstraintExpression> mugglConstraints;
 
 	/**
 	 * Creates a new Solver Manager object and initializes it with a stream that
@@ -71,7 +78,8 @@ public class JaCoPSolverManager implements SolverManager {
 		SolverManagerConfig solverConf = SolverManagerConfig.getInstance();
 
 		jacopStore = new JacopMugglStore();
-
+		mugglConstraints = new HashMap<>();
+		
 		listeners = new SolverManagerListenerList();
 		for (SolverManagerListener listener : solverConf.getListeners()) {
 			listeners.addListener(listener);
@@ -96,6 +104,7 @@ public class JaCoPSolverManager implements SolverManager {
 		
 		jacopStore.setLevel(jacopStore.level + 1);
 		JaCoPTransformer.transformAndImpose(ce, jacopStore);
+		mugglConstraints.put(jacopStore.level, ce);
 
 		listeners.fireAddConstraint(this, ce, null);
 
@@ -271,6 +280,8 @@ public class JaCoPSolverManager implements SolverManager {
 					"Trying to remove constraint when level is already 0");
 		}
 		jacopStore.removeLevel(jacopStore.level);
+		if (!mugglConstraints.isEmpty())
+			mugglConstraints.remove(jacopStore.level);
 		jacopStore.setLevel(jacopStore.level - 1);
 
 		listeners.fireConstraintRemoved(this);
@@ -282,7 +293,6 @@ public class JaCoPSolverManager implements SolverManager {
 			logger.trace(jacopStore.toString());
 			logger.trace(jacopStore.toStringChangedEl());
 		}
-
 	}
 
 	/**
@@ -301,6 +311,7 @@ public class JaCoPSolverManager implements SolverManager {
 		// Therefore, there are no constraints at level 0 that would need to be
 		// removed.
 		totalConstraintsChecked = 0;
+		mugglConstraints.clear();
 	}
 
 	private void addShutdownHook() {
@@ -361,6 +372,17 @@ public class JaCoPSolverManager implements SolverManager {
 	@Override
 	public int getConstraintLevel() {
 		return jacopStore.level;
+	}
+
+	@Override
+	public Stack<ConstraintExpression> getConstraints() {
+		int currentLevel = jacopStore.level;
+		Stack<ConstraintExpression> constraints = new Stack<>();
+		while (currentLevel > 0) {
+			constraints.push(this.mugglConstraints.get(currentLevel));
+			currentLevel--;
+		}
+		return constraints;
 	}
 
 }
