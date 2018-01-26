@@ -1,3 +1,5 @@
+// j_dage@WWU: Remove integercache from valueOf() method.
+
 //
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by Fernflower decompiler)
@@ -243,7 +245,7 @@ public final class Integer extends Number implements Comparable<Integer> {
     }
 
     public static Integer valueOf(int var0) {
-        return var0 >= -128 && var0 <= Integer.IntegerCache.high ? Integer.IntegerCache.cache[var0 + 128] : new Integer(var0);
+        return new Integer(var0);
     }
 
     public Integer(int var1) {
