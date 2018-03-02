@@ -69,7 +69,7 @@ public class StaticInitializationSupport {
 		if (!symbolicalType) {
 			// Is the Type description a wrapper type?
 			if (isWrapperType) {
-				if (type.equals("java.lang.Doble"))
+				if (type.equals("java.lang.Double"))
 					return Double.valueOf(0.0);
 				else if (type.equals("java.lang.Float"))
 					return Float.valueOf(0.0F);
@@ -111,7 +111,7 @@ public class StaticInitializationSupport {
 	
 		// Is the Type description a wrapper type?
 		if (isWrapperType) {
-			if (type.equals("java.lang.Doble"))
+			if (type.equals("java.lang.Double"))
 				return DoubleConstant.getInstance(0.0);
 			else if (type.equals("java.lang.Float"))
 				return FloatConstant.getInstance(0.0F);

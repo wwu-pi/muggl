@@ -556,7 +556,7 @@ public class Method extends FieldMethod {
 	public Object getZeroOrNullParameter(int index) {
 		// Get the type;
 		String parameterType = getParameterTypeAtIndex(index);
-		if (parameterType.equals("double") || parameterType.equals("java.lang.Doble")) return Double.valueOf(0D);
+		if (parameterType.equals("double") || parameterType.equals("java.lang.Double")) return Double.valueOf(0D);
 		if (parameterType.equals("float") || parameterType.equals("java.lang.Float")) return Float.valueOf(0F);
 		if (parameterType.equals("int") || parameterType.equals("java.lang.Integer")
 				|| parameterType.equals("byte") || parameterType.equals("java.lang.Byte")

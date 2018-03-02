@@ -408,7 +408,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 			// Only process if the return type is not void.
 			if (!type.equals("void")) {
 				if (symbolic) {
-					if (type.equals("double") || type.equals("java.lang.Doble")) {
+					if (type.equals("double") || type.equals("java.lang.Double")) {
 						stack.push(DoubleConstant.getInstance(0D));
 					} else if (type.equals("float") || type.equals("java.lang.Float")) {
 						stack.push(FloatConstant.getInstance(0F));
@@ -424,7 +424,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 						stack.push(null);
 					}
 				} else {
-					if (type.equals("double") || type.equals("java.lang.Doble")) {
+					if (type.equals("double") || type.equals("java.lang.Double")) {
 						stack.push(Double.valueOf(0D));
 					} else if (type.equals("float") || type.equals("java.lang.Float")) {
 						stack.push(Float.valueOf(0F));
