@@ -122,4 +122,14 @@ public class ConstantInvokeDynamic extends Constant {
 	public byte getTag() {
 		return ClassFile.CONSTANT_INVOKEDYNAMIC;
 	}
+
+	/**
+	 * Get a String array of the name and the type(descriptor).
+	 * @return The name and the type.
+	 */
+	public String[] getNameAndTypeInfo() {
+		ConstantNameAndType nameAndType = (ConstantNameAndType) this.classFile.getConstantPool()[this.nameAndTypeIndex];
+		String[] nameAndTypeInfo = {nameAndType.getName(), nameAndType.getDescription()};
+		return nameAndTypeInfo;
+	}
 }

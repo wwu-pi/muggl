@@ -3,12 +3,12 @@ package de.wwu.muggl.instructions.bytecode;
 import java.util.Stack;
 
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
-import de.wwu.muggl.instructions.MethodResolutionError;
 import de.wwu.muggl.instructions.general.Invoke;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
+import de.wwu.muggl.vm.classfile.ClassFileConstants;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.Method;
@@ -17,12 +17,12 @@ import de.wwu.muggl.vm.classfile.structures.attributes.elements.BootstrapMethod;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantInterfaceMethodref;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantInvokeDynamic;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodHandle;
+import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodref;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantNameAndType;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.initialization.Objectref;
-import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 /**
@@ -31,6 +31,7 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
  * @author Max Schulze
  */
 public class Invokedynamic extends Invoke implements Instruction {
+    private static final int BOOTSTRAP_MH_STANDARD_ARG_FOR_TARGET_HANDLE = 1;
 
 	/**
 	 * Standard constructor. For the extraction of the other bytes, the attribute_code of the method
@@ -63,33 +64,7 @@ public class Invokedynamic extends Invoke implements Instruction {
 	@Override
 	protected ClassFile checkStaticMethod(Frame frame, String[] nameAndType,
 			Method method, Object[] parameters) throws ExecutionException, VmRuntimeException {
-		// The method must be neither the instance initializer nor the static initializer.
-		if (method.getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME))
-			throw new ExecutionException("Error while executing instruction " + getName()
-					+ ": The Method must not be the instance initialization method.");
-		if (method.getName().equals(VmSymbols.CLASS_INITIALIZER_NAME))
-			throw new ExecutionException("Error while executing instruction " + getName()
-					+ ": The Method must not be the class or interface initialization method.");
-
-		/*
-		 * The third additional byte must be zero.
-		 */
-		if (this.otherBytes[2] != 0 || this.otherBytes[3] != 0)
-			throw new ExecutionException("Error while executing instruction " + getName()
-					+ ": The third and fourth operand byte must be zero.");
-
-		// Fetch the object reference to invoke the method on.
-		ReferenceValue objectref = (ReferenceValue) frame.getOperandStack().pop();
-		parameters[0] = objectref;
-
-		// Runtime exception: objectref is null.
-		if (objectref == null) throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
-
-		// Unexpected exception: objectref is not a constant_class.
-		if (!(objectref instanceof Objectref)) throw new ExecutionException("Objectref must be a reference to a Class.");
-
-		// Fetch the class of objectref and return it.
-		return objectref.getInitializedClass().getClassFile();
+	    throw new UnsupportedOperationException("checkStaticMethod(...) not supported by Invokedynamic.");
 	}
 
 	/**
@@ -100,7 +75,10 @@ public class Invokedynamic extends Invoke implements Instruction {
 	 * @param objectrefClassFile The {@link ClassFile} of the object reference to invoke the method on.
 	 */
 	@Override
-	protected void checkAccess(Frame frame, Method method, ClassFile objectrefClassFile) { }
+	protected void checkAccess(Frame frame, Method method, ClassFile objectrefClassFile) {
+        throw new UnsupportedOperationException("checkAccess(...) not supported by Invokedynamic.");
+
+    }
 
 	/**
 	 * Select the actual method for invocation, make sure it is not abstract and check that is is
@@ -119,51 +97,8 @@ public class Invokedynamic extends Invoke implements Instruction {
 	@Override
 	protected Method selectMethod(Frame frame, Method method, ClassFile methodClassFile,
 			ClassFile objectrefClassFile) throws ClassFileException, VmRuntimeException {
-		// Does C contain a declaration for an instance method with the same name and descriptor?
-		boolean methodSelected = false;
-		while (!methodSelected) {
-			try {
-				method = objectrefClassFile.getMethodByNameAndDescriptor(method.getName(), method.getDescriptor());
-				if (!method.isAccAbstract() && !method.isAccStatic()) methodSelected = true;
-			} catch (MethodResolutionError e) {
-				// Runtime exception: objectref does not implement the interface!
-				throw new VmRuntimeException(frame.getVm().generateExc(
-						"java.lang.IncompatibleClassChangeError",
-						objectrefClassFile.getName() + " does not implement interface "
-								+ methodClassFile.getName() + "."));
-			}
-			// Has the method been selected?
-			if (methodSelected) break;
-
-			// Does C have a superclass?
-			if (objectrefClassFile.getSuperClass() != 0) {
-				// Get the super classes recursively.
-				objectrefClassFile = frame.getVm().getClassLoader().getClassAsClassFile(
-						objectrefClassFile.getConstantPool()[objectrefClassFile.getSuperClass()]
-								.getStringValue());
-			} else {
-				break;
-			}
-		}
-
-		// Has the method been selected?
-		if (!methodSelected)
-			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.AbstractMethodError",
-					"The method to be invoked with " + getName() + " must not be abstract."));
-
-		// Is it abstract?
-		if (method.isAccAbstract())
-			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.AbstractMethodError",
-					"The method to be invoked with " + getName() + " must not be abstract."));
-
-		// Is it public?
-		if (!method.isAccPublic())
-			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.IllegalAccessError",
-					"The method to be invoked with " + getName() + " must be public"));
-
-		// Return the selected method.
-		return method;
-	}
+        throw new UnsupportedOperationException("selectMethod(...) not supported by Invokedynamic.");
+    }
 
 	/**
 	 * Resolve the instructions name.
@@ -268,9 +203,9 @@ public class Invokedynamic extends Invoke implements Instruction {
 	protected void invoke(Frame frame, boolean symbolic) throws ClassFileException,
 			ExecutionException, VmRuntimeException {
 		// Preparations.
-		Stack<Object> stack = frame.getOperandStack();
-		int index = this.otherBytes[0] << ONE_BYTE | this.otherBytes[1];
-		Constant constant = frame.getConstantPool()[index];
+		final Stack<Object> stack = frame.getOperandStack();
+		final int index = this.otherBytes[0] << ONE_BYTE | this.otherBytes[1];
+		final Constant constant = frame.getConstantPool()[index];
 
 		// check validity of constant pool entry
 		if (!(constant instanceof ConstantInvokeDynamic)) {
@@ -279,189 +214,96 @@ public class Invokedynamic extends Invoke implements Instruction {
 						+ ": Expected runtime constant pool item at index " + constant.getStringValue()
 						+ "to be a symbolic reference to a call site specifier.");
 		}
-		ConstantInvokeDynamic constID = (ConstantInvokeDynamic) constant;
-		
-		ConstantNameAndType callSiteDescriptor = (ConstantNameAndType) frame.getMethod().getClassFile().getConstantPool()[constID.getNameAndTypeIndex()];
+        final ConstantInvokeDynamic constID = (ConstantInvokeDynamic) constant;
+
+        final ConstantNameAndType callSiteDescriptor = (ConstantNameAndType) frame.getMethod().getClassFile().getConstantPool()[constID.getNameAndTypeIndex()];
 		// resolve reference to MethodHandle, MethodType and arguments from the bootstrap section
-		BootstrapMethod bootstrapMethod = frame.getMethod().getClassFile().getBootstrapMethods().getBootstrapMethods()[constID.getBootstrapMethodAttrIndex()];		
+        final BootstrapMethod bootstrapMethod = frame.getMethod().getClassFile().getBootstrapMethods().getBootstrapMethods()[constID.getBootstrapMethodAttrIndex()];
 		// on error with bootstrapMethod resolution -> BootstrapMethodError wrapping E
 
-		ConstantMethodHandle bootstrapMH = (ConstantMethodHandle) frame.getConstantPool()[bootstrapMethod.getBootstrapMethodRef()];
-		Constant[] bootstrapArgConst = new Constant[bootstrapMethod.getNumBootstrapArguments()];
-		for (int i = 0; i< bootstrapMethod.getNumBootstrapArguments(); i++) {
+        final ConstantMethodHandle bootstrapMH = (ConstantMethodHandle) frame.getConstantPool()[bootstrapMethod.getBootstrapMethodRef()];
+		// We only consider standard Java 8 programs until now, which seem to generate a constant bootstrapMH signature for all programs.
+        assert(bootstrapMH.getValue().equals(ConstantMethodHandle.BOOTSTRAP_MH_STANDARD_METAFACTORY_SIGNATURE));
+        final Constant[] bootstrapArgConst = new Constant[bootstrapMethod.getNumBootstrapArguments()];
+		for (int i = 0; i < bootstrapMethod.getNumBootstrapArguments(); i++) {
 			bootstrapArgConst[i] = frame.getConstantPool()[bootstrapMethod.getBootstrapArguments()[i]];
 		}
-		
-		// construct a java.lang.invoke.MethodHandle from the methodHandle and call invoke on it
-		
-		// result shall be a reference to an object (of class or subclass .CallSite) <- The Call Site Object
 
-		// then get the target of the callSiteObject
-		
-		
-		// and execute invokevirtual java.lang.invoke.MethodHandle.invokeExact on it (descriptor of call Site specifier) 
+		/*
+		 * The following outlines the generally correct procedure. Afterwards, a heavily simplified version is implemented that
+         * may only be correct in the default case of bootstrapMH that is asserted above.
+         *
+         * GENERAL PROCEDURE
+		 * (See also: http://cr.openjdk.java.net/~vlivanov/talks/2015-Indy_Deep_Dive.pdf).
+         *
+         * - construct a java.lang.invoke.MethodHandle from the methodHandle and call invoke on it:
+         * "For invokedynamic, the bootstrap specifier is resolved into a method handle and zero or more extra constant
+         * arguments. (These are all drawn from the constant pool.) The name and signature are pushed on the stack,
+         * along with the extra arguments and a MethodHandles.Lookup parameter to reify the requesting class,
+         * and the bootstrap method handle is invoked." (https://wiki.openjdk.java.net/display/HotSpot/Method+handles+and+invokedynamic)
+         * result shall be a reference to an object (of class or subclass .CallSite) <- The Call Site Object
+         * CallSite can be cached!
+         *
+         * - then get the target of the callSiteObject (callSiteObject.getTarget())
+         *
+         * - and execute invokevirtual java.lang.invoke.MethodHandle.invokeExact on it (descriptor of call Site specifier)
+         * - a) (according to mxs) call invokeExact (however, maybe not here? maybe from within lambda...)
+         * - b) result here should be the instantiated Lambda class that is pushed to the stack ("linkage"). That result will be popped
+         *      from the stack for the subsequent invocation that uses this lambda.
+         */
 
-		String[] nameAndType = getNameAndType(constant);
-//		ClassFile methodClassFile = getMethodClassFile(constant, frame.getVm().getClassLoader());
-//
-//		// Try to resolve method from this class.
-//		ResolutionAlgorithms resolution = new ResolutionAlgorithms(frame.getVm().getClassLoader());
-//		Method method;
-//		try {
-//			if (this.getName().contains("interface")) {
-//				method = resolution.resolveMethodInterface(methodClassFile, nameAndType);
-//			} else
-//				method = resolution.resolveMethod(methodClassFile, nameAndType);
-//		} catch (ClassFileException e) {
-//			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", e.getMessage()));
-//		} catch (NoSuchMethodError e) {
-//			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoSuchMethodError", e.getMessage()));
-//		}
-//
-//		// Prepare the parameter's array.
-//		int parameterCount = method.getNumberOfArguments();
-//		if (stack.size() < parameterCount)
-//			throw new ExecutionException("Error while executing instruction " + getName()
-//					+ ": There are less elements on the stack than parameters needed.");
-//		// If it is not invokestatic the object reference is on the stack below the arguments.
-//		Object[] parameters = new Object[parameterCount + this.hasObjectrefParameter];
-//
-//		// Get nargs arguments.
-//		for (int a = parameters.length - 1; a >= this.hasObjectrefParameter; a--) {
-//			parameters[a] = stack.pop();
-//		}
-//
-//		/*
-//		 * Do the checks for static/non-static methods calls and get the {@link ClassFile} of the
-//		 * object reference to invoke the method on for non-static ones.
-//		 */
-//		ClassFile objectrefClassFile = checkStaticMethod(frame, nameAndType, method, parameters);
-//
-//		// Check if the access is allowed.
-//		checkAccess(frame, method, objectrefClassFile);
-//
-//		// Select the method.
-//		method = selectMethod(frame, method, methodClassFile, objectrefClassFile);
-//
-//		// Enter the monitor if the method is synchronized.
-//		if (method.isAccSynchronized()) {
-//			if (this.hasObjectrefParameter == 1) {
-//				frame.getVm().getMonitorForObject((Objectref) parameters[0]).monitorEnter();
-//			} else {
-//				frame.getVm().getMonitorForStaticInvocation(methodClassFile).monitorEnter();
-//			}
-//		}
-//
-//		// Is the method native?
-//		if (method.isAccNative()) {
-//			if (Options.getInst().doNotHaltOnNativeMethods) {
-//				try {
-//					// Forward native methods?
-//					if (Options.getInst().forwardJavaPackageNativeInvoc) {
-//						/*
-//						 * If required, get the object reference and drop the first parameter (the
-//						 * object reference).
-//						 */
-//						Object[] parametersWithoutObjectref;
-//						Objectref objectref = null;
-//						if (this.hasObjectrefParameter == 1) {
-//							objectref = (Objectref) parameters[0];
-//							parametersWithoutObjectref = new Object[parameters.length - 1];
-//							for (int a  = 1; a < parameters.length; a++) {
-//								parametersWithoutObjectref[a - 1] = parameters[a];
-//							}
-//						} else {
-//							parametersWithoutObjectref = parameters;
-//						}
-//
-//						// Try to forward.
-//						if (method.getClassFile().getPackageName().startsWith("java.") || method.getClassFile().getPackageName().startsWith("sun.")) {
-//							NativeWrapper.forwardNativeInvocation(frame, method, methodClassFile, objectref, parametersWithoutObjectref);
-//						} else if (method.getClassFile().getPackageName().equals("de.wwu.muggl.vm.execution.nativeWrapping")) {
-//							// Get the object reference of the invoking method.
-//							Objectref invokingObjectref = null;
-//							Method invokingMethod = frame.getMethod();
-//							if (!invokingMethod.isAccStatic()) {
-//								invokingObjectref = (Objectref) frame.getLocalVariables()[0];
-//							}
-//
-//							// Invoke the wrapper.
-//							NativeWrapper.forwardToACustomWrapper(method, methodClassFile, parameters, invokingObjectref);
-//						} else {
-//							throw new ForwardingUnsuccessfulException("No wrapping handler for the native method was found.");
-//						}
-//						if (!frame.isHiddenFrame()
-//								&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
-//							Globals.getInst().execLogger
-//									.debug("Forwarded the native method " + method.getPackageAndName() + " to a wrapper.");
-//						
-//						// Release the monitor if it is synchronized.
-//						if (method.isAccSynchronized()) {
-//							if (this.hasObjectrefParameter == 1) {
-//								frame.getVm().getMonitorForObject(objectref).monitorExit();
-//							} else {
-//								frame.getVm().getMonitorForStaticInvocation(methodClassFile).monitorExit();
-//							}
-//						}
-//						if (!frame.isHiddenFrame()
-//								&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
-//							Globals.getInst().executionInstructionLogger
-//									.debug("upon return: (op: " + frame.getOperandStack() + ", localvar: localvar: [" + Arrays.stream(frame.getLocalVariables())
-//									                                   									.map(x -> (x == null)? "null": x.toString()).collect(Collectors.joining(", "))									
-//									                                   									+ "] pc: " + frame.getPc() + ")");
-//
-//						// Finished.
-//						return;
-//					}
-//				} catch (ForwardingUnsuccessfulException e) {
-//					// Ignore it, but log it.
-//					if (!frame.isHiddenFrame())
-//						Globals.getInst().execLogger.warn(
-//								"Forwarding of the native method " + method.getPackageAndName()
-//								+ " was not successfull. The reason is: " + e.getMessage());
-//				}
-//				/*
-//				 * Either push a zero / null value for the native method's return type, or
-//				 * completely ignore it.
-//				 */
-//				if (Options.getInst().assumeNativeReturnValuesToBeZeroNull) {
-//					pushZeroOrNull(stack, method, symbolic);
-//					if (!frame.isHiddenFrame())
-//						Globals.getInst().execLogger.debug(
-//								"Assume a null/zero value for the native method " + method.getPackageAndName() + ".");
-//				} else {
-//					if (!frame.isHiddenFrame())
-//						Globals.getInst().execLogger.info(
-//								"Skipping the native method " + method.getPackageAndName() + ".");
-//				}
-//
-//				// Release the monitor if it is synchronized.
-//				if (method.isAccSynchronized()) {
-//					if (this.hasObjectrefParameter == 1) {
-//						frame.getVm().getMonitorForObject((Objectref) parameters[0]).monitorExit();
-//					} else {
-//						frame.getVm().getMonitorForStaticInvocation(methodClassFile).monitorExit();
-//					}
-//				}
-//
-//				// Finished.
-//				return;
-//			}
-//
-//			// The method is native but there is no way of handling it.
-//			throw new ExecutionException("Error while executing instruction " + getName()
-//					+ ": Execution of native methods is impossible.");
-//		}
-//
-//		// Save current frame...
-//		frame.setPc(frame.getVm().getPc() + 1 + this.getNumberOfOtherBytes());
-//		frame.getVm().getStack().push(frame);
-//
-//		// Push new one.
-//		frame.getVm().createAndPushFrame(frame, method, parameters);
-//
-//		// Finish.
-//		frame.getVm().setReturnFromCurrentExecution(true);
+		// First, try to resolve the target method that needs to be encapsulated into a Functional Interface (adapter pattern).
+        assert(bootstrapArgConst.length > BOOTSTRAP_MH_STANDARD_ARG_FOR_TARGET_HANDLE-1);
+        assert(bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_TARGET_HANDLE] instanceof ConstantMethodHandle);
+        // Method handle contains verb (e.g. invokestatic) and class+method that is to be invoked.
+        final ConstantMethodHandle targetMethodHandle = (ConstantMethodHandle) bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_TARGET_HANDLE];
+        // Methodref contains class+method that is to be invoked.
+        final ConstantMethodref targetMethodref = (ConstantMethodref) targetMethodHandle.getReferencedConstant();
+
+
+        final ResolutionAlgorithms resolve = new ResolutionAlgorithms(frame.getVm().getClassLoader());
+        final Method method;
+        try {
+            if (targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_invokeInterface) {
+                method = resolve.resolveMethodInterface(targetMethodref.getClassFile(), targetMethodref.getNameAndTypeInfo());
+            } else {
+                assert(targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_invokeStatic);
+                method = resolve.resolveMethod(targetMethodref.getClassFile(), targetMethodref.getNameAndTypeInfo());
+            }
+        } catch (ClassFileException e) {
+            throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", "Could not resolve class of target method in invokedynamic. " +
+                    e.getMessage()));
+        } catch (NoSuchMethodError e) {
+            throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoSuchMethodError", "Could not resolve target method in invokedynamic. " +
+                    e.getMessage()));
+        }
+
+        // TODO Check access privileges regarding the target method.
+
+        final String[] lambdaMethodNameAndLambdaInterfaceType = getNameAndType(constant);
+
+        // Create object of fake class (interface?).
+        final ClassFile targetClassFile;
+        try {
+            final String signature = lambdaMethodNameAndLambdaInterfaceType[1];
+            /* Assume that signature is always of a form similar to "()Ljava/util/function/ToLongFunction;";
+             * i.e. specifying parameters of [0] (or maybe of something different?), together with the expected
+             * functional interface. */
+            // Extract the interface name.
+            final int left = signature.lastIndexOf(")L");
+            final int right = signature.lastIndexOf(";");
+            final String lambdaInterfaceName = signature.substring(left+2, right);
+            targetClassFile = resolve.resolveClassAsClassFile(frame.getMethod().getClassFile(),
+                    lambdaInterfaceName);
+        } catch (NoClassDefFoundError e) {
+            throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", "Could not resolve class of target method in invokedynamic. " +
+                    e.getMessage()));
+        }
+        Objectref lambdaObject = frame.getVm().getAnObjectref(targetClassFile);
+
+        // TODO Create method lambdaMethodNameAndLambdaInterfaceType[0] in lambdaObject, wrapping targetMethod.
+
+
 	}
 	
 	/**
@@ -487,4 +329,21 @@ public class Invokedynamic extends Invoke implements Instruction {
 				((ConstantInterfaceMethodref) constant).getClassName());
 	}
 
+	/**
+	 * Get name and descriptor from a constant_methodref.
+	 *
+	 * @param constant A constant_methodref.
+	 * @return Name and descriptor for the constant_methodref.
+	 * @throws ExecutionException In case of any other problems.
+	 */
+	protected String[] getNameAndType(Constant constant) throws ExecutionException {
+		if (!(constant instanceof ConstantInvokeDynamic)) {
+			throw new ExecutionException(
+					"Error while executing instruction " + getName()
+							+ ": Expected runtime constant pool item at index "
+							+ "to be a symbolic reference to a method.");
+		}
+
+		return ((ConstantInvokeDynamic) constant).getNameAndTypeInfo();
+	}
 }

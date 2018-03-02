@@ -14,6 +14,15 @@ import de.wwu.muggl.vm.classfile.structures.Constant;
  * @author Max Schulze
  */
 public class ConstantMethodHandle extends Constant {
+
+    /**
+     * Invokedynamic MH signature that is usually observed when compiling Java programs with javac 1.8.0_151 (Ubuntu).
+     * Observable for both inlined lambdas and method references.
+     */
+     public static final String BOOTSTRAP_MH_STANDARD_METAFACTORY_SIGNATURE = "invokestatic java/lang/invoke/LambdaMetafactory.metafactory:" +
+            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;" +
+            "Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+
 	private ReferenceKind referenceKind;
 	private int referenceIndex;
 
@@ -70,6 +79,10 @@ public class ConstantMethodHandle extends Constant {
 	public int getReferenceIndex() {
 		return referenceIndex;
 	}
+
+	public Constant getReferencedConstant() {
+	    return this.classFile.getConstantPool()[this.referenceIndex];
+    }
 
 	/**
 	 * Get the value of the constant.
