@@ -22,8 +22,10 @@ import de.wwu.muggl.vm.classfile.structures.constants.ConstantNameAndType;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
-import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
+import org.apache.bcel.Const;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.generic.*;
 
 /**
  * Implementation of the instruction <code>invokedynamic</code>.
@@ -262,13 +264,13 @@ public class Invokedynamic extends Invoke implements Instruction {
 
 
         final ResolutionAlgorithms resolve = new ResolutionAlgorithms(frame.getVm().getClassLoader());
-        final Method method;
+        final Method targetMethod;
         try {
             if (targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_invokeInterface) {
-                method = resolve.resolveMethodInterface(targetMethodref.getClassFile(), targetMethodref.getNameAndTypeInfo());
+                targetMethod = resolve.resolveMethodInterface(targetMethodref.getClassFile(), targetMethodref.getNameAndTypeInfo());
             } else {
                 assert(targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_invokeStatic);
-                method = resolve.resolveMethod(targetMethodref.getClassFile(), targetMethodref.getNameAndTypeInfo());
+                targetMethod = resolve.resolveMethod(targetMethodref.getClassFile(), targetMethodref.getNameAndTypeInfo());
             }
         } catch (ClassFileException e) {
             throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", "Could not resolve class of target method in invokedynamic. " +
@@ -284,27 +286,44 @@ public class Invokedynamic extends Invoke implements Instruction {
 
         // Create object of fake class (interface?).
         final ClassFile targetClassFile;
+        final String lambdaInterfaceName;
         try {
             final String signature = lambdaMethodNameAndLambdaInterfaceType[1];
             /* Assume that signature is always of a form similar to "()Ljava/util/function/ToLongFunction;";
-             * i.e. specifying parameters of [0] (or maybe of something different?), together with the expected
-             * functional interface. */
+             * i.e. specifying parameters of [0], together with the expected functional interface type.
+             * ("The parameter types represent the types of capture variables; the return type is the interface to implement.") */
             // Extract the interface name.
             final int left = signature.lastIndexOf(")L");
             final int right = signature.lastIndexOf(";");
-            final String lambdaInterfaceName = signature.substring(left+2, right);
+            lambdaInterfaceName = signature.substring(left+2, right);
             targetClassFile = resolve.resolveClassAsClassFile(frame.getMethod().getClassFile(),
                     lambdaInterfaceName);
+
         } catch (NoClassDefFoundError e) {
             throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", "Could not resolve class of target method in invokedynamic. " +
                     e.getMessage()));
         }
-        Objectref lambdaObject = frame.getVm().getAnObjectref(targetClassFile);
 
         // TODO Create method lambdaMethodNameAndLambdaInterfaceType[0] in lambdaObject, wrapping targetMethod.
+        // TODO invent name that will not collide ever, while being meaningful.
+        final ClassGen classgen = new ClassGen("lambda", "java.lang.Object", "<generated>",
+                Const.ACC_PUBLIC | Const.ACC_SUPER,
+                new String[] { lambdaInterfaceName });
+        final InstructionFactory insf = new InstructionFactory(classgen);
+        final InstructionList insl = new InstructionList();
 
+        insl.append(insf.createInvoke(targetMethod.getClassFile().getCanonicalName(), targetMethod.getName(),
+                Type.getReturnType("J"), // TODO extract from descriptor.
+                Type.getArgumentTypes(targetMethod.getDescriptor()), Const.INVOKESTATIC));
+        // TODO add return to insl (and input params?)
+        final MethodGen methodgen = new MethodGen(Const.ACC_PUBLIC,
+                Type.LONG, new Type[] { Type.OBJECT }, // TODO modify type of method
+                null, lambdaMethodNameAndLambdaInterfaceType[0], null, insl, classgen.getConstantPool());
+        classgen.addMethod(methodgen.getMethod());
+        final JavaClass javaClass = classgen.getJavaClass();
+        System.out.println(javaClass);
 
-	}
+    }
 	
 	/**
 	 * Get the corresponding class file for a constant_interfacemethodref.
