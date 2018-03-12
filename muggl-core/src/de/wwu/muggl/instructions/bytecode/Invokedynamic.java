@@ -1,5 +1,7 @@
 package de.wwu.muggl.instructions.bytecode;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Stack;
 
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
@@ -14,17 +16,13 @@ import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.attributes.elements.BootstrapMethod;
-import de.wwu.muggl.vm.classfile.structures.constants.ConstantInterfaceMethodref;
-import de.wwu.muggl.vm.classfile.structures.constants.ConstantInvokeDynamic;
-import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodHandle;
-import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodref;
-import de.wwu.muggl.vm.classfile.structures.constants.ConstantNameAndType;
+import de.wwu.muggl.vm.classfile.structures.constants.*;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
+import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 import org.apache.bcel.Const;
-import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.generic.*;
 
 /**
@@ -33,9 +31,16 @@ import org.apache.bcel.generic.*;
  * @author Max Schulze
  */
 public class Invokedynamic extends Invoke implements Instruction {
+    private static final int BOOTSTRAP_MH_STANDARD_ARG_FOR_SAM_MT = 0;
     private static final int BOOTSTRAP_MH_STANDARD_ARG_FOR_TARGET_HANDLE = 1;
+    private static final int BOOTSTRAP_MH_STANDARD_ARG_FOR_INSTANTIATED_MT = 2;
 
-	/**
+    /**
+     * Increases with every generated object.
+     */
+    private static int staticLambdaCounter = 0;
+
+    /**
 	 * Standard constructor. For the extraction of the other bytes, the attribute_code of the method
 	 * that the instruction belongs to is supplied as an argument.
 	 *
@@ -255,8 +260,10 @@ public class Invokedynamic extends Invoke implements Instruction {
          */
 
 		// First, try to resolve the target method that needs to be encapsulated into a Functional Interface (adapter pattern).
-        assert(bootstrapArgConst.length > BOOTSTRAP_MH_STANDARD_ARG_FOR_TARGET_HANDLE-1);
+        assert(bootstrapArgConst.length > BOOTSTRAP_MH_STANDARD_ARG_FOR_INSTANTIATED_MT);
         assert(bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_TARGET_HANDLE] instanceof ConstantMethodHandle);
+        assert(bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_SAM_MT] instanceof ConstantMethodType);
+        assert(bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_INSTANTIATED_MT] instanceof ConstantMethodType);
         // Method handle contains verb (e.g. invokestatic) and class+method that is to be invoked.
         final ConstantMethodHandle targetMethodHandle = (ConstantMethodHandle) bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_TARGET_HANDLE];
         // Methodref contains class+method that is to be invoked.
@@ -266,11 +273,12 @@ public class Invokedynamic extends Invoke implements Instruction {
         final ResolutionAlgorithms resolve = new ResolutionAlgorithms(frame.getVm().getClassLoader());
         final Method targetMethod;
         try {
+            ClassFile targetMethodrefClassFile = frame.getVm().getClassLoader().getClassAsClassFile(targetMethodref.getClassName());
             if (targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_invokeInterface) {
-                targetMethod = resolve.resolveMethodInterface(targetMethodref.getClassFile(), targetMethodref.getNameAndTypeInfo());
+                targetMethod = resolve.resolveMethodInterface(targetMethodrefClassFile, targetMethodref.getNameAndTypeInfo());
             } else {
                 assert(targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_invokeStatic);
-                targetMethod = resolve.resolveMethod(targetMethodref.getClassFile(), targetMethodref.getNameAndTypeInfo());
+                targetMethod = resolve.resolveMethod(targetMethodrefClassFile, targetMethodref.getNameAndTypeInfo());
             }
         } catch (ClassFileException e) {
             throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", "Could not resolve class of target method in invokedynamic. " +
@@ -304,24 +312,57 @@ public class Invokedynamic extends Invoke implements Instruction {
                     e.getMessage()));
         }
 
-        // TODO Create method lambdaMethodNameAndLambdaInterfaceType[0] in lambdaObject, wrapping targetMethod.
+        // Signature of the method from the functional interface that must be implemented.
+        final ConstantMethodType samMethodType = (ConstantMethodType) bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_SAM_MT];
+        final Type[] samArgTypes = Type.getArgumentTypes(samMethodType.getValue());
+        final Type samReturnType = Type.getReturnType(samMethodType.getValue());
+        // Expected types on invocation of that method.
+        final ConstantMethodType instantiatedMethodType = (ConstantMethodType) bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_INSTANTIATED_MT];
+
+        // Create method lambdaMethodNameAndLambdaInterfaceType[0] in lambdaObject, wrapping targetMethod.
         // TODO invent name that will not collide ever, while being meaningful.
-        final ClassGen classgen = new ClassGen("lambda", "java.lang.Object", "<generated>",
-                Const.ACC_PUBLIC | Const.ACC_SUPER,
+        final String generatedClassName =  frame.getMethod().getClassFile().getName() + "$$Lambda$" + (staticLambdaCounter++);
+        final ClassGen classgen = new ClassGen(generatedClassName, "java.lang.Object", "<generated>",
+                Const.ACC_PUBLIC | Const.ACC_SUPER | Const.ACC_SYNTHETIC,
                 new String[] { lambdaInterfaceName });
+        classgen.setMinor(Const.MINOR_1_8); classgen.setMajor(Const.MAJOR_1_8);
         final InstructionFactory insf = new InstructionFactory(classgen);
         final InstructionList insl = new InstructionList();
-
-        insl.append(insf.createInvoke(targetMethod.getClassFile().getCanonicalName(), targetMethod.getName(),
-                Type.getReturnType("J"), // TODO extract from descriptor.
+        // Prepare invoke: Push args.
+        int idx = 1; // 0 is this, therefore skip 0.
+        for (Type t : samArgTypes) {
+            insl.append(insf.createLoad(t, idx));
+            // Increment idx according to the size occupied by t.
+            idx += t.getSize();
+        }
+        // Invoke.
+        insl.append(insf.createInvoke(targetMethod.getClassFile().getName(), targetMethod.getName(),
+                Type.getReturnType(targetMethod.getDescriptor()),
                 Type.getArgumentTypes(targetMethod.getDescriptor()), Const.INVOKESTATIC));
-        // TODO add return to insl (and input params?)
-        final MethodGen methodgen = new MethodGen(Const.ACC_PUBLIC,
-                Type.LONG, new Type[] { Type.OBJECT }, // TODO modify type of method
-                null, lambdaMethodNameAndLambdaInterfaceType[0], null, insl, classgen.getConstantPool());
+        // Add return to insl.
+        if (!samReturnType.equals(Type.VOID)) {
+            insl.append(insf.createReturn(samReturnType));
+        }
+        // Put insl into method.
+        final MethodGen methodgen = new MethodGen(Const.ACC_PUBLIC | Const.ACC_SYNTHETIC,
+                samReturnType, samArgTypes,
+                null, lambdaMethodNameAndLambdaInterfaceType[0], generatedClassName, insl, classgen.getConstantPool());
+        //methodgen.setMaxLocals(); methodgen.setMaxStack();
         classgen.addMethod(methodgen.getMethod());
-        final JavaClass javaClass = classgen.getJavaClass();
-        System.out.println(javaClass);
+        final ClassFile generatedJavaClass;
+        try {
+            File tempFile = File.createTempFile(generatedClassName, ".class");
+            tempFile.deleteOnExit();
+            classgen.getJavaClass().dump(tempFile);
+            generatedJavaClass = ClassFile.loadFromGeneratedClass(frame.getVm().getClassLoader(), tempFile);
+            frame.getVm().getClassLoader().addToClassCache(generatedJavaClass);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+        Objectref anObjectref = frame.getVm().getAnObjectref(generatedJavaClass);
+        stack.push(anObjectref);
 
     }
 	
