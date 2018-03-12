@@ -1000,7 +1000,9 @@ public class MugglToJavaConversion {
 					try {
 						// Convert and insert.
 						Object objectToInsert = javaField.get(object);
-						objectToInsert = toMuggl(objectToInsert, field.isPrimitiveType());
+						if (!(objectToInsert instanceof Objectref)) {
+                            objectToInsert = toMuggl(objectToInsert, field.isPrimitiveType());
+                        }
 						objectref.putField(field, objectToInsert);
 					} catch (IllegalAccessException e) {
 						// Log it but beside that ignore it.
