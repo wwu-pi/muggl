@@ -223,43 +223,59 @@ public class Invokedynamic extends Invoke implements Instruction {
 		}
         final ConstantInvokeDynamic constID = (ConstantInvokeDynamic) constant;
 
-        final ConstantNameAndType callSiteDescriptor = (ConstantNameAndType) frame.getMethod().getClassFile().getConstantPool()[constID.getNameAndTypeIndex()];
-		// resolve reference to MethodHandle, MethodType and arguments from the bootstrap section
-        final BootstrapMethod bootstrapMethod = frame.getMethod().getClassFile().getBootstrapMethods().getBootstrapMethods()[constID.getBootstrapMethodAttrIndex()];
-		// on error with bootstrapMethod resolution -> BootstrapMethodError wrapping E
+		// Generate bytecode for the adapter and load it right away.
+        final ClassFile generatedJavaClass = generateAndLoadAdapterClass(frame, constID);
+
+        // Instantiate newly created adapter and push it to the operand stack.
+        Objectref anObjectref = frame.getVm().getAnObjectref(generatedJavaClass);
+        stack.push(anObjectref);
+
+    }
+
+    /**
+     * Generate and load an adapter class for invokedynamic.
+     *
+     * The following outlines the generally correct procedure. This method implements a heavily simplified version that
+     * may only be correct in the default case of bootstrapMH that is asserted below.
+     *
+     * GENERAL PROCEDURE
+     * (See also: http://cr.openjdk.java.net/~vlivanov/talks/2015-Indy_Deep_Dive.pdf).
+     *
+     * - construct a java.lang.invoke.MethodHandle from the methodHandle and call invoke on it:
+     * "For invokedynamic, the bootstrap specifier is resolved into a method handle and zero or more extra constant
+     * arguments. (These are all drawn from the constant pool.) The name and signature are pushed on the stack,
+     * along with the extra arguments and a MethodHandles.Lookup parameter to reify the requesting class,
+     * and the bootstrap method handle is invoked." (https://wiki.openjdk.java.net/display/HotSpot/Method+handles+and+invokedynamic)
+     * result shall be a reference to an object (of class or subclass .CallSite) <- The Call Site Object
+     * CallSite can be cached!
+     *
+     * - then get the target of the callSiteObject (callSiteObject.getTarget())
+     *
+     * - and execute invokevirtual java.lang.invoke.MethodHandle.invokeExact on it (descriptor of call Site specifier)
+     * - a) (according to mxs) call invokeExact (however, maybe not here? maybe from within lambda...)
+     * - b) result here should be the instantiated Lambda class that is pushed to the stack ("linkage"). That result will be popped
+     *      from the stack for the subsequent invocation that uses this lambda.
+     *
+     * @param frame currently executed frame
+     * @param constant constant describing the current instruction
+     * @return a generated ClassFile that has been loaded by the class loader.
+     * @throws VmRuntimeException
+     * @throws ClassFileException
+     */
+    private ClassFile generateAndLoadAdapterClass(Frame frame, ConstantInvokeDynamic constant) throws VmRuntimeException, ClassFileException {
+        // resolve reference to MethodHandle, MethodType and arguments from the bootstrap section
+        final BootstrapMethod bootstrapMethod = frame.getMethod().getClassFile().getBootstrapMethods().getBootstrapMethods()[constant.getBootstrapMethodAttrIndex()];
+        // on error with bootstrapMethod resolution -> BootstrapMethodError wrapping E
 
         final ConstantMethodHandle bootstrapMH = (ConstantMethodHandle) frame.getConstantPool()[bootstrapMethod.getBootstrapMethodRef()];
-		// We only consider standard Java 8 programs until now, which seem to generate a constant bootstrapMH signature for all programs.
+        // We only consider standard Java 8 programs until now, which seem to generate a constant bootstrapMH signature for all programs.
         assert(bootstrapMH.getValue().equals(ConstantMethodHandle.BOOTSTRAP_MH_STANDARD_METAFACTORY_SIGNATURE));
         final Constant[] bootstrapArgConst = new Constant[bootstrapMethod.getNumBootstrapArguments()];
-		for (int i = 0; i < bootstrapMethod.getNumBootstrapArguments(); i++) {
-			bootstrapArgConst[i] = frame.getConstantPool()[bootstrapMethod.getBootstrapArguments()[i]];
-		}
+        for (int i = 0; i < bootstrapMethod.getNumBootstrapArguments(); i++) {
+            bootstrapArgConst[i] = frame.getConstantPool()[bootstrapMethod.getBootstrapArguments()[i]];
+        }
 
-		/*
-		 * The following outlines the generally correct procedure. Afterwards, a heavily simplified version is implemented that
-         * may only be correct in the default case of bootstrapMH that is asserted above.
-         *
-         * GENERAL PROCEDURE
-		 * (See also: http://cr.openjdk.java.net/~vlivanov/talks/2015-Indy_Deep_Dive.pdf).
-         *
-         * - construct a java.lang.invoke.MethodHandle from the methodHandle and call invoke on it:
-         * "For invokedynamic, the bootstrap specifier is resolved into a method handle and zero or more extra constant
-         * arguments. (These are all drawn from the constant pool.) The name and signature are pushed on the stack,
-         * along with the extra arguments and a MethodHandles.Lookup parameter to reify the requesting class,
-         * and the bootstrap method handle is invoked." (https://wiki.openjdk.java.net/display/HotSpot/Method+handles+and+invokedynamic)
-         * result shall be a reference to an object (of class or subclass .CallSite) <- The Call Site Object
-         * CallSite can be cached!
-         *
-         * - then get the target of the callSiteObject (callSiteObject.getTarget())
-         *
-         * - and execute invokevirtual java.lang.invoke.MethodHandle.invokeExact on it (descriptor of call Site specifier)
-         * - a) (according to mxs) call invokeExact (however, maybe not here? maybe from within lambda...)
-         * - b) result here should be the instantiated Lambda class that is pushed to the stack ("linkage"). That result will be popped
-         *      from the stack for the subsequent invocation that uses this lambda.
-         */
-
-		// First, try to resolve the target method that needs to be encapsulated into a Functional Interface (adapter pattern).
+        // First, try to resolve the target method that needs to be encapsulated into a Functional Interface (adapter pattern).
         assert(bootstrapArgConst.length > BOOTSTRAP_MH_STANDARD_ARG_FOR_INSTANTIATED_MT);
         assert(bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_TARGET_HANDLE] instanceof ConstantMethodHandle);
         assert(bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_SAM_MT] instanceof ConstantMethodType);
@@ -288,46 +304,70 @@ public class Invokedynamic extends Invoke implements Instruction {
                     e.getMessage()));
         }
 
-        // TODO Check access privileges regarding the target method.
-
         final String[] lambdaMethodNameAndLambdaInterfaceType = getNameAndType(constant);
+        final String generatedClassName =  frame.getMethod().getClassFile().getName() + "$$Lambda$" + (staticLambdaCounter++);
 
-        // Create object of fake class (interface?).
-        final ClassFile targetClassFile;
-        final String lambdaInterfaceName;
+        final ClassFile generatedJavaClass;
         try {
-            final String signature = lambdaMethodNameAndLambdaInterfaceType[1];
-            /* Assume that signature is always of a form similar to "()Ljava/util/function/ToLongFunction;";
-             * i.e. specifying parameters of [0], together with the expected functional interface type.
-             * ("The parameter types represent the types of capture variables; the return type is the interface to implement.") */
-            // Extract the interface name.
-            final int left = signature.lastIndexOf(")L");
-            final int right = signature.lastIndexOf(";");
-            lambdaInterfaceName = signature.substring(left+2, right);
-            targetClassFile = resolve.resolveClassAsClassFile(frame.getMethod().getClassFile(),
-                    lambdaInterfaceName);
+            final File tempFile = File.createTempFile(generatedClassName, ".class");
+            tempFile.deleteOnExit();
 
+            generateAdapterClass((ConstantMethodType) bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_SAM_MT],
+                    (ConstantMethodType) bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_INSTANTIATED_MT],
+                    targetMethod, lambdaMethodNameAndLambdaInterfaceType[0], lambdaMethodNameAndLambdaInterfaceType[1],
+                    generatedClassName, tempFile);
+
+            generatedJavaClass = ClassFile.loadFromGeneratedClass(frame.getVm().getClassLoader(), tempFile);
+            frame.getVm().getClassLoader().addToClassCache(generatedJavaClass);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         } catch (NoClassDefFoundError e) {
             throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", "Could not resolve class of target method in invokedynamic. " +
                     e.getMessage()));
         }
+        return generatedJavaClass;
+    }
+
+    /**
+     * Generate bytecode for a class implementing the declared functional interface.
+     *
+     * @param samMethodType Parameter types of the adapter method (cf. https://docs.oracle.com/javase/8/docs/api/java/lang/invoke/LambdaMetafactory.html#metafactory-java.lang.invoke.MethodHandles.Lookup-java.lang.String-java.lang.invoke.MethodType-java.lang.invoke.MethodType-java.lang.invoke.MethodHandle-java.lang.invoke.MethodType-)
+     * @param instantiatedMethodType Expected parameter types of calls to the adapter method (cf. https://docs.oracle.com/javase/8/docs/api/java/lang/invoke/LambdaMetafactory.html#metafactory-java.lang.invoke.MethodHandles.Lookup-java.lang.String-java.lang.invoke.MethodType-java.lang.invoke.MethodType-java.lang.invoke.MethodHandle-java.lang.invoke.MethodType-)
+     * @param targetMethod Method that is invoked by the adapter
+     * @param lambdaMethodName Name of the adapter method
+     * @param lambdaMethodSignature Signature of the implemented functional interface
+     * @param generatedClassName Generated class name
+     * @param tempFile File where class will be dumped to
+     * @throws IOException
+     * @throws NoClassDefFoundError
+     */
+    private static void generateAdapterClass(ConstantMethodType samMethodType, ConstantMethodType instantiatedMethodType, Method targetMethod,
+                                             String lambdaMethodName, String lambdaMethodSignature, String generatedClassName, File tempFile)
+            throws IOException, NoClassDefFoundError {
+        final String signature = lambdaMethodSignature;
+        /* Assume that signature is always of a form similar to "()Ljava/util/function/ToLongFunction;";
+         * i.e. specifying parameters of [0], together with the expected functional interface type.
+         * ("The parameter types represent the types of capture variables; the return type is the interface to implement.") */
+        // Extract the interface name.
+        final int left = signature.lastIndexOf(")L");
+        final int right = signature.lastIndexOf(";");
+        final String lambdaInterfaceName = signature.substring(left+2, right);
 
         // Signature of the method from the functional interface that must be implemented.
-        final ConstantMethodType samMethodType = (ConstantMethodType) bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_SAM_MT];
         final Type[] samArgTypes = Type.getArgumentTypes(samMethodType.getValue());
         final Type samReturnType = Type.getReturnType(samMethodType.getValue());
         // Expected types on invocation of that method.
-        final ConstantMethodType instantiatedMethodType = (ConstantMethodType) bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_INSTANTIATED_MT];
 
         // Create method lambdaMethodNameAndLambdaInterfaceType[0] in lambdaObject, wrapping targetMethod.
-        // TODO invent name that will not collide ever, while being meaningful.
-        final String generatedClassName =  frame.getMethod().getClassFile().getName() + "$$Lambda$" + (staticLambdaCounter++);
+        // Generate a class name that will not collide ever, while being meaningful.
         final ClassGen classgen = new ClassGen(generatedClassName, "java.lang.Object", "<generated>",
                 Const.ACC_PUBLIC | Const.ACC_SUPER | Const.ACC_SYNTHETIC,
                 new String[] { lambdaInterfaceName });
-        classgen.setMinor(Const.MINOR_1_8); classgen.setMajor(Const.MAJOR_1_8);
+        classgen.setMinor(Const.MINOR_1_8);
+        classgen.setMajor(Const.MAJOR_1_8);
         final InstructionFactory insf = new InstructionFactory(classgen);
         final InstructionList insl = new InstructionList();
+
         // Prepare invoke: Push args.
         int idx = 1; // 0 is this, therefore skip 0.
         for (Type t : samArgTypes) {
@@ -346,27 +386,14 @@ public class Invokedynamic extends Invoke implements Instruction {
         // Put insl into method.
         final MethodGen methodgen = new MethodGen(Const.ACC_PUBLIC | Const.ACC_SYNTHETIC,
                 samReturnType, samArgTypes,
-                null, lambdaMethodNameAndLambdaInterfaceType[0], generatedClassName, insl, classgen.getConstantPool());
-        //methodgen.setMaxLocals(); methodgen.setMaxStack();
+                null, lambdaMethodName, generatedClassName, insl, classgen.getConstantPool());
+
+        // Dump class.
         classgen.addMethod(methodgen.getMethod());
-        final ClassFile generatedJavaClass;
-        try {
-            File tempFile = File.createTempFile(generatedClassName, ".class");
-            tempFile.deleteOnExit();
-            classgen.getJavaClass().dump(tempFile);
-            generatedJavaClass = ClassFile.loadFromGeneratedClass(frame.getVm().getClassLoader(), tempFile);
-            frame.getVm().getClassLoader().addToClassCache(generatedJavaClass);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-
-        Objectref anObjectref = frame.getVm().getAnObjectref(generatedJavaClass);
-        stack.push(anObjectref);
-
+        classgen.getJavaClass().dump(tempFile);
     }
-	
-	/**
+
+    /**
 	 * Get the corresponding class file for a constant_interfacemethodref.
 	 *
 	 * @param constant A constant_interfacemethodref.
@@ -396,14 +423,7 @@ public class Invokedynamic extends Invoke implements Instruction {
 	 * @return Name and descriptor for the constant_methodref.
 	 * @throws ExecutionException In case of any other problems.
 	 */
-	protected String[] getNameAndType(Constant constant) throws ExecutionException {
-		if (!(constant instanceof ConstantInvokeDynamic)) {
-			throw new ExecutionException(
-					"Error while executing instruction " + getName()
-							+ ": Expected runtime constant pool item at index "
-							+ "to be a symbolic reference to a method.");
-		}
-
-		return ((ConstantInvokeDynamic) constant).getNameAndTypeInfo();
+	protected String[] getNameAndType(ConstantInvokeDynamic constant)  {
+		return constant.getNameAndTypeInfo();
 	}
 }
