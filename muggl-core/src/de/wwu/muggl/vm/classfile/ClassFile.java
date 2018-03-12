@@ -11,8 +11,6 @@ import java.io.InputStream;
 import java.lang.invoke.MethodType;
 import java.util.Arrays;
 
-import org.apache.log4j.Level;
-
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.FieldResolutionError;
 import de.wwu.muggl.instructions.MethodResolutionError;
@@ -298,6 +296,12 @@ public class ClassFile {
 		this(classLoader, new FileInputStream(file), new FileInputStream(file), file.length(), file
 				.getPath());
 	}
+
+	/** Used by invokedynamic to load classes that were generated at runtime */
+	public static ClassFile loadFromGeneratedClass(MugglClassLoader classLoader, File file) throws ClassFileException,
+            FileNotFoundException, IOException {
+        return new ClassFile(classLoader, new FileInputStream(file), new FileInputStream(file), file.length(), "");
+    }
 
 	/**
 	 * Constructor for reading a class from an InputStream. The stream is closed after that.

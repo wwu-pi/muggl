@@ -572,7 +572,7 @@ public class MugglClassLoader extends ClassLoader {
 	 *
 	 * @param classFile The ClassFile to add.
 	 */
-	private void addToClassCache(ClassFile classFile) {
+	public void addToClassCache(ClassFile classFile) {
 		if (this.unlimitedCache) {
 			this.loadedClasses.put(classFile.getName(), classFile);
 		} else {
