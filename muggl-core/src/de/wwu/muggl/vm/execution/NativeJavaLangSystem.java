@@ -71,7 +71,7 @@ public class NativeJavaLangSystem extends NativeMethodProvider {
 		// Further possible exceptions with regard to types.
 		if (src.isPrimitive()) {
 			if (dest.isPrimitive()) {
-				if (src.getInitializedClass() != dest.getInitializedClass()) {
+				if (!src.getInitializedClass().equals(dest.getInitializedClass())) {
 					throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ArrayStoreException", "null"));
 				}
 			} else {

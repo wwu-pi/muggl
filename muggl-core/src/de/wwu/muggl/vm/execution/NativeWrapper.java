@@ -15,6 +15,7 @@ import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.FieldResolutionError;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.Reflection;
+import de.wwu.muggl.vm.SystemDictionary;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.JavaClasses.java_lang_Class;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -550,8 +551,16 @@ public class NativeWrapper {
 				&& method.getName().equals("getCallerClass")) {
 			
 			if (frame.getMethod().getName().equals("registerAsParallelCapable")) {
-				frame.getOperandStack().push(null);
-				throw new ForwardingUnsuccessfulException("registerasparallelcapable not impl");
+                SystemDictionary systemDictionary = SystemDictionary.gI();
+                Objectref java_class = systemDictionary.getVm()
+                        .getAndInitializeObjectref(systemDictionary.Class_klass);
+                String name = frame.getInvokedBy().getMethod().getClassFile().getCanonicalName();
+                java_class.putField(java_class.getInitializedClass().getClassFile().getFieldByName("name"),
+                        systemDictionary.getVm().getStringCache().getStringObjectref(name));
+                java_class.setDebugHelperString(name + " set in sun.reflect.Reflection.getCallerClass");
+                java_class.setMirrorMuggl(systemDictionary.Class_klass.getClassFile());
+				frame.getOperandStack().push(java_class);
+				return true;
 			}
 //			if(!Globals.getInst().vmIsInitialized) {
 //				// FIXME mxs WARNING HACKY!

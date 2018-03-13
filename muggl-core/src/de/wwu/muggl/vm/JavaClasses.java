@@ -51,6 +51,8 @@ public final class JavaClasses {
 
 		public static BasicType primitive_type(Objectref java_class) {
 			for (BasicType bt : BasicType.values()) {
+			    if (bt.value > BasicType.T_VOID.value)
+			        break;
 				if (Universe.java_mirror(bt) == java_class)
 					return bt;
 			}

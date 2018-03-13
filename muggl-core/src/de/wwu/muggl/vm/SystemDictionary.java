@@ -111,7 +111,7 @@ public class SystemDictionary {
 			for (int i = BasicType.T_BOOLEAN.value; i <= BasicType.T_VOID.value; i++) {
 				if (VmSymbols.basicType2JavaClassName(VmSymbols.BasicTypeArr[i]) != VmSymbols.ILLEGAL_TYPE) {
 					ClassFile cf = vm.classLoader
-							.getClassAsClassFile(VmSymbols.basicType2JavaClassName(VmSymbols.BasicTypeArr[i]));
+							.getClassAsClassFile(VmSymbols.basicType2JavaClassName(VmSymbols.BasicTypeArr[i]), true);
 					// In some cases, a particular class is *already initialised* before this happens,
 					// e.g. java.lang.Character because of StringCache. This creates problems with class comparisons,
 					// e.g. for arraycopy type checks. Therefore, create a new instance only if required.

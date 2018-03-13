@@ -59,7 +59,7 @@ public class TestException extends TestSkeleton {
 
 	@Test
 	public final void testExceptionStackTrace() throws ClassFileException, InitializationException, InterruptedException {
-		assertEquals("java.lang.IllegalArgumentException: no arguments at all...null",
+		assertEquals("java.lang.IllegalArgumentException: no arguments at all...",
 				(String)TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 						de.wwu.muggl.binaryTestSuite.ExceptionStackTrace.class.getCanonicalName(),
 						de.wwu.muggl.binaryTestSuite.ExceptionStackTrace.METHOD_testExceptionStackTrace,

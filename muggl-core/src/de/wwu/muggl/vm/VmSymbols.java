@@ -172,7 +172,7 @@ public class VmSymbols {
 
 	private static final String[] PRIMITIVES_JAVA_CLASSNAME;
 	static {
-		PRIMITIVES_JAVA_CLASSNAME = new String[BasicType.T_VOID.value + 1];
+		PRIMITIVES_JAVA_CLASSNAME = new String[BasicType.T_ILLEGAL.value + 1];
 		PRIMITIVES_JAVA_CLASSNAME[BasicType.T_BYTE.value] = java_lang_Byte;
 		PRIMITIVES_JAVA_CLASSNAME[BasicType.T_CHAR.value] = java_lang_Char;
 		PRIMITIVES_JAVA_CLASSNAME[BasicType.T_DOUBLE.value] = java_lang_Double;

@@ -215,4 +215,12 @@ public class InitializedClass extends FieldContainer {
 	public HashMap<Field, Object> getStaticFields() {
 		return this.fields;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+	    if (o instanceof InitializedClass) {
+	        return this.toString().equals(o.toString());
+        }
+        return false;
+    }
 }
