@@ -9,7 +9,6 @@ public class TestInitializeSystemClass {
 
 	public static void main(String[] args) {
 		System.out.println(tryGetProperty());
-		System.out.println(listSystemProperties());
 		System.out.println(mandatoryProperties());
 		System.out.println(isbooted());
 	}
@@ -86,22 +85,5 @@ public class TestInitializeSystemClass {
 			}
 		});
 
-	}
-
-	public static int listSystemProperties() {
-		Properties p = System.getProperties();
-		int i = 0;
-		if (p != null) {
-			System.out.println("size: " + p.size());
-
-			Enumeration<Object> keys = p.keys();
-			while (keys.hasMoreElements()) {
-				String key = (String) keys.nextElement();
-				String value = (String) p.get(key);
-				System.out.println(i + ") " + key + ": " + value);
-				i++;
-			}
-		}
-		return i;
 	}
 }

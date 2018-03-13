@@ -47,15 +47,6 @@ public class TestVMClassInitialization extends TestSkeleton {
 	}
 
 	@Test
-	public final void testGetVMProperties() throws ClassFileException, InitializationException, InterruptedException {
-		assertTrue("ListSystemProperties has no entries at all",
-				((Integer) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
-						de.wwu.muggl.binaryTestSuite.testVMInit.TestInitializeSystemClass.class.getCanonicalName(),
-						"listSystemProperties", MethodType.methodType(int.class), null)) > 1);
-	}
-
-	@Test // so yeah, currently, they are no there.
-	@Category(NotYetSupported.class)
 	public final void testGetVMPropertiesMandatory()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
