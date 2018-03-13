@@ -41,6 +41,11 @@ public class Invokedynamic extends Invoke implements Instruction {
     private static int staticLambdaCounter = 0;
 
     /**
+     * Linkage: Caches a once-generated class for later reuse.
+     */
+    private ClassFile generatedJavaClass = null;
+
+    /**
 	 * Standard constructor. For the extraction of the other bytes, the attribute_code of the method
 	 * that the instruction belongs to is supplied as an argument.
 	 *
@@ -63,19 +68,15 @@ public class Invokedynamic extends Invoke implements Instruction {
 	 * @param method The resolved method.
 	 * @param parameters The (yet unfilled) array of parameters.
 	 * @return The {@link ClassFile} of the object reference to invoke the method on.
-	 * @throws ExecutionException If an unexpected problem is found that does not throw a runtime
-	 *         exception but forces the virtual machine to halt.
-	 * @throws VmRuntimeException If an unexpected condition it met and a runtime exception is
-	 *         thrown.
 	 */
 	@Override
 	protected ClassFile checkStaticMethod(Frame frame, String[] nameAndType,
-			Method method, Object[] parameters) throws ExecutionException, VmRuntimeException {
+			Method method, Object[] parameters) {
 	    throw new UnsupportedOperationException("checkStaticMethod(...) not supported by Invokedynamic.");
 	}
 
 	/**
-	 * Do nothing.
+	 * Do nothing. (not supported by Indy.)
 	 *
 	 * @param frame The currently executed frame.
 	 * @param method The resolved method.
@@ -88,8 +89,7 @@ public class Invokedynamic extends Invoke implements Instruction {
     }
 
 	/**
-	 * Select the actual method for invocation, make sure it is not abstract and check that is is
-	 * public.
+	 * Do nothing. (not supported by Indy.)
 	 *
 	 * @param frame The currently executed frame.
 	 * @param method The resolved method.
@@ -97,13 +97,10 @@ public class Invokedynamic extends Invoke implements Instruction {
 	 * @param objectrefClassFile The {@link ClassFile} of the object reference to invoke the method
 	 *        on.
 	 * @return The selected method. Might be the method specified.
-	 * @throws ClassFileException If a required class file cannot be loaded.
-	 * @throws VmRuntimeException If an unexpected condition it met and a runtime exception is
-	 *         thrown.
 	 */
 	@Override
 	protected Method selectMethod(Frame frame, Method method, ClassFile methodClassFile,
-			ClassFile objectrefClassFile) throws ClassFileException, VmRuntimeException {
+			ClassFile objectrefClassFile) {
         throw new UnsupportedOperationException("selectMethod(...) not supported by Invokedynamic.");
     }
 
@@ -175,16 +172,15 @@ public class Invokedynamic extends Invoke implements Instruction {
 	 */
 	public String[] getThrownExceptionTypes() {
 		// UnsatisfiedLinkError is not thrown by this vm implementation.
-		String[] exceptionTypes = { "java.lang.AbstractMethodError",
-									"java.lang.ExceptionInInitializerError",
-									"java.lang.IllegalAccessError",
-									"java.lang.IncompatibleClassChangeError",
-									"java.lang.InstantiationException",
-									"java.lang.InvocationTargetException",
-									"java.lang.NoClassDefFoundError",
-									"java.lang.NoSuchMethodError",
-									"java.lang.NullPointerException"};
-		return exceptionTypes;
+        return new String[]{ "java.lang.AbstractMethodError",
+                                    "java.lang.ExceptionInInitializerError",
+                                    "java.lang.IllegalAccessError",
+                                    "java.lang.IncompatibleClassChangeError",
+                                    "java.lang.InstantiationException",
+                                    "java.lang.InvocationTargetException",
+                                    "java.lang.NoClassDefFoundError",
+                                    "java.lang.NoSuchMethodError",
+                                    "java.lang.NullPointerException"};
 	}
 
 	/**
@@ -223,11 +219,14 @@ public class Invokedynamic extends Invoke implements Instruction {
 		}
         final ConstantInvokeDynamic constID = (ConstantInvokeDynamic) constant;
 
-		// Generate bytecode for the adapter and load it right away.
-        final ClassFile generatedJavaClass = generateAndLoadAdapterClass(frame, constID);
+		// Get adapter from cache, or
+        if (this.generatedJavaClass == null) {
+            // Generate bytecode for the adapter and load it right away.
+            this.generatedJavaClass = generateAndLoadAdapterClass(frame, constID);
+        }
 
-        // Instantiate newly created adapter and push it to the operand stack.
-        Objectref anObjectref = frame.getVm().getAnObjectref(generatedJavaClass);
+        // Instantiate the adapter and push it to the operand stack.
+        Objectref anObjectref = frame.getVm().getAnObjectref(this.generatedJavaClass);
         stack.push(anObjectref);
 
     }
@@ -259,8 +258,8 @@ public class Invokedynamic extends Invoke implements Instruction {
      * @param frame currently executed frame
      * @param constant constant describing the current instruction
      * @return a generated ClassFile that has been loaded by the class loader.
-     * @throws VmRuntimeException
-     * @throws ClassFileException
+     * @throws VmRuntimeException if targets cannot be resolved
+     * @throws ClassFileException if classes cannot be loaded
      */
     private ClassFile generateAndLoadAdapterClass(Frame frame, ConstantInvokeDynamic constant) throws VmRuntimeException, ClassFileException {
         // resolve reference to MethodHandle, MethodType and arguments from the bootstrap section
@@ -338,20 +337,18 @@ public class Invokedynamic extends Invoke implements Instruction {
      * @param lambdaMethodSignature Signature of the implemented functional interface
      * @param generatedClassName Generated class name
      * @param tempFile File where class will be dumped to
-     * @throws IOException
-     * @throws NoClassDefFoundError
+     * @throws IOException If the temporary file cannot be written
      */
     private static void generateAdapterClass(ConstantMethodType samMethodType, ConstantMethodType instantiatedMethodType, Method targetMethod,
                                              String lambdaMethodName, String lambdaMethodSignature, String generatedClassName, File tempFile)
-            throws IOException, NoClassDefFoundError {
-        final String signature = lambdaMethodSignature;
+            throws IOException {
         /* Assume that signature is always of a form similar to "()Ljava/util/function/ToLongFunction;";
          * i.e. specifying parameters of [0], together with the expected functional interface type.
          * ("The parameter types represent the types of capture variables; the return type is the interface to implement.") */
         // Extract the interface name.
-        final int left = signature.lastIndexOf(")L");
-        final int right = signature.lastIndexOf(";");
-        final String lambdaInterfaceName = signature.substring(left+2, right);
+        final int left = lambdaMethodSignature.lastIndexOf(")L");
+        final int right = lambdaMethodSignature.lastIndexOf(";");
+        final String lambdaInterfaceName = lambdaMethodSignature.substring(left+2, right);
 
         // Signature of the method from the functional interface that must be implemented.
         final Type[] samArgTypes = Type.getArgumentTypes(samMethodType.getValue());
@@ -371,7 +368,7 @@ public class Invokedynamic extends Invoke implements Instruction {
         // Prepare invoke: Push args.
         int idx = 1; // 0 is this, therefore skip 0.
         for (Type t : samArgTypes) {
-            insl.append(insf.createLoad(t, idx));
+            insl.append(InstructionFactory.createLoad(t, idx));
             // Increment idx according to the size occupied by t.
             idx += t.getSize();
         }
@@ -381,7 +378,7 @@ public class Invokedynamic extends Invoke implements Instruction {
                 Type.getArgumentTypes(targetMethod.getDescriptor()), Const.INVOKESTATIC));
         // Add return to insl.
         if (!samReturnType.equals(Type.VOID)) {
-            insl.append(insf.createReturn(samReturnType));
+            insl.append(InstructionFactory.createReturn(samReturnType));
         }
         // Put insl into method.
         final MethodGen methodgen = new MethodGen(Const.ACC_PUBLIC | Const.ACC_SYNTHETIC,
@@ -404,7 +401,6 @@ public class Invokedynamic extends Invoke implements Instruction {
 	 */
 	@Override
 	protected ClassFile getMethodClassFile(Constant constant, MugglClassLoader classLoader) throws ClassFileException, ExecutionException {
-		// FIXME mxs: why override the parent's method if they're identical?
 		if (!(constant instanceof ConstantInterfaceMethodref)) {
 			throw new ExecutionException(
 					"2Error while executing instruction " + getName()
@@ -421,9 +417,8 @@ public class Invokedynamic extends Invoke implements Instruction {
 	 *
 	 * @param constant A constant_methodref.
 	 * @return Name and descriptor for the constant_methodref.
-	 * @throws ExecutionException In case of any other problems.
 	 */
-	protected String[] getNameAndType(ConstantInvokeDynamic constant)  {
+    private String[] getNameAndType(ConstantInvokeDynamic constant)  {
 		return constant.getNameAndTypeInfo();
 	}
 }
