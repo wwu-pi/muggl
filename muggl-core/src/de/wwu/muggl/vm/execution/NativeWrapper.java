@@ -558,7 +558,7 @@ public class NativeWrapper {
                 java_class.putField(java_class.getInitializedClass().getClassFile().getFieldByName("name"),
                         systemDictionary.getVm().getStringCache().getStringObjectref(name));
                 java_class.setDebugHelperString(name + " set in sun.reflect.Reflection.getCallerClass");
-                java_class.setMirrorMuggl(systemDictionary.Class_klass.getClassFile());
+                java_class.setMirrorMuggl(frame.getInvokedBy().getMethod().getClassFile());
 				frame.getOperandStack().push(java_class);
 				return true;
 			}
