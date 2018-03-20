@@ -827,6 +827,12 @@ public class MugglToJavaConversion {
 					try {
 						java.lang.reflect.Field objectField = objectClass.getDeclaredField(field
 								.getName());
+						if (objectField.toString().equals("private static java.lang.Runtime java.lang.Runtime.currentRuntime")) {
+						    // If we allow this, we overwrite the one j.l.Runtime instance that we have,
+                            // causing all j.l.System.exit() calls to fail subsequently. Bad e.g. in testing 🙄. So just skip.
+						    insertedSuccessfully = true;
+						    continue;
+                        }
 						try {
 							// Get the object to be inserted.
 							Object toInsert = objectref.getFields().get(field);
