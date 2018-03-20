@@ -90,7 +90,6 @@ public class InvokeDynamicTest extends TestSkeleton {
 	}
 
 	@Test
-	@Category(NotYetSupported.class)
 	public final void testlambdaMetafactoryAuto()
 			throws ClassFileException, InitializationException, InterruptedException {
 		TestVMNormalMethodRunnerHelper.runMethod(classLoader,

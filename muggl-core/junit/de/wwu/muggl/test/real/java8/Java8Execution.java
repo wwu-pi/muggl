@@ -57,7 +57,6 @@ public class Java8Execution extends TestSkeleton {
 	}
 
 	@Test
-	@Category(NotYetSupported.class)
 	public final void testApplicationMugglExecuteCountingReflective()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(1,

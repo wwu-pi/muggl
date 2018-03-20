@@ -123,7 +123,6 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_GetClassPrimitiveNames()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("booleanbyteshortcharintlongfloatdoubleObjectvoid",
@@ -227,7 +226,6 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_GetClassNameObj() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("java.lang.Integer",
 				(String) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -279,7 +277,6 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_GetComponentType2()
 			throws ClassFileException, InitializationException, InterruptedException {
 
@@ -303,7 +300,6 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_GetGetClassPrimitive()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("char",
@@ -377,7 +373,6 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_IsPrimitive() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(90,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -398,7 +393,6 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_IsPrimitiveInstances()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(64,
@@ -420,7 +414,6 @@ public class TestClassAndClassLoader extends TestSkeleton {
 	}
 
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_isAssignableFrom() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(2,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,

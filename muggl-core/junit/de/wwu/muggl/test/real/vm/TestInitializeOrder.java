@@ -46,8 +46,7 @@ public class TestInitializeOrder extends TestSkeleton {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
-	@Category(NotYetSupported.class)
+	@Test @Category(NotYetSupported.class)
 	public final void testInitializations() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 
@@ -58,8 +57,7 @@ public class TestInitializeOrder extends TestSkeleton {
 
 	}
 
-	@Test
-	@Category(NotYetSupported.class)
+	@Test @Category(NotYetSupported.class)
 	public final void testInitializationsArray() throws ClassFileException, InitializationException,
 			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
 
@@ -70,8 +68,7 @@ public class TestInitializeOrder extends TestSkeleton {
 
 	}
 
-	@Test
-	@Category(NotYetSupported.class)
+	@Test @Category(NotYetSupported.class)
 	public final void testInitializationsArrayNull() throws ClassFileException, InitializationException,
 			InterruptedException, InvalidInstructionInitialisationException, ConversionException {
 

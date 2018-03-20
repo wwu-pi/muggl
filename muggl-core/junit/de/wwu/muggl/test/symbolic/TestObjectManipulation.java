@@ -44,8 +44,7 @@ public class TestObjectManipulation extends TestSkeletonSymbolic {
 	public void tearDown() throws Exception {
 	}
 
-	@Test // currently fails, because upon putfield, it starts again to execute the static initializer... which is
-	// wrong.
+	@Test
 	public final void testPutstaticNull() throws ClassFileException, InitializationException, InterruptedException,
 			InvalidInstructionInitialisationException, ConversionException {
 

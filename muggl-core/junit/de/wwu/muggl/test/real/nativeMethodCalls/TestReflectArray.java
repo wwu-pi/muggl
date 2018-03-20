@@ -113,7 +113,6 @@ public class TestReflectArray extends TestSkeleton {
 	}
 
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_NewArray() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(0,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -123,7 +122,6 @@ public class TestReflectArray extends TestSkeleton {
 	}
 
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_NewMultiArray() throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals(3,
 				(int) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
@@ -133,7 +131,6 @@ public class TestReflectArray extends TestSkeleton {
 	}
 
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_IsArrayClass() throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(), "test_IsArrayClass",
@@ -142,7 +139,6 @@ public class TestReflectArray extends TestSkeleton {
 	}
 	
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_ArrayCopyOf() throws ClassFileException, InitializationException, InterruptedException {
 		assertTrue((boolean) TestVMNormalMethodRunnerHelper.runMethod(classLoader,
 				de.wwu.muggl.binaryTestSuite.nativeInstr.ReflectArray.class.getCanonicalName(), 

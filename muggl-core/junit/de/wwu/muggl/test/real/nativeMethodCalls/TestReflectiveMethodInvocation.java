@@ -77,7 +77,6 @@ public class TestReflectiveMethodInvocation extends TestSkeleton {
 	}
 
 	@Test // läuft
-	@Category(NotYetSupported.class)
 	public final void test_invokeInstanceMethodWithArgByLookup()
 			throws ClassFileException, InitializationException, InterruptedException {
 		assertEquals("hello, world!3",

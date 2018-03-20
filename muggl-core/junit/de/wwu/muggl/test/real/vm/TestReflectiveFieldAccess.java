@@ -46,7 +46,6 @@ public class TestReflectiveFieldAccess extends TestSkeleton {
 	}
 
 	@Test
-	@Category(NotYetSupported.class)
 	public final void testReflectiveFieldAccessIntPrim()
 			throws ClassFileException, InitializationException, NoSuchMethodError, InterruptedException {
 
