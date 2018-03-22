@@ -130,9 +130,9 @@ public class InvokestaticQuickNative extends InvokestaticQuickAbstract {
 			if (Options.getInst().forwardJavaPackageNativeInvoc) {
 				// Try to forward.
 				// TODO compare to de.wwu.muggl.instructions.general.Invoke!
-				//TODO replace by a suitable predicate of NativeWrapper
-				if (method.getClassFile().getPackageName().startsWith("java.") || method.getClassFile().getPackageName().startsWith("sun.") || method.getClassFile().getPackageName().equals("de.wwu.muli")) {
-					NativeWrapper.forwardNativeInvocation(frame, method, this.methodClassFile, null, parameters);
+                //TODO replace condition by a suitable predicate from NativeWrapper
+                if (method.getClassFile().getPackageName().startsWith("java.") || method.getClassFile().getPackageName().startsWith("sun.") || method.getClassFile().getPackageName().startsWith("de.wwu.muli")) {
+                    NativeWrapper.forwardNativeInvocation(frame, method, this.methodClassFile, null, parameters);
 				} else if (method.getClassFile().getPackageName().equals("de.wwu.muggl.vm.execution.nativeWrapping")) {
 					// Get the object reference of the invoking method.
 					Objectref invokingObjectref = null;

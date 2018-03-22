@@ -221,8 +221,8 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 						}
 
 						// Try to forward.
-						//TODO replace by a suitable predicate of NativeWrapper
-						if (method.getClassFile().getPackageName().startsWith("java.") || method.getClassFile().getPackageName().startsWith("sun.") || method.getClassFile().getPackageName().equals("de.wwu.muli")) {
+						//TODO replace condition by a suitable predicate from NativeWrapper
+						if (method.getClassFile().getPackageName().startsWith("java.") || method.getClassFile().getPackageName().startsWith("sun.") || method.getClassFile().getPackageName().startsWith("de.wwu.muli")) {
 							NativeWrapper.forwardNativeInvocation(frame, method, methodClassFile, objectref, parametersWithoutObjectref);
 						} else if (method.getClassFile().getPackageName().equals("de.wwu.muggl.vm.execution.nativeWrapping")) {
 							// Get the object reference of the invoking method.

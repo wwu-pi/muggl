@@ -887,7 +887,7 @@ public class NativeWrapper {
 	public static void registerNativeMethod(Class<? extends NativeMethodProvider> class1, String pkg, String method,
 			MethodType mugglMt, MethodType javaAPIMt) {
 		try {
-			if (method == "registerNatives") {
+			if (method.equals("registerNatives")) {
 			} else if (mugglMt.parameterType(0) != Frame.class) {
 				throw new IllegalArgumentException("first parameter of 'native' method must always be frame");
 			}
