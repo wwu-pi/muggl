@@ -92,7 +92,7 @@ public class JavaToSymbolicConversion {
 	 * @return A symbolic int constant.
 	 */
 	public static IntConstant toSymbolic(Character characterObject) {
-		return IntConstant.getInstance(characterObject);
+		return IntConstant.getInstance((char)characterObject);
 	}
 
 	/**

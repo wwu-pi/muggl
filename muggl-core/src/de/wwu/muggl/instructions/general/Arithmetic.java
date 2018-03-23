@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.StackPush;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.execution.ExecutionException;
@@ -30,10 +31,22 @@ public abstract class Arithmetic extends GeneralInstruction implements StackPop,
 	@Override
 	public void executeSymbolically(Frame frame) throws NoExceptionHandlerFoundException, SymbolicExecutionException {
 		Stack<Object> stack = frame.getOperandStack();
-		Term element2 = (Term) stack.pop();
-		Term element1 = (Term) stack.pop();
-		try {
-			stack.push(calculate(element1, element2));
+		Object element2 = stack.pop();
+        Term term2;
+        if (element2 instanceof Term) {
+            term2 = (Term) element2;
+        } else {
+            term2 = NumericConstant.getInstance(element2);
+        }
+		Object element1 = stack.pop();
+		Term term1;
+        if (element1 instanceof Term) {
+            term1 = (Term) element1;
+        } else {
+            term1 = NumericConstant.getInstance(element1);
+        }
+        try {
+			stack.push(calculate(term1, term2));
 		} catch (ArithmeticException e) {
 			Objectref objectref = frame.getVm().generateExc("java.lang.ArithmeticException", e.getMessage());
 			SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, objectref);

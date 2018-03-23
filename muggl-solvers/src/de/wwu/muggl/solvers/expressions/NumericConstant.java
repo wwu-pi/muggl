@@ -33,6 +33,22 @@ public abstract class NumericConstant extends Term implements Constant{
 	}
     }
 
+
+    /**
+     * Get or create a new instance of NumericConstant from a boxed type.
+     */
+    public static NumericConstant getInstance(Object value) {
+        if (value instanceof Double) {
+            return DoubleConstant.getInstance(((Double) value).doubleValue());
+        } else if (value instanceof Float) {
+            return FloatConstant.getInstance(((Float) value).floatValue());
+        } else if (value instanceof Long) {
+            return LongConstant.getInstance(((Long) value).longValue());
+        } else {
+            return IntConstant.getInstance(((Integer) value).intValue());
+        }
+    }
+
     /**
      * Returns the object representing the constant one of the specified type.
      * @param type the type the constant one should have.
