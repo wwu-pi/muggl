@@ -10,7 +10,6 @@ import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.Objectref;
-import scala.annotation.meta.param;
 
 /**
  * @author Andreas Fuchs
@@ -58,7 +57,6 @@ public class Class {
 		}
 	}
 	
-	
 	@InvokeSpecialMethod(name="getDeclaredField", signature="(Ljava/lang/String;)Ljava/lang/reflect/Field;")
 	public static void getDeclaredField(Frame frame, Object[] parameters) throws SpecialMethodInvokeException {
 		SymbolicVirtualMachine vm = (SymbolicVirtualMachine)frame.getVm();
@@ -72,4 +70,11 @@ public class Class {
 			throw new SpecialMethodInvokeException("Cannot execute getDeclaredField", e);
 		}
 	}
+	
+	@InvokeSpecialMethod(name="getCanonicalName", signature="()Ljava/lang/String;")
+	public static void getCanonicalName(Frame frame, Object[] parameters) throws SpecialMethodInvokeException {
+		SymbolicVirtualMachine vm = (SymbolicVirtualMachine)frame.getVm();
+		SpecialMethodHelper.getStringObjectref(vm, "java.lang.Class");
+	}
+	
 }

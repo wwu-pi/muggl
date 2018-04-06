@@ -1,11 +1,14 @@
 package de.wwu.muggl.javaee.jaxws;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 import de.wwu.muggl.javaee.jaxws.ex.MugglWebServiceException;
 import de.wwu.muggl.javaee.jaxws.objref.MugglWSPort;
+import de.wwu.muggl.javaee.jaxws.sym.WebService;
 import de.wwu.muggl.solvers.expressions.Expression;
 import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.solvers.expressions.Variable;
@@ -15,6 +18,7 @@ import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.initialization.InitializedClass;
+import de.wwu.muggl.vm.initialization.Objectref;
 
 /**
  * @author Andreas Fuchs
@@ -22,6 +26,8 @@ import de.wwu.muggl.vm.initialization.InitializedClass;
 public class MugglWebServiceManager {
 	
 	protected static int counter = 0;
+	
+	protected static Set<WebService> webServiceSet = new HashSet<>();
 	
 	protected static Map<Integer, LinkedList<WebServiceResponse>> responseMap = new HashMap<>();
 	
@@ -37,8 +43,35 @@ public class MugglWebServiceManager {
 		responses.add(new WebServiceResponse(port, method, responseVar));
 		responseMap.put(constraintLevel, responses);
 		
+		
+		
+		
+		// ------------------------
+//		
+//		WebService webService = getWebService(port.get
+//		
+		// ------------------------
+		
+		
+		
 		return responseVar;
 	}
+	
+//	public static WebService getWebService(Objectref serviceName, Objectref targetNamespace, Objectref wsdlLocation) {
+//		for(WebService webService : webServiceSet) {
+//			if( webService.getName().equals(serviceName)
+//				&& webService.getTargetNamespace().equals(targetNamespace)
+//				&& webService.getWsdlLocation().equals(wsdlLocation)) {
+//				return webService;
+//			}
+//		}
+//		
+//		WebService webService = new WebService(serviceName, targetNamespace, wsdlLocation);
+//		webServiceSet.add(webService);
+//		
+//		return webService;
+//	}
+	
 	
 	public static void resetResponseMap(int constraintLevel) {
 		for(Integer level : responseMap.keySet()) {

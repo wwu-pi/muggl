@@ -5,11 +5,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import de.wwu.muggl.javaee.jaxrs.SymbolicResponse;
 import de.wwu.muggl.javaee.rest.RESTResource;
 import de.wwu.muggl.javaee.testcase.obj.ObjectBuilder;
 import de.wwu.muggl.javaee.testcase.obj.impl.EntityObjectBuilder;
 import de.wwu.muggl.javaee.ws.MugglRESTResponse;
 import de.wwu.muggl.solvers.Solution;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
 
 /**
@@ -97,6 +100,7 @@ public class RESTfulWebServiceBuilder {
 		sb.append("\tpublic " + responseType + " " + methodName + "(");
 		
 		int paramCounter = 0;
+		// add path parameter
 		Map<String, Object> templateMap = resource.getTarget().getTemplateMap();
 		for(String paramName : templateMap.keySet()) {
 			sb.append("@PathParam(\""+paramName+"\")");
@@ -115,13 +119,64 @@ public class RESTfulWebServiceBuilder {
 			}
 		}
 		
+		// add query parameter
+		Map<String, Object> queryParamMap = resource.getTarget().getQueryParamMap();
+		for(String paramName : queryParamMap.keySet()) {
+			sb.append("@QueryParam(\""+paramName+"\")");
+			
+			Object value = queryParamMap.get(paramName);
+			if(value instanceof Arrayref) {
+				Arrayref arrValue = (Arrayref)value;
+				Object element = arrValue.getElement(0);
+				
+				if(element instanceof Objectref) {
+					Objectref objValue = (Objectref)element;
+					String valueClassName = objValue.getInitializedClass().getClassFile().getName();
+					sb.append(" "+valueClassName+" "+paramName);
+				} else {
+					throw new RuntimeException("Not supported yet");
+				}
+			} else {
+				throw new RuntimeException("Not supported yet");
+			}
+			
+			if((++paramCounter) < templateMap.size()) {
+				sb.append(", ");
+			}
+		}
+		
 		sb.append(") {\n");
 		
-		generateResponseObject(resource.getResponse(), sb);
+		if(resource.getResponse() instanceof SymbolicResponse) {
+			// this is a symbolic object-ref for: javax.ws.rs.Response
+			generateRESTResponse((SymbolicResponse)resource.getResponse(), sb);
+		} else {
+			// this is a symbolic object-ref of _any_ value of the resource (could be String, etc..)
+			generateResponseObject(resource.getResponse(), sb);
+		}
 		
 		sb.append("\t}\n");
 	}	
 	
+	private void generateRESTResponse(SymbolicResponse response, StringBuilder sb) {
+		String responseEntityName = null;
+		if(response.getEntity() != null) {
+			ObjectBuilder objBuilder = new EntityObjectBuilder(solution);
+			responseEntityName = objBuilder.getObjectName(response, sb);
+		}
+		
+		NumericConstant nc = this.solution.getNumericValue(response.getStatus());
+		int statusCode = nc != null ? nc.getIntValue() : 0;
+		
+		sb.append("\t\treturn javax.ws.rs.Response.status("+statusCode+")");
+		
+		if(responseEntityName != null) {
+			sb.append(".entity("+responseEntityName+")");
+		}
+		
+		sb.append(".build();\n");
+	}
+
 	private void generateResponseObject(MugglRESTResponse response, StringBuilder sb) {
 		ObjectBuilder objBuilder = new EntityObjectBuilder(solution);
 		String responseName = objBuilder.getObjectName(response, sb);

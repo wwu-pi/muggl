@@ -8,6 +8,7 @@ import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.symbolic.testCases.JavaEETestCaseSolution;
+import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.initialization.Objectref;
 
 /**
@@ -95,6 +96,11 @@ public class JPATestCaseBuilder {
 		sb.append("\t@Test\n");
 		sb.append("\t// Solution: "+solution.getSolution()+"\n");
 		sb.append("\t// Return value: "+solution.getReturnValue()+"\n");
+		if(solution.getReturnValue() instanceof NoExceptionHandlerFoundException) {
+			NoExceptionHandlerFoundException ex = (NoExceptionHandlerFoundException)solution.getReturnValue();
+			String[] nm = ex.getUncaughtThrowableNameAndMessage();
+			sb.append("\t//   exception: " + nm[0] + " -> " + nm[1] + " -> in method: " + ex.getMethod() + "\n");
+		}
 		sb.append("\tpublic void "+testMethodName+"() {\n");
 		buildPreExecutionRequiredDatabase();
 		buildInvokeMethodUnderTest();

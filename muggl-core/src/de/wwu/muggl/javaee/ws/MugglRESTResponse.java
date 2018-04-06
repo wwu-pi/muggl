@@ -10,4 +10,5 @@ public class MugglRESTResponse extends ObjectrefVariable {
 		super(name, staticReference, vm);
 	}
 
+	
 }

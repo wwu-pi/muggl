@@ -77,6 +77,21 @@ public class MugglWSPort extends Objectref {
 		Variable response = MugglWebServiceManager.generateResponse((SymbolicVirtualMachine)frame.getVm(), this, method);		
 		frame.getOperandStack().push(response);
 	}
-	
+
+	public Objectref getServiceName() {
+		return serviceName;
+	}
+
+	public Objectref getServiceClass() {
+		return serviceClass;
+	}
+
+	public Objectref getWsdlLocation() {
+		return wsdlLocation;
+	}
+
+	public Objectref getServiceEndpointInterface() {
+		return serviceEndpointInterface;
+	}
 	
 }

@@ -32,6 +32,16 @@ public class Client {
 		}
 	}
 	
+	@InvokeSpecialMethod(name="register", signature="(Ljava/lang/Object;)Ljavax/ws/rs/core/Configurable;")
+	public static void register(Frame frame, Object[] parameters) throws SpecialMethodInvokeException {
+		// nothing to do
+	}
+	
+	@InvokeSpecialMethod(name="close", signature="()V")
+	public static void close(Frame frame, Object[] parameters) throws SpecialMethodInvokeException {
+		// nothing to do
+	}
+	
 	protected static MugglWsRsClient getClient(Stack<Object> stack) throws SpecialMethodInvokeException {
 		Object obj = stack.pop();
 		if(!(obj instanceof MugglWsRsClient)) {

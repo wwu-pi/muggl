@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import de.wwu.muggl.javaee.invoke.SpecialMethodInvokeException;
 import de.wwu.muggl.javaee.jaxws.ex.MugglWebServiceException;
 import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.NumericEqual;
 import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.solvers.expressions.Variable;
 import de.wwu.muggl.symbolic.var.ObjectrefVariable;
@@ -69,7 +72,9 @@ public class Port extends ObjectrefVariable {
 		opList.add(op);
 		this.operations.put(method, opList);
 		
-		frame.getOperandStack().push(output);
+		if(!method.getReturnType().equals("void")) {
+			frame.getOperandStack().push(output);
+		}
 	}
 	
 	private String getResponseName(Method method) {
@@ -90,6 +95,7 @@ public class Port extends ObjectrefVariable {
 			case "double" : return generateNumericVariable(responseName, Expression.DOUBLE);
 			case "boolean" : return generateNumericVariable(responseName, Expression.BOOLEAN);
 			case "char" : return generateNumericVariable(responseName, Expression.CHAR);
+			case "void" : return null;
 			default : return generateObjectrefResponse(vm, responseName, responseType);
 		}
 	}
@@ -112,6 +118,16 @@ public class Port extends ObjectrefVariable {
 		}
 		
 		ObjectrefVariable objRefVar = new ObjectrefVariable(responseName, initializedClass, vm);
+		
+		vm.getSolverManager().addConstraint(NumericEqual.newInstance(objRefVar.getIsNullVariable(), NumericConstant.getZero(Expression.BOOLEAN)));
+		
+		try {
+			if(!vm.getSolverManager().hasSolution()) {
+				throw new SpecialMethodInvokeException("No Solution");
+			}
+		} catch(Exception e) {
+			throw new MugglWebServiceException("Error while checking solution", e);
+		}
 		
 		return objRefVar;
 	}

@@ -11,7 +11,9 @@ import de.wwu.muggl.javaee.jaxws.WebServiceManager;
 import de.wwu.muggl.javaee.jaxws.objref.MugglWSPort;
 import de.wwu.muggl.javaee.jaxws.sym.Port;
 import de.wwu.muggl.javaee.jaxws.sym.WebService;
+import de.wwu.muggl.solvers.expressions.Expression;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
+import de.wwu.muggl.solvers.expressions.NumericEqual;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -51,16 +53,25 @@ public class ServiceDelegate {
 		Objectref serviceName = (Objectref)delegateRef.getField(serviceNameField);
 		Objectref serviceClass = (Objectref)delegateRef.getField(serviceClassField);
 		
-		MugglWSPort portRef = getWSPortObjectref(vm, serviceName, serviceClass, portName, serviceEndpointInterface, wsdlLocation);
+//		MugglWSPort portRef = getWSPortObjectref(vm, serviceName, serviceClass, portName, serviceEndpointInterface, wsdlLocation);
 		
 		
 		WebService webService = getWebService(vm, serviceName, wsdlLocation);
 		Port port = getPort(webService, portName, serviceEndpointInterface, vm);
 		
+		// port reference cannot be null
+		vm.getSolverManager().addConstraint(NumericEqual.newInstance(port.getIsNullVariable(), NumericConstant.getZero(Expression.BOOLEAN)));
+		
+		try {
+			if(!vm.getSolverManager().hasSolution()) {
+				throw new SpecialMethodInvokeException("No Solution");
+			}
+		} catch(Exception e) {
+			throw new SpecialMethodInvokeException("Error while checking solution", e);
+		}
 		
 		frame.getOperandStack().push(port);
 	}
-	
 
 	protected static WebService getWebService(SymbolicVirtualMachine vm, Objectref serviceQNameRef, Objectref wsdlLocationRef) throws SpecialMethodInvokeException {
 		ClassFile qnameClassFile = serviceQNameRef.getInitializedClass().getClassFile();
@@ -92,6 +103,12 @@ public class ServiceDelegate {
 		
 		String type = SpecialMethodHelper.getClassNameFromObjectRef(serviceEndpointInterface);
 
+		for(Port p : webService.getPorts()) {
+			if(p.getPortName().equals(portName)) {
+				return p;
+			}
+		}
+		
 		Port port = new Port(webService, portName, namespaceURI, getEndpointInitializedClass(vm, type), vm);
 		
 		return port;

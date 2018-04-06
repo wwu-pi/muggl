@@ -71,6 +71,7 @@ public class EntityObjectBuilder extends ObjectBuilder {
 				}
 			} else {
 				Arrayref arrayData = (Arrayref)elementDataValue;
+				throw new RuntimeException("build array ref");
 			}
 		}
 		

@@ -5,9 +5,11 @@ import de.wwu.muggl.solvers.expressions.Variable;
 import de.wwu.muggl.vm.classfile.structures.Method;
 
 public class WebServiceResponse {
+	
 	protected MugglWSPort port;
 	protected Method method;
 	protected Variable responseVar;
+	
 	public WebServiceResponse(MugglWSPort port, Method method, Variable responseVar) {
 		this.port = port;
 		this.method = method;

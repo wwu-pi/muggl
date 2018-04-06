@@ -1,17 +1,13 @@
 package de.wwu.muggl.symbolic.testCases;
 
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
-import de.wwu.muggl.javaee.jaxws.MugglWebServiceManager;
-import de.wwu.muggl.javaee.jaxws.WebServiceManager;
-import de.wwu.muggl.javaee.jaxws.WebServiceResponse;
 import de.wwu.muggl.javaee.jaxws.sym.WebService;
 import de.wwu.muggl.javaee.jpa.SymbolicDatabase;
 import de.wwu.muggl.javaee.rest.RESTResource;
+import de.wwu.muggl.javaee.testcase.JAXRSBuilder;
 import de.wwu.muggl.javaee.testcase.JAXWSBuilder;
 import de.wwu.muggl.javaee.testcase.RESTfulWebServiceBuilder;
 import de.wwu.muggl.javaee.testcase.obj.ObjectBuilder;
@@ -20,7 +16,6 @@ import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.symbolic.var.ObjectrefVariable;
-import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.initialization.Objectref;
 
@@ -80,15 +75,25 @@ public class JavaEETestCaseSolution extends TestCaseSolution {
 	
 	private void buildRequiredWebServices() {
 		buildREST();
+		
+		System.out.println("\n" + this.wsReq + "\n");
 		buildJAXWS();
 	}
 	
 	private void buildJAXWS() {
-		JAXWSBuilder jaxWSBuilder = new JAXWSBuilder(this.webServiceSet, this.solution, this.initialMethod);
-		jaxWSBuilder.build("C:\\_WORK\\_muggl\\_workspace-ws\\counter-client-test\\gen-tests");		
+		JAXWSBuilder jaxWSBuilder = new JAXWSBuilder(this.webServiceSet, this.solution, this.initialMethod, this.returnValue, this.variables);
+		jaxWSBuilder.build("C:\\_WORK\\_muggl\\sac-2018-eval\\order-client-test\\gen-tests");		
 	}
 	
 	private void buildREST() {
+		JAXRSBuilder rb = new JAXRSBuilder(this.requiredRESTResources, this.solution);
+		int appnumber = UUID.randomUUID().hashCode();
+		if(appnumber <= 0) {
+			appnumber = appnumber * -1;
+		}
+		String appname = "\\app"+appnumber;
+		rb.build("C:\\_WORK\\_muggl\\_javaee-new\\muggl\\sample-javaee-projects\\warehouse-app\\junit-gen"+appname);
+				
 		RESTfulWebServiceBuilder restBuilder = new RESTfulWebServiceBuilder(this.requiredRESTResources, this.solution);
 		restBuilder.buildServices(this.wsReq);
 	}

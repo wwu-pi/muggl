@@ -50,8 +50,36 @@ public class WebTarget {
 		frame.getOperandStack().push(target);
 	}
 	
+	@InvokeSpecialMethod(name="queryParam", signature="(Ljava/lang/String;[Ljava/lang/Object;)Ljavax/ws/rs/client/WebTarget;")
+	public static void queryParam(Frame frame, Object[] parameters) throws SpecialMethodInvokeException {
+		MugglWsRsTarget originalTarget = getWebTarget(frame.getOperandStack());
+		
+		MugglWsRsTarget target = null;
+		try {
+			target = new MugglWsRsTarget(originalTarget);
+		} catch (MugglWsRsException e) {
+			throw new SpecialMethodInvokeException("Could not generate MugglWsRsTarget", e);
+		}
+		String name = SpecialMethodHelper.getStringFromObjectref((Objectref)parameters[1]);
+		Object value = parameters[2];
+		target.setQueryParam(name, value);
+		frame.getOperandStack().push(target);
+	}
+	
+	
 	@InvokeSpecialMethod(name="request", signature="()Ljavax/ws/rs/client/Invocation$Builder;")
 	public static void request(Frame frame, Object[] parameters) throws SpecialMethodInvokeException {
+		MugglWsRsTarget target = getWebTarget(frame.getOperandStack());
+		try {
+			MugglWsRsInvocationBuilder builder = new MugglWsRsInvocationBuilder((SymbolicVirtualMachine) frame.getVm(), target);
+			frame.getOperandStack().push(builder);
+		} catch (MugglWsRsException e) {
+			throw new SpecialMethodInvokeException("Error while generating MugglWsRsInvocationBuilder", e);
+		}
+	}
+	
+	@InvokeSpecialMethod(name="request", signature="([Ljava/lang/String;)Ljavax/ws/rs/client/Invocation$Builder;")
+	public static void request2(Frame frame, Object[] parameters) throws SpecialMethodInvokeException {
 		MugglWsRsTarget target = getWebTarget(frame.getOperandStack());
 		try {
 			MugglWsRsInvocationBuilder builder = new MugglWsRsInvocationBuilder((SymbolicVirtualMachine) frame.getVm(), target);

@@ -23,11 +23,13 @@ import de.wwu.muggl.solvers.expressions.DoubleConstant;
 import de.wwu.muggl.solvers.expressions.FloatConstant;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Constant;
+import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
@@ -155,7 +157,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 		if(methodClassFile.getName().startsWith("java.lang.ref") || methodClassFile.getName().startsWith("sun.reflect.")) {
 			throw new RuntimeException("Reflection not supported!");
 		}
-		
+				
 		// Try to resolve method from this class.
 		ResolutionAlgorithms resolution = new ResolutionAlgorithms(frame.getVm().getClassLoader());
 		Method method;
@@ -189,6 +191,24 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 			ClassFile klass = frame.getVm().getClassLoader().getClassAsClassFile(className);
 			klass.getTheInitializedClass(frame.getVm());
 			frame.getOperandStack().push(klass.getMirrorJava());
+			return;
+		}
+		
+		
+		// check if the method to be invoked is a 'valueOf' method
+		// of the java.lang.Integer, etc. classes
+		// in case the parameter is a numeric variable, we can simply
+		// return this numeric variable as the 'valueOf'
+		if(methodClassFile.getName().equals("java.lang.Integer")
+				&& nameAndType[0].equals("valueOf") 
+				&& nameAndType[1].equals("(I)Ljava/lang/Integer;")
+				&& parameters[0] instanceof NumericVariable) {
+			ClassFile integerClassFile = frame.getVm().getClassLoader().getClassAsClassFile(Integer.class.getName());
+			Objectref integerObjRef = frame.getVm().getAnObjectref(integerClassFile);
+			Field valueField = integerClassFile.getFieldByName("value");
+			integerObjRef.putField(valueField, parameters[0]);
+			
+			frame.getOperandStack().push(integerObjRef);
 			return;
 		}
 		

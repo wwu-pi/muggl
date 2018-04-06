@@ -6,6 +6,7 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.Put;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.typed.TypedInstruction;
+import de.wwu.muggl.javaee.logging.SymoblicLogger;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.InstanceFieldPut;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -134,6 +135,8 @@ public class Putfield extends Put implements Instruction {
 				else{
 					throw new ExecutionException("Cannot write a BooleanConst that is not assignment compatible to " + type + ".");
 				}
+			} else if(value instanceof SymoblicLogger) {
+				// all good
 			} else if (value instanceof Arrayref && ((Arrayref) value).getReferenceValue().getName().startsWith("de.wwu.muggl.solvers.expressions.Term")) {
 				// Value is an array of term objects. Does it have a represented type?
 				if (value instanceof ModifieableArrayref && ((ModifieableArrayref) value).getRepresentedType() != null) {

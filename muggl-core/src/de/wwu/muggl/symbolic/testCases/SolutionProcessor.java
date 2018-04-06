@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,8 +19,13 @@ import org.apache.log4j.Level;
 import de.wwu.muggl.common.TimeSupport;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.configuration.Options;
+import de.wwu.muggl.javaee.jaxws.WebServiceResponse;
+import de.wwu.muggl.javaee.jaxws.sym.WebService;
 import de.wwu.muggl.javaee.jpa.SymbolicDatabase;
 import de.wwu.muggl.javaee.rest.RESTResource;
+import de.wwu.muggl.javaee.solution.SolutionManager;
+import de.wwu.muggl.javaee.solution.SolutionWrapper;
+import de.wwu.muggl.javaee.testcase.JAXWSBuilder;
 import de.wwu.muggl.javaee.testcase.JPATestCaseBuilder;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.expressions.BooleanConstant;
@@ -171,7 +177,8 @@ public class SolutionProcessor {
 	 * @throws IllegalStateException If the method is invoked after test generation was started.
 	 */
 	public void addJavaEESolution(Solution solution, Object returnValue, 
-			SymbolicDatabase symbolicDatabase, Set<RESTResource> requiredRESTResources,
+			SymbolicDatabase symbolicDatabase, Set<RESTResource> requiredRESTResources, 
+			Set<WebService> webServiceSet,
 			boolean throwsAnUncaughtException, Map<Method, boolean[]> controlFlowCoverageMapping,
 			boolean[] dUCoverage) {
 		if (this.testCaseGenerationStarted) {
@@ -191,7 +198,7 @@ public class SolutionProcessor {
 		if (this.latestSolutionFound == null) {
 			this.latestSolutionFound = new JavaEETestCaseSolution(
 				this.initialMethod, solution, returnValue, 
-				symbolicDatabase, requiredRESTResources,
+				symbolicDatabase, requiredRESTResources, webServiceSet,
 				throwsAnUncaughtException, 
 				prepareVariablesForTestCaseSolution(),
 				prepareDUCoverageForTestCaseSolution(dUCoverage), 
@@ -199,7 +206,7 @@ public class SolutionProcessor {
 		} else {
 			this.latestSolutionFound = new JavaEETestCaseSolution(
 				this.initialMethod, solution, returnValue, 
-				symbolicDatabase, requiredRESTResources,
+				symbolicDatabase, requiredRESTResources, webServiceSet,
 				throwsAnUncaughtException, 
 				prepareVariablesForTestCaseSolution(),
 				prepareDUCoverageForTestCaseSolution(dUCoverage), 
@@ -538,16 +545,29 @@ public class SolutionProcessor {
 			if(Options.getInst().javaEEMode) {
 				JPATestCaseBuilder jpaTCBuilder = new JPATestCaseBuilder((JavaEETestCaseSolution)solution);
 				jpaTCBuilder.build();
-				while(solution != null) {
-					if(solution instanceof JavaEETestCaseSolution) {
-						JavaEETestCaseSolution javaEESolution = (JavaEETestCaseSolution)solution;
-						Globals.getInst().symbolicExecLogger.info("*** REQUIRED WEB SERVICES ***\n");
-						Globals.getInst().symbolicExecLogger.info(javaEESolution.getRequiredWebServicesString());
-						Globals.getInst().symbolicExecLogger.info("******************************************************");
-					}
-					
-					solution = solution.getSuccessor();
-				}
+				
+//				JAXWSBuilder jaxWsBuilder = new JAXWSBuilder((JavaEETestCaseSolution)solution);
+//				jaxWsBuilder.buildWebService(packageName, webService, solution);
+//				if(true) {
+//					throw new RuntimeException("Build the web servcie now");
+//				}
+				
+//				while(solution != null) {
+//					if(solution instanceof JavaEETestCaseSolution) {
+//						JavaEETestCaseSolution javaEESolution = (JavaEETestCaseSolution)solution;
+//						Globals.getInst().symbolicExecLogger.info("*** REQUIRED WEB SERVICES ***\n");
+//						Globals.getInst().symbolicExecLogger.info(javaEESolution.getRequiredWebServicesString());
+//						Globals.getInst().symbolicExecLogger.info("******************************************************");
+//					}
+//					
+//					solution = solution.getSuccessor();
+//				}
+//				
+//				for(SolutionWrapper solutionWrapper : SolutionManager.getSolutions()) {
+//					System.out.println("\n------------------------------------------------");
+//					System.out.println(solutionWrapper);
+//					System.out.println("------------------------------------------------\n");
+//				}
 				
 			}
 			
