@@ -38,7 +38,8 @@ public abstract class FpComparisonChoicePoint implements ChoicePoint {
 	private boolean less;
 	private Term leftTerm;
 	private Term rightTerm;
-	private Stack<TrailElement> trail;
+    private Stack<TrailElement> trail;
+    private Stack<TrailElement> inverseTrail;
 	private int step;
 	private ConstraintExpression constraintExpression;
 	private int nextValueToPush;
@@ -70,7 +71,8 @@ public abstract class FpComparisonChoicePoint implements ChoicePoint {
 		this.less = less;
 		this.leftTerm = leftTerm;
 		this.rightTerm = rightTerm;
-		this.trail = new Stack<TrailElement>();
+        this.trail = new Stack<TrailElement>();
+        this.inverseTrail = new Stack<TrailElement>();
 		this.step = 0;
 		this.applyedState = false;
 
@@ -295,23 +297,41 @@ public abstract class FpComparisonChoicePoint implements ChoicePoint {
 		return true;
 	}
 
-	/**
-	 * Add an object to the trail of this ChoicePoint.
-	 *
-	 * @param element The TrailElement to be added to the trail.
-	 */
-	public void addToTrail(TrailElement element) {
-		this.trail.push(element);
-	}
+    /**
+     * Add an object to the inverse trail of this ChoicePoint.
+     *
+     * @param element The TrailElement to be added to the inverse trail.
+     */
+    public void addToInverseTrail(TrailElement element) {
+        this.inverseTrail.push(element);
+    }
 
-	/**
-	 * Getter for the trail.
-	 *
-	 * @return The trail.
-	 */
-	public Stack<TrailElement> getTrail() {
-		return this.trail;
-	}
+    /**
+     * Add an object to the trail of this ChoicePoint.
+     *
+     * @param element The TrailElement to be added to the trail.
+     */
+    public void addToTrail(TrailElement element) {
+        this.trail.push(element);
+    }
+
+    /**
+     * Getter for the inverse trail.
+     *
+     * @return The inverse trail.
+     */
+    public Stack<TrailElement> getInverseTrail() {
+        return this.inverseTrail;
+    }
+
+    /**
+     * Getter for the trail.
+     *
+     * @return The trail.
+     */
+    public Stack<TrailElement> getTrail() {
+        return this.trail;
+    }
 
 	/**
 	 * Indicates whether this choice point enforces changes to the execution

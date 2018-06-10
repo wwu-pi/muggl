@@ -167,6 +167,21 @@ public interface ChoicePoint {
 	 */
 	void addToTrail(TrailElement element);
 
+    /**
+     * Getter for the inverse trail.
+     *
+     * @return The inverse trail.
+     */
+    Stack<TrailElement> getInverseTrail();
+
+    /**
+     * If it has one, add an object to the inverse trail of this ChoicePoint.
+     *
+     * @param element
+     *            The TrailElement to be added to the inverse trail.
+     */
+    void addToInverseTrail(TrailElement element);
+
 	/**
 	 * Indicates whether this choice point enforces changes to the execution
 	 * state. Suche changes include modifications of the local variables, method

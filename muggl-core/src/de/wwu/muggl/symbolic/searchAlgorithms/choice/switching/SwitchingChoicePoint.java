@@ -46,7 +46,8 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 	 * The possible jump targets.
 	 */
 	protected int[] pcs;
-	private Stack<TrailElement> trail;
+    private Stack<TrailElement> trail;
+    private Stack<TrailElement> inverseTrail;
 	/**
 	 * The execution step reached i.e. the number of switching targets yet reached. The value is is
 	 * a number between 0 and {@link #maximumSteps}.
@@ -105,7 +106,8 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 		this.termFromStack = termFromStack;
 		this.keys = keys;
 		this.pcs = pcs;
-		this.trail = new Stack<TrailElement>();
+        this.trail = new Stack<TrailElement>();
+        this.inverseTrail = new Stack<TrailElement>();
 		this.step = 0;
 		this.maximumSteps = pcs.length;
 		this.appliedState = false;
@@ -302,23 +304,41 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 		return true;
 	}
 
-	/**
-	 * Add an object to the trail of this ChoicePoint.
-	 *
-	 * @param element The TrailElement to be added to the trail.
-	 */
-	public void addToTrail(TrailElement element) {
-		this.trail.push(element);
-	}
+    /**
+     * Add an object to the trail of this ChoicePoint.
+     *
+     * @param element The TrailElement to be added to the trail.
+     */
+    public void addToTrail(TrailElement element) {
+        this.trail.push(element);
+    }
 
-	/**
-	 * Getter for the trail.
-	 *
-	 * @return The trail.
-	 */
-	public Stack<TrailElement> getTrail() {
-		return this.trail;
-	}
+    /**
+     * Add an object to the inverse trail of this ChoicePoint.
+     *
+     * @param element The TrailElement to be added to the trail.
+     */
+    public void addToInverseTrail(TrailElement element) {
+        this.inverseTrail.push(element);
+    }
+
+    /**
+     * Getter for the trail.
+     *
+     * @return The trail.
+     */
+    public Stack<TrailElement> getTrail() {
+        return this.trail;
+    }
+
+    /**
+     * Getter for the inverse trail.
+     *
+     * @return The trail.
+     */
+    public Stack<TrailElement> getInverseTrail() {
+        return this.inverseTrail;
+    }
 
 	/**
 	 * Indicates whether this choice point enforces changes to the execution

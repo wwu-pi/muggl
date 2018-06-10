@@ -5,6 +5,7 @@ import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
@@ -84,7 +85,7 @@ public abstract class If extends GeneralInstructionWithOtherBytes implements Jum
 				// Create the ConstraintExpression and generate a new ChoicePoint. It will set the pc.
 				Term term2 = IntConstant.getInstance(0);
 				ConstraintExpression expression = getConstraintExpression(term1, term2);
-				((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, expression);
+				((SearchingVM) frame.getVm()).generateNewChoicePoint(this, expression);
 			}
 		} catch (SymbolicExecutionException e) {
 			executionFailedSymbolically(e);

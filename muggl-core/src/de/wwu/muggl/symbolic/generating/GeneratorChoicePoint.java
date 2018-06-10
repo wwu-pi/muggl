@@ -44,7 +44,8 @@ public class GeneratorChoicePoint implements ChoicePoint {
 	 * The pc of the instruction that offers a choice.
 	 */
 	protected int pc;
-	private Stack<TrailElement> trail;
+    private Stack<TrailElement> trail;
+    private Stack<TrailElement> inverseTrail;
 
 	// Fields regarding the generation of values.
 	private Object generatedValue;
@@ -75,7 +76,8 @@ public class GeneratorChoicePoint implements ChoicePoint {
 		this.frame = frame;
 		this.index = index;
 		this.pc = pc;
-		this.trail = new Stack<TrailElement>();
+        this.trail = new Stack<TrailElement>();
+        this.inverseTrail = new Stack<TrailElement>();
 		this.generatedValue = null;
 		this.valuePrepared = false;
 
@@ -217,13 +219,21 @@ public class GeneratorChoicePoint implements ChoicePoint {
 		return true;
 	}
 
-	/**
-	 * Add an object to the trail of this ChoicePoint.
-	 * @param element The TrailElement to be added to the trail.
-	 */
-	public void addToTrail(TrailElement element) {
-		this.trail.push(element);
-	}
+    /**
+     * Add an object to the trail of this ChoicePoint.
+     * @param element The TrailElement to be added to the trail.
+     */
+    public void addToTrail(TrailElement element) {
+        this.trail.push(element);
+    }
+
+    /**
+     * Add an object to the inverse trail of this ChoicePoint.
+     * @param element The TrailElement to be added to the trail.
+     */
+    public void addToInverseTrail(TrailElement element) {
+        this.inverseTrail.push(element);
+    }
 
 	/**
 	 * Getter for the trail.
@@ -232,6 +242,15 @@ public class GeneratorChoicePoint implements ChoicePoint {
 	public Stack<TrailElement> getTrail() {
 		return this.trail;
 	}
+
+    /**
+     * Getter for the inverse trail.
+     *
+     * @return The trail.
+     */
+    public Stack<TrailElement> getInverseTrail() {
+        return this.inverseTrail;
+    }
 
 	/**
 	 * Indicates whether this choice point enforces changes to the execution
