@@ -9,6 +9,7 @@ import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.StackToTrail;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.PopFromFrame;
 import de.wwu.muggl.symbolic.structures.Loop;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingFrame;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.structures.Constant;
 import de.wwu.muggl.vm.classfile.structures.Method;
@@ -21,7 +22,7 @@ import de.wwu.muggl.vm.execution.ExecutionException;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-03-10
  */
-public class SymbolicFrame extends Frame {
+public class SymbolicFrame extends Frame implements SearchingFrame {
 		
 	// New fields.
 	private boolean loopsHaveBeenChecked;

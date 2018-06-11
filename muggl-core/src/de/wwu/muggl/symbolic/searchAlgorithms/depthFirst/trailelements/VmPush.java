@@ -1,5 +1,7 @@
 package de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements;
 
+import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingFrame;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicFrame;
 import de.wwu.muggl.vm.threading.Monitor;
 
@@ -23,8 +25,8 @@ public class VmPush extends Push {
 	 */
 	public VmPush(Object object) {
 		super(object);
-		if (object instanceof SymbolicFrame) {
-			SymbolicFrame frame = (SymbolicFrame) object;
+		if (object instanceof SearchingFrame) {
+            Frame frame = (Frame) object;
 			this.pc = frame.getPc();
 			this.monitor = frame.getMonitor();
 			this.restoreStates = true;
