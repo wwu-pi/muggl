@@ -405,4 +405,9 @@ public class IntConstant extends NumericConstant implements Comparable{
 	    return LongConstant.getInstance(getLongValue() ^ constant.getLongValue());
 	throw new InternalError("^ can not be applied to int and " + Term.getTypeName(constant.getType()));
     }
+
+    @Override
+    public String alternativeName() {
+        return "java.lang.Integer";
+    }
 }

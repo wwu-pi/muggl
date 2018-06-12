@@ -136,6 +136,11 @@ public abstract class TypedInstruction {
 				value = truncateValue(value, desiredTypes[a]);
 				break;
 			}
+            if (value instanceof Term && ((Term) value).alternativeName().equals(desiredTypes[a])) {
+                matchedOneType = true;
+                value = truncateValue(value, desiredTypes[a]);
+                break;
+            }
 		}
 
 		if (!matchedOneType)

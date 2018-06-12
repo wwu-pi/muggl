@@ -235,4 +235,8 @@ public abstract class Term implements Expression {
 		
 		return (Term) obj;
 	}
+
+	public String alternativeName() {
+	    return this.getClass().getName();
+    }
 }

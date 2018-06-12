@@ -3,6 +3,7 @@ package de.wwu.muggl.vm.execution;
 import java.util.LinkedList;
 
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.vm.VirtualMachine;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -77,7 +78,9 @@ public class ExecutionAlgorithms {
 					String name;
 					if (sourceObjectIsStringRepresentation) {
 						name = sourceObject.toString();
-					} else {
+					} else if (sourceObject instanceof Term) {
+                        name = ((Term) sourceObject).alternativeName();
+                    } else {
 						name = sourceObject.getClass().getName();
 					}
 					int arrayDimensions = 0;
