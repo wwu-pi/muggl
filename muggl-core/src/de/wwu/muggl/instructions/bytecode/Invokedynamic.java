@@ -373,9 +373,23 @@ public class Invokedynamic extends Invoke implements Instruction {
             idx += t.getSize();
         }
         // Invoke.
-        insl.append(insf.createInvoke(targetMethod.getClassFile().getName(), targetMethod.getName(),
-                Type.getReturnType(targetMethod.getDescriptor()),
-                Type.getArgumentTypes(targetMethod.getDescriptor()), Const.INVOKESTATIC));
+        if (targetMethod.getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME)) {
+            insl.append(insf.createNew(targetMethod.getClassFile().getName()));
+            insl.append(insf.createDup(1));
+            insl.append(insf.createInvoke(targetMethod.getClassFile().getName(), targetMethod.getName(),
+                    Type.getReturnType(targetMethod.getDescriptor()),
+                    Type.getArgumentTypes(targetMethod.getDescriptor()), Const.INVOKESPECIAL));
+        } else {
+            short kind;
+            if (targetMethod.getClassFile().isAccInterface()) {
+                kind = Const.INVOKEINTERFACE;
+            } else {
+                kind = Const.INVOKESTATIC;
+            }
+            insl.append(insf.createInvoke(targetMethod.getClassFile().getName(), targetMethod.getName(),
+                    Type.getReturnType(targetMethod.getDescriptor()),
+                    Type.getArgumentTypes(targetMethod.getDescriptor()), kind));
+        }
         // Add return to insl.
         if (!samReturnType.equals(Type.VOID)) {
             insl.append(InstructionFactory.createReturn(samReturnType));
