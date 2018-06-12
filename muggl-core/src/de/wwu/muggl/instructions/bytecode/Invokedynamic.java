@@ -282,7 +282,7 @@ public class Invokedynamic extends Invoke implements Instruction {
         // Method handle contains verb (e.g. invokestatic) and class+method that is to be invoked.
         final ConstantMethodHandle targetMethodHandle = (ConstantMethodHandle) bootstrapArgConst[BOOTSTRAP_MH_STANDARD_ARG_FOR_TARGET_HANDLE];
         // Methodref contains class+method that is to be invoked.
-        final ConstantMethodref targetMethodref = (ConstantMethodref) targetMethodHandle.getReferencedConstant();
+        final ConstantFieldInterfaceMethod targetMethodref = (ConstantFieldInterfaceMethod) targetMethodHandle.getReferencedConstant();
 
 
         final ResolutionAlgorithms resolve = new ResolutionAlgorithms(frame.getVm().getClassLoader());

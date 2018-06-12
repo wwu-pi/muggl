@@ -5,6 +5,8 @@ import java.util.Stack;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
+import de.wwu.muggl.solvers.expressions.Expression;
+import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -152,7 +154,13 @@ public class Newarray extends de.wwu.muggl.instructions.general.ObjectInitializa
 			}
 			
 			// Instantiate the array.
-			Term term = (Term) frame.getOperandStack().pop();
+            Object length = frame.getOperandStack().pop();
+            Term term;
+			if (length instanceof Integer) {
+			    term = NumericConstant.getInstance((int)length, Expression.INT);
+            } else {
+			    term = (Term)length;
+            }
 			if (term.isConstant()) {
 				int count = ((IntConstant) term).getIntValue();
 				// Runtime Exception: count is less than zero.
