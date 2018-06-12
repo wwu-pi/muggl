@@ -45,6 +45,18 @@ public class ArrayRestore extends Restore {
 		this.primitiveArrayref = primitiveArrayref;
 	}
 
+    public ArrayRestore createInverse() {
+	    ArrayRestore inverse;
+	    if (this.arrayref != null) {
+            Object formerValue = this.arrayref.getElement(this.index);
+            inverse = new ArrayRestore(this.arrayref, this.index, formerValue);
+        } else {
+	        Number formerValue = this.primitiveArrayref[this.index];
+            inverse = new ArrayRestore(this.primitiveArrayref, this.index, formerValue);
+        }
+        return inverse;
+    }
+
 	/**
 	 * Restore the array element saved by this class.
 	 */
@@ -84,5 +96,4 @@ public class ArrayRestore extends Restore {
 		return "Trail element that restores an element of an array to its former value. "
 				+ "The element index is " + this.index + "." + valueInfo;
 	}
-
 }

@@ -35,4 +35,8 @@ public class InstanceFieldPut extends FieldPut {
 		this.objectref.putField(this.field, this.value);
 	}
 
+	public InstanceFieldPut createInverseElement() {
+        Object formerValue = this.objectref.getField(this.field);
+        return new InstanceFieldPut(this.objectref, this.field, formerValue);
+    }
 }

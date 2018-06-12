@@ -59,4 +59,8 @@ public class Restore implements TrailElement {
 		return "Trail element that restores a local variable in the currently executed frame to its former value. "
 				+ "The variable index is " + this.index + "." + valueInfo;
 	}
+
+    public int getIndex() {
+        return this.index;
+    }
 }
