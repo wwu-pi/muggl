@@ -1006,7 +1006,7 @@ public class MugglToJavaConversion {
 					try {
 						// Convert and insert.
 						Object objectToInsert = javaField.get(object);
-						if (!(objectToInsert instanceof Objectref)) {
+						if (!(objectToInsert instanceof Objectref) && !(objectToInsert instanceof Arrayref)) {
                             objectToInsert = toMuggl(objectToInsert, field.isPrimitiveType());
                         }
 						objectref.putField(field, objectToInsert);

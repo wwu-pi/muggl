@@ -258,6 +258,10 @@ public class ExecutionAlgorithms {
 					if (source.isPrimitive() && target.isPrimitive() && sourceClassFile.getName().equals(targetClassFile.getName())) { // TC and SC must be the same primitive type, or
 						return true;
 					}
+                    // TC and SC are both reference types their represented types are identical. Required by ModifiableArrayref, who would fail the subsequent check.
+					if (sourceClassFile.toString().equals(targetClassFile.toString())) {
+					    return true;
+                    }
 					// TC and SC are both reference types and type SC is assignable to TC.
 					return checkForAssignmentCompatibility(((Arrayref) source).getReferenceValue(), ((Arrayref) target).getReferenceValue());
 				} else if (targetClassFile.isAccInterface()) { // If T is an interface type, then T must be either Cloneable or java.io.Serializable.

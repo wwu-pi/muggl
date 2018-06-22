@@ -372,4 +372,8 @@ public class Arrayref implements ReferenceValue {
 		}
 		return ret;
 	}
+
+	public Object[] getRawElements() {
+	    return this.elements;
+    }
 }
