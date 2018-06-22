@@ -1,5 +1,6 @@
 package de.wwu.muggl.instructions.typed;
 
+import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.solvers.expressions.Expression;
 import de.wwu.muggl.solvers.expressions.NumericVariable;
@@ -27,7 +28,7 @@ public class IntegerInstruction extends TypedInstruction {
 	 * Get the int representation of the type that will be wrapped by this Variable.
 	 *
 	 * @return The value of SymbolicVirtualMachineElement.INT.
-	 *  @see de.wwu.testtool.expressions.Expression#INT
+	 *  @see de.wwu.muggl.solvers.expressions.Expression#INT
 	 */
 	@Override
 	public int[] getDesiredSymbolicalTypes() {
@@ -53,6 +54,8 @@ public class IntegerInstruction extends TypedInstruction {
 			return ((Short) value).intValue();
 		case "java.lang.Character":
 			return (int) ((Character) value);
+        case "de.wwu.muggl.solvers.expressions.IntConstant":
+            return ((IntConstant)value).getIntValue();
 		default: 
 			return value;
 		}
@@ -105,7 +108,7 @@ public class IntegerInstruction extends TypedInstruction {
 	 */
 	@Override
 	public String[] getDesiredTypes() {
-		String[] desiredTypes = {"java.lang.Integer", "java.lang.Boolean", "java.lang.Byte", "java.lang.Short", "java.lang.Character"};
+		String[] desiredTypes = {"java.lang.Integer", "java.lang.Boolean", "java.lang.Byte", "java.lang.Short", "java.lang.Character", "de.wwu.muggl.solvers.expressions.IntConstant"};
 		return desiredTypes;
 	}
 

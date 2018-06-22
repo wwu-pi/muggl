@@ -91,7 +91,13 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 		try {
 			// Preparations.
 			Stack<Object> stack = frame.getOperandStack();
-			int index = ((IntConstant) stack.pop()).getValue();
+            Object elem = stack.pop();
+            int index;
+            if (elem instanceof IntConstant) {
+                index = ((IntConstant) elem).getValue();
+            } else {
+                index = (Integer)elem;
+            }
 			Object arrayrefObject  = stack.pop();
 
 			// Runtime exception: arrayref is null
