@@ -1,9 +1,13 @@
 package de.wwu.muggl.vm;
 
 import de.wwu.muggl.instructions.general.GeneralInstructionWithOtherBytes;
+import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.search.SearchAlgorithm;
 import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 
 /** 
@@ -39,6 +43,9 @@ public interface SearchingVM {
 	public void generateNewChoicePoint(GeneralInstructionWithOtherBytes instruction,
 			ConstraintExpression constraintExpression)
 			throws SymbolicExecutionException;
+
+    public void generateNewChoicePoint(Switch instruction, Term termFromStack, IntConstant[] keys,
+                                       int[] pcs, IntConstant low, IntConstant high) throws ExecutionException;
 
 	void increaseTimeChoicePointGeneration(long increment);
 

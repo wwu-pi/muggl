@@ -4,11 +4,11 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.Switch;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.attributes.NoMoreCodeBytesException;
-import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Term;
 
@@ -85,10 +85,10 @@ public class Tableswitch extends Switch implements Instruction {
 	 * Execute the instruction symbolically.
 	 *
 	 * @param frame The currently executed frame.
-	 * @throws SymbolicExecutionException Thrown in case of fatal problems during the symbolic execution.
+	 * @throws ExecutionException Thrown in case of fatal problems during the symbolic execution.
 	 */
 	@Override
-	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
+	public void executeSymbolically(Frame frame) throws ExecutionException {
 		Term index = (Term) frame.getOperandStack().pop();
 		// Check if the index is constant.
 		if (index.isConstant()) {
@@ -109,7 +109,7 @@ public class Tableswitch extends Switch implements Instruction {
 			IntConstant highConstant = IntConstant.getInstance(this.high);
 
 			// Create a choice point.
-			((SymbolicVirtualMachine) frame.getVm()).generateNewChoicePoint(this, index, keys,
+			((SearchingVM) frame.getVm()).generateNewChoicePoint(this, index, keys,
 					pcs, lowConstant, highConstant);
 		}
 	}
