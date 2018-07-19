@@ -356,17 +356,12 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 	 * Apply any state changes required for the current choice. This will set the pc of the frame
 	 * associated with this choice point to the next jump target.<br />
 	 * <br />
-	 * The method can only be called after changeToNextChoice() has been run. Calling it another
-	 * time before running changeToNextChoice() will have an exception thrown.
 	 *
-	 * @throws NullPointerException If no new value has been prepared yet of if there are no more
-	 *         values to be applied at all.
 	 */
 	public synchronized void applyStateChanges() {
-		if (this.constraintExpression == null || this.appliedState)
-			throw new NullPointerException("Cannot apply state changes.");
-
 		this.frame.setPc(this.jumpTo);
+		// Set the pc to the jump target.
+        this.frame.getVm().setPC(this.jumpTo);
 		this.appliedState = true;
 	}
 
