@@ -81,6 +81,14 @@ public class ArrayInitializationChoicePoint implements ChoicePoint {
 	private ArrayGenerator generator;
 	private boolean useCustomArrayElementGenerator;
 	private ArrayElementsGenerator arrayElementGenerator;
+    /**
+     * Next available ID number.
+     */
+    static int nextIdNumber = 0;
+    /**
+     * This choicepoint's ID.
+     */
+    final int idNumber;
 
 	/**
 	 * Create the array initialization choice point of a method for instruction <code>aload</code>.
@@ -132,7 +140,12 @@ public class ArrayInitializationChoicePoint implements ChoicePoint {
 		
 		// Report the instantiation.
 		((SymbolicVirtualMachine) frame.getVm()).reportArrayGenerator();
-	}
+    }
+
+    @Override
+    public String getID() {
+        return this.getChoicePointType() + "_" + this.idNumber;
+    }
 	
 	/**
 	 * Create the array initialization choice point of a method for instruction <code>newarray</code>.
@@ -254,6 +267,10 @@ public class ArrayInitializationChoicePoint implements ChoicePoint {
 		} catch (ClassFileException e) {
 			throw new SymbolicExecutionException("An internal class of this application's implementation could not be found. Please make sure de.wwu.testtool.* is on the class path.");
 		}
+
+        // Graph visualisation.
+        this.idNumber = nextIdNumber++;
+        System.out.println(String.format("GV: \"%s\" -> \"%s\";", parent.getID(), this.getID()));
 	}
 	
 	/**

@@ -70,6 +70,14 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 	 * true, if state changes were applied; false otherwise.
 	 */
 	protected boolean appliedState;
+    /**
+     * Next available ID number.
+     */
+    static int nextIdNumber = 0;
+    /**
+     * This choicepoint's ID.
+     */
+    final int idNumber;
 
 	/**
 	 * Create the switching choice point.
@@ -113,8 +121,14 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 		this.maximumSteps = pcs.length;
 		this.appliedState = false;
 
-		
-	}
+        // Graph visualisation.
+        this.idNumber = nextIdNumber++;
+    }
+
+    @Override
+    public String getID() {
+        return this.getChoicePointType() + "_" + this.idNumber;
+    }
 	
 	public void init() throws SymbolicExecutionException {
 		// Load an option.
@@ -185,6 +199,9 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 			this.number = parent.getNumber() + 1;
 			this.parent = parent;
 		}
+
+        // Graph visualisation.
+        System.out.println(String.format("GV: \"%s\" -> \"%s\";", parent.getID(), this.getID()));
 	}
 
 	/**

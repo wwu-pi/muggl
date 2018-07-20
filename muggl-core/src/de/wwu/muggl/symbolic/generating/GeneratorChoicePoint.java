@@ -50,6 +50,14 @@ public class GeneratorChoicePoint implements ChoicePoint {
 	// Fields regarding the generation of values.
 	private Object generatedValue;
 	private boolean valuePrepared;
+    /**
+     * Next available ID number.
+     */
+    static int nextIdNumber = 0;
+    /**
+     * This choicepoint's ID.
+     */
+    final int idNumber;
 
 	/**
 	 * Constructs a GeneratorChoicePoint.
@@ -83,7 +91,16 @@ public class GeneratorChoicePoint implements ChoicePoint {
 
 		// Change to the first value.
 		changeToNextChoice();
-	}
+
+        // Graph visualisation.
+        this.idNumber = nextIdNumber++;
+        System.out.println(String.format("GV: \"%s\" -> \"%s\";", parent.getID(), this.getID()));
+    }
+
+    @Override
+    public String getID() {
+        return this.getChoicePointType() + "_" + this.idNumber;
+    }
 
 	/**
 	 * Constructs a GeneratorChoicePoint that has a parent ChoicePoint.

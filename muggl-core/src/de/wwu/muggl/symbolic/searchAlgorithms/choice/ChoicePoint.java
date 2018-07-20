@@ -64,6 +64,11 @@ public interface ChoicePoint {
 	 */
 	long getNumber();
 
+    /**
+     * ID of the Choicepoint.
+     */
+    String getID();
+
 	/**
 	 * Indicates whether this choice point offers another choice. Initially, any
 	 * choice point should return true as a choice point with only one choice is

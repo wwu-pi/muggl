@@ -25,6 +25,14 @@ public abstract class ConditionalJumpChoicePoint implements ChoicePoint {
 	 * The identification number of the choice point.
 	 */
 	protected long number;
+    /**
+     * Next available ID number.
+     */
+    static int nextIdNumber = 0;
+    /**
+     * This choicepoint's ID.
+     */
+    final int idNumber;
 	/**
 	 * The parent choice point. Can be null to indicate that a choice point has no parent.
 	 */
@@ -73,7 +81,15 @@ public abstract class ConditionalJumpChoicePoint implements ChoicePoint {
 		this.pcNext = pcNext;
 		this.pcWithJump = pcWithJump;
 		this.constraintExpression = constraintExpression;
-	}
+		// Graph visualisation.
+        this.idNumber = nextIdNumber++;
+        System.out.println(String.format("GV: \"%s\" -> \"%s\";", parent.getID(), this.getID()));
+    }
+
+    @Override
+    public String getID() {
+	    return this.getChoicePointType() + "_" + this.idNumber;
+    }
 
 	/**
 	 * Return this ChoicePoint's number.

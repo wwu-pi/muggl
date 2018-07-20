@@ -45,6 +45,14 @@ public abstract class FpComparisonChoicePoint implements ChoicePoint {
 	private int nextValueToPush;
 	private boolean applyedState;
 	private boolean encounteredNaN;
+    /**
+     * Next available ID number.
+     */
+    static int nextIdNumber = 0;
+    /**
+     * This choicepoint's ID.
+     */
+    final int idNumber;
 
 	/**
 	 * Create the floating point comparison choice point.
@@ -131,7 +139,16 @@ public abstract class FpComparisonChoicePoint implements ChoicePoint {
 			// Save the execution time.
 			if (measureExecutionTime) ((SymbolicVirtualMachine) frame.getVm()).increaseTimeSolvingForChoicePointGeneration(System.nanoTime() - timeSolvingTemp);
 		}
-	}
+
+        // Graph visualisation.
+        this.idNumber = nextIdNumber++;
+        System.out.println(String.format("GV: \"%s\" -> \"%s\";", parent.getID(), this.getID()));
+    }
+
+    @Override
+    public String getID() {
+        return this.getChoicePointType() + "_" + this.idNumber;
+    }
 
 	/**
 	 * Create a ChoicePoint that has a parent ChoicePoint.
