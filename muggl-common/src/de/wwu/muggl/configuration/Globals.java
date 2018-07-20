@@ -11,13 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.CountingFileAppender;
-import org.apache.log4j.HTMLLayoutEscapeOption;
-import org.apache.log4j.Layout;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.log4j.*;
 
 /**
  * Singleton class that holds global constants and some variables that are used in the application
@@ -65,7 +59,13 @@ public final class Globals {
 	 * The version's release state.
 	 */
 	public static final String VERSION_STATUS;
-	/**
+
+    /**
+     * The file currently used for graph output.
+     */
+    private final String currentGraphfile;
+
+    /**
 	 * The log file currently used.
 	 */
 	public String currentLogfile;
@@ -121,16 +121,26 @@ public final class Globals {
 	 * TRACE: Not used by this logger.
 	 */
 	public final Logger guiLogger;
-	/**
-	 * Solver Logger:
-	 * FATAL: Not used by this logger.
-	 * ERROR: Not used by this logger.
-	 * WARN: Solving failed for an unexpected reason.
-	 * INFO: General information about solving events.
-	 * DEBUG: Detailed information about the solvers work.
-	 * TRACE: Really detailed information about the solvers work.
-	 */
-	public final Logger solverLogger;
+    /**
+     * Solver Logger:
+     * FATAL: Not used by this logger.
+     * ERROR: Not used by this logger.
+     * WARN: Solving failed for an unexpected reason.
+     * INFO: General information about solving events.
+     * DEBUG: Detailed information about the solvers work.
+     * TRACE: Really detailed information about the solvers work.
+     */
+    public final Logger solverLogger;
+    /**
+     * Solver Logger:
+     * FATAL: Not used by this logger.
+     * ERROR: Not used by this logger.
+     * WARN: Solving failed for an unexpected reason.
+     * INFO: General information about solving events.
+     * DEBUG: Detailed information about the solvers work.
+     * TRACE: Really detailed information about the solvers work.
+     */
+    public final Logger choicesLogger;
 	
 	/**
 	 * Symbolic Execution Logger:
@@ -186,6 +196,7 @@ public final class Globals {
 	private long logFileNumber;
 	private long logFileSubNumber;
 	private CountingFileAppender fileAppender;
+    private FileAppender graphAppender;
 	private final Vector<Logger> loggers;
 	
 	public boolean vmIsInitialized = false;
@@ -224,12 +235,14 @@ public final class Globals {
 	private Globals() {
 		// Logging setup.
 		this.currentLogfile = getLogfileName();
+		this.currentGraphfile = getGraphfileName();
 
 		// The loggers.
 		this.logger = Logger.getLogger(APP_NAME + " general");
 		this.execLogger = Logger.getLogger(APP_NAME + " execution");
 		this.guiLogger = Logger.getLogger(APP_NAME + " gui");
-		this.solverLogger = Logger.getLogger(APP_NAME + " solver");
+        this.choicesLogger = Logger.getLogger(APP_NAME + " choices");
+        this.solverLogger = Logger.getLogger(APP_NAME + " solver");
 		this.symbolicExecLogger = Logger.getLogger(APP_NAME + " symbolic execution");
 		this.jacopLogger = Logger.getLogger(APP_NAME + " JaCoP solver");
 		this.parserLogger = Logger.getLogger(APP_NAME + " class parser");
@@ -237,9 +250,13 @@ public final class Globals {
 
 		// Finally start logging.
 		try {
-			this.fileAppender = new CountingFileAppender(getLayout(), this.currentLogfile, true);
-			this.fileAppender.setMaximumEventsToLog(Options.getInst().maximumLogEntries);
-			this.fileAppender.setName("File appender (to " + this.currentLogfile + ")");
+            this.fileAppender = new CountingFileAppender(getLayout(), this.currentLogfile, true);
+            this.fileAppender.setMaximumEventsToLog(Options.getInst().maximumLogEntries);
+            this.fileAppender.setName("File appender (to " + this.currentLogfile + ")");
+
+            this.graphAppender = new FileAppender(getLayout(), this.currentGraphfile, true);
+            this.graphAppender.setName("Graphviz file appender (to " + this.currentGraphfile + ")");
+            this.graphAppender.setLayout(new PatternLayout("%m\n"));
 
 			// log to console as well
 			ConsoleAppender appender = new ConsoleAppender();
@@ -260,6 +277,8 @@ public final class Globals {
 			this.symbolicExecLogger.addAppender(this.fileAppender);
 			this.jacopLogger.addAppender(this.fileAppender);
 			this.parserLogger.addAppender(this.fileAppender);
+
+			this.choicesLogger.addAppender(this.graphAppender);
 		} catch (IOException e) {
 			System.out.println("Fatal error: Could not initialize logging due to an I/O error. Halting.");
 			System.exit(1);
@@ -367,45 +386,78 @@ public final class Globals {
 		this.currentLogfile = newLogfile;
 	}
 
-	/**
-	 * Set up the log file. The next available name for the log file will be found and chosen.
-	 *
-	 * @return The name for the log file.
-	 */
-	private String getLogfileName() {
-		// Initialization.
-		this.logFileNumber = 1;
-		this.logFileSubNumber = 1;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
+    /**
+     * Set up the log file. The next available name for the log file will be found and chosen.
+     *
+     * @return The name for the log file.
+     */
+    private String getLogfileName() {
+        // Initialization.
+        this.logFileNumber = 1;
+        this.logFileSubNumber = 1;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
 
-		// Get the static parts of a logfile's name.
-		this.staticLogFileNamePartBeginning = BASE_DIRECTORY + "/log/" + dateFormat.format(new Date()) + "-";
-		this.staticLogFileNamePartEnd = "-Muggl.";
-		if (Options.getInst().getHtmlLogging()) {
-			this.staticLogFileNamePartExtension = "html";
-		} else {
-			this.staticLogFileNamePartExtension = "txt";
-		}
+        // Get the static parts of a logfile's name.
+        this.staticLogFileNamePartBeginning = BASE_DIRECTORY + "/log/" + dateFormat.format(new Date()) + "-";
+        this.staticLogFileNamePartEnd = "-Muggl.";
+        if (Options.getInst().getHtmlLogging()) {
+            this.staticLogFileNamePartExtension = "html";
+        } else {
+            this.staticLogFileNamePartExtension = "txt";
+        }
 
-		// Generate the log file's name.
-		String currentLogfile = this.staticLogFileNamePartBeginning + expandNumberRepresentation(this.logFileNumber) + "-" + expandNumberRepresentation(this.logFileSubNumber) + this.staticLogFileNamePartEnd + this.staticLogFileNamePartExtension;
-		// Check if this log file already exists.
-		if (new File(currentLogfile).isFile()) {
-			for (long a = 1; a < Long.MAX_VALUE; a++) {
-				// Finding the appropriate log file name.
-				currentLogfile = this.staticLogFileNamePartBeginning + expandNumberRepresentation(a) + "-" + expandNumberRepresentation(this.logFileSubNumber) + this.staticLogFileNamePartEnd + this.staticLogFileNamePartExtension;
-				if (!new File(currentLogfile).isFile())  {
-					this.logFileNumber = a;
-					break;
-				}
-				if (a == Long.MAX_VALUE - 1) {
-					System.out.println("Fatal error: Could not initialize logging due to an enormous logfile count. Please clear the /log-directory. Halting.");
-					System.exit(1);
-				}
-			}
-		}
-		return currentLogfile;
-	}
+        // Generate the log file's name.
+        String currentLogfile = this.staticLogFileNamePartBeginning + expandNumberRepresentation(this.logFileNumber) + "-" + expandNumberRepresentation(this.logFileSubNumber) + this.staticLogFileNamePartEnd + this.staticLogFileNamePartExtension;
+        // Check if this log file already exists.
+        if (new File(currentLogfile).isFile()) {
+            for (long a = 1; a < Long.MAX_VALUE; a++) {
+                // Finding the appropriate log file name.
+                currentLogfile = this.staticLogFileNamePartBeginning + expandNumberRepresentation(a) + "-" + expandNumberRepresentation(this.logFileSubNumber) + this.staticLogFileNamePartEnd + this.staticLogFileNamePartExtension;
+                if (!new File(currentLogfile).isFile())  {
+                    this.logFileNumber = a;
+                    break;
+                }
+                if (a == Long.MAX_VALUE - 1) {
+                    System.out.println("Fatal error: Could not initialize logging due to an enormous logfile count. Please clear the /log-directory. Halting.");
+                    System.exit(1);
+                }
+            }
+        }
+        return currentLogfile;
+    }
+
+    /**
+     * Set up the file used for graph output. The next available name for the log file will be found and chosen.
+     *
+     * @return The name for the log file.
+     */
+    private String getGraphfileName() {
+        // Initialization.
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        // Get the static parts of a logfile's name.
+        String fileNamePartBeginning = BASE_DIRECTORY + "/log/graph-" + dateFormat.format(new Date()) + "-";
+        String fileNamePartExtension = ".gv";
+
+        // Generate the log file's name.
+        String currentLogfile = fileNamePartBeginning + "0" + fileNamePartExtension;
+        // Check if this log file already exists.
+        if (new File(currentLogfile).isFile()) {
+            for (long a = 1; a < Long.MAX_VALUE; a++) {
+                // Finding the appropriate log file name.
+                currentLogfile = fileNamePartBeginning + a + fileNamePartExtension;
+                if (!new File(currentLogfile).isFile())  {
+                    // Success.
+                    break;
+                }
+                if (a == Long.MAX_VALUE - 1) {
+                    System.out.println("Fatal error: Could not initialize logging due to an enormous logfile count. Please clear the /log-directory. Halting.");
+                    System.exit(1);
+                }
+            }
+        }
+        return currentLogfile;
+    }
 
 	/**
 	 * Add leading zeros to any String representation of a long that is shorter

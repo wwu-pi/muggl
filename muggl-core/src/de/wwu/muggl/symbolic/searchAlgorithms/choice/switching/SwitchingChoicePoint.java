@@ -201,7 +201,7 @@ public abstract class SwitchingChoicePoint implements ChoicePoint {
 		}
 
         // Graph visualisation.
-        System.out.println(String.format("GV: \"%s\" -> \"%s\";", parent.getID(), this.getID()));
+        Globals.getInst().choicesLogger.debug(String.format("\"%s\" -> \"%s\";", parent.getID(), this.getID()));
 	}
 
 	/**

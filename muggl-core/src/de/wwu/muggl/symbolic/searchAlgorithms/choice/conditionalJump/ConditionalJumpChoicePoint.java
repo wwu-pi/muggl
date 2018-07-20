@@ -1,5 +1,6 @@
 package de.wwu.muggl.symbolic.searchAlgorithms.choice.conditionalJump;
 
+import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
@@ -83,7 +84,7 @@ public abstract class ConditionalJumpChoicePoint implements ChoicePoint {
 		this.constraintExpression = constraintExpression;
 		// Graph visualisation.
         this.idNumber = nextIdNumber++;
-        System.out.println(String.format("GV: \"%s\" -> \"%s\";", parent.getID(), this.getID()));
+        Globals.getInst().choicesLogger.debug(String.format("\"%s\" -> \"%s\";", parent.getID(), this.getID()));
     }
 
     @Override

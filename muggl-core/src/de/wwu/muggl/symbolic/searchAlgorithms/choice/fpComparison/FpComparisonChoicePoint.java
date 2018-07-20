@@ -142,8 +142,8 @@ public abstract class FpComparisonChoicePoint implements ChoicePoint {
 
         // Graph visualisation.
         this.idNumber = nextIdNumber++;
-        System.out.println(String.format("GV: \"%s\" -> \"%s\";", parent.getID(), this.getID()));
-    }
+        Globals.getInst().choicesLogger.debug(String.format("\"%s\" -> \"%s\";", parent.getID(), this.getID()));
+	}
 
     @Override
     public String getID() {
