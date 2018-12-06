@@ -84,7 +84,6 @@ public abstract class ConditionalJumpChoicePoint implements ChoicePoint {
 		this.constraintExpression = constraintExpression;
 		// Graph visualisation.
         this.idNumber = nextIdNumber++;
-        Globals.getInst().choicesLogger.debug(String.format("\"%s\" -> \"%s\";", parent.getID(), this.getID()));
     }
 
     @Override
