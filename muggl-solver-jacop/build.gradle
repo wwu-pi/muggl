@@ -3,7 +3,7 @@ apply plugin: 'java'
 dependencies {
 	compile project(':muggl-common')
 	compile project(':muggl-solvers')
-	compile 'org.jacop:jacop:4.4.0'
+	compile 'org.jacop:jacop:4.6.0'
 } 
 
 sourceSets {

@@ -133,9 +133,6 @@ public class JaCoPTransformer {
 	/**
 	 * @param ce
 	 * @param store
-	 * @param left
-	 * @param right
-	 * @param resultingConstraint
 	 * @return
 	 */
 	private static PrimitiveConstraint generateEquationConstraint(
