@@ -2,25 +2,7 @@ package de.wwu.muggl.solvers.jacop;
 
 import java.util.ArrayList;
 
-import org.jacop.constraints.Constraint;
-import org.jacop.constraints.PrimitiveConstraint;
-import org.jacop.constraints.SumInt;
-import org.jacop.constraints.SumWeight;
-import org.jacop.constraints.XeqC;
-import org.jacop.constraints.XeqY;
-import org.jacop.constraints.XgtC;
-import org.jacop.constraints.XgtY;
-import org.jacop.constraints.XgteqC;
-import org.jacop.constraints.XgteqY;
-import org.jacop.constraints.XltC;
-import org.jacop.constraints.XltY;
-import org.jacop.constraints.XlteqC;
-import org.jacop.constraints.XlteqY;
-import org.jacop.constraints.XmodYeqZ;
-import org.jacop.constraints.XmulCeqZ;
-import org.jacop.constraints.XmulYeqZ;
-import org.jacop.constraints.XneqC;
-import org.jacop.constraints.XneqY;
+import org.jacop.constraints.*;
 import org.jacop.core.BoundDomain;
 import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
@@ -521,7 +503,12 @@ public class JaCoPTransformer {
 		if (allWeightsOne) {
 			sumConstraint = new SumInt(store, termList, "==", intermediateVariable);
 		} else {
-			sumConstraint = new SumWeight(termList, weightList, intermediateVariable);
+            //sumConstraint = new SumWeight(termList, weightList, intermediateVariable);
+		    int[] weights = new int[weightList.size()];
+		    for (int i = 0; i < weights.length; i++) {
+		        weights[i] = weightList.get(i);
+            }
+			sumConstraint = new LinearInt(termList.toArray(new IntVar[]{}), weights, "==", intermediateVariable);
 		}
 
 		store.impose(sumConstraint);
