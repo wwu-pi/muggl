@@ -24,6 +24,7 @@ import org.jacop.constraints.XneqY;
 import org.jacop.core.BoundDomain;
 import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
+import org.jacop.core.IntervalDomain;
 import org.jacop.floats.constraints.PeqC;
 import org.jacop.floats.constraints.PeqQ;
 import org.jacop.floats.constraints.PgtC;
@@ -84,10 +85,14 @@ import de.wwu.muggl.solvers.expressions.Variable;
 public class JaCoPTransformer {
 	private static final int DOMAIN_DEPRECIATION =
 			100000;
-	
-	private static final IntDomain DOMAIN_INTEGER = 
-			new BoundDomain(IntDomain.MinInt/DOMAIN_DEPRECIATION,
-					IntDomain.MaxInt/DOMAIN_DEPRECIATION);
+
+    //private static final IntDomain DOMAIN_INTEGER =
+    //        new BoundDomain(IntDomain.MinInt/DOMAIN_DEPRECIATION,
+    //                IntDomain.MaxInt/DOMAIN_DEPRECIATION);
+
+    private static final IntDomain DOMAIN_INTEGER =
+            new IntervalDomain(IntDomain.MinInt/DOMAIN_DEPRECIATION,
+                    IntDomain.MaxInt/DOMAIN_DEPRECIATION);
 
 	private static final FloatDomain DOMAIN_FLOAT = 
 			new FloatIntervalDomain(FloatDomain.MinFloat/DOMAIN_DEPRECIATION, 
