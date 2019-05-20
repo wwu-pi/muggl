@@ -85,7 +85,7 @@ public class New extends de.wwu.muggl.instructions.general.ObjectInitialization 
 	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
 	 * @throws VmRuntimeException Thrown on runtime exceptions.
 	 */
-	private void pushNewObjectref(Frame frame) throws ExecutionException, VmRuntimeException {
+    public void pushNewObjectref(Frame frame) throws ExecutionException, VmRuntimeException {
 		// Resolve the class.
 		ResolutionAlgorithms resolution = new ResolutionAlgorithms(frame.getVm().getClassLoader());
 		String className = ((ConstantClass) frame.getConstantPool()[this.otherBytes[0] << ONE_BYTE | this.otherBytes[1]]).getValue();

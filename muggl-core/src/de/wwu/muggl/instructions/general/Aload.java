@@ -40,7 +40,14 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 		try {
 			// Preparations.
 			Stack<Object> stack = frame.getOperandStack();
-			int index = (Integer) stack.pop();
+
+			Object index = stack.pop();
+			int idx;
+			if (index instanceof Character) {
+			    idx = (int)(((Character) index).charValue());
+            } else {
+			    idx = (int)index;
+            }
 			Object arrayrefObject = stack.pop();
 
 			// Runtime exception: arrayref is null
@@ -54,13 +61,13 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 			Arrayref arrayref = (Arrayref) arrayrefObject;
 
 			// Runtime exception array index out of bounds.
-			if (index >= arrayref.length || index < 0) {
+			if (idx >= arrayref.length || idx < 0) {
 				throw new VmRuntimeException(frame.getVm().generateExc(
 						"java.lang.ArrayIndexOutOfBoundsException", "Array index is out of bounds"));
 			}
 
 			// Unexpected exception: The object at the index is not of one of the required types.
-			Object value = arrayref.getElement(index);
+			Object value = arrayref.getElement(idx);
 			value = this.typedInstruction.validateAndExtendValue(value);
 
 			// Push the value.

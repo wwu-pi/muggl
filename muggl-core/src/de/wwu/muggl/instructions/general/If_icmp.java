@@ -1,5 +1,6 @@
 package de.wwu.muggl.instructions.general;
 
+import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
@@ -10,11 +11,16 @@ import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.execution.ConversionException;
+import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muli.searchtree.Choice;
+import de.wwu.muli.searchtree.ST;
+
+import java.util.Optional;
 
 /**
  * Abstract instruction with some concrete methods for comparison instructions of the group
@@ -85,6 +91,51 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 			((SearchingVM) frame.getVm()).generateNewChoicePoint(this, expression);
 		}
 	}
+
+    public Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
+        Options options = Options.getInst();
+
+        // Get operands from stack
+        Object op2 = frame.getOperandStack().pop();
+        Object op1 = frame.getOperandStack().pop();
+
+        // Deterministic execution.
+        if (!options.symbolicMode) {
+            int value2 = (Integer) VmSymbols.wideningPrimConversion(op2, Integer.class);
+            int value1 = (Integer) VmSymbols.wideningPrimConversion(op1, Integer.class);
+            if (this.compare(value1, value2)) {
+                vm.setPC(this.getJumpTarget());
+            }
+            return Optional.empty();
+        } else {
+            // Potentially non-deterministic execution.
+            // Convert to Terms
+            Term term2 = this.convertToSymbolicTerm(op2);
+            Term term1 = this.convertToSymbolicTerm(op1);
+
+            // Check if both values are constant.
+            if (term1.isConstant() && term2.isConstant()) {
+                // Execute without generating a choice point.
+                int value1 = ((IntConstant) term1).getIntValue();
+                int value2 = ((IntConstant) term2).getIntValue();
+                if (this.compare(value1, value2)) {
+                    vm.setPC(this.getJumpTarget());
+                }
+                return Optional.empty();
+            } else {
+                // Create the ConstraintExpression and generate a new ChoicePoint. It will set the pc.
+                ConstraintExpression expression = this.getConstraintExpression(term1, term2);
+                // TODO this.getPc() + 1 + instruction.getNumberOfOtherBytes() auslagern.
+                // TODO Trail einfügen?
+                return Optional.of(
+                        new Choice(vm.getPc() + 1 + this.getNumberOfOtherBytes(),
+                                this.getJumpTarget(), expression,
+                                vm.getCurrentChoice()));
+            }
+        }
+
+        // throw new ExecutionException("Trying to create a non-deterministic choice during deterministic evaluation.");
+    }
 
 	public Term convertToSymbolicTerm(Object o) {
 		if (o instanceof Term) {

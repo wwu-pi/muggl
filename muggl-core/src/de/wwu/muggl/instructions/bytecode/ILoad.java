@@ -4,8 +4,14 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.Load;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.typed.IntegerInstruction;
+import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
+import de.wwu.muggl.vm.execution.ExecutionException;
+import de.wwu.muli.searchtree.ST;
+
+import java.util.Optional;
 
 /**
  * Implementation of the instruction <code>iload</code>.
@@ -15,7 +21,13 @@ import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
  */
 public class ILoad extends Load implements Instruction {
 
-	/**
+    @Override
+    public Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
+        executeSymbolically(frame);
+        return Optional.empty();
+    }
+
+    /**
 	 * Standard constructor. For the extraction of the other bytes, the attribute_code of the method that the
 	 * instruction belongs to is supplied as an argument, as well as the index of the instruction, pointing at
 	 * the local variable that it is responsible for. Also initialize the TypedInstruction.

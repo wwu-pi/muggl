@@ -373,6 +373,7 @@ public abstract class VirtualMachine extends Thread {
 			if (!this.finalized) this.application.finalizeApplication();
 			if (Globals.getInst().execLogger.isEnabledFor(Level.ERROR))
 				Globals.getInst().execLogger.error("Error during the execution, halting the virtual machine: " + this.errorMessage);
+            Globals.getInst().execLogger.error(this.currentStackTrace());
 		} catch (Exception e) {
 			this.errorMessage = "General exception of type " + e.getClass().getName() + ": " + e.getMessage();
 			// {{ add stack trace to string
