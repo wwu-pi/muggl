@@ -45,7 +45,7 @@ public class If_icmpgt extends If_icmp implements Instruction {
 	 * @return true if the expected condition is met, false otherwise.
 	 */
 	@Override
-	protected boolean compare(int value1, int value2) {
+    public boolean compare(int value1, int value2) {
 		if (value1 > value2) return true;
 		return false;
 	}
@@ -57,7 +57,7 @@ public class If_icmpgt extends If_icmp implements Instruction {
 	 * @return A new ConstraintExpression.
 	 */
 	@Override
-	protected ConstraintExpression getConstraintExpression(Term term1, Term term2) {
+	public ConstraintExpression getConstraintExpression(Term term1, Term term2) {
 		return GreaterThan.newInstance(term1, term2);
 	}
 }

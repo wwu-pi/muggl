@@ -86,16 +86,13 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 		}
 	}
 
-	private Term convertToSymbolicTerm(Object o) {
+	public Term convertToSymbolicTerm(Object o) {
 		if (o instanceof Term) {
 			return (Term)o;
-		} else if (o instanceof Integer) {
-			// TODO handle further types
-			return NumericConstant.getInstance(((Number)o).intValue(), NumericConstant.INT);
+		} else {
+            Integer i = (Integer) VmSymbols.wideningPrimConversion(o, Integer.class);
+			return NumericConstant.getInstance(i, NumericConstant.INT);
 		}
-		
-		// No suitable type found. // TODO proper exception!
-		throw new RuntimeException(new ConversionException("Could not convert from " + o.getClass().getName() + " to symbolic term"));
 	}
 
 
@@ -115,7 +112,7 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 	 * @param value2 The second int value.
 	 * @return true if the expected condition is met, false otherwise.
 	 */
-	protected abstract boolean compare(int value1, int value2);
+	public abstract boolean compare(int value1, int value2);
 
 	/**
 	 * Get the ConstraintExpression for this instruction.
@@ -124,7 +121,7 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 	 * @param term2 The right-hand term.
 	 * @return A new ConstraintExpression.
 	 */
-	protected abstract ConstraintExpression getConstraintExpression(Term term1, Term term2);
+	public abstract ConstraintExpression getConstraintExpression(Term term1, Term term2);
 
 	/**
 	 * Return the target pc of the possible jump.
