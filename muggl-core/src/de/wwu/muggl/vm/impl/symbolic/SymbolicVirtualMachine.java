@@ -3,6 +3,7 @@ package de.wwu.muggl.vm.impl.symbolic;
 import java.util.Iterator;
 import java.util.Stack;
 
+import de.wwu.muli.searchtree.Choice;
 import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
@@ -970,7 +971,12 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
 		this.timeSolvingChoicePoints += increment;
 	}
 
-	/**
+    @Override
+    public Choice getCurrentChoice() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
 	 * Increase the time spent on solving for backtracking by the supplied increment.
 	 * 
 	 * @param increment The time needed for a solving action.

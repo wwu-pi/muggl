@@ -1,7 +1,11 @@
 package de.wwu.muggl.instructions.interfaces;
 
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.execution.ExecutionException;
+import de.wwu.muli.searchtree.ST;
+
+import java.util.Optional;
 
 /**
  * Interface to be implemented by any class representing a java bytecode instruction. It defines the
@@ -25,6 +29,11 @@ public interface Instruction {
 	 * @throws ExecutionException Thrown in case of fatal problems during the symbolic execution.
 	 */
 	void executeSymbolically(Frame frame) throws ExecutionException;
+
+	default Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
+        execute(frame);
+	    return Optional.empty();
+    }
 
 	/**
 	 * Resolve the instructions name.

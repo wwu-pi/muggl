@@ -9,6 +9,7 @@ import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
+import de.wwu.muli.searchtree.Choice;
 
 /** 
  * Common interface for all virtual machines that support logic variables and searching (Symbolic, Logic)
@@ -50,4 +51,10 @@ public interface SearchingVM {
 	void increaseTimeChoicePointGeneration(long increment);
 
 	void increaseTimeSolvingForChoicePointGeneration(long increment);
+
+    int getPc();
+
+    void setPC(int jumpTarget);
+
+    Choice getCurrentChoice();
 }
