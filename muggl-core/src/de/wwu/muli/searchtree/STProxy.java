@@ -1,41 +1,44 @@
 package de.wwu.muli.searchtree;
 
-import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
-import de.wwu.muggl.vm.SearchingVM;
-
-import java.util.LinkedList;
+import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.vm.Frame;
 
 public class STProxy<A> extends ST<A> {
+    /**
+     * Frame at which execution has to continue for evaluation.
+     */
+    private final Frame frame;
     /**
      * PC at which execution has to continue for evaluation.
      */
     private final int pc;
     /**
-     * Records the direct parent in order to be able to obtain its trail if needed.
+     * ConstraintExpression that corresponds to entering this subtree. If null, no constraint is required for entering this subtree.
+     */
+    private final ConstraintExpression constraintExpression;
+    /**
+     * Records the direct parent in order to be able to obtain its trail if needed. If null, this is the full tree (not a subtree).
      */
     private final Choice<A> childOf;
 
-    private ST<A> evaluated = null;
+    private ST<A> evaluationResult = null;
 
     public boolean isEvaluated() {
-        return this.evaluated != null;
+        return this.evaluationResult != null;
     }
 
-    public STProxy(int pc, Choice<A> childOf) {
-        this.childOf = childOf;
+    public void setEvaluationResult(ST<A> result) {
+        evaluationResult = result;
+    }
+
+    public STProxy(Frame frame, int pc, ConstraintExpression constraintExpression, Choice<A> childOf) {
+        this.frame = frame;
         this.pc = pc;
+        // If constraintExpression is null, no constraint is required for entering this subtree.
+        this.constraintExpression = constraintExpression;
+        // If childOf is null, this STProxy represents a full tree instead of a subtree.
+        this.childOf = childOf;
 
-    }
-
-    public ST<A> eval(SearchingVM vm) {
-        // TODO extract to VM!
-        if (evaluated != null) {
-            return evaluated;
-        }
-
-        // vm.setPC(this.pc);
-        // this.evaluated = vm.execute();
-        return this.evaluated;
     }
 
     /**
@@ -44,7 +47,7 @@ public class STProxy<A> extends ST<A> {
      * n does not have a local trail.
      * @return
      */
-    public LinkedList<TrailElement> getTrail() {
+    /*public LinkedList<TrailElement> getTrail() {
         Choice<A> before = this.childOf;
         LinkedList<TrailElement> trail = new LinkedList<>();
         while (before != null) {
@@ -52,9 +55,21 @@ public class STProxy<A> extends ST<A> {
             before = before.parent;
         }
         return trail;
-    }
+    }*/
 
     public Choice getParent() {
         return childOf;
+    }
+
+    public Frame getFrame() {
+        return frame;
+    }
+
+    public int getPc() {
+        return pc;
+    }
+
+    public ConstraintExpression getConstraintExpression() {
+        return constraintExpression;
     }
 }

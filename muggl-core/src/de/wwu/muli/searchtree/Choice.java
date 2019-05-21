@@ -2,24 +2,22 @@ package de.wwu.muli.searchtree;
 
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
+import de.wwu.muggl.vm.Frame;
 
-import java.util.LinkedList;
+import java.util.Stack;
 
 public class Choice<A> extends ST<A> {
     public final Choice<A> parent;
-    public final LinkedList<TrailElement> trail;
+    private final Stack<TrailElement> trail;
+    private final Stack<TrailElement> inverseTrail = new Stack<>();
     public STProxy<A> st1;
     public STProxy<A> st2;
-    private final ConstraintExpression ce1;
-    private final ConstraintExpression ce2;
 
-    public Choice(int pcNext, int pcWithJump, ConstraintExpression constraintExpression, Choice<A> parent) {
+    public Choice(Frame frame, int pcNext, int pcWithJump, ConstraintExpression constraintExpression, Choice<A> parent) {
         //LinkedList<TrailElement> state,
-        this.st1 = new STProxy<A>(pcNext, this);
-        this.st2 = new STProxy<A>(pcWithJump, this);
-        this.ce1 = constraintExpression;
-        this.ce2 = constraintExpression.negate();
-        this.trail = new LinkedList<>();//state;
+        this.st1 = new STProxy<A>(frame, pcNext, constraintExpression.negate(), this);
+        this.st2 = new STProxy<A>(frame, pcWithJump, constraintExpression, this);
+        this.trail = new Stack<>();//state;
         this.parent = parent;
     }
 

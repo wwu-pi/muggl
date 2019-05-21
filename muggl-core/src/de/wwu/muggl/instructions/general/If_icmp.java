@@ -128,7 +128,7 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
                 // TODO this.getPc() + 1 + instruction.getNumberOfOtherBytes() auslagern.
                 // TODO Trail einfügen?
                 return Optional.of(
-                        new Choice(vm.getPc() + 1 + this.getNumberOfOtherBytes(),
+                        new Choice(frame, vm.getPc() + 1 + this.getNumberOfOtherBytes(),
                                 this.getJumpTarget(), expression,
                                 vm.getCurrentChoice()));
             }
