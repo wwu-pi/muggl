@@ -31,6 +31,10 @@ public class STProxy<A> extends ST<A> {
         evaluationResult = result;
     }
 
+    ST<A> getEvaluationResult() {
+        return evaluationResult;
+    }
+
     public STProxy(Frame frame, int pc, ConstraintExpression constraintExpression, Choice<A> childOf) {
         this.frame = frame;
         this.pc = pc;
