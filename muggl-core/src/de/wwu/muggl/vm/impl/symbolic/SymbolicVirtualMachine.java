@@ -191,7 +191,7 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
 		this.searchAlgorithm = searchAlgorithm;
 		this.coverage = new CoverageController(this);
 		this.trackCoverage = options.useCFCoverage && options.useDUCoverage;
-		this.stack = new StackToTrail(true, this.searchAlgorithm, this);
+		this.stack = new StackToTrail(true, this.searchAlgorithm);
 		this.doNotTryToTrackBack = false;
 		this.doNotProcessSolutions = false;
 		this.measureExecutionTime = options.measureSymbolicExecutionTime;
@@ -588,7 +588,7 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
 			throws ExecutionException {
 		SymbolicFrame frame = new SymbolicFrame(invokedBy, this, method, method.getClassFile()
 				.getConstantPool(), arguments);
-		frame.setOperandStack(new StackToTrail(false, this.searchAlgorithm, this));
+		frame.setOperandStack(new StackToTrail(false, this.searchAlgorithm));
 		return frame;
 	}
 

@@ -28,7 +28,6 @@ public class StackToTrail extends Stack<Object> {
 	private boolean isVmStack;
     @Deprecated
 	private SymbolicSearchAlgorithm searchAlgorithm;
-    private final SearchingVM vm;
     private boolean restoringMode;
 
 	/**
@@ -36,11 +35,10 @@ public class StackToTrail extends Stack<Object> {
 	 * @param isVmStack If set to true, this StackToTrail should be used as a virtual machine stack. It should be used as a operand stack otherwise.
 	 * @param searchAlgorithm The currently used search algorithm.
 	 */
-	public StackToTrail(boolean isVmStack, SymbolicSearchAlgorithm searchAlgorithm, SearchingVM vm) {
+	public StackToTrail(boolean isVmStack, SymbolicSearchAlgorithm searchAlgorithm) {
 		super();
 		this.isVmStack = isVmStack;
 		this.searchAlgorithm = searchAlgorithm;
-        this.vm = vm;
         this.restoringMode = false;
 	}
 
@@ -53,7 +51,6 @@ public class StackToTrail extends Stack<Object> {
 	@Override
 	public Object push(Object item) {
 		if (!this.restoringMode) {
-		    // Deprecated: old structure
 			ChoicePoint choicePoint = this.searchAlgorithm.getCurrentChoicePoint();
 			if (choicePoint != null && choicePoint.hasTrail()) {
 				if (this.isVmStack) {
@@ -62,13 +59,6 @@ public class StackToTrail extends Stack<Object> {
 					choicePoint.addToTrail(new Pop());
 				}
 			}
-
-			// New (ST) choice structure:
-            if (this.isVmStack) {
-                vm.addToTrail(new VmPop());
-            } else {
-                vm.addToTrail(new Pop());
-            }
 		}
 
 		return super.push(item);
@@ -83,7 +73,6 @@ public class StackToTrail extends Stack<Object> {
 	public synchronized Object pop() {
 		Object item = super.pop();
 		if (!this.restoringMode) {
-            // Deprecated: old structure
             ChoicePoint choicePoint = this.searchAlgorithm.getCurrentChoicePoint();
 			if (choicePoint != null && choicePoint.hasTrail()) {
 				if (this.isVmStack) {
@@ -92,13 +81,6 @@ public class StackToTrail extends Stack<Object> {
 					choicePoint.addToTrail(new Push(item));
 				}
 			}
-
-            // New (ST) choice structure:
-            if (this.isVmStack) {
-                vm.addToTrail(new VmPush(item));
-            } else {
-                vm.addToTrail(new Push(item));
-            }
 		}
 
 		return item;
@@ -125,7 +107,7 @@ public class StackToTrail extends Stack<Object> {
 	public synchronized boolean equals(Object obj) {
 		if (obj instanceof StackToTrail) {
 			StackToTrail stack = (StackToTrail) obj;
-			if (stack.isVmStack == this.isVmStack && stack.searchAlgorithm == this.searchAlgorithm && stack.vm == this.vm && stack.restoringMode == this.restoringMode) {
+			if (stack.isVmStack == this.isVmStack && stack.searchAlgorithm == this.searchAlgorithm && stack.restoringMode == this.restoringMode) {
 				return super.equals(obj);
 			}
 		}
