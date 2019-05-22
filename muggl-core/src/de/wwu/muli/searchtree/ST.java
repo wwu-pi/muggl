@@ -11,8 +11,11 @@ public abstract class ST<A> {
         } else if (this instanceof Choice) {
             StringBuilder result = new StringBuilder();
             result.append(indent(depth) + "- Choice\r\n");
-            result.append(((ST<A>)((Choice<A>) this).st1).toStringDFS(depth + 1));
-            result.append(((ST<A>)((Choice<A>) this).st2).toStringDFS(depth + 1));
+
+            for (ST<A> st : ((Choice<A>) this).sts) {
+                result.append(st.toStringDFS(depth + 1));
+            }
+            
             return result.toString();
         } else if (this instanceof STProxy) {
             if (((STProxy)this).isEvaluated()) {
