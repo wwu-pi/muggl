@@ -7,9 +7,12 @@ import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muli.searchtree.Choice;
+
+import java.util.Stack;
 
 /** 
  * Common interface for all virtual machines that support logic variables and searching (Symbolic, Logic)
@@ -57,4 +60,12 @@ public interface SearchingVM {
     void setPC(int jumpTarget);
 
     Choice getCurrentChoice();
+
+    /**
+     * Obtain current trail and reset it for further execution
+     * @return Trail stack
+     */
+    Stack<TrailElement> extractCurrentTrail();
+
+    void addToTrail(TrailElement element);
 }

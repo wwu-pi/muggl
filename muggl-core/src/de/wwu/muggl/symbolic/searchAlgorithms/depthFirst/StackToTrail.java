@@ -8,6 +8,7 @@ import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.Pop;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.Push;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.VmPop;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.VmPush;
+import de.wwu.muggl.vm.SearchingVM;
 
 /**
  * The StackToTrail extends the java.util.Stack. Is overrides the functionality for push and pop. In
@@ -19,27 +20,28 @@ import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.VmPush;
  * item the command to pop will be added to the trail, and when popping an item the command to push
  * it will be added to the trail.
  *
- * @param <E> Used to make the StackToTrail generic.
- *
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-03-10
  */
 public class StackToTrail extends Stack<Object> {
 	// Fields.
 	private boolean isVmStack;
+    @Deprecated
 	private SymbolicSearchAlgorithm searchAlgorithm;
-	private boolean restoringMode;
+    private final SearchingVM vm;
+    private boolean restoringMode;
 
 	/**
 	 * Initialize a new StackToTrail.
 	 * @param isVmStack If set to true, this StackToTrail should be used as a virtual machine stack. It should be used as a operand stack otherwise.
 	 * @param searchAlgorithm The currently used search algorithm.
 	 */
-	public StackToTrail(boolean isVmStack, SymbolicSearchAlgorithm searchAlgorithm) {
+	public StackToTrail(boolean isVmStack, SymbolicSearchAlgorithm searchAlgorithm, SearchingVM vm) {
 		super();
 		this.isVmStack = isVmStack;
 		this.searchAlgorithm = searchAlgorithm;
-		this.restoringMode = false;
+        this.vm = vm;
+        this.restoringMode = false;
 	}
 
 	/**
@@ -51,6 +53,7 @@ public class StackToTrail extends Stack<Object> {
 	@Override
 	public Object push(Object item) {
 		if (!this.restoringMode) {
+		    // Deprecated: old structure
 			ChoicePoint choicePoint = this.searchAlgorithm.getCurrentChoicePoint();
 			if (choicePoint != null && choicePoint.hasTrail()) {
 				if (this.isVmStack) {
@@ -59,6 +62,13 @@ public class StackToTrail extends Stack<Object> {
 					choicePoint.addToTrail(new Pop());
 				}
 			}
+
+			// New (ST) choice structure:
+            if (this.isVmStack) {
+                vm.addToTrail(new VmPop());
+            } else {
+                vm.addToTrail(new Pop());
+            }
 		}
 
 		return super.push(item);
@@ -73,7 +83,8 @@ public class StackToTrail extends Stack<Object> {
 	public synchronized Object pop() {
 		Object item = super.pop();
 		if (!this.restoringMode) {
-			ChoicePoint choicePoint = this.searchAlgorithm.getCurrentChoicePoint();
+            // Deprecated: old structure
+            ChoicePoint choicePoint = this.searchAlgorithm.getCurrentChoicePoint();
 			if (choicePoint != null && choicePoint.hasTrail()) {
 				if (this.isVmStack) {
 					choicePoint.addToTrail(new VmPush(item));
@@ -81,6 +92,13 @@ public class StackToTrail extends Stack<Object> {
 					choicePoint.addToTrail(new Push(item));
 				}
 			}
+
+            // New (ST) choice structure:
+            if (this.isVmStack) {
+                vm.addToTrail(new VmPush(item));
+            } else {
+                vm.addToTrail(new Push(item));
+            }
 		}
 
 		return item;
@@ -107,7 +125,7 @@ public class StackToTrail extends Stack<Object> {
 	public synchronized boolean equals(Object obj) {
 		if (obj instanceof StackToTrail) {
 			StackToTrail stack = (StackToTrail) obj;
-			if (stack.isVmStack == this.isVmStack && stack.searchAlgorithm == this.searchAlgorithm && stack.restoringMode == this.restoringMode) {
+			if (stack.isVmStack == this.isVmStack && stack.searchAlgorithm == this.searchAlgorithm && stack.vm == this.vm && stack.restoringMode == this.restoringMode) {
 				return super.equals(obj);
 			}
 		}

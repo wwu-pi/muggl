@@ -3,6 +3,7 @@ package de.wwu.muggl.vm.impl.symbolic;
 import java.util.Iterator;
 import java.util.Stack;
 
+import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
 import de.wwu.muli.searchtree.Choice;
 import org.apache.log4j.Level;
 
@@ -190,7 +191,7 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
 		this.searchAlgorithm = searchAlgorithm;
 		this.coverage = new CoverageController(this);
 		this.trackCoverage = options.useCFCoverage && options.useDUCoverage;
-		this.stack = new StackToTrail(true, this.searchAlgorithm);
+		this.stack = new StackToTrail(true, this.searchAlgorithm, this);
 		this.doNotTryToTrackBack = false;
 		this.doNotProcessSolutions = false;
 		this.measureExecutionTime = options.measureSymbolicExecutionTime;
@@ -587,7 +588,7 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
 			throws ExecutionException {
 		SymbolicFrame frame = new SymbolicFrame(invokedBy, this, method, method.getClassFile()
 				.getConstantPool(), arguments);
-		frame.setOperandStack(new StackToTrail(false, this.searchAlgorithm));
+		frame.setOperandStack(new StackToTrail(false, this.searchAlgorithm, this));
 		return frame;
 	}
 
@@ -974,6 +975,19 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
     @Override
     public Choice getCurrentChoice() {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * unsupported operation: Intended for Muli
+     */
+    @Override
+    public Stack<TrailElement> extractCurrentTrail() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void addToTrail(TrailElement element) {
+
     }
 
     /**
