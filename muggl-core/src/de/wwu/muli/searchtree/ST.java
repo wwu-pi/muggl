@@ -12,7 +12,7 @@ public abstract class ST<A> {
             StringBuilder result = new StringBuilder();
             result.append(indent(depth) + "- Choice\r\n");
 
-            for (ST<A> st : ((Choice<A>) this).sts) {
+            for (ST<A> st : ((Choice<A>) this).getSts()) {
                 result.append(st.toStringDFS(depth + 1));
             }
             

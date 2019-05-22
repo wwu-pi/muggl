@@ -7,15 +7,13 @@ import de.wwu.muggl.vm.Frame;
 import java.util.*;
 
 public class Choice<A> extends ST<A> {
-    public final Choice<A> parent;
+    private final Choice<A> parent;
     private final Stack<TrailElement> trail;
     private final Stack<TrailElement> inverseTrail;
-    public List<STProxy<A>> sts;
+    private final List<STProxy<A>> sts;
+    private STProxy substitutedSTProxy;
 
     public Choice(Frame frame, List<Integer> pcs, List<ConstraintExpression> constraintExpressions, Stack<TrailElement> trailElements, Choice<A> parent) {
-        Iterator<Integer> pcIt = pcs.iterator();
-        Iterator<ConstraintExpression> constraintExpressionIt = constraintExpressions.iterator();
-
         if (pcs == null || constraintExpressions == null) {
             throw new IllegalArgumentException("No program counters or constraint expressions provided.");
         }
@@ -23,10 +21,14 @@ public class Choice<A> extends ST<A> {
         if (pcs.size() != constraintExpressions.size()) {
             throw new IllegalArgumentException("Number of program counters and constraint expressions does not match.");
         }
-        sts = new ArrayList<>(pcs.size());
+
+        Iterator<Integer> pcIt = pcs.iterator();
+        Iterator<ConstraintExpression> constraintExpressionIt = constraintExpressions.iterator();
+
+        this.sts = new ArrayList<>(pcs.size());
 
         while (pcIt.hasNext() && constraintExpressionIt.hasNext()) {
-            sts.add(new STProxy<>(frame, pcIt.next(), constraintExpressionIt.next(), this));
+            getSts().add(new STProxy<>(frame, pcIt.next(), constraintExpressionIt.next(), this));
         }
 
         this.trail = trailElements;
@@ -35,7 +37,30 @@ public class Choice<A> extends ST<A> {
     }
 
     public Choice(Frame frame, int pcNext, int pcWithJump, ConstraintExpression constraintExpression, Stack<TrailElement> trailElements, Choice<A> parent) {
-        this(frame, Arrays.asList(pcNext, pcWithJump), Arrays.asList(constraintExpression, constraintExpression.negate()), trailElements, parent);
+        this(frame, Arrays.asList(pcNext, pcWithJump), Arrays.asList(constraintExpression.negate(), constraintExpression), trailElements, parent);
     }
 
+    public void setSubstitutedSTProxy(STProxy substitutedSTProxy) {
+        this.substitutedSTProxy = substitutedSTProxy;
+    }
+
+    public STProxy getSubstitutedSTProxy() {
+        return substitutedSTProxy;
+    }
+
+    public Choice<A> getParent() {
+        return parent;
+    }
+
+    public List<STProxy<A>> getSts() {
+        return sts;
+    }
+
+    public Stack<TrailElement> getTrail() {
+        return trail;
+    }
+
+    public Stack<TrailElement> getInverseTrail() {
+        return inverseTrail;
+    }
 }
