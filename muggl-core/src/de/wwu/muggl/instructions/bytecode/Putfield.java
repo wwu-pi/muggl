@@ -1,5 +1,6 @@
 package de.wwu.muggl.instructions.bytecode;
 
+import java.util.Optional;
 import java.util.Stack;
 
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
@@ -26,6 +27,7 @@ import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.solvers.expressions.BooleanConstant;
 import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muli.searchtree.ST;
 
 /**
  * Implementation of the instruction <code>putfield</code>.
@@ -162,9 +164,9 @@ public class Putfield extends Put implements Instruction {
 			}
 
 			// Save the current value, if necessary.
-			if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingFieldValues()) {
+			if (((SearchingVM) frame.getVm()).isInSearch()) {
 				InstanceFieldPut fieldValue = new InstanceFieldPut(objectref, field, objectref.getField(field));
-				((SearchingVM) frame.getVm()).getSearchAlgorithm().saveFieldValue(fieldValue);
+				((SearchingVM) frame.getVm()).saveFieldValue(fieldValue);
 			}
 
 			// Finally assign the value.
@@ -183,7 +185,17 @@ public class Putfield extends Put implements Instruction {
 		}
 	}
 
-	/**
+    @Override
+    public Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
+        if (!vm.isInSearch()) {
+            execute(frame);
+        } else {
+            executeSymbolically(frame);
+        }
+        return Optional.empty();
+    }
+
+    /**
 	 * Fetch the Field and check if it meet the requirements of the virtual machine.
 	 * @param frame The currently executed Frame.
 	 * @param objectref The objectref of the field.

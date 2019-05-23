@@ -107,9 +107,9 @@ public class AAstore extends Astore implements Instruction {
 			Arrayref arrayref  = (Arrayref) stack.pop();
 
 			// Save the current value, if necessary.
-			if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingArrayValues()) {
+			if (((SearchingVM) frame.getVm()).isInSearch()) {
 				ArrayRestore arrayValue = new ArrayRestore(arrayref, index, value);
-				((SearchingVM) frame.getVm()).getSearchAlgorithm().saveArrayValue(arrayValue);
+				((SearchingVM) frame.getVm()).saveArrayValue(arrayValue);
 			}
 
 			// Set the value into the array and save it.

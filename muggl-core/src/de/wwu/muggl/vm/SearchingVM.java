@@ -7,7 +7,7 @@ import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Term;
-import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
+import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.*;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muli.searchtree.Choice;
@@ -68,4 +68,12 @@ public interface SearchingVM {
     Stack<TrailElement> extractCurrentTrail();
 
     void addToTrail(TrailElement element);
+
+    boolean isInSearch();
+
+    void saveFieldValue(FieldPut fieldValue);
+
+    void saveLocalVariableValue(Restore valueRepresentation);
+
+    void saveArrayValue(ArrayRestore valueRepresentation);
 }

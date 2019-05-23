@@ -586,63 +586,6 @@ public class DepthFirstSearchAlgorithm implements SymbolicSearchAlgorithm {
 	}
 
 	/**
-	 * Get the information whether this search algorithm requires a field
-	 * value to be stored (at this exakt moment of execution).
-	 * @return true, if a choice point has been already generated, false otherwise.
-	 */
-	public boolean savingFieldValues() {
-		if (this.currentChoicePoint == null) return false;
-		return true;
-	}
-
-	/**
-	 * Store a field value for use by the seach algorithm's tracking back
-	 * functionality.
-	 * @param valueRepresentation Either a InstanceFieldPut or a StaticfieldPut object.
-	 */
-	public void saveFieldValue(FieldPut valueRepresentation) {
-		if (this.currentChoicePoint != null) this.currentChoicePoint.addToTrail(valueRepresentation);
-	}
-
-	/**
-	 * Get the information whether this search algorithm requires a local
-	 * variable value to be stored (at this exakt moment of execution).
-	 * @return true, if a choice point has been already generated, false otherwise.
-	 */
-	public boolean savingLocalVariableValues() {
-		if (this.currentChoicePoint == null) return false;
-		return true;
-	}
-
-	/**
-	 * Store a local varable value for use by the seach algorithm's tracking back
-	 * functionality.
-	 * @param valueRepresentation A Restore object.
-	 */
-	public void saveLocalVariableValue(Restore valueRepresentation) {
-		if (this.currentChoicePoint != null) this.currentChoicePoint.addToTrail(valueRepresentation);
-	}
-
-	/**
-	 * Get the information whether this search algorithm requires an array
-	 * value to be stored (at this exakt moment of execution).
-	 * @return true, if a choice point has been already generated, false otherwise.
-	 */
-	public boolean savingArrayValues() {
-		if (this.currentChoicePoint == null) return false;
-		return true;
-	}
-
-	/**
-	 * Store a array value for use by the seach algorithm's tracking back
-	 * functionality.
-	 * @param valueRepresentation An ArrayRestore object.
-	 */
-	public void saveArrayValue(ArrayRestore valueRepresentation) {
-		if (this.currentChoicePoint != null) this.currentChoicePoint.addToTrail(valueRepresentation);
-	}
-
-	/**
 	 * Return statistical information about the execution. The information is
 	 * returned as an two-dimensional String array. Its first dimension
 	 * represents the distinct statistical informations that can be supplied.

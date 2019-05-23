@@ -20,6 +20,8 @@ public class CAstore extends Astore implements Instruction {
 		 this.typedInstruction = new CharacterInstruction();
 	}
 
+
+
 	/**
 	 * Resolve the instructions name.
 	 * @return The instructions name as a String.

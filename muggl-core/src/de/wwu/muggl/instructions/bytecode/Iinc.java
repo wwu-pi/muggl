@@ -17,6 +17,9 @@ import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Sum;
 import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.solvers.expressions.Variable;
+import de.wwu.muli.searchtree.ST;
+
+import java.util.Optional;
 
 /**
  * Implementation of the instruction <code>iinc</code>.
@@ -118,9 +121,9 @@ public class Iinc extends de.wwu.muggl.instructions.general.IntegerIncremenet im
 				throw new SymbolicExecutionException("The expected type for iinc is int. Cannot process any other type.");
 
 			// Save the current value, if necessary.
-			if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingLocalVariableValues()) {
+			if (((SearchingVM) frame.getVm()).isInSearch()) {
 				Restore localVariableValue = new Restore(localVariable, term);
-				((SearchingVM) frame.getVm()).getSearchAlgorithm().saveLocalVariableValue(localVariableValue);
+				((SearchingVM) frame.getVm()).saveLocalVariableValue(localVariableValue);
 			}
 
 			// Store the new value.
@@ -131,7 +134,17 @@ public class Iinc extends de.wwu.muggl.instructions.general.IntegerIncremenet im
 		}
 	}
 
-	/**
+    @Override
+    public Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
+        if (!vm.isInSearch()) {
+            execute(frame);
+        } else {
+            executeSymbolically(frame);
+        }
+        return Optional.empty();
+    }
+
+    /**
 	 * Get the index into the local variables.
 	 * @return The index into the local variables.
 	 */

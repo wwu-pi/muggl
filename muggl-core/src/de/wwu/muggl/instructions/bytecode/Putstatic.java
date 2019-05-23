@@ -24,6 +24,9 @@ import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.initialization.ModifieableArrayref;
 import de.wwu.muggl.solvers.expressions.BooleanConstant;
 import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muli.searchtree.ST;
+
+import java.util.Optional;
 
 /**
  * Implementation of the instruction <code>putstatic</code>.
@@ -146,9 +149,9 @@ public class Putstatic extends Put implements Instruction {
 			InitializedClass initializedClass = field.getClassFile().getTheInitializedClass(frame.getVm());
 
 			// Save the current value, if necessary.
-			if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingFieldValues()) {
+			if (((SearchingVM) frame.getVm()).isInSearch()) {
 				StaticFieldPut fieldValue = new StaticFieldPut(initializedClass, field, initializedClass.getField(field));
-				((SearchingVM) frame.getVm()).getSearchAlgorithm().saveFieldValue(fieldValue);
+				((SearchingVM) frame.getVm()).saveFieldValue(fieldValue);
 			}
 
 			// Finally assign the value.
@@ -166,6 +169,16 @@ public class Putstatic extends Put implements Instruction {
 			executionFailedSymbolically(e);
 		}
 	}
+
+    @Override
+    public Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
+        if (!vm.isInSearch()) {
+            execute(frame);
+        } else {
+            executeSymbolically(frame);
+        }
+        return Optional.empty();
+    }
 
 	/**
 	 * Fetch the Field and check if it meet the requirements of the virtual machine.

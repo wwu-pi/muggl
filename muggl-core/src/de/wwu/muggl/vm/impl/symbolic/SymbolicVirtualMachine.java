@@ -3,7 +3,7 @@ package de.wwu.muggl.vm.impl.symbolic;
 import java.util.Iterator;
 import java.util.Stack;
 
-import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.TrailElement;
+import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.*;
 import de.wwu.muli.searchtree.Choice;
 import org.apache.log4j.Level;
 
@@ -25,7 +25,6 @@ import de.wwu.muggl.symbolic.searchAlgorithms.SymbolicSearchAlgorithm;
 import de.wwu.muggl.symbolic.searchAlgorithms.choice.ChoicePoint;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.DepthFirstSearchAlgorithm;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.StackToTrail;
-import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.FrameChange;
 import de.wwu.muggl.symbolic.searchAlgorithms.iterativeDeepening.IterativeDeepeningSearchAlgorithm;
 import de.wwu.muggl.symbolic.structures.Loop;
 import de.wwu.muggl.symbolic.testCases.SolutionProcessor;
@@ -988,6 +987,26 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
     @Override
     public void addToTrail(TrailElement element) {
 
+    }
+
+    @Override
+    public boolean isInSearch() {
+        return this.getSearchAlgorithm().getCurrentChoicePoint() != null;
+    }
+
+    @Override
+    public void saveFieldValue(FieldPut fieldValue) {
+        this.getSearchAlgorithm().getCurrentChoicePoint().addToTrail(fieldValue);
+    }
+
+    @Override
+    public void saveLocalVariableValue(Restore valueRepresentation) {
+        this.getSearchAlgorithm().getCurrentChoicePoint().addToTrail(valueRepresentation);
+    }
+
+    @Override
+    public void saveArrayValue(ArrayRestore valueRepresentation) {
+        this.getSearchAlgorithm().getCurrentChoicePoint().addToTrail(valueRepresentation);
     }
 
     /**

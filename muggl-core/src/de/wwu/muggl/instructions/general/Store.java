@@ -13,6 +13,9 @@ import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
+import de.wwu.muli.searchtree.ST;
+
+import java.util.Optional;
 
 /**
  * Abstract instruction with some concrete methods for instructions that store elements
@@ -109,15 +112,24 @@ public abstract class Store extends GeneralInstructionWithOtherBytes implements
 	 */
 	public void executeSymbolically(Frame frame, int localVariable) throws SymbolicExecutionException {
 		// Save the current value, if necessary.
-		if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingLocalVariableValues()) {
+		if (((SearchingVM) frame.getVm()).isInSearch()) {
 			Restore localVariableValue = new Restore(localVariable, frame.getLocalVariables()[localVariable]);
-			((SearchingVM) frame.getVm()).getSearchAlgorithm().saveLocalVariableValue(localVariableValue);
+			((SearchingVM) frame.getVm()).saveLocalVariableValue(localVariableValue);
 		}
 
 		// Store the value.
 		Object object = frame.getOperandStack().pop();
 		frame.setLocalVariable(localVariable, object);
 	}
+
+    public Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
+        if (!vm.isInSearch()) {
+            execute(frame);
+        } else {
+            executeSymbolically(frame);
+        }
+        return Optional.empty();
+    }
 
 	/**
 	 * Get the number of other bytes for this instruction.

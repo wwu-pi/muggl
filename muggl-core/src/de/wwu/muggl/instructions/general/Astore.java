@@ -1,5 +1,6 @@
 package de.wwu.muggl.instructions.general;
 
+import java.util.Optional;
 import java.util.Stack;
 
 import de.wwu.muggl.instructions.interfaces.control.JumpException;
@@ -19,6 +20,7 @@ import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muli.searchtree.ST;
 
 /**
  * Abstract instruction with some concrete methods for storing elements into arrays. Concrete
@@ -110,10 +112,10 @@ public abstract class Astore extends GeneralInstruction implements JumpException
 			Arrayref arrayref = (Arrayref) arrayrefObject;
 
 			// Save the current value, if necessary.
-			if (((SearchingVM) frame.getVm()).getSearchAlgorithm().savingArrayValues()) {
+			if (((SearchingVM) frame.getVm()).isInSearch()) {
 				Object oldValue = arrayref.getElement(index);
 				ArrayRestore arrayValue = new ArrayRestore(arrayref, index, oldValue);
-				((SearchingVM) frame.getVm()).getSearchAlgorithm().saveArrayValue(arrayValue);
+				((SearchingVM) frame.getVm()).saveArrayValue(arrayValue);
 			}
 
 			// Unexpected exception: The value is not of one of the required types.
@@ -141,7 +143,16 @@ public abstract class Astore extends GeneralInstruction implements JumpException
 		}
 	}
 
-	/**
+    public Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
+	    if (!vm.isInSearch()) {
+            execute(frame);
+        } else {
+	        executeSymbolically(frame);
+        }
+        return Optional.empty();
+    }
+
+    /**
 	 * Get the number of other bytes for this instruction.
 	 * @return The number of other bytes.
 	 */
