@@ -30,9 +30,13 @@ public interface Instruction {
 	 */
 	void executeSymbolically(Frame frame) throws ExecutionException;
 
-	default Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
-        execute(frame);
-	    return Optional.empty();
+    default Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
+        if (!vm.isInSearch()) {
+            execute(frame);
+        } else {
+            executeSymbolically(frame);
+        }
+        return Optional.empty();
     }
 
 	/**
