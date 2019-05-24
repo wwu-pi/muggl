@@ -10,8 +10,8 @@ public class Choice<A> extends ST<A> {
     private final Choice<A> parent;
     private final Stack<TrailElement> trail;
     private final Stack<TrailElement> inverseTrail;
-    private final List<STProxy<A>> sts;
-    private STProxy substitutedSTProxy;
+    private final List<UnevaluatedST<A>> sts;
+    private UnevaluatedST substitutedUnevaluatedST;
 
     public Choice(Frame frame, List<Integer> pcs, List<ConstraintExpression> constraintExpressions, Stack<TrailElement> trailElements, Choice<A> parent) {
         if (pcs == null || constraintExpressions == null) {
@@ -28,7 +28,7 @@ public class Choice<A> extends ST<A> {
         this.sts = new ArrayList<>(pcs.size());
 
         while (pcIt.hasNext() && constraintExpressionIt.hasNext()) {
-            getSts().add(new STProxy<>(frame, pcIt.next(), constraintExpressionIt.next(), this));
+            getSts().add(new UnevaluatedST<>(frame, pcIt.next(), constraintExpressionIt.next(), this));
         }
 
         this.trail = trailElements;
@@ -40,19 +40,19 @@ public class Choice<A> extends ST<A> {
         this(frame, Arrays.asList(pcNext, pcWithJump), Arrays.asList(constraintExpression.negate(), constraintExpression), trailElements, parent);
     }
 
-    public void setSubstitutedSTProxy(STProxy substitutedSTProxy) {
-        this.substitutedSTProxy = substitutedSTProxy;
+    public void setSubstitutedUnevaluatedST(UnevaluatedST substitutedUnevaluatedST) {
+        this.substitutedUnevaluatedST = substitutedUnevaluatedST;
     }
 
-    public STProxy getSubstitutedSTProxy() {
-        return substitutedSTProxy;
+    public UnevaluatedST getSubstitutedUnevaluatedST() {
+        return substitutedUnevaluatedST;
     }
 
     public Choice<A> getParent() {
         return parent;
     }
 
-    public List<STProxy<A>> getSts() {
+    public List<UnevaluatedST<A>> getSts() {
         return sts;
     }
 

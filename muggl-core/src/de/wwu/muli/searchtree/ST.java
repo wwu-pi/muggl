@@ -17,9 +17,9 @@ public abstract class ST<A> {
             }
             
             return result.toString();
-        } else if (this instanceof STProxy) {
-            if (((STProxy)this).isEvaluated()) {
-                return ((STProxy)this).getEvaluationResult().toStringDFS(depth);
+        } else if (this instanceof UnevaluatedST) {
+            if (((UnevaluatedST)this).isEvaluated()) {
+                return ((UnevaluatedST)this).getEvaluationResult().toStringDFS(depth);
             }
             else {
                 return indent(depth) + "- (not evaluated)\r\n";

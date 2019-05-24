@@ -3,7 +3,7 @@ package de.wwu.muli.searchtree;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.vm.Frame;
 
-public class STProxy<A> extends ST<A> {
+public class UnevaluatedST<A> extends ST<A> {
     /**
      * Frame at which execution has to continue for evaluation.
      */
@@ -35,12 +35,12 @@ public class STProxy<A> extends ST<A> {
         return evaluationResult;
     }
 
-    public STProxy(Frame frame, int pc, ConstraintExpression constraintExpression, Choice<A> childOf) {
+    public UnevaluatedST(Frame frame, int pc, ConstraintExpression constraintExpression, Choice<A> childOf) {
         this.frame = frame;
         this.pc = pc;
         // If constraintExpression is null, no constraint is required for entering this subtree.
         this.constraintExpression = constraintExpression;
-        // If childOf is null, this STProxy represents a full tree instead of a subtree.
+        // If childOf is null, this UnevaluatedST represents a full tree instead of a subtree.
         this.childOf = childOf;
 
     }
