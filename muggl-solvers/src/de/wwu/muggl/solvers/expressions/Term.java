@@ -226,7 +226,9 @@ public abstract class Term implements Expression {
 		}
 		if (obj instanceof Integer){
 			return new IntConstant((int)obj);
-		} else if (obj instanceof BooleanConstant) {
+		} else if (obj instanceof Long) {
+		    return new LongConstant((long)obj);
+        } else if (obj instanceof BooleanConstant) {
 			return new IntConstant(((BooleanConstant) obj).getValue() ? 1:0);
 		} else if (obj instanceof Boolean) {
 			return IntConstant.getInstance(((Boolean) obj) ? 1:0); 

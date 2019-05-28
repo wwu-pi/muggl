@@ -41,8 +41,8 @@ public class Lshl extends Shift implements Instruction {
 	@Override
 	public void executeSymbolically(Frame frame) throws SymbolicExecutionException {
 		Stack<Object> stack = frame.getOperandStack();
-		Term value2 = (Term) stack.pop();
-		Term value1 = (Term) stack.pop();
+        Term value2 = Term.frameConstant(stack.pop());
+        Term value1 = Term.frameConstant(stack.pop());
 
 		if (!value1.isConstant() || !value2.isConstant())
 			throw new SymbolicExecutionException("Shifting of bits is currently only possible for constant values.");
