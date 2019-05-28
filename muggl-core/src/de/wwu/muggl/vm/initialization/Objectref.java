@@ -84,7 +84,17 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 			if (!this.fields.isEmpty()) {
 				dbghint = " val:" + NativeWrapper.stringObjectrefToString(this);;
 			}
-		}
+		} else if(this.staticReference.getClassFile().getName().equals("java.lang.Boolean") && (dbghint.length()==0)) {
+            if (!this.fields.isEmpty()) {
+                Field valueField = this.getInitializedClass().getClassFile().getFieldByNameAndDescriptor("value", "Z");
+                dbghint = " val:" + ((int)this.getField(valueField) != 0);
+            }
+        } else if(this.staticReference.getClassFile().getName().equals("java.lang.Integer") && (dbghint.length()==0)) {
+            if (!this.fields.isEmpty()) {
+                Field valueField = this.getInitializedClass().getClassFile().getFieldByNameAndDescriptor("value", "I");
+                dbghint = " val:" + ((int)this.getField(valueField));
+            }
+        }
 		return "Objectref " + this.staticReference.getClassFile().getName() + " (id: " + this.instantiationNumber
 				+ dbghint + ")";
 	}
