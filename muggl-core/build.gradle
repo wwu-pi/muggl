@@ -17,6 +17,7 @@ sourceSets {
 test {
     testLogging {
         events "started", "passed", "skipped", "failed"
+        exceptionFormat = 'full'
     }
 
     useJUnit {

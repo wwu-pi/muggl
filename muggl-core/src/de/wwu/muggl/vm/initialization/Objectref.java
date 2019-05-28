@@ -82,17 +82,24 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 		String dbghint = (debugHelperString != null) ? " dbghint: " + this.debugHelperString : "";
 		if(this.staticReference.getClassFile().getName().equals("java.lang.String") && (dbghint.length()==0)) {
 			if (!this.fields.isEmpty()) {
-				dbghint = " val:" + NativeWrapper.stringObjectrefToString(this);;
+				dbghint = " val: " + NativeWrapper.stringObjectrefToString(this);;
 			}
 		} else if(this.staticReference.getClassFile().getName().equals("java.lang.Boolean") && (dbghint.length()==0)) {
             if (!this.fields.isEmpty()) {
                 Field valueField = this.getInitializedClass().getClassFile().getFieldByNameAndDescriptor("value", "Z");
-                dbghint = " val:" + ((int)this.getField(valueField) != 0);
+                boolean val;
+                Object val_real = this.getField(valueField);
+                if (val_real instanceof Integer) {
+                    val = (int)val_real != 0;
+                } else {
+                    val = (boolean)val_real;
+                }
+                dbghint = " val: " + val;
             }
         } else if(this.staticReference.getClassFile().getName().equals("java.lang.Integer") && (dbghint.length()==0)) {
             if (!this.fields.isEmpty()) {
                 Field valueField = this.getInitializedClass().getClassFile().getFieldByNameAndDescriptor("value", "I");
-                dbghint = " val:" + ((int)this.getField(valueField));
+                dbghint = " val: " + ((int)this.getField(valueField));
             }
         }
 		return "Objectref " + this.staticReference.getClassFile().getName() + " (id: " + this.instantiationNumber
