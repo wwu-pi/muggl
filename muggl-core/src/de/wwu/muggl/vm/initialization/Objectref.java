@@ -3,6 +3,8 @@ package de.wwu.muggl.vm.initialization;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Variable;
 import de.wwu.muggl.vm.Universe;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.VmSymbols.BasicType;
@@ -87,19 +89,26 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 		} else if(this.staticReference.getClassFile().getName().equals("java.lang.Boolean") && (dbghint.length()==0)) {
             if (!this.fields.isEmpty()) {
                 Field valueField = this.getInitializedClass().getClassFile().getFieldByNameAndDescriptor("value", "Z");
-                boolean val;
                 Object val_real = this.getField(valueField);
                 if (val_real instanceof Integer) {
-                    val = (int)val_real != 0;
-                } else {
-                    val = (boolean)val_real;
+                    dbghint = " val: " + ((int)val_real != 0);
+                } else if (val_real instanceof Variable) {
+                    dbghint = " var: " + ((Variable) val_real).getName();
+                } else{
+                    dbghint = " val: " + (boolean)val_real;
                 }
-                dbghint = " val: " + val;
             }
         } else if(this.staticReference.getClassFile().getName().equals("java.lang.Integer") && (dbghint.length()==0)) {
             if (!this.fields.isEmpty()) {
                 Field valueField = this.getInitializedClass().getClassFile().getFieldByNameAndDescriptor("value", "I");
-                dbghint = " val: " + ((int)this.getField(valueField));
+                Object val_real = this.getField(valueField);
+                if (val_real instanceof Variable) {
+                    dbghint = " var: " + ((Variable) val_real).getName();
+                } else if (val_real instanceof IntConstant) {
+                    dbghint = " val: " + ((IntConstant) val_real).getIntValue();
+                } else {
+                    dbghint = " val: " + ((int) val_real);
+                }
             }
         }
 		return "Objectref " + this.staticReference.getClassFile().getName() + " (id: " + this.instantiationNumber
