@@ -37,7 +37,7 @@ public class Choice<A> extends ST<A> {
     }
 
     public Choice(Frame frame, int pcNext, int pcWithJump, ConstraintExpression constraintExpression, Stack<TrailElement> trailElements, Choice<A> parent) {
-        this(frame, Arrays.asList(pcNext, pcWithJump), Arrays.asList(constraintExpression.negate(), constraintExpression), trailElements, parent);
+        this(frame, Arrays.asList(pcWithJump, pcNext), Arrays.asList(constraintExpression, constraintExpression.negate()), trailElements, parent);
     }
 
     public void setSubstitutedUnevaluatedST(UnevaluatedST substitutedUnevaluatedST) {
