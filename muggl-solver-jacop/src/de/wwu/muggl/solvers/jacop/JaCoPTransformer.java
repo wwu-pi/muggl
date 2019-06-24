@@ -66,7 +66,7 @@ import de.wwu.muggl.solvers.expressions.Variable;
  */
 public class JaCoPTransformer {
 	private static final int DOMAIN_DEPRECIATION =
-			100000;
+			10_000;
 
     //private static final IntDomain DOMAIN_INTEGER =
     //        new BoundDomain(IntDomain.MinInt/DOMAIN_DEPRECIATION,
