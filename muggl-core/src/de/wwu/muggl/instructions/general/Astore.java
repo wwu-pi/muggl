@@ -96,7 +96,7 @@ public abstract class Astore extends GeneralInstruction implements JumpException
 		try {
 			// Preparations.
 			Stack<Object> stack = frame.getOperandStack();
-			Term value = (Term) stack.pop();
+			Term value = Term.frameConstant(stack.pop());
 			int index = ((IntConstant) stack.pop()).getValue();
 			Object arrayrefObject  = stack.pop();
 
