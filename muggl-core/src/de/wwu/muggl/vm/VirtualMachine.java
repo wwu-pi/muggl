@@ -678,10 +678,12 @@ public abstract class VirtualMachine extends Thread {
 				} else {
 					frame = (Frame) object;
 				}
-				if (!frame.isHiddenFrame() && Globals.getInst()
-						.logBasedOnWhiteBlacklist(frame.getMethod().getPackageAndName()).orElse(true))
-					Globals.getInst().execLogger.trace("Continuing operation with the next frame ("
-							+ frame.getMethod().getPackageAndName() + "(" + frame.getMethod().getParameterTypesAndNames() + ")).");
+                if (Globals.getInst().execLogger.isTraceEnabled()) {
+                    if (!frame.isHiddenFrame() && Globals.getInst()
+                            .logBasedOnWhiteBlacklist(frame.getMethod().getPackageAndName()).orElse(true))
+                        Globals.getInst().execLogger.trace("Continuing operation with the next frame ("
+                                + frame.getMethod().getPackageAndName() + "(" + frame.getMethod().getParameterTypesAndNames() + ")).");
+                }
 			}
 
 			// Enable stepping once the frame of the initially invoked method is reached.
@@ -710,14 +712,17 @@ public abstract class VirtualMachine extends Thread {
 	protected void executeFrame(boolean allowStepping) throws ExecutionException, InterruptedException, InvalidInstructionInitialisationException {
 		this.executedFrames++;
 		Method method = this.currentFrame.getMethod();
-		
-		if (!this.currentFrame.isHiddenFrame()
-				&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
-			Globals.getInst().executionInstructionLogger.debug(
-					method.getFullNameWithParameterTypesAndNames()+ ":" + method.getReturnType() + " (op: " + this.currentFrame.getOperandStack()
-							+ ", localvar: [" + Arrays.stream(this.currentFrame.getLocalVariables())
-									.map(x -> (x == null)? "null": x.toString()).collect(Collectors.joining(", "))									
-							+ "] pc: " + this.pc + ")");
+
+
+        if (Globals.getInst().executionInstructionLogger.isDebugEnabled()) {
+            if (!this.currentFrame.isHiddenFrame()
+                    && Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
+                Globals.getInst().executionInstructionLogger.debug(
+                        method.getFullNameWithParameterTypesAndNames() + ":" + method.getReturnType() + " (op: " + this.currentFrame.getOperandStack()
+                                + ", localvar: [" + Arrays.stream(this.currentFrame.getLocalVariables())
+                                .map(x -> (x == null) ? "null" : x.toString()).collect(Collectors.joining(", "))
+                                + "] pc: " + this.pc + ")");
+        }
 
 		Instruction[] instructions = method.getInstructionsAndOtherBytes();
 		this.currentFrame.setActive(true);
@@ -774,10 +779,12 @@ public abstract class VirtualMachine extends Thread {
 			int pc = this.pc;
 
 			// avoid log pollution with certain filters
-			if (!currentFrame.isHiddenFrame() && Globals.getInst()
-					.logBasedOnWhiteBlacklist(this.currentFrame.method.getPackageAndName()).orElse(true))
-				Globals.getInst().executionInstructionLogger.trace(this.currentFrame.method.getPackageAndName()
-						+ " " + String.format("%1$2s", this.pc) + ": Executing " + instructions[this.pc].getNameWithOtherBytes());
+            if (Globals.getInst().executionInstructionLogger.isTraceEnabled()) {
+                if (!currentFrame.isHiddenFrame() && Globals.getInst()
+                        .logBasedOnWhiteBlacklist(this.currentFrame.method.getPackageAndName()).orElse(true))
+                    Globals.getInst().executionInstructionLogger.trace(this.currentFrame.method.getPackageAndName()
+                            + " " + String.format("%1$2s", this.pc) + ": Executing " + instructions[this.pc].getNameWithOtherBytes());
+            }
 
 			// Execute the instruction.
 			executeInstruction(instructions[pc]);
@@ -1128,11 +1135,13 @@ public abstract class VirtualMachine extends Thread {
 			// Method allowed?
 			if (!method.getName().equals(VmSymbols.CLASS_INITIALIZER_NAME)) throw new ExceptionInInitializerError("Only a method with signature <clinit> might be used for class initialization.");
 
-			Boolean parentFrameIsHidden = currentFrame != null && currentFrame.isHiddenFrame();
-			if (!parentFrameIsHidden
-					&& Globals.getInst().logBasedOnWhiteBlacklist(method.getClassFile().getName()).orElse(true))
-				Globals.getInst().execLogger
-						.trace("Now executing the static initializer of " + method.getClassFile().getName() + ".");
+            Boolean parentFrameIsHidden = currentFrame != null && currentFrame.isHiddenFrame();
+            if (Globals.getInst().execLogger.isTraceEnabled()) {
+                if (!parentFrameIsHidden
+                        && Globals.getInst().logBasedOnWhiteBlacklist(method.getClassFile().getName()).orElse(true))
+                    Globals.getInst().execLogger
+                            .trace("Now executing the static initializer of " + method.getClassFile().getName() + ".");
+            }
 
 			// Save the current data.
 			int savedPC = getPc();
@@ -1172,13 +1181,15 @@ public abstract class VirtualMachine extends Thread {
 				// Stop it here, we are back!
 				if (frame.equals(savedFrame)) break;
 
-				if (!frame.getMethod().equals(method) && !frame.isHiddenFrame() && Globals.getInst()
-						.logBasedOnWhiteBlacklist(frame.getMethod().getPackageAndName()).orElse(true))
-					// if getParameterTypesAndNames outputs parameters null, it might also be that we're only re-entering a frame
-					// and parameter resolution isn't accurate
-					Globals.getInst().execLogger.trace("Continuing operation with the next frame ("
-							+ frame.getMethod().getPackageAndName() + "). Invoked by the static initializer of "
-							+ method.getClassFile().getName() + ".");
+                if (Globals.getInst().execLogger.isTraceEnabled()) {
+                    if (!frame.getMethod().equals(method) && !frame.isHiddenFrame() && Globals.getInst()
+                            .logBasedOnWhiteBlacklist(frame.getMethod().getPackageAndName()).orElse(true))
+                        // if getParameterTypesAndNames outputs parameters null, it might also be that we're only re-entering a frame
+                        // and parameter resolution isn't accurate
+                        Globals.getInst().execLogger.trace("Continuing operation with the next frame ("
+                                + frame.getMethod().getPackageAndName() + "). Invoked by the static initializer of "
+                                + method.getClassFile().getName() + ".");
+                }
 
 				frame.setHiddenFrame(parentFrameIsHidden);
 				// start execution of this frame
