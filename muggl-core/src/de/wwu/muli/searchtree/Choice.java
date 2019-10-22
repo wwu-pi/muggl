@@ -44,7 +44,7 @@ public class Choice<A> extends ST<A> {
         this.substitutedUnevaluatedST = substitutedUnevaluatedST;
     }
 
-    public UnevaluatedST getSubstitutedUnevaluatedST() {
+    public UnevaluatedST<A> getSubstitutedUnevaluatedST() {
         return substitutedUnevaluatedST;
     }
 

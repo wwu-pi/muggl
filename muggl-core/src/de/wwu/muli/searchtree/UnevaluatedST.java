@@ -3,6 +3,8 @@ package de.wwu.muli.searchtree;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.vm.Frame;
 
+import java.util.Optional;
+
 public class UnevaluatedST<A> extends ST<A> {
     /**
      * Frame at which execution has to continue for evaluation.
@@ -73,7 +75,7 @@ public class UnevaluatedST<A> extends ST<A> {
         return pc;
     }
 
-    public ConstraintExpression getConstraintExpression() {
-        return constraintExpression;
+    public Optional<ConstraintExpression> getConstraintExpression() {
+        return Optional.ofNullable(constraintExpression);
     }
 }
