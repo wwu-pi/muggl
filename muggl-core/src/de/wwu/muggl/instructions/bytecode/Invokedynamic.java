@@ -292,7 +292,8 @@ public class Invokedynamic extends Invoke implements Instruction {
             if (targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_invokeInterface) {
                 targetMethod = resolve.resolveMethodInterface(targetMethodrefClassFile, targetMethodref.getNameAndTypeInfo());
             } else {
-                assert(targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_invokeStatic);
+                assert(targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_invokeStatic ||
+                        targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_newInvokeSpecial);
                 targetMethod = resolve.resolveMethod(targetMethodrefClassFile, targetMethodref.getNameAndTypeInfo());
             }
         } catch (ClassFileException e) {
