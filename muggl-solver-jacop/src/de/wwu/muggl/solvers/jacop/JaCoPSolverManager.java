@@ -165,7 +165,9 @@ public class JaCoPSolverManager implements SolverManager {
 			Search<IntVar> labelInt = new DepthFirstSearch<IntVar>();
 			Search<FloatVar> labelFloat = new DepthFirstSearch<FloatVar>();
 			labelInt.setPrintInfo(false);
+            labelInt.getSolutionListener().recordSolutions(true);
 			labelFloat.setPrintInfo(false);
+			labelFloat.getSolutionListener().recordSolutions(true);
 
 			labelFloat.setSelectChoicePoint(selectFloat);
 			labelInt.addChildSearch(labelFloat);
@@ -175,12 +177,14 @@ public class JaCoPSolverManager implements SolverManager {
 		} else if (vars.length > 0) {
 			// IntVars only
 			Search<IntVar> labelInt = new DepthFirstSearch<IntVar>();
-			labelInt.setPrintInfo(false);
+            labelInt.getSolutionListener().recordSolutions(true);
+            labelInt.setPrintInfo(false);
 			solutionFound = labelInt.labeling(jacopStore, select) && labelInt.assignSolution();
 			search = labelInt;
 		} else {
 			// FloatVars only
 			Search<FloatVar> labelFloat = new DepthFirstSearch<FloatVar>();
+			labelFloat.getSolutionListener().recordSolutions(true);
 			labelFloat.setPrintInfo(false);
 			solutionFound = labelFloat.labeling(jacopStore, selectFloat) && labelFloat.assignSolution();
 			search = labelFloat;
