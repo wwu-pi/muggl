@@ -33,7 +33,7 @@ public class UnevaluatedST<A> extends ST<A> {
         evaluationResult = result;
     }
 
-    ST<A> getEvaluationResult() {
+    public ST<A> getEvaluationResult() {
         return evaluationResult;
     }
 
