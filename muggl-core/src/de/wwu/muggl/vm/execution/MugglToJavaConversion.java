@@ -982,8 +982,14 @@ public class MugglToJavaConversion {
 			if (!ignoreFinalFields || !java.lang.reflect.Modifier.isFinal(modifiers)) {
 				// Distinguish between static and instance fields.
 				if (java.lang.reflect.Modifier.isStatic(modifiers)) {
-					Field field = objectref.getInitializedClass().getClassFile()
-							.getFieldByName(javaField.getName(), true);
+                    Field field;
+                    try {
+                        // Libraries, such as JaCoCo, might add fields that Muli/Muggl know nothing about.
+                        field = objectref.getInitializedClass().getClassFile().getFieldByName(javaField.getName(), true);
+                    } catch (de.wwu.muggl.instructions.FieldResolutionError error) {
+                        Globals.getInst().symbolicExecLogger.error("Dropped field " + javaField.getName() + " while converting " + objectref.getInitializedClass().getClassFile().getClassName());
+                        continue;
+                    }
 					try {
 						// Convert and insert.
 						Object objectToInsert = javaField.get(object);
