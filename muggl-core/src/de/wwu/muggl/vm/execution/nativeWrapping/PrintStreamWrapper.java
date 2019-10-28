@@ -325,10 +325,10 @@ public class PrintStreamWrapper extends PrintStream {
 			PrintStream ps;
 			switch (wrapperFor) {
 			case "System.err":
-				ps = System.err;
+				ps = Options.getInst().isUnitTest ? TestablePrintStreamWrapper.errorStream().getTeeingStream() : System.err;
 				break;
 			default:
-				ps = System.out;
+				ps = Options.getInst().isUnitTest ? TestablePrintStreamWrapper.outputStream().getTeeingStream() : System.out;
 				break;
 			}
 			ps.print(s);

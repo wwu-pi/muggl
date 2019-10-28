@@ -556,6 +556,11 @@ public final class Options {
 	 * is doing.
 	 */
 	public boolean actualCliPrinting;
+
+    /**
+     * Flag indicating that test cases are running (only used by muli-env/muli-runtime).
+     */
+    public boolean isUnitTest;
 	
 	// Singleton.
 	private static final Options OPTIONS = new Options();
