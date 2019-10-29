@@ -415,8 +415,8 @@ public class JaCoPTransformer {
 			IntVar intVar = (IntVar) store.getVariable((Variable)integerTerm);
 			
 			if (intVar == null) {
-				intVar = new IntVar(store, 
-					((NumericVariable)integerTerm).getName(),
+				intVar = new IntVar(store,
+					((NumericVariable)integerTerm).getName() + "_" + integerTerm.hashCode(),
 					DOMAIN_INTEGER);
 				// add to cache
 				store.addVariable((Variable)integerTerm, intVar);

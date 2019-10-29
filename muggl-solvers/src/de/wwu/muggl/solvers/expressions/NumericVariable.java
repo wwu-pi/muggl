@@ -285,7 +285,7 @@ public class NumericVariable extends Term implements Variable, Comparable<Variab
 
     @Override
     public int hashCode(){
-	return name.hashCode();
+	    return (name+internalID).hashCode();
     }
 
     @Override
