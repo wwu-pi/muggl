@@ -3,7 +3,6 @@ package de.wwu.muggl.solvers.jacop;
 import java.util.ArrayList;
 
 import org.jacop.constraints.*;
-import org.jacop.core.BoundDomain;
 import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
 import org.jacop.core.IntervalDomain;
@@ -501,7 +500,7 @@ public class JaCoPTransformer {
 		IntVar intermediateVariable = new IntVar(store, DOMAIN_INTEGER);
 		Constraint sumConstraint;
 		if (allWeightsOne) {
-			sumConstraint = new SumInt(store, termList, "==", intermediateVariable);
+			sumConstraint = new SumInt(termList, "==", intermediateVariable);
 		} else {
             //sumConstraint = new SumWeight(termList, weightList, intermediateVariable);
 		    int[] weights = new int[weightList.size()];
