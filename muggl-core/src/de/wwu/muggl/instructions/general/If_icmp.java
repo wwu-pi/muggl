@@ -101,6 +101,12 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
 
         // Deterministic execution.
         if (!options.symbolicMode) {
+            if (op2 instanceof IntConstant) {
+                op2 = ((IntConstant) op2).getIntValue();
+            }
+            if (op1 instanceof IntConstant) {
+                op1 = ((IntConstant) op1).getIntValue();
+            }
             int value2 = (Integer) VmSymbols.wideningPrimConversion(op2, Integer.class);
             int value1 = (Integer) VmSymbols.wideningPrimConversion(op1, Integer.class);
             if (this.compare(value1, value2)) {

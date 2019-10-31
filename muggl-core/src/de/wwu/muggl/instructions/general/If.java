@@ -55,7 +55,9 @@ public abstract class If extends GeneralInstructionWithOtherBytes implements Jum
 		int value;
 		if (rawValue instanceof Boolean)
 			value = (boolean) rawValue ? 1 : 0;
-		else
+		else if (rawValue instanceof IntConstant)
+		    value = ((IntConstant) rawValue).getIntValue();
+        else
 			value = (Integer) rawValue;
 		if (compare(value)) {
 			frame.getVm().setPC(this.lineNumber + (this.otherBytes[0] << ONE_BYTE | this.otherBytes[1]));

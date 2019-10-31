@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import de.wwu.muggl.instructions.general.Mul;
 import de.wwu.muggl.instructions.interfaces.Instruction;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 
@@ -22,8 +23,20 @@ public class IMul extends Mul implements Instruction {
 	@Override
 	public void execute(Frame frame) {
 		Stack<Object> stack = frame.getOperandStack();
-		Integer value2 = (Integer) stack.pop();
-		Integer value1 = (Integer) stack.pop();
+        Object op2 = stack.pop();
+        Object op1 = stack.pop();
+        Integer value2;
+        Integer value1;
+        if (op2 instanceof IntConstant) {
+            value2 = ((IntConstant) op2).getIntValue();
+        } else {
+            value2 = (Integer) op2;
+        }
+        if (op1 instanceof IntConstant) {
+            value1 = ((IntConstant) op1).getIntValue();
+        } else {
+            value1 = (Integer) op1;
+        }
 		stack.push(value1 * value2);
 	}
 
