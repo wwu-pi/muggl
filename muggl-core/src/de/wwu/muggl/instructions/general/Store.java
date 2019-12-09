@@ -7,15 +7,18 @@ import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableDefining;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
 import de.wwu.muggl.instructions.typed.TypedInstruction;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.Restore;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
+import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muli.searchtree.ST;
 
 import java.util.Optional;
+import java.util.Stack;
 
 /**
  * Abstract instruction with some concrete methods for instructions that store elements
@@ -123,6 +126,20 @@ public abstract class Store extends GeneralInstructionWithOtherBytes implements
 	}
 
     public Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
+	    // Check if special Muli handling is needed...
+	    Stack<Object> operandStack = frame.getOperandStack();
+        Object nextStackElement = operandStack.peek();
+        if (nextStackElement instanceof Objectref && ((Objectref)nextStackElement).getSignature().equals("Lde.wwu.muli.freevar.FreeVariablePlaceholder;")) {
+            // Special handling for placeholders - put empty free variable into the assigned slot!
+            operandStack.pop(); // Drop placeholder.
+            int index = getLocalVariableIndex();
+            vm.storeRepresentationForFreeVariable(frame, index);
+
+            // Skip regular behaviour (we do not actually need to store the placeholder; we have the actual free variable!);
+            return Optional.empty();
+        }
+
+        // No special Muli handling. Regular <astore> behaviour!
         if (!vm.isInSearch()) {
             execute(frame);
         } else {

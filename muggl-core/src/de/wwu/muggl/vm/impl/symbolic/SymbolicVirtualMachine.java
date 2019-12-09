@@ -1009,6 +1009,12 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
         this.getSearchAlgorithm().getCurrentChoicePoint().addToTrail(valueRepresentation);
     }
 
+    @Override
+    public void storeRepresentationForFreeVariable(Frame frame, int freeVariableIndex) {
+        // Muli only.
+        throw new UnsupportedOperationException();
+    }
+
     /**
 	 * Increase the time spent on solving for backtracking by the supplied increment.
 	 * 

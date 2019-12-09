@@ -76,4 +76,6 @@ public interface SearchingVM {
     void saveLocalVariableValue(Restore valueRepresentation);
 
     void saveArrayValue(ArrayRestore valueRepresentation);
+
+    void storeRepresentationForFreeVariable(Frame frame, int freeVariableIndex);
 }
