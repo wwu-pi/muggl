@@ -10,57 +10,86 @@ import de.wwu.muggl.solvers.solver.constraints.Assignment;
 public interface Expression{
 
     /**
-     * TODOME: change type to this style
-     * @author Marko Ernsting
+     * @author Marko Ernsting, Jan C. Dageförde
      */
-    public enum Type{ 
-	BOOLEAN,
-	BYTE,
-    	CHAR,
-	DOUBLE,
-	FLOAT,
-	INT,
-	LONG,
-	SHORT,
+    enum Type{
+        BOOLEAN(Expression.BOOLEAN),
+        BYTE(Expression.BYTE),
+        CHAR(Expression.CHAR),
+        DOUBLE(Expression.DOUBLE),
+        FLOAT(Expression.FLOAT),
+        INT(Expression.INT),
+        LONG(Expression.LONG),
+        SHORT(Expression.SHORT),
+        ARRAY(Expression.ARRAY),
+        OBJECT(Expression.OBJECT);
+
+        private final byte type;
+
+        Type(byte type){
+            this.type = type;
+        }
+
+        public byte toByte() {
+            return type;
+        }
     }
 
     /**
      * Represents the basic type boolean.
+     * @deprecated use the Expression.Type enum instead!
      */
+    @Deprecated
     public static final byte BOOLEAN     = 1;
     /**
      * Represents the basic type byte.
+     * @deprecated use the Expression.Type enum instead!
      */
+    @Deprecated
     public static final byte BYTE        = 2;
     /**
      * Represents the basic type double.
+     * @deprecated use the Expression.Type enum instead!
      */
+    @Deprecated
     public static final byte DOUBLE      = 8;
     /**
      * Represents the basic type float.
+     * @deprecated use the Expression.Type enum instead!
      */
+    @Deprecated
     public static final byte FLOAT       = 6;
     /**
      * Represents the basic type int.
+     * @deprecated use the Expression.Type enum instead!
      */
+    @Deprecated
     public static final byte INT         = 5;
     /**
      * Represents the basic type long.
+     * @deprecated use the Expression.Type enum instead!
      */
+    @Deprecated
     public static final byte LONG        = 7;
     /**
      * Represents the basic type short.
+     * @deprecated use the Expression.Type enum instead!
      */
+    @Deprecated
     public static final byte SHORT       = 4;
     /**
      * Represents the basic type char.
+     * @deprecated use the Expression.Type enum instead!
      */
+    @Deprecated
     public static final byte CHAR        = 3;
     
     /**
      * Represents an array.
+     * @deprecated use the Expression.Type enum instead!
      */
-    // public static final byte ARRAY       = 10;
+    @Deprecated
+    public static final byte ARRAY       = 10;
     /**
      * Represents the "empty element" null.
      */
@@ -68,8 +97,10 @@ public interface Expression{
 
     /**
      * Represents an object.
+     * @deprecated use the Expression.Type enum instead!
      */
-    // public static final byte OBJECT      = 11;
+    @Deprecated
+    public static final byte OBJECT      = 11;
 
     /**
      * represents a void return value
