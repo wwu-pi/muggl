@@ -10,7 +10,6 @@ import de.wwu.muggl.vm.exceptions.ExceptionHandler;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
-import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
@@ -86,27 +85,10 @@ public class New extends de.wwu.muggl.instructions.general.ObjectInitialization 
 	 * @throws VmRuntimeException Thrown on runtime exceptions.
 	 */
     public void pushNewObjectref(Frame frame) throws ExecutionException, VmRuntimeException {
-		// Resolve the class.
-		ResolutionAlgorithms resolution = new ResolutionAlgorithms(frame.getVm().getClassLoader());
-		String className = ((ConstantClass) frame.getConstantPool()[this.otherBytes[0] << ONE_BYTE | this.otherBytes[1]]).getValue();
-		ClassFile c;
-		try {
-			c = resolution.resolveClassAsClassFile(frame.getMethod().getClassFile(), className);
-		} catch (IllegalAccessError e) {
-			// Illegal access to a class that is neither public nor in the same package than the class generating the new array.
-			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.IllegalAccessError", e.getMessage()));
-		} catch (NoClassDefFoundError e) {
-			// The class could not be found.
-			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", e.getMessage()));
-		}
+        String className = ((ConstantClass) frame.getConstantPool()[this.otherBytes[0] << ONE_BYTE | this.otherBytes[1]]).getValue();
+        ClassFile c = frame.getVm().resolveClassAsClassFile(frame.getMethod().getClassFile(), className);
 
-		// Unexpected exception: check if it is a class type.
-		if (c.isAccInterface()) throw new ExecutionException("The class resolved by " + getName() + " should neither be an interface, nor an array type.");
-
-		// Linking exception: the class is abstract.
-		if (c.isAccAbstract()) throw new VmRuntimeException(frame.getVm().generateExc("java.lang.InstantiationError", "Cannot instantiate an abstract class."));
-
-		// Initialize the class.
+        // Initialize the class.
 		ReferenceValue objectref;
 		try {
 			objectref = frame.getVm().getAnObjectref(c);
@@ -115,11 +97,17 @@ public class New extends de.wwu.muggl.instructions.general.ObjectInitialization 
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ExceptionInInitializerError", e.getMessage()));
 		}
 
+        // Unexpected exception: check if it is a class type.
+        if (c.isAccInterface()) throw new ExecutionException("The class resolved by " + getName() + " should neither be an interface, nor an array type.");
+
+        // Linking exception: the class is abstract.
+        if (c.isAccAbstract()) throw new VmRuntimeException(frame.getVm().generateExc("java.lang.InstantiationError", "Cannot instantiate an abstract class."));
+
 		// Push the reference to the new class.
 		frame.getOperandStack().push(objectref);
 	}
 
-	/**
+    /**
 	 * Resolve the instructions name.
 	 * @return The instructions name as a String.
 	 */

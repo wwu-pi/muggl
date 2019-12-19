@@ -8,8 +8,8 @@ import java.util.Hashtable;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import de.wwu.muggl.vm.execution.NativeJavaLangSystem;
-import de.wwu.muggl.vm.execution.NativeSunMiscVM;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
+import de.wwu.muggl.vm.execution.*;
 import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
@@ -24,8 +24,6 @@ import de.wwu.muggl.vm.classfile.Limitations;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
-import de.wwu.muggl.vm.execution.ExecutionException;
-import de.wwu.muggl.vm.execution.MugglToJavaConversion;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.vm.initialization.InitializationException;
@@ -1486,4 +1484,20 @@ public abstract class VirtualMachine extends Thread {
 		}
 		this.universeSetupFinished = true;
 	}
+
+    public ClassFile resolveClassAsClassFile(ClassFile fromClass, String className) throws VmRuntimeException, ExecutionException {
+        // Resolve the class.
+        ResolutionAlgorithms resolution = new ResolutionAlgorithms(getClassLoader());
+        ClassFile c;
+        try {
+            c = resolution.resolveClassAsClassFile(fromClass, className);
+        } catch (IllegalAccessError e) {
+            // Illegal access to a class that is neither public nor in the same package than the class generating the new array.
+            throw new VmRuntimeException(generateExc("java.lang.IllegalAccessError", e.getMessage()));
+        } catch (NoClassDefFoundError e) {
+            // The class could not be found.
+            throw new VmRuntimeException(generateExc("java.lang.NoClassDefFoundError", e.getMessage()));
+        }
+        return c;
+    }
 }
