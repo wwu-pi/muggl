@@ -198,14 +198,19 @@ public class InitializedClass extends FieldContainer {
 	 * @throws PrimitiveWrappingImpossibleException If the represented ClassFile cannot be used as a primitive wrapper.
 	 */
 	public Objectref getANewPrimitiveWrapper() throws PrimitiveWrappingImpossibleException {
-		String name = this.representedClassFile.getName();
-		if (!(name.equals("java.lang.Boolean")) && !(name.equals("java.lang.Byte"))
-				&& !(name.equals("java.lang.Character")) && !(name.equals("java.lang.Double"))
-				&& !(name.equals("java.lang.Float")) && !(name.equals("java.lang.Integer"))
-				&& !(name.equals("java.lang.Long")) && !(name.equals("java.lang.Short")))
-			throw new PrimitiveWrappingImpossibleException("This ClassFile cannot be used to wrap a primitive type.");
+		if (!this.representsAPrimitiveType()) {
+            throw new PrimitiveWrappingImpossibleException("This ClassFile cannot be used to wrap a primitive type.");
+        }
 		return new Objectref(this, true);
 	}
+
+	private boolean representsAPrimitiveType() {
+        String className = this.representedClassFile.getName();
+        return className.equals("java.lang.Boolean") || className.equals("java.lang.Byte")
+                || className.equals("java.lang.Character") || className.equals("java.lang.Double")
+                || className.equals("java.lang.Float") || className.equals("java.lang.Integer")
+                || className.equals("java.lang.Long") || className.equals("java.lang.Short");
+    }
 
 	/**
 	 * Getter for the static fields.
