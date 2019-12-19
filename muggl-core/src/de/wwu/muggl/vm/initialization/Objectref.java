@@ -270,7 +270,10 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 	@SuppressWarnings("unchecked")
 	public Objectref clone() throws CloneNotSupportedException {
 		Objectref clone = (Objectref) super.clone();
+        clone.instantiationNumber = staticReference.getClassFile().getClassLoader()
+                .getNextInstantiationNumber();
 		clone.sysfields = (HashMap<String, Object>) this.sysfields.clone();
+		clone.fields = (HashMap<Field, Object>) this.fields.clone();// new HashMap<>();
 		return clone;
 	}
 	
