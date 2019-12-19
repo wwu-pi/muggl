@@ -428,20 +428,23 @@ public class MugglToJavaConversion {
 //		if (object instanceof String) {
 //			return this.vm.getStringCache().getStringObjectref((String) object);
 //		} else {
-			// Create the new object reference.
-			Objectref objectref = this.vm
-					.getAnObjectref(this.vm.getClassLoader().getClassAsClassFile(object.getClass().getName()));
+        // Create the new object reference.
+        if (object instanceof Objectref) {
+            return (Objectref) object;
+        }
 
-			// Cache the result. This has to be done before inserting the fields to avoid infinite loops.
-			this.javaMugglMapping.put(object, objectref);
-			// TODO why not also add the combo (objectref, object) to mugglJavaMapping ?
+        Objectref objectref = this.vm
+                .getAnObjectref(this.vm.getClassLoader().getClassAsClassFile(object.getClass().getName()));
 
-			// Insert the fields.
-			copyFieldFromObject(object, objectref, false);
+        // Cache the result. This has to be done before inserting the fields to avoid infinite loops.
+        this.javaMugglMapping.put(object, objectref);
+        // TODO why not also add the combo (objectref, object) to mugglJavaMapping ?
 
-			// Return the new object reference.
-			return objectref;
-//		}
+        // Insert the fields.
+        copyFieldFromObject(object, objectref, false);
+
+        // Return the new object reference.
+        return objectref;
 	}
 
 	/**
