@@ -3,6 +3,7 @@ package de.wwu.muggl.vm.initialization;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import de.wwu.muggl.solvers.expressions.Expression;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Variable;
 import de.wwu.muggl.vm.Universe;
@@ -106,6 +107,8 @@ public class Objectref extends FieldContainer implements ReferenceValue {
                     dbghint = " var: " + ((Variable) val_real).getName();
                 } else if (val_real instanceof IntConstant) {
                     dbghint = " val: " + ((IntConstant) val_real).getIntValue();
+                } else if (val_real instanceof Expression) {
+                    dbghint = " val: " + ((Expression) val_real).toString(false);
                 } else {
                     dbghint = " val: " + ((int) val_real);
                 }
