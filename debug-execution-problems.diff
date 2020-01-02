@@ -1,0 +1,53 @@
+diff --git a/muggl-core/src/de/wwu/muggl/vm/VirtualMachine.java b/muggl-core/src/de/wwu/muggl/vm/VirtualMachine.java
+index b07cb5e..87cc1fc 100644
+--- a/muggl-core/src/de/wwu/muggl/vm/VirtualMachine.java
++++ b/muggl-core/src/de/wwu/muggl/vm/VirtualMachine.java
+@@ -711,7 +711,7 @@ public abstract class VirtualMachine extends Thread {
+ 		this.executedFrames++;
+ 		Method method = this.currentFrame.getMethod();
+ 
+-
++        assert (this.currentFrame.getMethod() == method);
+         if (Globals.getInst().executionInstructionLogger.isDebugEnabled()) {
+             if (!this.currentFrame.isHiddenFrame()
+                     && Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
+@@ -721,9 +721,11 @@ public abstract class VirtualMachine extends Thread {
+                                 .map(x -> (x == null) ? "null" : x.toString()).collect(Collectors.joining(", "))
+                                 + "] pc: " + this.pc + ")");
+         }
++        assert (this.currentFrame.getMethod() == method);
+ 
+ 		Instruction[] instructions = method.getInstructionsAndOtherBytes();
+ 		this.currentFrame.setActive(true);
++        assert (this.currentFrame.getMethod() == method);
+ 		while (this.currentFrame.isActive() && this.pc < instructions.length) {
+ 			// Step by step mode?
+ 			if (allowStepping && this.stepByStepMode) {
+@@ -749,6 +751,7 @@ public abstract class VirtualMachine extends Thread {
+ 					throw new InterruptedException("The step by step execution ended with an InterruptedException.");
+ 				}
+ 			}
++            assert (this.currentFrame.getMethod() == method);
+ 
+ 			// Pause execution?
+ 			if (this.pauseExecution) {
+@@ -772,7 +775,7 @@ public abstract class VirtualMachine extends Thread {
+ 				 */
+ 				throw new InterruptedException("Execution got interrupted.");
+ 			}
+-
++            assert (this.currentFrame.getMethod() == method);
+ 			// Save the pc.
+ 			int pc = this.pc;
+ 
+@@ -786,8 +789,9 @@ public abstract class VirtualMachine extends Thread {
+ 
+ 			// Execute the instruction.
+ 			executeInstruction(instructions[pc]);
++            assert (this.currentFrame.getMethod() == method); // Expected to fail, e.g. after non-deterministic jumps! But must always be true in deterministic execution.
+ 
+-			// Jumped too far?
++            // Jumped too far?
+ 			if (this.pc >= Limitations.MAX_CODE_LENGTH) {
+ 				this.pc -= Limitations.MAX_CODE_LENGTH;
+ 			}

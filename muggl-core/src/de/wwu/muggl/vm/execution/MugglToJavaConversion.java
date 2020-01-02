@@ -289,8 +289,17 @@ public class MugglToJavaConversion {
 					if (this.javaMugglMapping.containsKey(object))
 						return this.javaMugglMapping.get(object);
 
-					// Process a reference object.
-					object = toObjectref(object);
+					// Process a reference object, unless the class is on the black list.
+                    // 2020-01-02 blacklisted AppClassLoader / ProtectionDomain because the VM stack is in an inconsistent state afterwards.
+                    if (!object.getClass().getName().endsWith("Launcher$AppClassLoader") &&
+                            !object.getClass().getName().endsWith("ProtectionDomain")) {
+                        object = toObjectref(object);
+                    } else {
+                        if (Globals.getInst().executionInstructionLogger.isTraceEnabled()) {
+                            Globals.getInst().executionInstructionLogger.trace("Skipped blacklisted conversion of " + object.getClass().getName());
+                        }
+                    }
+
 				}
 			}
 

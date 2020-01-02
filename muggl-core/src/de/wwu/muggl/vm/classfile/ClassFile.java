@@ -1570,6 +1570,7 @@ public class ClassFile {
 	public InitializedClass getTheInitializedClass(VirtualMachine vm, boolean forceFrameIfCurrentNull) {
 		if (this.initializedClass == null) {
 			new InitializedClass(this, vm, forceFrameIfCurrentNull);
+			// this.initializedClass is set implicitly via putInitializedClass, therefore no assignment.
 		}
 		return this.initializedClass;
 	}
