@@ -10,7 +10,6 @@ import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
-import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
@@ -133,7 +132,7 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
                 ConstraintExpression expression = this.getConstraintExpression(term1, term2);
                 // TODO this.getPc() + 1 + instruction.getNumberOfOtherBytes() auslagern.
                 return Optional.of(
-                        new Choice(frame, vm.getPc() + 1 + this.getNumberOfOtherBytes(),
+                        new Choice(frame, this.getPcOfSubsequentInstruction(vm),
                                 this.getJumpTarget(), expression, vm.extractCurrentTrail(),
                                 vm.getCurrentChoice()));
             }
@@ -142,7 +141,7 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
         // throw new ExecutionException("Trying to create a non-deterministic choice during deterministic evaluation.");
     }
 
-	public Term convertToSymbolicTerm(Object o) {
+    public Term convertToSymbolicTerm(Object o) {
 		if (o instanceof Term) {
 			return (Term)o;
 		} else {

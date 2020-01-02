@@ -1,5 +1,6 @@
 package de.wwu.muggl.instructions.general;
 
+import de.wwu.muggl.vm.SearchingVM;
 import org.apache.log4j.Level;
 
 import de.wwu.muggl.configuration.Globals;
@@ -200,7 +201,11 @@ public abstract class GeneralInstruction {
 		return term.getType() == Expression.DOUBLE || term.getType() == Expression.LONG;
 	}
 
-	/**
+    protected int getPcOfSubsequentInstruction(SearchingVM vm) {
+        return vm.getPc() + 1 + this.getNumberOfOtherBytes();
+    }
+
+    /**
 	 * Get the number of other bytes for this instruction.
 	 * @return The number of other bytes.
 	 */
