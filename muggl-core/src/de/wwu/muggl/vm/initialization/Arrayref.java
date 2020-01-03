@@ -376,4 +376,9 @@ public class Arrayref implements ReferenceValue {
 	public Object[] getRawElements() {
 	    return this.elements;
     }
+
+    @Override
+    public boolean isOfASpecificType() {
+        return true;
+    }
 }

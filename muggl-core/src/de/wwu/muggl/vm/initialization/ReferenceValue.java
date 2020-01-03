@@ -7,7 +7,7 @@ package de.wwu.muggl.vm.initialization;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-03-11
  */
-public interface ReferenceValue extends Cloneable {
+public interface ReferenceValue extends Cloneable, IReferenceValue {
 
 	/**
 	 * Return true, if this is a reference to an array, or false otherwise.

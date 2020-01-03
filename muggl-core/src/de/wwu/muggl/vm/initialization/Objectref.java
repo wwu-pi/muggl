@@ -326,4 +326,14 @@ public class Objectref extends FieldContainer implements ReferenceValue {
 	public HashMap<String, Object> getSysfields() {
 		return this.sysfields;
 	}
+
+    /**
+     * This method is used in context with free objects in order to find out whether it is already a specific object.
+     * For an Objectref, it is always true, i.e. it is not a Free Object. FreeObjectref overrides this and may provide a more
+     * nuanced implementation.
+     * @return true if the represented Object is a specific one.
+     */
+	public boolean isOfASpecificType() {
+	    return true;
+    }
 }
