@@ -22,7 +22,8 @@ public interface Expression{
         LONG(Expression.LONG),
         SHORT(Expression.SHORT),
         ARRAY(Expression.ARRAY),
-        OBJECT(Expression.OBJECT);
+        OBJECT(Expression.OBJECT),
+        CLASSCONSTRAINT((byte)20);
 
         private final byte type;
 
