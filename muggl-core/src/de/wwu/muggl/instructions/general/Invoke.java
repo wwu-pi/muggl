@@ -1,7 +1,6 @@
 package de.wwu.muggl.instructions.general;
 
-import java.util.Arrays;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import de.wwu.muggl.configuration.Globals;
@@ -12,7 +11,10 @@ import de.wwu.muggl.instructions.interfaces.control.JumpInvocation;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableDefining;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
+import de.wwu.muggl.solvers.expressions.*;
+import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.StackToTrail;
 import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -30,13 +32,12 @@ import de.wwu.muggl.vm.execution.NativeWrapper;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
+import de.wwu.muggl.vm.initialization.FreeObjectref;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
-import de.wwu.muggl.solvers.expressions.DoubleConstant;
-import de.wwu.muggl.solvers.expressions.FloatConstant;
-import de.wwu.muggl.solvers.expressions.IntConstant;
-import de.wwu.muggl.solvers.expressions.LongConstant;
+import de.wwu.muli.searchtree.Choice;
+import de.wwu.muli.searchtree.ST;
 
 /**
  * Abstract instruction with some concrete methods for invocation instructions. Concrete
@@ -55,6 +56,8 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 	 * This field takes a value of 1 if an invocation takes an object reference parameter.
 	 */
 	protected int hasObjectrefParameter;
+    private Optional<Objectref> invocationTargetObject = null;
+    private ArrayList<Method> alternativeImplementations;
 
 	/**
 	 * Standard constructor. For the extraction of the other bytes, the attribute_code of the method
@@ -101,7 +104,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 	 * @throws NoExceptionHandlerFoundException If no handler could be found.
 	 * @throws SymbolicExecutionException In case of fatal problems during the symbolic execution.
 	 */
-	@Override
+	@Override @Deprecated
 	public void executeSymbolically(Frame frame) throws NoExceptionHandlerFoundException, SymbolicExecutionException {
 		try {
 			invoke(frame, true);
@@ -119,7 +122,201 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 		}
 	}
 
-	/**
+    public Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
+	    // In (symbolic) search mode, different rules apply.
+        if (!vm.isInSearch()) {
+            execute(frame);
+            return Optional.empty();
+        }
+
+        // Find out which alternatives are applicable...
+        try {
+            this.gatherAlternativesForInvocation(frame);
+        } catch (VmRuntimeException e) {
+            SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
+            try {
+                handler.handleException();
+                return Optional.empty();
+            } catch (ExecutionException e2) {
+                executionFailedSymbolically(e2);
+            }
+        } catch (ClassFileException | ExecutionException e) {
+            executionFailedSymbolically(e);
+        }
+
+        // In the simplest case, simply invoke.
+        // TODO is this correct? Maybe we need to constrain more...
+        if (onlyOneImplementationAlternative().isPresent()) {
+            try {
+                // TODO be more specific in invoke! Take care that an element from this.alternativeImplementations is selected instead of the fixed value.
+                invoke(frame, true);
+            } catch (VmRuntimeException e) {
+                SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
+                try {
+                    handler.handleException();
+                    return Optional.empty();
+                } catch (ExecutionException e2) {
+                    executionFailedSymbolically(e2);
+                }
+            } catch (ClassFileException | ExecutionException e) {
+                executionFailedSymbolically(e);
+            }
+            return Optional.empty();
+        }
+
+        // TODO: Handle this.alternativeImplementations == null.
+
+        // Otherwise, if more than one alternative applies, prepare options and return a Choice.
+        List<ConstraintExpression> constraints = this.alternativeImplementations.stream()
+                .map(impl -> {
+                    Set<String> types = new HashSet<>();
+                    types.add(impl.getClassFile().getName());
+                    return ClassConstraintExpression.newInstance(this.invocationTargetObject.get(), types);
+                })
+                .collect(Collectors.toList());
+        List<Integer> pcs = this.alternativeImplementations.stream().map(impl -> frame.getVm().getPc()).collect(Collectors.toList());
+        return Optional.of(new Choice(
+                frame,
+                pcs,
+                constraints,
+                vm.extractCurrentTrail(),
+                vm.getCurrentChoice()));
+    }
+
+    /**
+     * This method returns a Method object iff this.alternativeImplementations contains a single applicable entry. 0 or >1: empty.
+     * @return an entry if only one implementation is applicable. Empty otherwise.
+     */
+    protected Optional<Method> onlyOneImplementationAlternative() {
+        if (this.alternativeImplementations == null) {
+            return Optional.empty();
+        }
+
+        if (this.alternativeImplementations.size() == 1) {
+            // TODO Make this more sophisticated: right know, it does not care about constraints.
+            // Instead, it should respect this.invocationTargetObjectref.
+            return Optional.of(this.alternativeImplementations.get(0));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    protected void gatherAlternativesForInvocation(Frame frame) throws ClassFileException,
+            ExecutionException, VmRuntimeException {
+	    if (this.alternativeImplementations != null) {
+	        // We already know all alternatives and do not do this again.
+            return;
+        }
+
+        // Preparations.
+        Stack<Object> stack = frame.getOperandStack();
+        int index = this.otherBytes[0] << ONE_BYTE | this.otherBytes[1];
+        Constant constant = frame.getConstantPool()[index];
+
+        // Get the name and the descriptor.
+        String[] nameAndType = getNameAndType(constant);
+        ClassFile methodClassFile = getMethodClassFile(constant, frame.getVm().getClassLoader());
+
+        // Try to resolve method from this class.
+        ResolutionAlgorithms resolution = new ResolutionAlgorithms(frame.getVm().getClassLoader());
+        final Method method;
+        try {
+            if (this.getName().contains("interface")) {
+                method = resolution.resolveMethodInterface(methodClassFile, nameAndType);
+            } else
+                method = resolution.resolveMethod(methodClassFile, nameAndType);
+        } catch (ClassFileException e) {
+            throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", e.getMessage()));
+        } catch (NoSuchMethodError e) {
+            throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoSuchMethodError", e.getMessage()));
+        }
+
+        // Prepare the parameter's array.
+        int parameterCount = method.getNumberOfArguments();
+        if (stack.size() < parameterCount)
+            throw new ExecutionException("Error while executing instruction " + getName()
+                    + ": There are less elements on the stack than parameters needed.");
+        // If it is not invokestatic the object reference is on the stack below the arguments.
+        Object[] parameters = new Object[parameterCount + this.hasObjectrefParameter];
+
+        // We will manipulate the stack subsequently, but will also revert all effects before the method ends. Therefore, do not write a trail.
+        if (stack instanceof StackToTrail) {
+            ((StackToTrail) stack).setRestoringMode(true);
+        }
+
+        // Get nargs arguments.
+        for (int a = parameters.length - 1; a >= this.hasObjectrefParameter; a--) {
+            parameters[a] = stack.pop();
+        }
+
+        /*
+         * Do the checks for static/non-static methods calls and get the {@link ClassFile} of the
+         * object reference to invoke the method on for non-static ones.
+         */
+        ClassFile objectrefClassFile = checkStaticMethod(frame, nameAndType, method, parameters);
+
+        // TODO this is bogus if recursion is involved -- The Invoke statement is probably identical across all frames, but the invocationTargetObject is not.
+        if (this.hasObjectrefParameter != 0) {
+            this.invocationTargetObject = Optional.of((Objectref) parameters[0]);
+        } else {
+            this.invocationTargetObject = Optional.empty();
+        }
+
+        if (this.invocationTargetObject.orElse(null) instanceof FreeObjectref) {
+            this.alternativeImplementations = selectNondeterministicImplementations(frame, methodClassFile, method, objectrefClassFile);
+        } else {
+            this.alternativeImplementations = selectDeterministicImplementation(frame, methodClassFile, method, objectrefClassFile);
+        }
+
+        // Put all parameters back on stack to prepare for later execution.
+        for (int a = 0; a <= parameters.length - 1; a++) {
+            stack.push(parameters[a]);
+        }
+
+        if (stack instanceof StackToTrail) {
+            ((StackToTrail) stack).setRestoringMode(false);
+        }
+
+        return;
+    }
+
+    private ArrayList<Method> selectDeterministicImplementation(Frame frame, ClassFile methodClassFile, Method method, ClassFile objectrefClassFile)
+            throws ClassFileException, VmRuntimeException {
+	    ArrayList<Method> implementation = new ArrayList<>(1);
+        // Check if the access is allowed.
+        checkAccess(frame, method, objectrefClassFile);
+
+        // Select the method.
+        Method actualMethod = selectMethod(frame, method, methodClassFile, objectrefClassFile);
+        implementation.add(actualMethod);
+        return implementation;
+    }
+
+    private ArrayList<Method> selectNondeterministicImplementations(Frame frame, ClassFile methodClassFile, Method method, ClassFile objectrefClassFile)
+            throws ClassFileException, VmRuntimeException {
+        ArrayList<Method> implementations = new ArrayList<>();
+
+        // Check if the access is allowed.
+        checkAccess(frame, method, objectrefClassFile);
+
+        // Select the method.
+        // TODO create selectMethod counterpart that offers all applicable methods.
+        Method actualMethod = selectMethod(frame, method, methodClassFile, objectrefClassFile);
+
+        // TODO convert to a loop over all methods
+        while (true) {
+            // Native methods may only be used in the context of deterministic execution.
+            if (actualMethod.isAccNative()) {
+                continue;
+            }
+            implementations.add(actualMethod);
+            break; // TODO remove this once we have a proper loop condition.
+        }
+
+        return implementations;
+    }
+
+    /**
 	 * Invoke a method. This method encapsulates the whole invocation functionality and call methods
 	 * specific to the distinct invocation instructions.
 	 *
@@ -142,7 +339,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 
 		// Try to resolve method from this class.
 		ResolutionAlgorithms resolution = new ResolutionAlgorithms(frame.getVm().getClassLoader());
-		Method method;
+		final Method method;
 		try {
 			if (this.getName().contains("interface")) {
 				method = resolution.resolveMethodInterface(methodClassFile, nameAndType);
@@ -186,10 +383,10 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 		checkAccess(frame, method, objectrefClassFile);
 
 		// Select the method.
-		method = selectMethod(frame, method, methodClassFile, objectrefClassFile);
+        final Method actualMethod = selectMethod(frame, method, methodClassFile, objectrefClassFile);
 
 		// Enter the monitor if the method is synchronized.
-		if (method.isAccSynchronized()) {
+		if (actualMethod.isAccSynchronized()) {
 			if (this.hasObjectrefParameter == 1) {
 				frame.getVm().getMonitorForObject((Objectref) parameters[0]).monitorEnter();
 			} else {
@@ -199,7 +396,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 
 		
 		// Is the method native?
-		if (method.isAccNative()) {
+		if (actualMethod.isAccNative()) {
 			if (Options.getInst().doNotHaltOnNativeMethods) {
 				try {
 					// Forward native methods?
@@ -222,9 +419,9 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 
 						// Try to forward.
 						//TODO replace condition by a suitable predicate from NativeWrapper
-						if (method.getClassFile().getPackageName().startsWith("java.") || method.getClassFile().getPackageName().startsWith("sun.") || method.getClassFile().getPackageName().startsWith("de.wwu.muli")) {
+						if (actualMethod.getClassFile().getPackageName().startsWith("java.") || method.getClassFile().getPackageName().startsWith("sun.") || method.getClassFile().getPackageName().startsWith("de.wwu.muli")) {
 							NativeWrapper.forwardNativeInvocation(frame, method, methodClassFile, objectref, parametersWithoutObjectref);
-						} else if (method.getClassFile().getPackageName().equals("de.wwu.muggl.vm.execution.nativeWrapping")) {
+						} else if (actualMethod.getClassFile().getPackageName().equals("de.wwu.muggl.vm.execution.nativeWrapping")) {
 							// Get the object reference of the invoking method.
 							Objectref invokingObjectref = null;
 							Method invokingMethod = frame.getMethod();
@@ -233,20 +430,20 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 							}
 
 							// Invoke the wrapper.
-							Object returnval = NativeWrapper.forwardToACustomWrapper(method, methodClassFile, parameters, invokingObjectref);
+							Object returnval = NativeWrapper.forwardToACustomWrapper(actualMethod, methodClassFile, parameters, invokingObjectref);
 							if (!(returnval instanceof UndefinedValue)) {
 								frame.getOperandStack().push(returnval);
 							}
 						} else {
-							throw new ForwardingUnsuccessfulException("No wrapping handler for the native method " + method.getFullNameWithParameterTypesAndNames() + " was found.");
+							throw new ForwardingUnsuccessfulException("No wrapping handler for the native method " + actualMethod.getFullNameWithParameterTypesAndNames() + " was found.");
 						}
 						if (!frame.isHiddenFrame()
-								&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
+								&& Globals.getInst().logBasedOnWhiteBlacklist(actualMethod.getPackageAndName()).orElse(true))
 							Globals.getInst().execLogger
-									.debug("Forwarded the native method1 " + method.getPackageAndName() + " to a wrapper.");
+									.debug("Forwarded the native method1 " + actualMethod.getPackageAndName() + " to a wrapper.");
 						
 						// Release the monitor if it is synchronized.
-						if (method.isAccSynchronized()) {
+						if (actualMethod.isAccSynchronized()) {
 							if (this.hasObjectrefParameter == 1) {
 								frame.getVm().getMonitorForObject((Objectref) objectref).monitorExit();
 							} else {
@@ -254,7 +451,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 							}
 						}
 						if (!frame.isHiddenFrame()
-								&& Globals.getInst().logBasedOnWhiteBlacklist(method.getPackageAndName()).orElse(true))
+								&& Globals.getInst().logBasedOnWhiteBlacklist(actualMethod.getPackageAndName()).orElse(true))
 							Globals.getInst().executionInstructionLogger
 									.debug("upon return: (op: " + frame.getOperandStack() + ", localvar: [" + Arrays.stream(frame.getLocalVariables())
 									                                   									.map(x -> (x == null)? "null": x.toString()).collect(Collectors.joining(", "))									
@@ -267,7 +464,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 					// Ignore it, but log it.
 					if (!frame.isHiddenFrame()){
 						Globals.getInst().execLogger.warn(
-								"Forwarding of the native method " + method.getPackageAndName()
+								"Forwarding of the native method " + actualMethod.getPackageAndName()
 								+ " was not successfull. The reason is: " + e.getMessage());
 						
 						frame.getVm().fillDebugStackTraces();
@@ -280,18 +477,18 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 				 * completely ignore it.
 				 */
 				if (Options.getInst().assumeNativeReturnValuesToBeZeroNull) {
-					pushZeroOrNull(stack, method, symbolic);
+					pushZeroOrNull(stack, actualMethod, symbolic);
 					if (!frame.isHiddenFrame())
 						Globals.getInst().execLogger.debug(
-								"Assume a null/zero value for the native method " + method.getPackageAndName() + ".");
+								"Assume a null/zero value for the native method " + actualMethod.getPackageAndName() + ".");
 				} else {
 					if (!frame.isHiddenFrame())
 						Globals.getInst().execLogger.info(
-								"Skipping the native method " + method.getPackageAndName() + ".");
+								"Skipping the native method " + actualMethod.getPackageAndName() + ".");
 				}
 
 				// Release the monitor if it is synchronized.
-				if (method.isAccSynchronized()) {
+				if (actualMethod.isAccSynchronized()) {
 					if (this.hasObjectrefParameter == 1) {
 						frame.getVm().getMonitorForObject((Objectref) parameters[0]).monitorExit();
 					} else {
@@ -313,7 +510,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 		frame.getVm().getStack().push(frame);
 
 		// Push new one.
-		frame.getVm().createAndPushFrame(frame, method, parameters);
+		frame.getVm().createAndPushFrame(frame, actualMethod, parameters);
 
 		// Finish.
 		frame.getVm().setReturnFromCurrentExecution(true);

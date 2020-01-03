@@ -87,7 +87,7 @@ public class StackToTrail extends Stack<Object> {
 	}
 
 	/**
-	 * Setter for the restoring mode.
+	 * Setter for the restoring mode. When the restoring mode is enabled, the trail does not get written.
 	 * @param restoringMode true enables restoring mode, false disables it.
 	 */
 	public void setRestoringMode(boolean restoringMode) {
