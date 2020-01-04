@@ -20,6 +20,8 @@ import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
+import java.util.List;
+
 /**
  * Implementation of the instruction <code>invokespecial</code>.
  *
@@ -41,7 +43,12 @@ public class Invokespecial extends Invoke implements Instruction {
 		super(code);
 	}
 
-	/**
+    @Override
+    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile) throws ClassFileException {
+        throw new UnsupportedOperationException("Invokespecial (instance initialisation methods) should never be called nondeterministically.");
+    }
+
+    /**
 	 * Set the object reference to invoke the method on as the first parameter and return its class
 	 * file.
 	 *

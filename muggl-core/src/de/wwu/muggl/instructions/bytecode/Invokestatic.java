@@ -17,6 +17,8 @@ import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.initialization.InitializedClass;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
+import java.util.List;
+
 /**
  * Implementation of the instruction <code>invokestatic</code>.
  *
@@ -39,7 +41,12 @@ public class Invokestatic extends Invoke implements Instruction {
 		this.hasObjectrefParameter = 0;
 	}
 
-	/**
+    @Override
+    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile) throws ClassFileException {
+        throw new UnsupportedOperationException("TODO implement invokestatic + ND (but is this actually an issue?)");
+    }
+
+    /**
 	 * Make sure the method is not the instance initializer. Check that is is static and is not
 	 * abstract. Statically initialize its class if needed and return null.
 	 *

@@ -1,6 +1,9 @@
 package de.wwu.muggl.instructions.bytecode;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
@@ -112,76 +115,10 @@ public class Invokeinterface extends Invoke implements Instruction {
 	@Override
 	protected Method selectMethod(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile)
 			throws ClassFileException, VmRuntimeException {
-		boolean methodSelected = false;
+        Method selMethod = selectMostSpecificImplementation(frame, method, objectrefClassFile);
 
-		// According to JVMs8 invokeinterface
-		// Step 1: in C
-		Method selMethod = objectrefClassFile.getMethodByNameAndDescriptorOrNull(method.getName(), method.getDescriptor());
-
-		if (selMethod != null)
-			methodSelected = true;
-
-		// Step 2: Superclasses of C
-		if (!methodSelected) {
-			selMethod = new ResolutionAlgorithms(frame.getVm().getClassLoader())
-					.resolveMethodInSuperclass(objectrefClassFile, method.getName(), method.getDescriptor());
-			if (selMethod != null)
-				methodSelected = true;
-
-		}
-
-		if (!methodSelected) {
-
-			// Now on to interfaces
-			LinkedList<String> superInterfaces = new LinkedList<>();
-			LinkedList<Method> tentativeMethods = new LinkedList<>();
-			LinkedList<String> exploreSuperClasses = new LinkedList<>();
-
-			// add self as a starting class
-			exploreSuperClasses.add(objectrefClassFile.getName());
-			
-			// Trying the super interfaces recursively
-			// wanting to find the maximally-specific superinterface methods
-			// that match name and descriptor and that has neither its
-			// ACC_PRIVATE flag nor its ACC_STATIC flag set
-
-			while (!superInterfaces.isEmpty() || !exploreSuperClasses.isEmpty()) {
-				final int ifaces = superInterfaces.size();
-				for (int i = 0; i < ifaces; i++) {
-					ClassFile classFile1 = null;
-					classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(superInterfaces.pop());
-					Method method1 = classFile1.getMethodByNameAndDescriptorOrNull(method.getName(),
-							method.getDescriptor());
-
-					if (method1 != null && !method1.isAccPrivate() && !method1.isAccStatic()) {
-						selMethod = method1;
-						methodSelected = true;
-						Globals.getInst().execLogger.trace("Lookup of " + method.getName() + " in interfaceclass "
-								+ classFile1.getName() + " succeeded.");
-
-					} else {
-						for (int iface : classFile1.getInterfaces()) {
-							superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
-						}
-					}
-				}
-				
-				final int sClasses = exploreSuperClasses.size();
-				for (int i = 0; i < sClasses; i++) {
-					ClassFile classFile1 = null;
-					classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(exploreSuperClasses.pop());
-					if (classFile1.getSuperClass() != 0)
-						exploreSuperClasses.add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
-					for (int iface : classFile1.getInterfaces()) {
-						superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
-					}
-				}
-
-			}
-		}
-
-		// Has the method been selected?
-		if (!methodSelected)
+        // Has the method been selected?
+		if (selMethod == null)
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoSuchMethodError",
 					"The method " + method.getName() + " to be invoked with " + getName() + " was not found."));
 
@@ -203,6 +140,111 @@ public class Invokeinterface extends Invoke implements Instruction {
 		// Return the selected method.
 		return selMethod;
 	}
+
+    private Method selectMostSpecificImplementation(Frame frame, Method method, ClassFile objectrefClassFile) throws ClassFileException {
+        boolean methodSelected = false;
+
+        // According to JVMs8 invokeinterface
+        // Step 1: in C
+        Method selMethod = objectrefClassFile.getMethodByNameAndDescriptorOrNull(method.getName(), method.getDescriptor());
+
+        if (selMethod != null)
+            methodSelected = true;
+
+        // Step 2: Superclasses of C
+        if (!methodSelected) {
+            selMethod = new ResolutionAlgorithms(frame.getVm().getClassLoader())
+                    .resolveMethodInSuperclass(objectrefClassFile, method.getName(), method.getDescriptor());
+            if (selMethod != null)
+                methodSelected = true;
+
+        }
+
+        if (!methodSelected) {
+
+            // Now on to interfaces
+            LinkedList<String> superInterfaces = new LinkedList<>();
+            LinkedList<Method> tentativeMethods = new LinkedList<>();
+            LinkedList<String> exploreSuperClasses = new LinkedList<>();
+
+            // add self as a starting class
+            exploreSuperClasses.add(objectrefClassFile.getName());
+
+            // Trying the super interfaces recursively
+            // wanting to find the maximally-specific superinterface methods
+            // that match name and descriptor and that has neither its
+            // ACC_PRIVATE flag nor its ACC_STATIC flag set
+
+            while (!superInterfaces.isEmpty() || !exploreSuperClasses.isEmpty()) {
+                final int ifaces = superInterfaces.size();
+                for (int i = 0; i < ifaces; i++) {
+                    ClassFile classFile1 = null;
+                    classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(superInterfaces.pop());
+                    Method method1 = classFile1.getMethodByNameAndDescriptorOrNull(method.getName(),
+                            method.getDescriptor());
+
+                    if (method1 != null && !method1.isAccPrivate() && !method1.isAccStatic()) {
+                        selMethod = method1;
+                        methodSelected = true;
+                        Globals.getInst().execLogger.trace("Lookup of " + method.getName() + " in interfaceclass "
+                                + classFile1.getName() + " succeeded.");
+
+                    } else {
+                        for (int iface : classFile1.getInterfaces()) {
+                            superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
+                        }
+                    }
+                }
+
+                final int sClasses = exploreSuperClasses.size();
+                for (int i = 0; i < sClasses; i++) {
+                    ClassFile classFile1 = null;
+                    classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(exploreSuperClasses.pop());
+                    if (classFile1.getSuperClass() != 0)
+                        exploreSuperClasses.add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
+                    for (int iface : classFile1.getInterfaces()) {
+                        superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
+                    }
+                }
+
+            }
+        }
+        return selMethod;
+    }
+
+    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile)
+        throws ClassFileException {
+        ArrayList<Method> implementations = new ArrayList<>();
+        Method mostSpecificFromSupertypes = selectMostSpecificImplementation(frame, method, objectrefClassFile);
+        if (mostSpecificFromSupertypes != null) {
+            implementations.add(mostSpecificFromSupertypes);
+        }
+
+        // TODO find all implementing classes in class path; add them.
+
+        // Filter the list of implementations w. r. t. additional criteria.
+        List<Method> filteredImplementations = implementations.stream().filter(impl -> {
+            // The method to be invoked with Invokeinterface must not be static or private.
+            if (impl.isAccStatic() || impl.isAccPrivate())
+                return false;
+
+            // The method to be invoked with Invokeinterface must not be abstract.
+            if (impl.isAccAbstract())
+                return false;
+
+            // The method to be invoked with Invokeinterface must be public.
+            if (!impl.isAccPublic())
+                return false;
+
+            // Non-determinism and Native do not go very well, let's exclude them.
+            if (impl.isAccNative())
+                return false;
+
+            return true;
+        }).collect(Collectors.toList());
+
+        return filteredImplementations;
+    }
 
 	/**
 	 * Resolve the instructions name.

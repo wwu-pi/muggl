@@ -37,6 +37,7 @@ import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 import de.wwu.muli.searchtree.Choice;
+import de.wwu.muli.searchtree.Fail;
 import de.wwu.muli.searchtree.ST;
 
 /**
@@ -57,7 +58,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 	 */
 	protected int hasObjectrefParameter;
     private Optional<Objectref> invocationTargetObject = null;
-    private ArrayList<Method> alternativeImplementations;
+    private List<Method> alternativeImplementations;
 
 	/**
 	 * Standard constructor. For the extraction of the other bytes, the attribute_code of the method
@@ -144,6 +145,11 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
             executionFailedSymbolically(e);
         }
 
+        // If no choice is available, return with a Failure.
+        if (this.alternativeImplementations == null || this.alternativeImplementations.isEmpty()) {
+            return Optional.of(new Fail());
+        }
+
         // In the simplest case, simply invoke.
         // TODO is this correct? Maybe we need to constrain more...
         if (onlyOneImplementationAlternative().isPresent()) {
@@ -163,8 +169,6 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
             }
             return Optional.empty();
         }
-
-        // TODO: Handle this.alternativeImplementations == null.
 
         // Otherwise, if more than one alternative applies, prepare options and return a Choice.
         List<ConstraintExpression> constraints = this.alternativeImplementations.stream()
@@ -292,29 +296,18 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
         return implementation;
     }
 
-    private ArrayList<Method> selectNondeterministicImplementations(Frame frame, ClassFile methodClassFile, Method method, ClassFile objectrefClassFile)
+    private List<Method> selectNondeterministicImplementations(Frame frame, ClassFile methodClassFile, Method method, ClassFile objectrefClassFile)
             throws ClassFileException, VmRuntimeException {
-        ArrayList<Method> implementations = new ArrayList<>();
-
         // Check if the access is allowed.
         checkAccess(frame, method, objectrefClassFile);
 
         // Select the method.
         // TODO create selectMethod counterpart that offers all applicable methods.
-        Method actualMethod = selectMethod(frame, method, methodClassFile, objectrefClassFile);
+        return selectMethodsForNondeterministicInvocation(frame, method, methodClassFile, objectrefClassFile);
 
-        // TODO convert to a loop over all methods
-        while (true) {
-            // Native methods may only be used in the context of deterministic execution.
-            if (actualMethod.isAccNative()) {
-                continue;
-            }
-            implementations.add(actualMethod);
-            break; // TODO remove this once we have a proper loop condition.
-        }
-
-        return implementations;
     }
+
+    protected abstract List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile) throws ClassFileException;
 
     /**
 	 * Invoke a method. This method encapsulates the whole invocation functionality and call methods

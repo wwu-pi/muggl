@@ -2,6 +2,7 @@ package de.wwu.muggl.instructions.bytecode;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Stack;
 
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
@@ -58,7 +59,12 @@ public class Invokedynamic extends Invoke implements Instruction {
 		super(code);
 	}
 
-	/**
+    @Override
+    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile) throws ClassFileException {
+        throw new UnsupportedOperationException("Invokedynamic (dynamic call sites) is weird enough already, let's not use this nondeterministically.");
+    }
+
+    /**
 	 * Make sure the method is neither the instance initializer nor the static initializer. Check
 	 * that the third additional byte is zero. Set the object reference to invoke the method on as
 	 * the first parameter and return its class file.

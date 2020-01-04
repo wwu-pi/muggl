@@ -1,6 +1,7 @@
 package de.wwu.muggl.instructions.bytecode;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
@@ -45,7 +46,12 @@ public class Invokevirtual extends Invoke implements Instruction {
 		super(code);
 	}
 
-	/**
+    @Override
+    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile) throws ClassFileException {
+        throw new UnsupportedOperationException("TODO implement invokevirtual + ND");
+    }
+
+    /**
 	 * Make sure the method is neither the instance initializer nor the static initializer. Set the
 	 * object reference to invoke the method on as the first parameter and return its class file.
 	 *
