@@ -6,12 +6,26 @@ import de.wwu.muggl.solvers.solver.constraints.ComposedConstraint;
 import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
 import de.wwu.muggl.vm.initialization.IReferenceValue;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class ClassConstraintExpression extends ConstraintExpression {
 
     private final IReferenceValue target;
     private final Set<String> types;
+
+
+    /**
+     * Creates a constraint expression restricting the allowed types of an Objectref.
+     * @param target the to-be-constrained Objectref
+     * @param types the set of allowed types
+     * @return the new ClassConstraintExpression expression.
+     */
+    public static ConstraintExpression newInstance(IReferenceValue target, String type){
+        Set<String> types = new HashSet<>();
+        types.add(type);
+        return newInstance(target, types);
+    }
 
     /**
      * Creates a constraint expression restricting the allowed types of an Objectref.
@@ -49,7 +63,13 @@ public class ClassConstraintExpression extends ConstraintExpression {
 
     @Override
     public String toString(boolean useInternalVariableNames) {
-        return null;
+        StringBuilder sb = new StringBuilder();
+        for(String t : this.types) {
+            sb.append(t);
+            sb.append(",");
+        }
+        String types = sb.length() > 0 ? sb.substring(0, sb.length()-1) : "";
+        return "typeof " + this.target.toString() + " in {" + types + "}";
     }
 
     @Override

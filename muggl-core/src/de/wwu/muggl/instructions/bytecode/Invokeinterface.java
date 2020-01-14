@@ -220,10 +220,26 @@ public class Invokeinterface extends Invoke implements Instruction {
             implementations.add(mostSpecificFromSupertypes);
         }
 
-        // TODO find all implementing classes in class path; add them.
+        // In class path, find all classes that provide an implementation; add them.
+        MugglClassLoader classLoader = frame.getVm().getClassLoader();
+        // Extract classes because iterating over them will modify classloader state.
+        List<ClassFile> loadedClasses = new ArrayList<>(classLoader.getLoadedClasses().values());
+        loadedClasses.forEach(type -> {
+            if (type.isSubtypeOf(objectrefClassFile)) {
+                // TODO Check for own method implementation. If `type' is abstract, add the direct subtype.
+                Method implementationOrNull = type.getMethodByNameAndDescriptorOrNull(method.getName(), method.getDescriptor());
+                if (implementationOrNull != null && !implementationOrNull.isAccAbstract()) {
+                    if (type.isAccAbstract() || type.isAccInterface()) {
+                        // TODO add direct subtypes.
+                    } else {
+                        implementations.add(implementationOrNull);
+                    }
+                }
+            }
+        });
 
         // Filter the list of implementations w. r. t. additional criteria.
-        List<Method> filteredImplementations = implementations.stream().filter(impl -> {
+        return implementations.stream().filter(impl -> {
             // The method to be invoked with Invokeinterface must not be static or private.
             if (impl.isAccStatic() || impl.isAccPrivate())
                 return false;
@@ -242,8 +258,6 @@ public class Invokeinterface extends Invoke implements Instruction {
 
             return true;
         }).collect(Collectors.toList());
-
-        return filteredImplementations;
     }
 
 	/**

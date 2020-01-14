@@ -150,12 +150,13 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
             return Optional.of(new Fail());
         }
 
-        // In the simplest case, simply invoke.
+        // In the simplest case, invoke.
         // TODO is this correct? Maybe we need to constrain more...
         if (onlyOneImplementationAlternative().isPresent()) {
             try {
-                // TODO be more specific in invoke! Take care that an element from this.alternativeImplementations is selected instead of the fixed value.
-                invoke(frame, true);
+                // Take care that an element from this.alternativeImplementations is selected instead of the fixed value.
+                Method selected = onlyOneImplementationAlternative().get();
+                invoke(frame, true, selected, selected.getClassFile());
             } catch (VmRuntimeException e) {
                 SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
                 try {
@@ -172,11 +173,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 
         // Otherwise, if more than one alternative applies, prepare options and return a Choice.
         List<ConstraintExpression> constraints = this.alternativeImplementations.stream()
-                .map(impl -> {
-                    Set<String> types = new HashSet<>();
-                    types.add(impl.getClassFile().getName());
-                    return ClassConstraintExpression.newInstance(this.invocationTargetObject.get(), types);
-                })
+                .map(impl -> ClassConstraintExpression.newInstance(this.invocationTargetObject.get(), impl.getClassFile().getName()))
                 .collect(Collectors.toList());
         List<Integer> pcs = this.alternativeImplementations.stream().map(impl -> frame.getVm().getPc()).collect(Collectors.toList());
         return Optional.of(new Choice(
@@ -310,40 +307,61 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
     protected abstract List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile) throws ClassFileException;
 
     /**
-	 * Invoke a method. This method encapsulates the whole invocation functionality and call methods
-	 * specific to the distinct invocation instructions.
-	 *
-	 * @param frame The currently executed frame.
-	 * @param symbolic Toggles whether the execution is symbolic, or not.
-	 * @throws ClassFileException On fatal errors loading or parsing a class file.
-	 * @throws ExecutionException In case of fatal problems during the execution.
-	 * @throws VmRuntimeException If runtime exceptions occur.
-	 */
-	protected void invoke(Frame frame, boolean symbolic) throws ClassFileException,
-			ExecutionException, VmRuntimeException {
-		// Preparations.
-		Stack<Object> stack = frame.getOperandStack();
-		int index = this.otherBytes[0] << ONE_BYTE | this.otherBytes[1];
-		Constant constant = frame.getConstantPool()[index];
+     * Invoke a method. This method encapsulates the whole invocation functionality and call methods
+     * specific to the distinct invocation instructions.
+     *
+     * @param frame The currently executed frame.
+     * @param symbolic Toggles whether the execution is symbolic, or not.
+     * @throws ClassFileException On fatal errors loading or parsing a class file.
+     * @throws ExecutionException In case of fatal problems during the execution.
+     * @throws VmRuntimeException If runtime exceptions occur.
+     */
+    protected void invoke(Frame frame, boolean symbolic) throws ClassFileException,
+            ExecutionException, VmRuntimeException {
 
-		// Get the name and the descriptor.
-		String[] nameAndType = getNameAndType(constant);
-		ClassFile methodClassFile = getMethodClassFile(constant, frame.getVm().getClassLoader());
+        // Preparations.
+        int index = this.otherBytes[0] << ONE_BYTE | this.otherBytes[1];
+        Constant constant = frame.getConstantPool()[index];
 
-		// Try to resolve method from this class.
-		ResolutionAlgorithms resolution = new ResolutionAlgorithms(frame.getVm().getClassLoader());
-		final Method method;
-		try {
-			if (this.getName().contains("interface")) {
-				method = resolution.resolveMethodInterface(methodClassFile, nameAndType);
-			} else
-				method = resolution.resolveMethod(methodClassFile, nameAndType);
-		} catch (ClassFileException e) {
-			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", e.getMessage()));
-		} catch (NoSuchMethodError e) {
-			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoSuchMethodError", e.getMessage()));
-		}
+        // Get the name and the descriptor.
+        String[] nameAndType = getNameAndType(constant);
+        ClassFile methodClassFile = getMethodClassFile(constant, frame.getVm().getClassLoader());
 
+        // Try to resolve method from this class.
+        ResolutionAlgorithms resolution = new ResolutionAlgorithms(frame.getVm().getClassLoader());
+        final Method method;
+        try {
+            if (this.getName().contains("interface")) {
+                method = resolution.resolveMethodInterface(methodClassFile, nameAndType);
+            } else
+                method = resolution.resolveMethod(methodClassFile, nameAndType);
+        } catch (ClassFileException e) {
+            throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoClassDefFoundError", e.getMessage()));
+        } catch (NoSuchMethodError e) {
+            throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NoSuchMethodError", e.getMessage()));
+        }
+
+        invoke(frame, symbolic, method, methodClassFile);
+    }
+
+    /**
+     * Invoke a method. This method encapsulates the whole invocation functionality and call methods
+     * specific to the distinct invocation instructions.
+     *
+     * @param frame The currently executed frame.
+     * @param symbolic Toggles whether the execution is symbolic, or not.
+     * @throws ClassFileException On fatal errors loading or parsing a class file.
+     * @throws ExecutionException In case of fatal problems during the execution.
+     * @throws VmRuntimeException If runtime exceptions occur.
+     */
+    protected void invoke(Frame frame, boolean symbolic, Method method, ClassFile methodClassFile) throws ClassFileException,
+            ExecutionException, VmRuntimeException {
+
+        // Preparations.
+        int index = this.otherBytes[0] << ONE_BYTE | this.otherBytes[1];
+        Constant constant = frame.getConstantPool()[index];
+        Stack<Object> stack = frame.getOperandStack();
+        String[] nameAndType = getNameAndType(constant);
 		// Prepare the parameter's array.
 		int parameterCount = method.getNumberOfArguments();
 		if (stack.size() < parameterCount)

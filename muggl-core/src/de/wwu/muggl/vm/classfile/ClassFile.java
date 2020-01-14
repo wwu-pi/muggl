@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodType;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 
 import de.wwu.muggl.configuration.Globals;
@@ -1192,6 +1193,14 @@ public class ClassFile {
 		return this.classLoader.getClassAsClassFile(this.constantPool[this.superClass]
 				.getStringValue());
 	}
+    public ClassFile[] getInterfacesClassFiles() throws ClassFileException {
+	    ClassFile[] interfaces = new ClassFile[this.interfaces.length];
+        for (int i = 0; i < this.interfaces.length; i++) {
+            interfaces[i] = this.classLoader.getClassAsClassFile(this.constantPool[this.interfaces[i]]
+                    .getStringValue());
+        }
+        return interfaces;
+    }
 
 	/**
 	 * Getter for this_class.
@@ -1725,5 +1734,34 @@ public class ClassFile {
 	public Objectref getMirrorJava() {
 		return mirrorJava;
 	}
-	
+
+    public boolean isSubtypeOf(ClassFile supertype) {
+        ArrayDeque<ClassFile> candidates = new ArrayDeque<>();
+        try {
+            // Recursively iterate over the hierarchy. First, add direct types to the end of the queue.
+            if (this.getSuperClassFile() != null) {
+                candidates.add(this.getSuperClassFile());
+            }
+            candidates.addAll(Arrays.asList(this.getInterfacesClassFiles()));
+
+            while (!candidates.isEmpty()) {
+                // Get type from the beginning of the queue.
+                ClassFile type = candidates.remove();
+                if (type.equals(supertype)) {
+                    return true;
+                }
+
+                // Add new types to the end of the queue.
+                if (type.getSuperClassFile() != null) {
+                    candidates.add(type.getSuperClassFile());
+                }
+                candidates.addAll(Arrays.asList(type.getInterfacesClassFiles()));
+            }
+        } catch (ClassFileException e) {
+            return false;
+        }
+
+        // None matched.
+        return false;
+    }
 }

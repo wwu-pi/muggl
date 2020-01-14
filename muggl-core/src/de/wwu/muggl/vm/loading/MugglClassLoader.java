@@ -46,7 +46,12 @@ import de.wwu.muggl.vm.classfile.structures.Method;
  */
 public class MugglClassLoader extends ClassLoader {
 	// Fields.
-	/**
+
+    public Map<String, ClassFile> getLoadedClasses() {
+        return loadedClasses;
+    }
+
+    /**
 	 * The mapping of class names to loaded class files.
 	 */
 	protected Map<String, ClassFile> loadedClasses;
@@ -751,11 +756,13 @@ public class MugglClassLoader extends ClassLoader {
 		this.classesInstantiated = 0L;
 	}
 
+
+
 	/**
 	 * Getter for the number of classes loaded.
 	 * @return The number of classes loaded.
 	 */
-	public long getClassesLoaded() {
+	public long getNumberOfLoadedClasses() {
 		return this.classesLoaded;
 	}
 
