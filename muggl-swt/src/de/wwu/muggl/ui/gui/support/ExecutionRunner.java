@@ -323,7 +323,7 @@ public class ExecutionRunner extends Thread {
 						+ "Number of frames per second:\t\t\t" + StaticGuiSupport.formatNumericValue((double) Long.valueOf(vm.getExecutedFrames()) / (double) secondsRun, 3) + "\n"
 						+ "Number of instructions executed:\t\t\t" + StaticGuiSupport.formatNumericValue(vm.getExecutedInstructions(), 3) + "\n"
 						+ "Number of instructions per second:\t\t" + StaticGuiSupport.formatNumericValue((double) Long.valueOf(vm.getExecutedInstructions()) / (double) secondsRun, 3) + "\n\n"
-						+ "Number of classes parsed and loaded:\t" + vm.getClassLoader().getClassesLoaded() + "\n"
+						+ "Number of classes parsed and loaded:\t" + vm.getClassLoader().getNumberOfLoadedClasses() + "\n"
 						+ "Number of classes instantiated:\t\t\t" + vm.getClassLoader().getClassesInstantiated() + "\n"
 						+ "Number of array generators used:\t\t" + arrayGeneration[0] + "\n"
 						+ "Number of arrays generated:\t\t\t\t" + arrayGeneration[1] + "\n";
