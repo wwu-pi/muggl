@@ -1,7 +1,9 @@
 package de.wwu.muggl.vm.initialization;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import de.wwu.muggl.solvers.expressions.Expression;
 import de.wwu.muggl.solvers.expressions.IntConstant;
@@ -335,5 +337,12 @@ public class Objectref extends FieldContainer implements ReferenceValue {
      */
 	public boolean isOfASpecificType() {
 	    return true;
+    }
+
+    @Override
+    public Set<String> getPossibleTypes() {
+        HashSet<String> types = new HashSet<>();
+        types.add(getInitializedClass().getClassFile().getName());
+        return types;
     }
 }

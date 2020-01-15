@@ -1,5 +1,7 @@
 package de.wwu.muggl.solvers.jacop;
 
+import de.wwu.muggl.solvers.SolverManagerWithTypeConstraints;
+import de.wwu.muggl.solvers.expressions.*;
 import org.apache.log4j.Logger;
 import org.jacop.core.Domain;
 import org.jacop.core.IntDomain;
@@ -23,10 +25,6 @@ import de.wwu.muggl.solvers.conf.TesttoolConfig;
 import de.wwu.muggl.solvers.conf.SolverManagerConfig;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
-import de.wwu.muggl.solvers.expressions.ConstraintExpression;
-import de.wwu.muggl.solvers.expressions.DoubleConstant;
-import de.wwu.muggl.solvers.expressions.NumericConstant;
-import de.wwu.muggl.solvers.expressions.Variable;
 import de.wwu.muggl.solvers.solver.listener.SolverManagerListener;
 import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
 
@@ -45,7 +43,7 @@ import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
  * 
  * @author Jan C. Dageförde. 2015
  */
-public class JaCoPSolverManager implements SolverManager {
+public class JaCoPSolverManager extends SolverManagerWithTypeConstraints implements SolverManager {
 
 	protected boolean finalized = false;
 
@@ -56,6 +54,8 @@ public class JaCoPSolverManager implements SolverManager {
 	private Logger logger;
 
 	private long totalConstraintsChecked = 0L;
+
+
 
 	/**
 	 * Creates a new Solver Manager object and initializes it with a stream that
@@ -94,7 +94,15 @@ public class JaCoPSolverManager implements SolverManager {
 	public void addConstraint(ConstraintExpression ce) {
 
 		jacopStore.setLevel(jacopStore.level + 1);
-		JaCoPTransformer.transformAndImpose(ce, jacopStore);
+
+        if (ce instanceof TypeConstraint) {
+            this.imposeTypeConstraint((TypeConstraint) ce);
+            System.out.println("Add: ce: " + ce);
+        } else {
+            JaCoPTransformer.transformAndImpose(ce, jacopStore);
+            // Still call imposeTypeConstraint without an actual constraint to ensure that levels (of type constraints) are consistent with levels (of jacop).
+            this.imposeTypeConstraint(null);
+        }
 
 		listeners.fireAddConstraint(this, ce, null);
 
@@ -249,6 +257,11 @@ public class JaCoPSolverManager implements SolverManager {
 		if (jacopStore.level == 0)
 			return true;
 
+		// Check consistency with typeConstraints.
+        if (this.hasInconsistentTypeConstraints()) {
+            return false;
+        }
+
 		// "The result true only indicates that inconsistency cannot be found.
 		// In other
 		// words, since the finite domain solver is not complete it does not
@@ -269,12 +282,15 @@ public class JaCoPSolverManager implements SolverManager {
 	 * Uses JaCoP's backtracking mechanism to achieve this.
 	 */
 	public void removeConstraint() {
-		if (jacopStore.level <= 0) {
-			throw new IllegalStateException(
+        int oldLevel = jacopStore.level;
+        if (oldLevel <= 0) {
+            throw new IllegalStateException(
 					"Trying to remove constraint when level is already 0");
-		}
-		jacopStore.removeLevel(jacopStore.level);
-		jacopStore.setLevel(jacopStore.level - 1);
+        }
+		jacopStore.removeLevel(oldLevel);
+		jacopStore.setLevel(oldLevel - 1);
+		this.removeTypeConstraint();
+
 
 		listeners.fireConstraintRemoved(this);
 
@@ -297,6 +313,7 @@ public class JaCoPSolverManager implements SolverManager {
 
 		while (jacopStore.level > 0) {
 			jacopStore.removeLevel(jacopStore.level);
+			this.removeTypeConstraint();
 			jacopStore.setLevel(jacopStore.level - 1);
 		}
 		// afterwards, jacopStore.level is 0.

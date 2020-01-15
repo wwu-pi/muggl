@@ -1,9 +1,20 @@
 package de.wwu.muggl.vm.initialization;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Represents an Objectref, but for a Free Object, i.e. one that is used as a logic variable.
  */
 public class FreeObjectref extends Objectref {
+
+    /**
+     * The set of types that the FreeObjectref may assume. If the set is singular, the FreeObjectref should reduce to an Objectref.
+     * If it is empty, there is no valid type that the Object may take -- meaning that the FreeObjectref has been rendered infeasible by
+     * some constraint.
+     */
+    private Set<String> possibleTypes;
+
     /**
      * Private constructor to get concrete instances of an initialized class. These instances
      * have a reference to the InitializedClass, which keeps control of the static
@@ -14,11 +25,27 @@ public class FreeObjectref extends Objectref {
      */
     public FreeObjectref(InitializedClass staticReference, boolean primitiveWrapper) {
         super(staticReference, primitiveWrapper);
+        possibleTypes = new HashSet<>(); // TODO discover entire hierarchy here!
     }
 
     @Override
     public boolean isOfASpecificType() {
-        // TODO Make sure that this can become true if the type is sufficiently constrained.
-        return false;
+        // This becomes true if the type is sufficiently constrained.
+        return possibleTypes.size() == 1;
+    }
+
+    @Override
+    public Set<String> getPossibleTypes() {
+        return possibleTypes;
+    }
+
+    @Override
+    public void setPossibleTypes(Set<String> possibleTypes) {
+        this.possibleTypes = possibleTypes;
+    }
+
+    @Override
+    public String toString() {
+        return "Free" + super.toString();
     }
 }

@@ -1,5 +1,7 @@
 package de.wwu.muggl.vm.initialization;
 
+import java.util.Set;
+
 /**
  * Dummy interface. It is used as a common denominator for
  * [muggl-solvers]ClassConstraintExpression and [muggl-core]* in order to
@@ -13,4 +15,8 @@ public interface IReferenceValue {
      * @return true if the represented object is of a specific type.
      */
     boolean isOfASpecificType();
+
+    Set<String> getPossibleTypes();
+
+    void setPossibleTypes(Set<String> newTypes);
 }

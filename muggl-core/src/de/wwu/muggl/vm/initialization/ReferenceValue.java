@@ -1,5 +1,8 @@
 package de.wwu.muggl.vm.initialization;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * This interface is implemented by all reference values. These are the classes
  * Arrayref and Objectref.
@@ -57,4 +60,7 @@ public interface ReferenceValue extends Cloneable, IReferenceValue {
 
 	ReferenceValue clone() throws CloneNotSupportedException;
 
+    default void setPossibleTypes(Set<String> newTypes) {
+        throw new UnsupportedOperationException("Possible types for this representation may not be changed.");
+    }
 }

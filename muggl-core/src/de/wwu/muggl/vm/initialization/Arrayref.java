@@ -5,6 +5,9 @@ import de.wwu.muggl.vm.execution.ExecutionAlgorithms;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.solvers.expressions.Term;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * This class represents a reference to an array. It stores information about
  * the array type, its length and its element. It also offers access to the
@@ -380,5 +383,12 @@ public class Arrayref implements ReferenceValue {
     @Override
     public boolean isOfASpecificType() {
         return true;
+    }
+
+    @Override
+    public Set<String> getPossibleTypes() {
+        HashSet<String> types = new HashSet<>();
+        types.add(getSignature());
+        return types;
     }
 }

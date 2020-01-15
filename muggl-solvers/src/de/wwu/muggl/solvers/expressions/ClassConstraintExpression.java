@@ -9,7 +9,7 @@ import de.wwu.muggl.vm.initialization.IReferenceValue;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ClassConstraintExpression extends ConstraintExpression {
+public class ClassConstraintExpression extends ConstraintExpression implements TypeConstraint {
 
     private final IReferenceValue target;
     private final Set<String> types;
@@ -18,7 +18,7 @@ public class ClassConstraintExpression extends ConstraintExpression {
     /**
      * Creates a constraint expression restricting the allowed types of an Objectref.
      * @param target the to-be-constrained Objectref
-     * @param types the set of allowed types
+     * @param type a single allowed type
      * @return the new ClassConstraintExpression expression.
      */
     public static ConstraintExpression newInstance(IReferenceValue target, String type){
@@ -101,5 +101,13 @@ public class ClassConstraintExpression extends ConstraintExpression {
     @Override
     public ConstraintExpression negate() {
         return null;
+    }
+
+    public IReferenceValue getTarget() {
+        return target;
+    }
+
+    public Set<String> getTypes() {
+        return types;
     }
 }
