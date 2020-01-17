@@ -274,7 +274,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
         }
 
         if (this.invocationTargetObject.orElse(null) instanceof FreeObjectref) {
-            this.alternativeImplementations = selectNondeterministicImplementations(frame, methodClassFile, method, objectrefClassFile);
+            this.alternativeImplementations = selectNondeterministicImplementations(frame, methodClassFile, method, objectrefClassFile, (FreeObjectref)this.invocationTargetObject.orElse(null));
         } else {
             this.alternativeImplementations = selectDeterministicImplementation(frame, methodClassFile, method, objectrefClassFile);
         }
@@ -303,18 +303,20 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
         return implementation;
     }
 
-    private List<Method> selectNondeterministicImplementations(Frame frame, ClassFile methodClassFile, Method method, ClassFile objectrefClassFile)
+    private List<Method> selectNondeterministicImplementations(Frame frame, ClassFile methodClassFile, Method method, ClassFile objectrefClassFile, FreeObjectref invocationTargetObject)
             throws ClassFileException, VmRuntimeException {
         // Check if the access is allowed.
         checkAccess(frame, method, objectrefClassFile);
 
         // Select the method.
         // TODO create selectMethod counterpart that offers all applicable methods.
-        return selectMethodsForNondeterministicInvocation(frame, method, methodClassFile, objectrefClassFile);
+        return selectMethodsForNondeterministicInvocation(frame, method, methodClassFile, objectrefClassFile, invocationTargetObject);
 
     }
 
-    protected abstract List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile) throws ClassFileException;
+    protected abstract List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile,
+                                                                               ClassFile objectrefClassFile, FreeObjectref invocationTargetObject)
+            throws ClassFileException;
 
     /**
      * Invoke a method. This method encapsulates the whole invocation functionality and call methods

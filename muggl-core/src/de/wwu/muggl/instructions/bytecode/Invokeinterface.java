@@ -20,6 +20,7 @@ import de.wwu.muggl.vm.classfile.structures.constants.ConstantInterfaceMethodref
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
+import de.wwu.muggl.vm.initialization.FreeObjectref;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -212,7 +213,8 @@ public class Invokeinterface extends Invoke implements Instruction {
         return selMethod;
     }
 
-    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile)
+    @Override
+    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile, FreeObjectref invocationTargetObject)
         throws ClassFileException {
         ArrayList<Method> implementations = new ArrayList<>();
         Method mostSpecificFromSupertypes = selectMostSpecificImplementation(frame, method, objectrefClassFile);
@@ -220,20 +222,26 @@ public class Invokeinterface extends Invoke implements Instruction {
             implementations.add(mostSpecificFromSupertypes);
         }
 
-        // TODO migrate to getting types from the affected freeobjectref.
-        // In class path, find all classes that provide an implementation; add them.
+
+        // From the free object's allowed types, find all classes that provide an implementation; add the respective implementations.
         MugglClassLoader classLoader = frame.getVm().getClassLoader();
-        // Extract classes because iterating over them will modify classloader state.
-        List<ClassFile> loadedClasses = new ArrayList<>(classLoader.getLoadedClasses().values());
-        loadedClasses.forEach(type -> {
+        invocationTargetObject.getPossibleTypes().stream().map(typeName -> {
+            try {
+                return classLoader.getClassAsClassFile(typeName);
+            } catch (ClassFileException e) {
+                throw new IllegalStateException(e);
+            }
+        }).forEach(type -> {
             if (type.isSubtypeOf(objectrefClassFile)) {
-                // TODO Check for own method implementation. If `type' is abstract, add the direct subtype.
+                // Check for own method implementation. If `type' is abstract, add the direct subtype(s).
                 Method implementationOrNull = type.getMethodByNameAndDescriptorOrNull(method.getName(), method.getDescriptor());
                 if (implementationOrNull != null && !implementationOrNull.isAccAbstract()) {
                     if (type.isAccAbstract() || type.isAccInterface()) {
                         // TODO add direct subtypes.
                     } else {
-                        implementations.add(implementationOrNull);
+                        if (!implementations.contains(implementationOrNull)) {
+                            implementations.add(implementationOrNull);
+                        }
                     }
                 }
             }

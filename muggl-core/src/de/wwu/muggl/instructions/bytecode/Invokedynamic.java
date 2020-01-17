@@ -21,6 +21,7 @@ import de.wwu.muggl.vm.classfile.structures.constants.*;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
+import de.wwu.muggl.vm.initialization.FreeObjectref;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 import org.apache.bcel.Const;
@@ -60,7 +61,7 @@ public class Invokedynamic extends Invoke implements Instruction {
 	}
 
     @Override
-    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile) throws ClassFileException {
+    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile, FreeObjectref invocationTargetObject) throws ClassFileException {
         throw new UnsupportedOperationException("Invokedynamic (dynamic call sites) is weird enough already, let's not use this nondeterministically.");
     }
 

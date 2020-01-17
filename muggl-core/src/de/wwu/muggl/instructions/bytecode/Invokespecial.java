@@ -16,6 +16,7 @@ import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodref;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
+import de.wwu.muggl.vm.initialization.FreeObjectref;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
@@ -44,7 +45,7 @@ public class Invokespecial extends Invoke implements Instruction {
 	}
 
     @Override
-    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile) throws ClassFileException {
+    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile, FreeObjectref invocationTargetObject) throws ClassFileException {
         throw new UnsupportedOperationException("Invokespecial (instance initialisation methods) should never be called nondeterministically.");
     }
 

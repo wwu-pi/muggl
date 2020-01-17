@@ -1,7 +1,9 @@
 package de.wwu.muggl.instructions.bytecode;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
@@ -23,6 +25,7 @@ import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.execution.MugglToJavaConversion;
 import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
 import de.wwu.muggl.vm.initialization.Arrayref;
+import de.wwu.muggl.vm.initialization.FreeObjectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
@@ -46,9 +49,57 @@ public class Invokevirtual extends Invoke implements Instruction {
 		super(code);
 	}
 
-    @Override
-    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile) throws ClassFileException {
-        throw new UnsupportedOperationException("TODO implement invokevirtual + ND");
+	@Override
+    protected List<Method> selectMethodsForNondeterministicInvocation(Frame frame, Method method, ClassFile methodClassFile, ClassFile objectrefClassFile, FreeObjectref invocationTargetObject)
+            throws ClassFileException {
+        ArrayList<Method> implementations = new ArrayList<>();
+        Method mostSpecificFromSupertypes = selectMostSpecificImplementation(frame, method, objectrefClassFile);
+        if (mostSpecificFromSupertypes != null) {
+            implementations.add(mostSpecificFromSupertypes);
+        }
+
+
+
+        // From the free object's allowed types, find all classes that provide an implementation; add the respective implementations.
+        MugglClassLoader classLoader = frame.getVm().getClassLoader();
+        invocationTargetObject.getPossibleTypes().stream().map(typeName -> {
+            try {
+                return classLoader.getClassAsClassFile(typeName);
+            } catch (ClassFileException e) {
+                throw new IllegalStateException(e);
+            }
+        }).forEach(type -> {
+            if (type.isSubtypeOf(objectrefClassFile)) {
+                // Check for own method implementation. If `type' is abstract, add the direct subtype(s).
+                Method implementationOrNull = type.getMethodByNameAndDescriptorOrNull(method.getName(), method.getDescriptor());
+                if (implementationOrNull != null && !implementationOrNull.isAccAbstract()) {
+                    if (type.isAccAbstract() || type.isAccInterface()) {
+                        // TODO add direct subtypes.
+                    } else {
+                        if (!implementations.contains(implementationOrNull)) {
+                            implementations.add(implementationOrNull);
+                        }
+                    }
+                }
+            }
+        });
+
+        // Filter the list of implementations w. r. t. additional criteria.
+        return implementations.stream().filter(impl -> {
+            // The method to be invoked with Invokeinterface must not be static or private.
+            if (impl.isAccStatic() || impl.isAccPrivate())
+                return false;
+
+            // The method to be invoked with Invokeinterface must not be abstract.
+            if (impl.isAccAbstract())
+                return false;
+
+            // The method to be invoked with Invokeinterface must be public.
+            if (!impl.isAccPublic())
+                return false;
+
+            return true;
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -194,134 +245,139 @@ public class Invokevirtual extends Invoke implements Instruction {
 	protected Method selectMethod(final Frame frame, Method method, ClassFile methodClassFile,
 			final ClassFile objectrefClassFile) throws ClassFileException, VmRuntimeException {
 		Globals.getInst().execLogger.trace("invokevirtual.selectMethod " + method.getFullNameWithParameterTypesAndNames());
-		Method selectedMethod = null;
-		if (!method.isSignaturePolymorphic()) {
-			// 1. If C contains a declaration for an instance method m that
-			// overrides (§5.4.5) the resolved method, then m is the method
-			// to be invoked
-			selectedMethod = objectrefClassFile.getMethodByNameAndDescriptorOrNull(method.getName(),
-					method.getDescriptor());
+        Method selectedMethod = selectMostSpecificImplementation(frame, method, objectrefClassFile);
 
-			// 2. Otherwise, if C has a superclass, a search for a declaration
-			// of an instance method that overrides the resolved method
-			// is performed, starting with the direct superclass of C and
-			// continuing with the direct superclass of that class, and so forth,
-			// until an overriding method is found or no further superclasses
-			// exist. If an overriding method is found, it is the method to be
-			// invoked.
-			if (selectedMethod == null) {
-				ClassFile classFile1 = objectrefClassFile;
-				while (classFile1.getSuperClass() != 0) {
 
-					classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(
-							classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
-
-					selectedMethod = classFile1.getMethodByNameAndDescriptorOrNull(method.getName(),
-							method.getDescriptor());
-
-					if (selectedMethod != null) {
-						Globals.getInst().execLogger.trace("Lookup of " + method.getName() + " in super class "
-								+ classFile1.getName() + " succeeded.");
-						break;
-					} else {
-						Globals.getInst().execLogger.trace("Lookup of " + method.getName() + " in super class "
-								+ classFile1.getName() + " unsuccessfull. Trying its super classes.");
-					}
-				}
-			}
-
-			if (selectedMethod != null) {
-				checkAccess(frame, selectedMethod, objectrefClassFile);
-			} else {
-
-			// Otherwise, if there is exactly one maximally-specific method
-			// (§5.4.3.3) in the superinterfaces of C that matches the resolved
-			// method's name and descriptor and is not abstract , then it is
-			// the method to be invoked.
-
-			// Now on to interfaces
-			LinkedList<String> superInterfaces = new LinkedList<>();
-			LinkedList<String> exploreSuperClasses = new LinkedList<>();
-
-			// add self as a starting class
-			exploreSuperClasses.add(objectrefClassFile.getName());
-
-			// Trying the super interfaces recursively
-			// wanting to find the maximally-specific superinterface methods
-			// that match name and descriptor and that has neither its
-			// ACC_PRIVATE flag nor its ACC_STATIC flag set
-
-			while (!superInterfaces.isEmpty() || !exploreSuperClasses.isEmpty()) {
-
-				final int ifaces = superInterfaces.size();
-				for (int i = 0; i < ifaces; i++) {
-					ClassFile classFile1 = null;
-					try {
-						classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(superInterfaces.pop());
-						selectedMethod = classFile1.getMethodByNameAndDescriptor(method.getName(), method.getDescriptor());
-						Globals.getInst().execLogger.trace(
-								"Lookup of " + method.getName() + " in class " + classFile1.getName() + " succeeded.");
-						break;
-					} catch (MethodResolutionError e1) {
-						Globals.getInst().execLogger.trace("Lookup of " + method.getName() + " in interface class "
-								+ classFile1.getClassName() + " unsuccessfull. Enqueueing its super class.");
-						if (classFile1.getSuperClass() != 0)
-							exploreSuperClasses
-									.add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
-						for (int iface : classFile1.getInterfaces()) {
-							superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
-						}
-					}
-				}
-				if (selectedMethod != null)
-					break;
-
-				final int sClasses = exploreSuperClasses.size();
-				for (int i = 0; i < sClasses; i++) {
-					ClassFile classFile1 = null;
-					try {
-						classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(exploreSuperClasses.pop());
-						selectedMethod = classFile1.getMethodByNameAndDescriptor(method.getName(), method.getDescriptor());
-						Globals.getInst().execLogger.trace(
-								"Lookup of " + method.getName() + " in class " + classFile1.getName() + " succeeded.");
-						break;
-					} catch (MethodResolutionError e1) {
-						Globals.getInst().execLogger
-								.trace("Lookup of " + method.getDescriptor() + " in class " + classFile1.getClassName()
-										+ " unsuccessfull. Enqueueing its super class and interfaces.");
-						if (classFile1.getSuperClass() != 0)
-							exploreSuperClasses
-									.add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
-						for (int iface : classFile1.getInterfaces()) {
-							superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
-						}
-					}
-				}
-
-				if (selectedMethod != null)
-					break;
-			}
-			}
-		} else {
-			throw new java.lang.invoke.WrongMethodTypeException("invokevirtual does not currently support signature polymorphism");
-		}
-
-		// Has the method been selected?
+        // Has the method been selected?
 		if (selectedMethod == null)
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.AbstractMethodError",
 					"Error while getting method " + method.getName() + " to be invoked with " + getName() + ""));
-		method = selectedMethod;
+
+        checkAccess(frame, selectedMethod, objectrefClassFile);
 
 		// Is it abstract?
-		if (method.isAccAbstract())
+		if (selectedMethod.isAccAbstract())
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.AbstractMethodError",
 					"The method " + method.getName() + " to be invoked with " + getName() + " must not be abstract."));
 
 		// Return the selected method.
-		return method;
+		return selectedMethod;
 	}
 
-	/**
+    private Method selectMostSpecificImplementation(Frame frame, Method method, ClassFile objectrefClassFile) throws ClassFileException {
+        Method selectedMethod = null;
+        if (!method.isSignaturePolymorphic()) {
+            // 1. If C contains a declaration for an instance method m that
+            // overrides (§5.4.5) the resolved method, then m is the method
+            // to be invoked
+            selectedMethod = objectrefClassFile.getMethodByNameAndDescriptorOrNull(method.getName(),
+                    method.getDescriptor());
+
+            // 2. Otherwise, if C has a superclass, a search for a declaration
+            // of an instance method that overrides the resolved method
+            // is performed, starting with the direct superclass of C and
+            // continuing with the direct superclass of that class, and so forth,
+            // until an overriding method is found or no further superclasses
+            // exist. If an overriding method is found, it is the method to be
+            // invoked.
+            if (selectedMethod == null) {
+                ClassFile classFile1 = objectrefClassFile;
+                while (classFile1.getSuperClass() != 0) {
+
+                    classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(
+                            classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
+
+                    selectedMethod = classFile1.getMethodByNameAndDescriptorOrNull(method.getName(),
+                            method.getDescriptor());
+
+                    if (selectedMethod != null) {
+                        Globals.getInst().execLogger.trace("Lookup of " + method.getName() + " in super class "
+                                + classFile1.getName() + " succeeded.");
+                        break;
+                    } else {
+                        Globals.getInst().execLogger.trace("Lookup of " + method.getName() + " in super class "
+                                + classFile1.getName() + " unsuccessfull. Trying its super classes.");
+                    }
+                }
+            }
+
+            if (selectedMethod == null) {
+
+            // Otherwise, if there is exactly one maximally-specific method
+            // (§5.4.3.3) in the superinterfaces of C that matches the resolved
+            // method's name and descriptor and is not abstract , then it is
+            // the method to be invoked.
+
+            // Now on to interfaces
+            LinkedList<String> superInterfaces = new LinkedList<>();
+            LinkedList<String> exploreSuperClasses = new LinkedList<>();
+
+            // add self as a starting class
+            exploreSuperClasses.add(objectrefClassFile.getName());
+
+            // Trying the super interfaces recursively
+            // wanting to find the maximally-specific superinterface methods
+            // that match name and descriptor and that has neither its
+            // ACC_PRIVATE flag nor its ACC_STATIC flag set
+
+            while (!superInterfaces.isEmpty() || !exploreSuperClasses.isEmpty()) {
+
+                final int ifaces = superInterfaces.size();
+                for (int i = 0; i < ifaces; i++) {
+                    ClassFile classFile1 = null;
+                    try {
+                        classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(superInterfaces.pop());
+                        selectedMethod = classFile1.getMethodByNameAndDescriptor(method.getName(), method.getDescriptor());
+                        Globals.getInst().execLogger.trace(
+                                "Lookup of " + method.getName() + " in class " + classFile1.getName() + " succeeded.");
+                        break;
+                    } catch (MethodResolutionError e1) {
+                        Globals.getInst().execLogger.trace("Lookup of " + method.getName() + " in interface class "
+                                + classFile1.getClassName() + " unsuccessfull. Enqueueing its super class.");
+                        if (classFile1.getSuperClass() != 0)
+                            exploreSuperClasses
+                                    .add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
+                        for (int iface : classFile1.getInterfaces()) {
+                            superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
+                        }
+                    }
+                }
+                if (selectedMethod != null)
+                    break;
+
+                final int sClasses = exploreSuperClasses.size();
+                for (int i = 0; i < sClasses; i++) {
+                    ClassFile classFile1 = null;
+                    try {
+                        classFile1 = frame.getVm().getClassLoader().getClassAsClassFile(exploreSuperClasses.pop());
+                        selectedMethod = classFile1.getMethodByNameAndDescriptor(method.getName(), method.getDescriptor());
+                        Globals.getInst().execLogger.trace(
+                                "Lookup of " + method.getName() + " in class " + classFile1.getName() + " succeeded.");
+                        break;
+                    } catch (MethodResolutionError e1) {
+                        Globals.getInst().execLogger
+                                .trace("Lookup of " + method.getDescriptor() + " in class " + classFile1.getClassName()
+                                        + " unsuccessfull. Enqueueing its super class and interfaces.");
+                        if (classFile1.getSuperClass() != 0)
+                            exploreSuperClasses
+                                    .add(classFile1.getConstantPool()[classFile1.getSuperClass()].getStringValue());
+                        for (int iface : classFile1.getInterfaces()) {
+                            superInterfaces.add(classFile1.getConstantPool()[iface].getStringValue());
+                        }
+                    }
+                }
+
+                if (selectedMethod != null)
+                    break;
+            }
+            }
+        } else {
+            throw new java.lang.invoke.WrongMethodTypeException("invokevirtual does not currently support signature polymorphism");
+        }
+        return selectedMethod;
+    }
+
+    /**
 	 * Resolve the instructions name.
 	 * @return The instructions name as a String.
 	 */
