@@ -1,5 +1,6 @@
 package de.wwu.muggl.vm.initialization;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,5 +19,7 @@ public interface IReferenceValue {
 
     Set<String> getPossibleTypes();
 
-    void setPossibleTypes(Set<String> newTypes);
+    List setPossibleTypes(Set<String> newTypes);
+
+    void unbindFields(List fieldsToUnbind);
 }

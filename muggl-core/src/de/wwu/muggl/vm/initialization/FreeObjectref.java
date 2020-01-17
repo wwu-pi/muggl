@@ -1,7 +1,17 @@
 package de.wwu.muggl.vm.initialization;
 
-import java.util.HashSet;
+import de.wwu.muggl.vm.SearchingVM;
+import de.wwu.muggl.vm.VirtualMachine;
+import de.wwu.muggl.vm.classfile.ClassFile;
+import de.wwu.muggl.vm.classfile.ClassFileException;
+import de.wwu.muggl.vm.classfile.structures.Field;
+import de.wwu.muggl.vm.loading.MugglClassLoader;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents an Objectref, but for a Free Object, i.e. one that is used as a logic variable.
@@ -25,7 +35,17 @@ public class FreeObjectref extends Objectref {
      */
     public FreeObjectref(InitializedClass staticReference, boolean primitiveWrapper) {
         super(staticReference, primitiveWrapper);
-        possibleTypes = new HashSet<>(); // TODO discover entire hierarchy here!
+
+
+        // Discover all subtypes of the given type.
+        // TODO Expand towards entire(!) class path!!
+        // Extract list of classes first, because iterating over the classloader will modify classloader state.
+        MugglClassLoader classLoader = staticReference.getClassFile().getClassLoader();
+        List<ClassFile> loadedClasses = new ArrayList<>(classLoader.getLoadedClasses().values());
+        possibleTypes = loadedClasses.stream()
+                .filter(type -> type.isSubtypeOf(staticReference.getClassFile()))
+                .map(type -> type.getName())
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -40,12 +60,63 @@ public class FreeObjectref extends Objectref {
     }
 
     @Override
-    public void setPossibleTypes(Set<String> possibleTypes) {
+    public List<Field> setPossibleTypes(Set<String> possibleTypes) {
         this.possibleTypes = possibleTypes;
+
+        List<Field> boundFields = new ArrayList<>();
+
+        if (this.possibleTypes.size() == 1) {
+            // Check which fields are annotated and replace undefined fields by logic variables.
+            String actualTypeName = this.possibleTypes.stream().findFirst().get();
+            ClassFile actualType = null;
+            try {
+                actualType = this.getInitializedClass().getClassFile().getClassLoader().getClassAsClassFile(actualTypeName);
+            } catch (ClassFileException e) {
+                // Ignore. We tried...
+                return boundFields;
+            }
+            for (Field field : actualType.getFields()) {
+                if (!this.hasValueFor(field)) {
+                    String type = field.getDescriptor();
+                    SearchingVM vm = (SearchingVM)(VirtualMachine.getLatestVM());
+                    Object value = FreeObjectrefInitialisers.createRepresentationForFreeVariableOrField(vm, this.getInitializedClass().getClassFile(), type, field.getName());
+                    if (value != null) {
+                        this.fields.put(field, value);
+                        boundFields.add(field);
+                    }
+                }
+            }
+        }
+        return boundFields;
+    }
+
+    /**
+     * Unbind fields that were previously initialised via #setPossibleTypes().
+     * @param fieldsToUnbind
+     */
+    @Override
+    public void unbindFields(List fieldsToUnbind) {
+        List<Field> fields = (List<Field>) fieldsToUnbind;
+        for (Field field : fields) {
+            this.fields.put(field, null);
+        }
     }
 
     @Override
     public String toString() {
         return "Free" + super.toString();
+    }
+
+    @Override
+    public Objectref getMirrorJava() {
+        if (this.possibleTypes.size() == 1) {
+            String actualType = this.possibleTypes.stream().findFirst().get();
+            try {
+                return this.getInitializedClass().getClassFile().getClassLoader().getClassAsClassFile(actualType).getMirrorJava();
+            } catch (ClassFileException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        return super.getMirrorJava();
     }
 }

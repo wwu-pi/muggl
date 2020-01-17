@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Stack;
 
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.*;
+import de.wwu.muggl.vm.initialization.FreeObjectref;
 import de.wwu.muli.searchtree.Choice;
 import org.apache.log4j.Level;
 
@@ -1013,6 +1014,11 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
     public void storeRepresentationForFreeVariable(Frame frame, int freeVariableIndex) {
         // Muli only.
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FreeObjectref getAFreeObjectref(ClassFile classFile) {
+        return null;
     }
 
     /**

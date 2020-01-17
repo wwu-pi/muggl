@@ -252,10 +252,6 @@ public class Invokeinterface extends Invoke implements Instruction {
             if (!impl.isAccPublic())
                 return false;
 
-            // Non-determinism and Native do not go very well, let's exclude them.
-            if (impl.isAccNative())
-                return false;
-
             return true;
         }).collect(Collectors.toList());
     }

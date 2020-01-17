@@ -1,6 +1,8 @@
 package de.wwu.muggl.vm.initialization;
 
-import java.util.HashSet;
+import de.wwu.muggl.vm.classfile.structures.Field;
+
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -60,7 +62,11 @@ public interface ReferenceValue extends Cloneable, IReferenceValue {
 
 	ReferenceValue clone() throws CloneNotSupportedException;
 
-    default void setPossibleTypes(Set<String> newTypes) {
+    default List setPossibleTypes(Set<String> newTypes) {
         throw new UnsupportedOperationException("Possible types for this representation may not be changed.");
+    }
+
+    default void unbindFields(List fieldsToUnbind) {
+        throw new UnsupportedOperationException("Cannot unbind fields for this representation.");
     }
 }

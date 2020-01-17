@@ -8,8 +8,11 @@ import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.*;
+import de.wwu.muggl.vm.classfile.ClassFile;
+import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
+import de.wwu.muggl.vm.initialization.FreeObjectref;
 import de.wwu.muli.searchtree.Choice;
 
 import java.util.Stack;
@@ -78,4 +81,8 @@ public interface SearchingVM {
     void saveArrayValue(ArrayRestore valueRepresentation);
 
     void storeRepresentationForFreeVariable(Frame frame, int freeVariableIndex);
+
+    FreeObjectref getAFreeObjectref(ClassFile classFile);
+
+    ClassFile resolveClassAsClassFile(ClassFile fromClass, String type) throws VmRuntimeException, ExecutionException;
 }

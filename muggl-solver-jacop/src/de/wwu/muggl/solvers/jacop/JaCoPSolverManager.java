@@ -97,7 +97,7 @@ public class JaCoPSolverManager extends SolverManagerWithTypeConstraints impleme
 
         if (ce instanceof TypeConstraint) {
             this.imposeTypeConstraint((TypeConstraint) ce);
-            System.out.println("Add: ce: " + ce);
+            //System.out.println("Add: ce: " + ce);
         } else {
             JaCoPTransformer.transformAndImpose(ce, jacopStore);
             // Still call imposeTypeConstraint without an actual constraint to ensure that levels (of type constraints) are consistent with levels (of jacop).
