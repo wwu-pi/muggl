@@ -4,10 +4,7 @@ import de.wwu.muggl.solvers.expressions.ClassConstraintExpression;
 import de.wwu.muggl.solvers.expressions.TypeConstraint;
 import de.wwu.muggl.vm.initialization.IReferenceValue;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public abstract class SolverManagerWithTypeConstraints {
 
@@ -20,7 +17,7 @@ public abstract class SolverManagerWithTypeConstraints {
     /**
      * Trail representing a FreeObjectref's possible types prior to rebinding.
      */
-    private HashMap<TypeConstraint, Set<String>> trail = new HashMap<>();
+    private HashMap<TypeConstraint, TypeBindingTrail> trail = new HashMap<>();
 
     protected void imposeTypeConstraint(TypeConstraint ce) {
         this.typeConstraints.add(ce);
@@ -36,24 +33,31 @@ public abstract class SolverManagerWithTypeConstraints {
         }
     }
 
+    class TypeBindingTrail {
+        public List newlyBoundFields;
+        public Set<String> previousPossibleTypes;
+    }
     private void imposeClassConstraint(ClassConstraintExpression ce) {
         IReferenceValue targetRef = ce.getTarget();
         Set<String> allowedByTarget = targetRef.getPossibleTypes();
         Set<String> allowedByConstraint = ce.getTypes();
 
-        // Put previous binding on trail in order to restore it later on.
-        trail.put(ce, allowedByTarget);
-
         // Create the intersection and apply it.
         Set<String> intersection = new HashSet<>(allowedByTarget);
         intersection.retainAll(allowedByConstraint);
-        targetRef.setPossibleTypes(intersection);
+        List boundFields = targetRef.setPossibleTypes(intersection);
+
+        // Put previous binding on trail in order to be able to restore it later on.
+        TypeBindingTrail typeBinding = new TypeBindingTrail();
+        typeBinding.newlyBoundFields = boundFields;
+        typeBinding.previousPossibleTypes = allowedByTarget;
+        trail.put(ce, typeBinding);
     }
 
 
     protected boolean hasInconsistentTypeConstraints() {
         // Iterate over all affected FreeObjects to check whether any of the applied constraints rendered the type of a FreeObjectref invalid.
-        return this.typeConstraints.stream().anyMatch(ce -> ce.getTarget().getPossibleTypes().isEmpty());
+        return this.typeConstraints.stream().filter(ce -> ce != null).anyMatch(ce -> ce.getTarget().getPossibleTypes().isEmpty());
     }
 
     protected void removeTypeConstraint() {
@@ -66,8 +70,9 @@ public abstract class SolverManagerWithTypeConstraints {
             return;
         }
 
-        // Revert effects on constrained FreeObjectref.
-        Set<String> typesFromTrail = trail.remove(formerConstraint);
-        formerConstraint.getTarget().setPossibleTypes(typesFromTrail);
+        // Use trail to revert effects on constrained FreeObjectref.
+        TypeBindingTrail typesFromTrail = trail.remove(formerConstraint);
+        formerConstraint.getTarget().unbindFields(typesFromTrail.newlyBoundFields);
+        formerConstraint.getTarget().setPossibleTypes(typesFromTrail.previousPossibleTypes);
     }
 }

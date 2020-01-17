@@ -1,10 +1,12 @@
 package de.wwu.muggl.vm.execution;
 
 import java.lang.invoke.MethodType;
+import java.util.Optional;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.initialization.Arrayref;
+import de.wwu.muggl.vm.initialization.FreeObjectref;
 import de.wwu.muggl.vm.initialization.Objectref;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 
@@ -24,9 +26,9 @@ public class NativeJavaLangObject extends NativeMethodProvider {
 	}
 
 	public static Objectref getClass(Frame frame, ReferenceValue invokingRefVal) {
-		if (invokingRefVal instanceof Objectref) {
-			return ((Objectref) invokingRefVal).getMirrorJava();
-		} else if (invokingRefVal instanceof Arrayref) {
+        if (invokingRefVal instanceof Objectref) {
+            return ((Objectref) invokingRefVal).getMirrorJava();
+        } else if (invokingRefVal instanceof Arrayref) {
 			Arrayref invokingArr = (Arrayref) invokingRefVal;
 			return invokingArr.getMirrorJava();
 		}

@@ -52,8 +52,8 @@ public abstract class FieldContainer {
 
 		// Second step: has it been initialized already?
 		if (!this.fields.containsKey(field)) {
-			// Initialize the field to its default value - choose it according to its type.
-			Object value = StaticInitializationSupport.getInitializedPrimitiveTypeWrapper(field.getType(), false);
+            // Initialize the field to its default value - choose it according to its type.
+            Object value = StaticInitializationSupport.getInitializedPrimitiveTypeWrapper(field.getType(), false);
 
 			// Set it for future use, if it is not null.
 			if (value != null) this.fields.put(field, value);

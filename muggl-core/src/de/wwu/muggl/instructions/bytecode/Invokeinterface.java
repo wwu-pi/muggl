@@ -220,6 +220,7 @@ public class Invokeinterface extends Invoke implements Instruction {
             implementations.add(mostSpecificFromSupertypes);
         }
 
+        // TODO migrate to getting types from the affected freeobjectref.
         // In class path, find all classes that provide an implementation; add them.
         MugglClassLoader classLoader = frame.getVm().getClassLoader();
         // Extract classes because iterating over them will modify classloader state.

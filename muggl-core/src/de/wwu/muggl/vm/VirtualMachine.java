@@ -44,7 +44,12 @@ import de.wwu.muggl.vm.threading.Monitor;
  * @version 1.0.0, 2010-07-15
  */
 public abstract class VirtualMachine extends Thread {
-	// Fields.
+    /**
+     * Store a reference to the latest created VM. For a LogicVirtualMachine, this is effectively a singleton and safe.
+     * For other types of VMs, rather do not use it because its behaviour might not be as you might hope...
+     */
+    private static VirtualMachine latestVM = null;
+    // Fields.
 	/**
 	 * Mark whether this SymbolicalVirtualMachine has been finalized, yet.
 	 */
@@ -176,8 +181,27 @@ public abstract class VirtualMachine extends Thread {
 			put("user.dir", System.getProperty("user.dir"));
 		}
 	};
-	
-	/**
+
+    public static VirtualMachine getLatestVM() {
+        if (!VirtualMachine.latestVM.getClass().getName().endsWith("LogicVirtualMachine")) {
+            Globals.getInst().execLogger.warn("Requested the latestVM singleton on something that is probably not a singleton at all! This is only safe with LogicVirtualMachine!!");
+        }
+        return VirtualMachine.latestVM;
+    }
+
+    public void preventNextSkip() {
+        this.preventNextSkip = true;
+    }
+
+    /**
+     * Flag that can be used by the Search mechanisms to prevent a single subsequent skip.
+     * It is necessary, because the executeFrame method checks whether a skip is valid by checking whether the pc has changed --
+     * and there are situations in which the pc is left unchanged BUT we remain at the same instruction regardless! Specifically,
+     * nondeterministic invokes.
+     */
+    private boolean preventNextSkip = false;
+
+    /**
 	 * Basic Constructor. Beside setting the specified parameters as local values and setting some
 	 * internal fields to initial their values, it will reset the class loader's number of already
 	 * instantiated classes and make sure that statically initialized classes of prior executions
@@ -213,7 +237,8 @@ public abstract class VirtualMachine extends Thread {
 		this.stringCache = new StringCache(this);
 		this.throwableGenerator = new ThrowableGenerator(this);			
 		this.currentFrame = null;
-		this.stack = null;		
+		this.stack = null;
+		latestVM = this;
 	}
 
 	/**
@@ -793,9 +818,11 @@ public abstract class VirtualMachine extends Thread {
 			}
 
 			// Move to next instruction only if we did not jump further (jump instructions do not require this stepping further).
-			if (this.pc == pc) {
+			if (this.pc == pc && !this.preventNextSkip) {
 				this.pc += 1 + instructions[pc].getNumberOfOtherBytes();
-			}
+			} else if (this.preventNextSkip) {
+			    this.preventNextSkip = false;
+            }
 
 			// If we are now supposed to stop, we will do so.
 			if (this.returnFromCurrentExecution) {

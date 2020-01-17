@@ -1736,6 +1736,10 @@ public class ClassFile {
 	}
 
     public boolean isSubtypeOf(ClassFile supertype) {
+	    // Simplest case first: The same class is trivially a subtype of itself.
+	    if (this.equals(supertype)) {
+	        return true;
+        }
         ArrayDeque<ClassFile> candidates = new ArrayDeque<>();
         try {
             // Recursively iterate over the hierarchy. First, add direct types to the end of the queue.

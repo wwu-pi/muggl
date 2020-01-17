@@ -150,12 +150,39 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
             return Optional.of(new Fail());
         }
 
+        List<Method> feasibleImplementations;
+        if (this.invocationTargetObject.orElse(null) instanceof FreeObjectref) {
+            // Crossref getPossibleTypes() with this.alternativeImplementations
+            FreeObjectref freeObject = (FreeObjectref) this.invocationTargetObject.get();
+            Set<String> possibleTypes = freeObject.getPossibleTypes();
+            // TODO do we specifically need a "getExcludedTypes()"?
+            List<ClassFile> possibleTypesClasses = possibleTypes.stream().map(typeName -> {
+                try {
+                    return frame.getVm().getClassLoader().getClassAsClassFile(typeName);
+                } catch (ClassFileException e) {
+                    throw new IllegalStateException(e);
+                }
+            }).collect(Collectors.toList());
+
+            feasibleImplementations = this.alternativeImplementations.stream().filter(impl -> possibleTypesClasses.stream()
+                    .anyMatch(othertype -> impl.getClassFile().isSubtypeOf(othertype) || othertype.isSubtypeOf(impl.getClassFile()))).collect(Collectors.toList());
+        } else {
+            // For non-free refs, the lists are identical.
+            feasibleImplementations = this.alternativeImplementations;
+        }
+
+        // If no choice is feasible, return with a Failure.
+        if (feasibleImplementations.isEmpty()) {
+            return Optional.of(new Fail());
+        }
+
         // In the simplest case, invoke.
         // TODO is this correct? Maybe we need to constrain more...
-        if (onlyOneImplementationAlternative().isPresent()) {
+        // TODO no, not correct! use the reduced set instead (maybe not from this., but local var).
+        if (feasibleImplementations.size() == 1) {
             try {
                 // Take care that an element from this.alternativeImplementations is selected instead of the fixed value.
-                Method selected = onlyOneImplementationAlternative().get();
+                Method selected = feasibleImplementations.get(0);
                 invoke(frame, true, selected, selected.getClassFile());
             } catch (VmRuntimeException e) {
                 SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
@@ -172,34 +199,17 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
         }
 
         // Otherwise, if more than one alternative applies, prepare options and return a Choice.
-        List<ConstraintExpression> constraints = this.alternativeImplementations.stream()
+        List<ConstraintExpression> constraints = feasibleImplementations.stream()
                 .map(impl -> ClassConstraintExpression.newInstance(this.invocationTargetObject.get(), impl.getClassFile().getName()))
                 .collect(Collectors.toList());
-        List<Integer> pcs = this.alternativeImplementations.stream().map(impl -> frame.getVm().getPc()).collect(Collectors.toList());
+        List<Integer> pcs = feasibleImplementations.stream().map(impl -> frame.getVm().getPc()).collect(Collectors.toList());
+        frame.getVm().preventNextSkip();
         return Optional.of(new Choice(
                 frame,
                 pcs,
                 constraints,
                 vm.extractCurrentTrail(),
                 vm.getCurrentChoice()));
-    }
-
-    /**
-     * This method returns a Method object iff this.alternativeImplementations contains a single applicable entry. 0 or >1: empty.
-     * @return an entry if only one implementation is applicable. Empty otherwise.
-     */
-    protected Optional<Method> onlyOneImplementationAlternative() {
-        if (this.alternativeImplementations == null) {
-            return Optional.empty();
-        }
-
-        if (this.alternativeImplementations.size() == 1) {
-            // TODO Make this more sophisticated: right know, it does not care about constraints.
-            // Instead, it should respect this.invocationTargetObjectref.
-            return Optional.of(this.alternativeImplementations.get(0));
-        } else {
-            return Optional.empty();
-        }
     }
 
     protected void gatherAlternativesForInvocation(Frame frame) throws ClassFileException,
@@ -394,7 +404,14 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 		checkAccess(frame, method, objectrefClassFile);
 
 		// Select the method.
-        final Method actualMethod = selectMethod(frame, method, methodClassFile, objectrefClassFile);
+        final Method actualMethod;
+        if (this.hasObjectrefParameter >= 1 && parameters[0] instanceof FreeObjectref) {
+            // We already know the method.
+            actualMethod = method;
+        } else {
+            // The traditional way.
+            actualMethod = selectMethod(frame, method, methodClassFile, objectrefClassFile);
+        }
 
 		// Enter the monitor if the method is synchronized.
 		if (actualMethod.isAccSynchronized()) {
