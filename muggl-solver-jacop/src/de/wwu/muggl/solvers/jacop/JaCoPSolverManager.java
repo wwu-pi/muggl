@@ -189,14 +189,19 @@ public class JaCoPSolverManager extends SolverManagerWithTypeConstraints impleme
             labelInt.setPrintInfo(false);
 			solutionFound = labelInt.labeling(jacopStore, select) && labelInt.assignSolution();
 			search = labelInt;
-		} else {
+		} else if (floatVars.length > 0) {
 			// FloatVars only
 			Search<FloatVar> labelFloat = new DepthFirstSearch<FloatVar>();
 			labelFloat.getSolutionListener().recordSolutions(true);
 			labelFloat.setPrintInfo(false);
 			solutionFound = labelFloat.labeling(jacopStore, selectFloat) && labelFloat.assignSolution();
 			search = labelFloat;
-		}
+		} else {
+            Solution result = new Solution();
+            listeners.fireGetSolutionFinished(this, result,
+                    System.nanoTime() - startTime);
+            return result;
+        }
 		
 		
 
@@ -224,8 +229,8 @@ public class JaCoPSolverManager extends SolverManagerWithTypeConstraints impleme
 			}
 
 		}
-		listeners.fireGetSolutionFinished(this, result,
-				System.nanoTime() - startTime);
+        listeners.fireGetSolutionFinished(this, result,
+                System.nanoTime() - startTime);
 		return result;
 
 	}
