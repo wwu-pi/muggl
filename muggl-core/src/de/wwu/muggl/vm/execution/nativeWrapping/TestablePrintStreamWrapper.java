@@ -36,6 +36,16 @@ public class TestablePrintStreamWrapper {
         return teeingStream;
     }
 
+    /**
+     * When using this in tests, ALWAYS make sure that effects from previous tests are cleared before executing the current test:
+     * ```
+     * @Before
+     * public void clearStreamsBeforeTests() {
+     *     TestablePrintStreamWrapper.outputStream().resetBuffer();
+     *     TestablePrintStreamWrapper.errorStream().resetBuffer();
+     * }
+     * ```
+     */
     public String getBufferContents() {
         return this.inspectableStream.toString();
     }
