@@ -17,7 +17,7 @@ public class Pop implements TrailElement {
 	 */
 	@Override
 	public String toString() {
-		return "Trail element that pops an object from the operand machine stack of the currently executed frame.";
+		return "Trail element that pops an object from the operand stack of the currently executed frame.";
 	}
 
 }
