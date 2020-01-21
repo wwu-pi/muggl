@@ -21,5 +21,9 @@ public interface IReferenceValue {
 
     List setPossibleTypes(Set<String> newTypes);
 
+    Set<String> getDisallowedTypes();
+
+    void setDisallowedTypes(Set<String> allDisallowedTypes);
+
     void unbindFields(List fieldsToUnbind);
 }

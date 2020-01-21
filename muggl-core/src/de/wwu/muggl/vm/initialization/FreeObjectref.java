@@ -8,8 +8,8 @@ import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,6 +24,10 @@ public class FreeObjectref extends Objectref {
      * some constraint.
      */
     private Set<String> possibleTypes;
+    /**
+     * The set of types that the FreeObjectref may NOT assume. Usually elements are subtypes of possibleTypes, otherwise they are of no relevance.
+     */
+    private Set<String> disallowedTypes;
 
     /**
      * Private constructor to get concrete instances of an initialized class. These instances
@@ -46,6 +50,8 @@ public class FreeObjectref extends Objectref {
                 .filter(type -> type.isSubtypeOf(staticReference.getClassFile()))
                 .map(type -> type.getName())
                 .collect(Collectors.toSet());
+
+        disallowedTypes = new HashSet<>();
     }
 
     @Override
@@ -88,6 +94,16 @@ public class FreeObjectref extends Objectref {
             }
         }
         return boundFields;
+    }
+
+    @Override
+    public Set<String> getDisallowedTypes() {
+        return disallowedTypes;
+    }
+
+    @Override
+    public void setDisallowedTypes(Set<String> disallowedTypes) {
+        this.disallowedTypes = disallowedTypes;
     }
 
     /**

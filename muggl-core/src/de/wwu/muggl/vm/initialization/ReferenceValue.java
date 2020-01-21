@@ -66,6 +66,14 @@ public interface ReferenceValue extends Cloneable, IReferenceValue {
         throw new UnsupportedOperationException("Possible types for this representation may not be changed.");
     }
 
+    default Set<String> getDisallowedTypes() {
+        throw new UnsupportedOperationException("Ref is of singular type anyway.");
+    }
+
+    default void setDisallowedTypes(Set<String> newTypes) {
+        throw new UnsupportedOperationException("Disallowed types for this representation may not be changed.");
+    }
+
     default void unbindFields(List fieldsToUnbind) {
         throw new UnsupportedOperationException("Cannot unbind fields for this representation.");
     }
