@@ -23,7 +23,7 @@ import de.wwu.muggl.vm.SearchingVM;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-03-10
  */
-public class StackToTrail extends Stack<Object> {
+public class StackToTrail extends Stack<Object> implements StackWithTrail {
 	// Fields.
 	private boolean isVmStack;
     @Deprecated
