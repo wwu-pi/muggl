@@ -13,6 +13,7 @@ import java.util.Stack;
 
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.instructions.FieldResolutionError;
+import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.StackWithTrail;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.Reflection;
 import de.wwu.muggl.vm.SystemDictionary;
@@ -157,7 +158,23 @@ public class NativeWrapper {
 				}
 				Globals.getInst().execLogger.debug("Native method (" + method.getPackageAndName() + ") found in Muggls Implementation, invoking...");
 				if (mh.type().returnType() != void.class) {
-					frame.getOperandStack().push(mh.invokeWithArguments(params));
+                    Object result = mh.invokeWithArguments(params);
+
+                    boolean trailMismatch = frame != frame.getVm().getCurrentFrame() &&
+                            frame.getOperandStack() instanceof StackWithTrail;
+                    if (trailMismatch) {
+                        // While processing tryAdvance of the solution iterator, we may try and push the boolean value "true" to the operand stack relating to
+                        // tryAdvance. At the same time, vm.getCurrentFrame() already points to a different frame. Since the trail does not differentiate that,
+                        // we might add a trail element asking to pop from the very wrong frame, leading to wrong results later.
+                        // So, if frame and vm.getCurrentFrame() mismatch, refrain from creating and adding trail elements.
+                        StackWithTrail operandStack = (StackWithTrail)frame.getOperandStack();
+                        operandStack.setRestoringMode(true);
+                    }
+                    frame.getOperandStack().push(result);
+                    if (trailMismatch) {
+                        StackWithTrail operandStack = (StackWithTrail)frame.getOperandStack();
+                        operandStack.setRestoringMode(false);
+                    }
 				} else {
 					mh.invokeWithArguments(params);
 				}
