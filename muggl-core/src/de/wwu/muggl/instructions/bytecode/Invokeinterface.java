@@ -142,7 +142,7 @@ public class Invokeinterface extends Invoke implements Instruction {
 		return selMethod;
 	}
 
-    private Method selectMostSpecificImplementation(Frame frame, Method method, ClassFile objectrefClassFile) throws ClassFileException {
+    protected Method selectMostSpecificImplementation(Frame frame, Method method, ClassFile objectrefClassFile) throws ClassFileException {
         boolean methodSelected = false;
 
         // According to JVMs8 invokeinterface

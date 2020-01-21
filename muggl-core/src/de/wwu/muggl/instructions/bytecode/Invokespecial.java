@@ -247,7 +247,7 @@ public class Invokespecial extends Invoke implements Instruction {
 		return method;
 	}
 
-	/**
+    /**
 	 * Resolve the instructions name.
 	 * @return The instructions name as a String.
 	 */

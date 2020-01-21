@@ -264,7 +264,8 @@ public class Invokevirtual extends Invoke implements Instruction {
 		return selectedMethod;
 	}
 
-    private Method selectMostSpecificImplementation(Frame frame, Method method, ClassFile objectrefClassFile) throws ClassFileException {
+    @Override
+    protected Method selectMostSpecificImplementation(Frame frame, Method method, ClassFile objectrefClassFile) throws ClassFileException {
         Method selectedMethod = null;
         if (!method.isSignaturePolymorphic()) {
             // 1. If C contains a declaration for an instance method m that

@@ -39,6 +39,7 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
 import de.wwu.muli.searchtree.Choice;
 import de.wwu.muli.searchtree.Fail;
 import de.wwu.muli.searchtree.ST;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Abstract instruction with some concrete methods for invocation instructions. Concrete
@@ -150,12 +151,13 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
             return Optional.of(new Fail());
         }
 
+        // Find out which implementations can *actually* be invoked, given all circumstances.
         List<Method> feasibleImplementations;
         if (this.invocationTargetObject.orElse(null) instanceof FreeObjectref) {
             // Crossref getPossibleTypes() with this.alternativeImplementations
             FreeObjectref freeObject = (FreeObjectref) this.invocationTargetObject.get();
             Set<String> possibleTypes = freeObject.getPossibleTypes();
-            // TODO do we specifically need a "getExcludedTypes()"?
+            Set<String> excludedTypes = freeObject.getDisallowedTypes();
             List<ClassFile> possibleTypesClasses = possibleTypes.stream().map(typeName -> {
                 try {
                     return frame.getVm().getClassLoader().getClassAsClassFile(typeName);
@@ -163,9 +165,34 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
                     throw new IllegalStateException(e);
                 }
             }).collect(Collectors.toList());
+            List<ClassFile> excludedTypesClasses = excludedTypes.stream().map(typeName -> {
+                try {
+                    return frame.getVm().getClassLoader().getClassAsClassFile(typeName);
+                } catch (ClassFileException e) {
+                    throw new IllegalStateException(e);
+                }
+            }).collect(Collectors.toList());
 
-            feasibleImplementations = this.alternativeImplementations.stream().filter(impl -> possibleTypesClasses.stream()
-                    .anyMatch(othertype -> impl.getClassFile().isSubtypeOf(othertype) || othertype.isSubtypeOf(impl.getClassFile()))).collect(Collectors.toList());
+            feasibleImplementations = this.alternativeImplementations.stream()
+                    // Ensure types are included...
+                    .filter(impl -> possibleTypesClasses.stream().anyMatch(othertype -> impl.getClassFile().isSubtypeOf(othertype)))
+                    // While excluding types from the blacklist.
+                    .filter(impl -> excludedTypesClasses.stream().noneMatch(excluded -> impl.getClassFile().isSubtypeOf(excluded)))
+                    .collect(Collectors.toList());
+
+            // Possibly we are invoking a method that we are not branching over, i. e., we are looking for a deterministically invokeable method from a supertype.
+            // For example, toString() (if none of the applicable classes override it) or getClass() (which cannot be overridden).
+            if (feasibleImplementations.isEmpty()) {
+                // Use method resolution to get the most significant implementation from a superclass (which is available from a subclass!).
+                try {
+                    Method mostSpecificImplementationFromSuperclass = this.selectMostSpecificImplementation(frame, this.alternativeImplementations.get(0), this.invocationTargetObject.get().getInitializedClass().getClassFile());
+                    if (mostSpecificImplementationFromSuperclass != null) {
+                        feasibleImplementations.add(mostSpecificImplementationFromSuperclass);
+                    }
+                } catch (ClassFileException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
         } else {
             // For non-free refs, the lists are identical.
             feasibleImplementations = this.alternativeImplementations;
@@ -176,9 +203,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
             return Optional.of(new Fail());
         }
 
-        // In the simplest case, invoke.
-        // TODO is this correct? Maybe we need to constrain more...
-        // TODO no, not correct! use the reduced set instead (maybe not from this., but local var).
+        // In the simplest case, invoke. `feasibleImplementations' is already the reduced set, respecting all imposed constraints.
         if (feasibleImplementations.size() == 1) {
             try {
                 // Take care that an element from this.alternativeImplementations is selected instead of the fixed value.
@@ -200,7 +225,18 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 
         // Otherwise, if more than one alternative applies, prepare options and return a Choice.
         List<ConstraintExpression> constraints = feasibleImplementations.stream()
-                .map(impl -> ClassConstraintExpression.newInstance(this.invocationTargetObject.get(), impl.getClassFile().getName()))
+                .map(impl -> {
+                    ClassFile implClass = impl.getClassFile();
+                    HashSet<String> disallowedTypes = new HashSet<>();
+                    for (Method possibleSubtype : feasibleImplementations) {
+                        ClassFile possibleSubtypeClass = possibleSubtype.getClassFile();
+                        if ((!possibleSubtypeClass.equals(implClass)) &&
+                                possibleSubtypeClass.isSubtypeOf(implClass)) {
+                            disallowedTypes.add(possibleSubtypeClass.getName());
+                        }
+                    }
+                    return ClassConstraintExpression.newInstance(this.invocationTargetObject.get(), implClass.getName(), disallowedTypes);
+                })
                 .collect(Collectors.toList());
         List<Integer> pcs = feasibleImplementations.stream().map(impl -> frame.getVm().getPc()).collect(Collectors.toList());
         frame.getVm().preventNextSkip();
@@ -824,4 +860,9 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 				((ConstantMethodref) constant).getClassName());
 	}
 
+    protected Method selectMostSpecificImplementation(Frame frame, Method method, ClassFile objectrefClassFile) throws ClassFileException {
+	    // selectMostSpecificImplementation is particularly used in the context of non-deterministic invocation. For invokevirtual and invokeinterface,
+        // implementations were derived from their respective selectMethod() implementations.
+        throw new NotImplementedException();
+    }
 }
