@@ -344,8 +344,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
         // Check if the access is allowed.
         checkAccess(frame, method, objectrefClassFile);
 
-        // Select the method.
-        // TODO create selectMethod counterpart that offers all applicable methods.
+        // Instead of selecting a method, obtain all applicable methods.
         return selectMethodsForNondeterministicInvocation(frame, method, methodClassFile, objectrefClassFile, invocationTargetObject);
 
     }
