@@ -35,22 +35,31 @@ public abstract class SolverManagerWithTypeConstraints {
 
     class TypeBindingTrail {
         public List newlyBoundFields;
-        public Set<String> previousPossibleTypes;
+        public Set<String> previouslyPossibleTypes;
+        public Set<String> previouslyDisallowedTypes;
     }
     private void imposeClassConstraint(ClassConstraintExpression ce) {
         IReferenceValue targetRef = ce.getTarget();
         Set<String> allowedByTarget = targetRef.getPossibleTypes();
+        Set<String> disallowedByTarget = targetRef.getDisallowedTypes();
         Set<String> allowedByConstraint = ce.getTypes();
 
-        // Create the intersection and apply it.
-        Set<String> intersection = new HashSet<>(allowedByTarget);
-        intersection.retainAll(allowedByConstraint);
-        List boundFields = targetRef.setPossibleTypes(intersection);
+        // Create the reduced type set and apply the constraint.
+        Set<String> afterApplication = new HashSet<>(allowedByTarget);
+        afterApplication.retainAll(allowedByConstraint);
+        afterApplication.removeAll(ce.getNotTypes());
+        List boundFields = targetRef.setPossibleTypes(afterApplication);
+
+        // Explicitly disallow (sub)types.
+        Set<String> allDisallowedTypes = new HashSet<>(disallowedByTarget);
+        allDisallowedTypes.addAll(ce.getNotTypes());
+        targetRef.setDisallowedTypes(allDisallowedTypes);
 
         // Put previous binding on trail in order to be able to restore it later on.
         TypeBindingTrail typeBinding = new TypeBindingTrail();
         typeBinding.newlyBoundFields = boundFields;
-        typeBinding.previousPossibleTypes = allowedByTarget;
+        typeBinding.previouslyPossibleTypes = allowedByTarget;
+        typeBinding.previouslyDisallowedTypes = disallowedByTarget;
         trail.put(ce, typeBinding);
     }
 
@@ -73,6 +82,7 @@ public abstract class SolverManagerWithTypeConstraints {
         // Use trail to revert effects on constrained FreeObjectref.
         TypeBindingTrail typesFromTrail = trail.remove(formerConstraint);
         formerConstraint.getTarget().unbindFields(typesFromTrail.newlyBoundFields);
-        formerConstraint.getTarget().setPossibleTypes(typesFromTrail.previousPossibleTypes);
+        formerConstraint.getTarget().setPossibleTypes(typesFromTrail.previouslyPossibleTypes);
+        formerConstraint.getTarget().setDisallowedTypes(typesFromTrail.previouslyDisallowedTypes);
     }
 }

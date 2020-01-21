@@ -13,6 +13,7 @@ public class ClassConstraintExpression extends ConstraintExpression implements T
 
     private final IReferenceValue target;
     private final Set<String> types;
+    private final Set<String> notTypes;
 
 
     /**
@@ -22,29 +23,44 @@ public class ClassConstraintExpression extends ConstraintExpression implements T
      * @return the new ClassConstraintExpression expression.
      */
     public static ConstraintExpression newInstance(IReferenceValue target, String type){
-        Set<String> types = new HashSet<>();
-        types.add(type);
-        return newInstance(target, types);
+        Set<String> emptySet = new HashSet<>();
+        return newInstance(target, type, emptySet);
     }
+
 
     /**
      * Creates a constraint expression restricting the allowed types of an Objectref.
      * @param target the to-be-constrained Objectref
-     * @param types the set of allowed types
+     * @param type a single allowed type
+     * @param notTypes types that are excluded even though they may be subtypes of `type'.
      * @return the new ClassConstraintExpression expression.
      */
-    public static ConstraintExpression newInstance(IReferenceValue target, Set<String> types){
-        return new ClassConstraintExpression(target, types);
+    public static ConstraintExpression newInstance(IReferenceValue target, String type, Set<String> notTypes) {
+        Set<String> types = new HashSet<>();
+        types.add(type);
+        return newInstance(target, types, notTypes);
     }
     /**
      * Creates a constraint expression restricting the allowed types of an Objectref.
      * @param target the to-be-constrained Objectref
      * @param types the set of allowed types
-     * @see #newInstance(IReferenceValue, Set)
+     * @param notTypes types that are excluded even though they may be subtypes of a type in `types'.
+     * @return the new ClassConstraintExpression expression.
      */
-    private ClassConstraintExpression(IReferenceValue target, Set<String> types) {
+    public static ConstraintExpression newInstance(IReferenceValue target, Set<String> types, Set<String> notTypes){
+        return new ClassConstraintExpression(target, types, notTypes);
+    }
+    /**
+     * Creates a constraint expression restricting the allowed types of an Objectref.
+     * @param target the to-be-constrained Objectref
+     * @param types the set of allowed types
+     * @param notTypes types that are excluded even though they may be subtypes of a type in `types'.
+     * @see #newInstance(IReferenceValue, Set, Set)
+     */
+    private ClassConstraintExpression(IReferenceValue target, Set<String> types, Set<String> notTypes) {
         this.target = target;
         this.types = types;
+        this.notTypes = notTypes;
     }
     @Override
     public ComposedConstraint convertToComposedConstraint(SubstitutionTable subTable) {
@@ -69,7 +85,13 @@ public class ClassConstraintExpression extends ConstraintExpression implements T
             sb.append(",");
         }
         String types = sb.length() > 0 ? sb.substring(0, sb.length()-1) : "";
-        return "typeof " + this.target.toString() + " in {" + types + "}";
+        StringBuilder sb2 = new StringBuilder();
+        for(String t : this.notTypes) {
+            sb2.append(t);
+            sb2.append(",");
+        }
+        String notTypes = sb2.length() > 0 ? sb2.substring(0, sb2.length()-1) : "";
+        return "typeof " + this.target.toString() + " in {" + types + "} \\ {" + notTypes + "}";
     }
 
     @Override
@@ -100,14 +122,19 @@ public class ClassConstraintExpression extends ConstraintExpression implements T
 
     @Override
     public ConstraintExpression negate() {
-        return null;
+        // TODO incomplete: In addition to notTypes, need to add the universe of all types (so that only this.types is excluded).
+        return new ClassConstraintExpression(this.target, this.notTypes, this.types);
     }
 
     public IReferenceValue getTarget() {
-        return target;
+        return this.target;
     }
 
     public Set<String> getTypes() {
-        return types;
+        return this.types;
+    }
+
+    public Set<String> getNotTypes() {
+        return this.notTypes;
     }
 }
