@@ -300,7 +300,8 @@ public class Invokedynamic extends Invoke implements Instruction {
                 targetMethod = resolve.resolveMethodInterface(targetMethodrefClassFile, targetMethodref.getNameAndTypeInfo());
             } else {
                 assert(targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_invokeStatic ||
-                        targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_newInvokeSpecial);
+                        targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_newInvokeSpecial ||
+                        targetMethodHandle.getReferenceKind() == ClassFileConstants.ReferenceKind.REF_invokeVirtual);
                 targetMethod = resolve.resolveMethod(targetMethodrefClassFile, targetMethodref.getNameAndTypeInfo());
             }
         } catch (ClassFileException e) {
@@ -391,8 +392,10 @@ public class Invokedynamic extends Invoke implements Instruction {
             short kind;
             if (targetMethod.getClassFile().isAccInterface()) {
                 kind = Const.INVOKEINTERFACE;
-            } else {
+            } else if (targetMethod.isAccStatic()) {
                 kind = Const.INVOKESTATIC;
+            } else {
+                kind = Const.INVOKEVIRTUAL;
             }
             insl.append(insf.createInvoke(targetMethod.getClassFile().getName(), targetMethod.getName(),
                     Type.getReturnType(targetMethod.getDescriptor()),
