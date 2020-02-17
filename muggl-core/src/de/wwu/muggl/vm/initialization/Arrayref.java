@@ -1,5 +1,6 @@
 package de.wwu.muggl.vm.initialization;
 
+import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.vm.SystemDictionary;
 import de.wwu.muggl.vm.execution.ExecutionAlgorithms;
 import de.wwu.muggl.configuration.Globals;
@@ -33,6 +34,26 @@ public class Arrayref implements ReferenceValue {
 	private long instantiationNumber;
 	
 	private Objectref mirrorJava;
+
+	/**
+     * Initialize the arrayref according to the parameters of another Arrayref.
+     * This ensures that they can be substituted for one another. Elements are not copied.
+     */
+    public Arrayref(Arrayref other) {
+        this.referenceValue = other.referenceValue;
+        this.instantiationNumber = referenceValue.getInitializedClass().getClassFile()
+                .getClassLoader().getNextInstantiationNumber();
+        this.length = other.length;
+        if (other.elements instanceof ReferenceValue[]) {
+            this.elements = new ReferenceValue[this.length];
+        } else {
+            // Primitive types will be represented in the java.lang wrapper classes.
+            this.elements = new Object[this.length];
+            initializePrimitiveWrapperValues();
+        }
+
+        setupMirror();
+    }
 
 	/**
 	 * Initialize the arrayref. It must have a type of ReferenceValue and
@@ -183,10 +204,22 @@ public class Arrayref implements ReferenceValue {
 					.equals(element.getClass().getName()))
 				throw new ArrayStoreException(element.getClass().getName()
 						+ " is not assignment compatible with a primitive wrapper provided by " + this.getName() + ".");
-		} else {
+        } else {
 			// Normal assignment compatibility check.
-			if (!ea.checkForAssignmentCompatibility((ReferenceValue) element, this))
-				throw new ArrayStoreException(((ReferenceValue) element).getName() + " 1is not assignment compatible with " + this.getName() + ".");
+            if (!(element instanceof ReferenceValue) && this.referenceValue.getName().equals(Term.class.getName())) {
+                    String elementClass = element.getClass().getName();
+                    switch (elementClass) {
+                        case "java.lang.Integer":
+                        case "java.lang.Byte":
+                        case "java.lang.Short":
+                            element = NumericConstant.getInstance(element);
+                            break;
+                        default:
+                            throw new ArrayStoreException(elementClass + " is not assignment compatible with the Term target type.");
+                    }
+
+            } else if (!ea.checkForAssignmentCompatibility((ReferenceValue) element, this))
+				throw new ArrayStoreException(((ReferenceValue) element).getName() + " is not assignment compatible with " + this.getName() + ".");
 		}
 		this.elements[index] = element;
 	}
