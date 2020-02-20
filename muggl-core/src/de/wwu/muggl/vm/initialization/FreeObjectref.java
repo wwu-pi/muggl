@@ -75,17 +75,23 @@ public class FreeObjectref extends Objectref {
 
         List<Field> boundFields = new ArrayList<>();
 
-        // TODO when binding fields, check whether the possibleTypes are along a single hierarchy. If so, use the common supertype for binding fields.
-        if (this.possibleTypes.size() == 1) {
-            // Check which fields are annotated and replace undefined fields by logic variables.
-            String actualTypeName = this.possibleTypes.stream().findFirst().get();
-            ClassFile actualType = null;
+        // Check whether the allowed types (possible \ disallowed) are along a single hierarchy. If so, use the common supertype for binding fields.
+        HashSet<String> allowedTypes = new HashSet<>(possibleTypes);
+        allowedTypes.removeAll(disallowedTypes);
+        List<ClassFile> allowedTypeClasses = allowedTypes.stream().map(typeName -> {
             try {
-                actualType = this.getInitializedClass().getClassFile().getClassLoader().getClassAsClassFile(actualTypeName);
+                return this.getInitializedClass().getClassFile().getClassLoader().getClassAsClassFile(typeName);
             } catch (ClassFileException e) {
-                // Ignore. We tried...
-                return boundFields;
+                throw new IllegalStateException(e);
             }
+        }).collect(Collectors.toList());
+        List<ClassFile> commonSupertypes = allowedTypeClasses.stream().filter(superType ->
+                allowedTypeClasses.stream().allMatch(subType -> subType.isSubtypeOf(superType))).collect(Collectors.toList());
+
+        // If there is a unique supertype, feel free to initialize.
+        if (commonSupertypes.size() == 1) {
+            // Check which fields are annotated and replace undefined fields by logic variables.
+            ClassFile actualType = commonSupertypes.get(0);
             for (Field field : actualType.getFields()) {
                 if (!this.hasValueFor(field)) {
                     String type = field.getDescriptor();
