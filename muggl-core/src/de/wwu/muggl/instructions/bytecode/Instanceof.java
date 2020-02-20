@@ -1,7 +1,6 @@
 package de.wwu.muggl.instructions.bytecode;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.CheckcastInstanceof;
@@ -14,7 +13,6 @@ import de.wwu.muggl.solvers.expressions.ConstraintExpression;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.ClassFile;
-import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.classfile.structures.constants.ConstantClass;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
@@ -144,44 +142,19 @@ public class Instanceof extends CheckcastInstanceof implements Instruction, Jump
             // Objectref is a free object...
             FreeObjectref freeObject = (FreeObjectref)objectref;
             String castTarget = castingToClassName.replace('/', '.');
-            // Objectref is FreeObjectref -- compare with the Set (Possible \ Disallowed).
-            // Create the set difference.
-            Set<String> allowedTypes = new HashSet<>(freeObject.getPossibleTypes());
-            allowedTypes.removeAll(freeObject.getDisallowedTypes());
 
-            // Load class files from type name strings.
-            ClassFile castTargetClass;
-            try {
-                castTargetClass = frame.getVm().getClassLoader().getClassAsClassFile(castTarget);
-            } catch (ClassFileException e) {
-                throw new IllegalStateException(e);
-            }
-            List<ClassFile> allowedTypeClasses = allowedTypes.stream().map(possibleInstanceType -> {
-                try {
-                    return frame.getVm().getClassLoader().getClassAsClassFile(possibleInstanceType);
-                } catch (ClassFileException e) {
-                    throw new IllegalStateException(e);
-                }
-            }).collect(Collectors.toList());
-
-            // Find out whether there are any types in the set for which the cast would succeed if the object were of that type.
-            Set<String> successfulTypes = allowedTypeClasses.stream().filter(possibleClass -> {
-                    // Return types for which the cast will succeed.
-                    return possibleClass.isSubtypeOf(castTargetClass);
-            }).map(ClassFile::getName).collect(Collectors.toSet());
-
-            // Find out whether there are any types in the set for which the cast would fail if the object were of that type.
-            Set<String> adverseTypes = allowedTypeClasses.stream().filter(possibleClass -> {
-                    // Return types for which the cast will fail.
-                    return !possibleClass.isSubtypeOf(castTargetClass);
-            }).map(ClassFile::getName).collect(Collectors.toSet());
+            // Generate the sets allowedTypes = (Possible \ Disallowed); successfulTypes: Where the cast to `castTarget' would succeed; adverseTypes: Where a cast would fail.
+            FreeObjectTypeRelations freeObjectTypeRelations = findTypeRelations(frame.getVm().getClassLoader(), freeObject, castTarget);
+            Set<String> allowedTypes = freeObjectTypeRelations.getAllowedTypes();
+            Set<String> successfulTypes = freeObjectTypeRelations.getSuccessfulTypes();
+            Set<String> adverseTypes = freeObjectTypeRelations.getAdverseTypes();
 
             // Find out whether cast can fail or succeed. Considering that an object can assume one of many types, these two are not mutually exclusive.
-            boolean castCanSucceed = allowedTypes.contains(castTarget);
-            boolean castCanFail = !allowedTypes.contains(castTarget) || !adverseTypes.isEmpty();
             // Cast can fail if:
             // - allowedTypes does not contain the target
             // - there is a type in allowedTypes that cannot be cast to the target.
+            boolean castCanSucceed = allowedTypes.contains(castTarget);
+            boolean castCanFail = !allowedTypes.contains(castTarget) || !adverseTypes.isEmpty();
             if (castCanSucceed && castCanFail) {
                 List<ConstraintExpression> constraints = new ArrayList<>();
                 // Für success: types in castTarget ++ subtypes(?)
@@ -218,7 +191,7 @@ public class Instanceof extends CheckcastInstanceof implements Instruction, Jump
         }
     }
 
-	/**
+    /**
 	 * Resolve the instructions name.
 	 * @return The instructions name as a String.
 	 */
