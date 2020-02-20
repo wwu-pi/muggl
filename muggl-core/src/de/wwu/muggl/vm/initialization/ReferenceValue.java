@@ -1,7 +1,5 @@
 package de.wwu.muggl.vm.initialization;
 
-import de.wwu.muggl.vm.classfile.structures.Field;
-
 import java.util.List;
 import java.util.Set;
 
@@ -62,16 +60,12 @@ public interface ReferenceValue extends Cloneable, IReferenceValue {
 
 	ReferenceValue clone() throws CloneNotSupportedException;
 
-    default List setPossibleTypes(Set<String> newTypes) {
+    default List applyTypeConstraint(Set<String> newTypes, Set<String> disallowedTypes) {
         throw new UnsupportedOperationException("Possible types for this representation may not be changed.");
     }
 
     default Set<String> getDisallowedTypes() {
         throw new UnsupportedOperationException("Ref is of singular type anyway.");
-    }
-
-    default void setDisallowedTypes(Set<String> newTypes) {
-        throw new UnsupportedOperationException("Disallowed types for this representation may not be changed.");
     }
 
     default void unbindFields(List fieldsToUnbind) {

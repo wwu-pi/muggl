@@ -66,11 +66,14 @@ public class FreeObjectref extends Objectref {
     }
 
     @Override
-    public List<Field> setPossibleTypes(Set<String> possibleTypes) {
+    public List<Field> applyTypeConstraint(Set<String> possibleTypes, Set<String> disallowedTypes) {
+        // Take possibleTypes and excludedTypes at the same time. Take the difference set.
         this.possibleTypes = possibleTypes;
+        this.disallowedTypes = disallowedTypes;
 
         List<Field> boundFields = new ArrayList<>();
 
+        // TODO when binding fields, check whether the possibleTypes are along a single hierarchy. If so, use the common supertype for binding fields.
         if (this.possibleTypes.size() == 1) {
             // Check which fields are annotated and replace undefined fields by logic variables.
             String actualTypeName = this.possibleTypes.stream().findFirst().get();
@@ -99,11 +102,6 @@ public class FreeObjectref extends Objectref {
     @Override
     public Set<String> getDisallowedTypes() {
         return disallowedTypes;
-    }
-
-    @Override
-    public void setDisallowedTypes(Set<String> disallowedTypes) {
-        this.disallowedTypes = disallowedTypes;
     }
 
     /**

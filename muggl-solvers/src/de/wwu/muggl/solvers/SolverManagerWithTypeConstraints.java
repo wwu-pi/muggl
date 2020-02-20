@@ -44,16 +44,17 @@ public abstract class SolverManagerWithTypeConstraints {
         Set<String> disallowedByTarget = targetRef.getDisallowedTypes();
         Set<String> allowedByConstraint = ce.getTypes();
 
-        // Create the reduced type set and apply the constraint.
+        // Create the reduced type set.
         Set<String> afterApplication = new HashSet<>(allowedByTarget);
         afterApplication.retainAll(allowedByConstraint);
         afterApplication.removeAll(ce.getNotTypes());
-        List boundFields = targetRef.setPossibleTypes(afterApplication);
 
         // Explicitly disallow (sub)types.
         Set<String> allDisallowedTypes = new HashSet<>(disallowedByTarget);
         allDisallowedTypes.addAll(ce.getNotTypes());
-        targetRef.setDisallowedTypes(allDisallowedTypes);
+
+        // Apply the constraint.
+        List boundFields = targetRef.applyTypeConstraint(afterApplication, allDisallowedTypes);
 
         // Put previous binding on trail in order to be able to restore it later on.
         TypeBindingTrail typeBinding = new TypeBindingTrail();
@@ -82,7 +83,6 @@ public abstract class SolverManagerWithTypeConstraints {
         // Use trail to revert effects on constrained FreeObjectref.
         TypeBindingTrail typesFromTrail = trail.remove(formerConstraint);
         formerConstraint.getTarget().unbindFields(typesFromTrail.newlyBoundFields);
-        formerConstraint.getTarget().setPossibleTypes(typesFromTrail.previouslyPossibleTypes);
-        formerConstraint.getTarget().setDisallowedTypes(typesFromTrail.previouslyDisallowedTypes);
+        formerConstraint.getTarget().applyTypeConstraint(typesFromTrail.previouslyPossibleTypes, typesFromTrail.previouslyDisallowedTypes);
     }
 }

@@ -19,11 +19,9 @@ public interface IReferenceValue {
 
     Set<String> getPossibleTypes();
 
-    List setPossibleTypes(Set<String> newTypes);
+    List applyTypeConstraint(Set<String> newTypes, Set<String> disallowedTypes);
 
     Set<String> getDisallowedTypes();
-
-    void setDisallowedTypes(Set<String> allDisallowedTypes);
 
     void unbindFields(List fieldsToUnbind);
 }
