@@ -157,9 +157,9 @@ public class Instanceof extends CheckcastInstanceof implements Instruction, Jump
             boolean castCanFail = !allowedTypes.contains(castTarget) || !adverseTypes.isEmpty();
             if (castCanSucceed && castCanFail) {
                 List<ConstraintExpression> constraints = new ArrayList<>();
-                // Für success: types in castTarget ++ subtypes(?)
+                // For success:
                 constraints.add(ClassConstraintExpression.newInstance(freeObject, successfulTypes, new HashSet<>()));
-                // Für fail:
+                // For fail:
                 // types in (adverseTypes \ (castTarget ++ subtypes))
                 constraints.add(ClassConstraintExpression.newInstance(freeObject, adverseTypes, successfulTypes));
                 // Add the same pc twice: Operation continues at the same place...
