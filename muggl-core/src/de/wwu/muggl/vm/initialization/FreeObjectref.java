@@ -114,7 +114,7 @@ public class FreeObjectref extends Objectref {
     public void unbindFields(List fieldsToUnbind) {
         List<Field> fields = (List<Field>) fieldsToUnbind;
         for (Field field : fields) {
-            this.fields.put(field, null);
+            this.fields.remove(field);
         }
     }
 
