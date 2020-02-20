@@ -57,7 +57,9 @@ public class FreeObjectref extends Objectref {
     @Override
     public boolean isOfASpecificType() {
         // This becomes true if the type is sufficiently constrained.
-        return possibleTypes.size() == 1;
+        HashSet<String> types = new HashSet<>(possibleTypes);
+        types.removeAll(disallowedTypes);
+        return types.size() == 1;
     }
 
     @Override
