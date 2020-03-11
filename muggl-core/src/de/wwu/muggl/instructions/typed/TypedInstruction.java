@@ -88,6 +88,11 @@ public abstract class TypedInstruction {
 		String[] desiredTypes = getDesiredTypes();
 		boolean matchedOneType = false;
 		for (int a = 0; a < desiredTypes.length; a++) {
+            if (desiredTypes[a].equals("java.lang.Character") && value.getClass().getName().equals("de.wwu.muggl.solvers.expressions.IntConstant")) {
+                matchedOneType = true;
+                value = extendValue(value, "java.lang.Character");
+                break;
+            }
 			if (value.getClass().getName().equals(desiredTypes[a])) {
 				matchedOneType = true;
 				value = extendValue(value, desiredTypes[a]);

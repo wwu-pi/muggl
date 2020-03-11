@@ -52,19 +52,35 @@ public class Swap extends de.wwu.muggl.instructions.general.SwapAbstract impleme
 	public void executeSymbolically(Frame frame) throws NoExceptionHandlerFoundException,
 			SymbolicExecutionException {
 		Stack<Object> stack = frame.getOperandStack();
-		Term value1 = (Term) stack.pop();
-		Term value2 = (Term) stack.pop();
-		if (!(checkCategory2Symbolically(value1) || checkCategory2Symbolically(value2))) {
-			stack.push(value1);
-			stack.push(value2);
-		} else {
-			// Recovery.
-			stack.push(value2);
-			stack.push(value1);
-			executionFailedSymbolically(new SymbolicExecutionException(
-					"When using " + getName()
-					+ " the two topmost values of the operand stack must have a type of category 1."));
-		}
+        Object o1 = stack.pop();
+        Object o2 = stack.pop();
+        if (o1 instanceof Term && o2 instanceof Term) {
+            Term value1 = (Term) o1;
+            Term value2 = (Term) o2;
+            if (!(checkCategory2Symbolically(value1) || checkCategory2Symbolically(value2))) {
+                stack.push(value1);
+                stack.push(value2);
+            } else {
+                // Recovery.
+                stack.push(o2);
+                stack.push(o1);
+                executionFailedSymbolically(new SymbolicExecutionException(
+                        "When using " + getName()
+                                + " the two topmost values of the operand stack must have a type of category 1."));
+            }
+        } else {
+            if (!(checkCategory2(o1) || checkCategory2(o2))) {
+                stack.push(o1);
+                stack.push(o2);
+            } else {
+                // Recovery.
+                stack.push(o2);
+                stack.push(o1);
+                executionFailedSymbolically(new ExecutionException(
+                        "When using " + getName()
+                                + " the two topmost values of the operand stack must have a type of category 1."));
+            }
+        }
 	}
 
 	/**

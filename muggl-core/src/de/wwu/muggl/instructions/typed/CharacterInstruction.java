@@ -1,10 +1,7 @@
 package de.wwu.muggl.instructions.typed;
 
+import de.wwu.muggl.solvers.expressions.*;
 import de.wwu.muggl.vm.classfile.structures.Method;
-import de.wwu.muggl.solvers.expressions.Expression;
-import de.wwu.muggl.solvers.expressions.NumericVariable;
-import de.wwu.muggl.solvers.expressions.Term;
-import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * This class provides static methods to be accessed by instructions typed as a Character.
@@ -67,11 +64,14 @@ public class CharacterInstruction extends TypedInstruction {
 	 */
 	@Override
 	protected Object extendValue(Object value, String type) {
+	    if (value instanceof IntConstant) {
+	        return ((IntConstant) value).getIntValue();
+        }
 		return (int) ((Character) value);
 	}
 
 	/**
-	 * Truncate the value if this is required by its' type. In this case the integer value is
+	 * Truncate the value if this is required by its type. In this case the integer value is
 	 * truncated to a short.
 	 * @param value The object that needs to be truncated.
 	 * @param type The type of the object, which determines the truncation strategy.

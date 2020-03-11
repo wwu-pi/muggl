@@ -232,7 +232,9 @@ public abstract class Term implements Expression {
 			return new IntConstant(((BooleanConstant) obj).getValue() ? 1:0);
 		} else if (obj instanceof Boolean) {
 			return IntConstant.getInstance(((Boolean) obj) ? 1:0); 
-		}
+		} else if (obj instanceof Character){
+            return new IntConstant((int)((Character) obj).charValue());
+        }
 		
 		
 		return (Term) obj;

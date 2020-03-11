@@ -58,7 +58,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 	 * This field takes a value of 1 if an invocation takes an object reference parameter.
 	 */
 	protected int hasObjectrefParameter;
-    private Optional<Objectref> invocationTargetObject = null;
+    private Optional<ReferenceValue> invocationTargetObject = null;
     private List<Method> alternativeImplementations;
 
 	/**
@@ -304,7 +304,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 
         // TODO this is bogus if recursion is involved -- The Invoke statement is probably identical across all frames, but the invocationTargetObject is not.
         if (this.hasObjectrefParameter != 0) {
-            this.invocationTargetObject = Optional.of((Objectref) parameters[0]);
+            this.invocationTargetObject = Optional.of((ReferenceValue) parameters[0]);
         } else {
             this.invocationTargetObject = Optional.empty();
         }
