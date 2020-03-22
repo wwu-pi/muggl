@@ -999,7 +999,9 @@ public class MugglToJavaConversion {
                         // Libraries, such as JaCoCo, might add fields that Muli/Muggl know nothing about.
                         field = objectref.getInitializedClass().getClassFile().getFieldByName(javaField.getName(), true);
                     } catch (de.wwu.muggl.instructions.FieldResolutionError error) {
-                        Globals.getInst().symbolicExecLogger.error("Dropped field " + javaField.getName() + " while converting " + objectref.getInitializedClass().getClassFile().getClassName());
+						if (Globals.getInst().symbolicExecLogger.isDebugEnabled()) {
+							Globals.getInst().symbolicExecLogger.debug("Dropped field " + javaField.getName() + " while converting " + objectref.getInitializedClass().getClassFile().getClassName());
+						}
                         continue;
                     }
 					try {
