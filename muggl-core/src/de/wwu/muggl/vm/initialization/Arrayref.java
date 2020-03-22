@@ -240,9 +240,11 @@ public class Arrayref implements ReferenceValue {
 	public String toString() {
 		String dbghint = "";
 		if(getName().equals("[Ljava.lang.Character;")) {
-			for (int i = 0; i < elements.length; i++) {
-				dbghint += elements[i];
-			}
+		    if (elements != null) {
+                for (Object element : elements) {
+                    dbghint += element;
+                }
+            }
 		}
 		return "Arrayref of type " + getName() + " length " + this.length + " (id: "
 				+ this.instantiationNumber + ((dbghint.length() > 0) ? (" content:" + dbghint) : "") + ").";
