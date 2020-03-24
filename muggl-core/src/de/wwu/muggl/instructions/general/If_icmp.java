@@ -130,7 +130,6 @@ public abstract class If_icmp extends GeneralInstructionWithOtherBytes implement
             } else {
                 // Create the ConstraintExpression and generate a new ChoicePoint. It will set the pc.
                 ConstraintExpression expression = this.getConstraintExpression(term1, term2);
-                // TODO this.getPc() + 1 + instruction.getNumberOfOtherBytes() auslagern.
                 return Optional.of(
                         new Choice(frame, this.getPcOfSubsequentInstruction(vm),
                                 this.getJumpTarget(), expression, vm.extractCurrentTrail(),
