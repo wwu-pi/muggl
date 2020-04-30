@@ -517,10 +517,12 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 						}
 						if (!frame.isHiddenFrame()
 								&& Globals.getInst().logBasedOnWhiteBlacklist(actualMethod.getPackageAndName()).orElse(true))
-							Globals.getInst().executionInstructionLogger
-									.debug("upon return: (op: " + frame.getOperandStack() + ", localvar: [" + Arrays.stream(frame.getLocalVariables())
-									                                   									.map(x -> (x == null)? "null": x.toString()).collect(Collectors.joining(", "))									
-									                                   									+ "] pc: " + frame.getPc() + ")");
+							if (Globals.getInst().executionInstructionLogger.isDebugEnabled()) {
+								Globals.getInst().executionInstructionLogger
+										.debug("upon return: (op: " + frame.getOperandStack() + ", localvar: [" + Arrays.stream(frame.getLocalVariables())
+												.map(x -> (x == null) ? "null" : x.toString()).collect(Collectors.joining(", "))
+												+ "] pc: " + frame.getPc() + ")");
+							}
 
 						// Finished.
 						return;
