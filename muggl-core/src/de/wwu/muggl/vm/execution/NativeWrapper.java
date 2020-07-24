@@ -828,7 +828,9 @@ public class NativeWrapper {
 		//TODO perform checks that this is actually a stringobjectref! See e.g. Objectref#toString()
 		Field stringValueField = stringObjectref.getInitializedClass()
 				.getClassFile().getFieldByNameAndDescriptor("value", "[C");
-		Arrayref characters = (Arrayref) stringObjectref.getField(stringValueField);
+        Object fieldContent = stringObjectref.getField(stringValueField);
+        if (fieldContent == null) return "null";
+        Arrayref characters = (Arrayref) fieldContent;
 
 		// Build the String.
 		char[] chars = new char[characters.length];
