@@ -67,5 +67,9 @@ public abstract class ClassFileStructure {
 					"Encountered a corrupt class file: An index into the constant pool was found thats value is less than one.");
 		}
 	}
+	
+	public String toString() {
+	    return this.getStructureName();
+    }
 
 }

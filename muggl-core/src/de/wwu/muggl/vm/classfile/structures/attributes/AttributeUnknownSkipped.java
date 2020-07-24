@@ -53,7 +53,7 @@ public class AttributeUnknownSkipped extends Attribute {
 	 */
 	@Override
 	public String getStructureName() {
-		return "(Unknown attribute that was skipped)";
+		return "(Unknown attribute " + this.getName() + " that was skipped)";
 	}
 
 	/**
