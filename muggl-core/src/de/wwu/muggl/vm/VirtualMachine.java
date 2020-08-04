@@ -131,7 +131,7 @@ public abstract class VirtualMachine extends Thread {
 	private int ignoreInterruption;
 	private boolean runUntilNoOfInstructionsReached;
 	private long executedInstructionsTarget;
-	
+
 	/**
 	 * Whether to enable assertions. Only one general switch for all.
 	 */
@@ -151,7 +151,7 @@ public abstract class VirtualMachine extends Thread {
 	// Helpers for debugging. See method fillDebugStackTraces
 	public String debugStackTraceJavaVM;
 	public String debugStackTraceMugglVM;
-	
+
 	/**
 	 * Handle the VM's thread as the "main"-thread's "OS"-container
 	 */
@@ -215,7 +215,7 @@ public abstract class VirtualMachine extends Thread {
 	 * @throws InitializationException If initialization of auxiliary classes fails.
 	 */
 	public VirtualMachine(Application application, MugglClassLoader classLoader,
-			ClassFile classFile, Method initialMethod) throws InitializationException {
+						  ClassFile classFile, Method initialMethod) throws InitializationException {
 		this.finalized = false;
 		this.application = application;
 		classLoader.resetInitializedClassFileCache();
@@ -233,9 +233,9 @@ public abstract class VirtualMachine extends Thread {
 		this.ignoreInterruption = 0;
 		this.runUntilNoOfInstructionsReached = false;
 		this.executedInstructionsTarget = -1L;
-		
+
 		this.stringCache = new StringCache(this);
-		this.throwableGenerator = new ThrowableGenerator(this);			
+		this.throwableGenerator = new ThrowableGenerator(this);
 		this.currentFrame = null;
 		this.stack = null;
 		latestVM = this;
@@ -312,10 +312,10 @@ public abstract class VirtualMachine extends Thread {
 			Frame visualStartingFrame = (Frame) this.stack.peek();
 
 			// class initialization nedded?, so you can conveniently call instance methods from MugglGUI and tests
-//			if (!this.initialMethod.getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME) && !this.initialMethod.isAccStatic()) {			
+//			if (!this.initialMethod.getName().equals(VmSymbols.OBJECT_INITIALIZER_NAME) && !this.initialMethod.isAccStatic()) {
 //				try {
 //					createAndPushFrame(null, this.classFile.getMethodByNameAndDescriptor(VmSymbols.OBJECT_INITIALIZER_NAME, "()V"), new Object[]{arguments[0]});
-//					
+//
 //					if (Globals.getInst().execLogger.isDebugEnabled()) Globals.getInst().execLogger.debug("A class initializer (<init>-method) has been found for class " + this.classFile.getName() + ". It will be executed next.");
 //				} catch (MethodResolutionError e) {
 //					// This exception is expected, it just symbolizes there is no static initializer for this class.
@@ -333,7 +333,7 @@ public abstract class VirtualMachine extends Thread {
 					if (Globals.getInst().execLogger.isDebugEnabled()) Globals.getInst().execLogger.debug("There is no static initializer (<clinit>-method) for class " + this.classFile.getName() + ". Execution will start with method " + this.initialMethod.getName() + ".");
 				}
 			}
-						
+
 			// Notify the Application.
 			this.application.newVMHasBeenInitialized();
 			// Start the execution
@@ -462,9 +462,9 @@ public abstract class VirtualMachine extends Thread {
 
 	/**
 	 * Set up the system thread group and threads. Copied over from openjdk/hotspot/src/share/vm/runtime/thread.cpp
-	 * 
+	 *
 	 * This is quasi Threads::create_vm
-	 * 
+	 *
 	 * @throws InterruptedException
 	 * @throws InvalidInstructionInitialisationException
 	 * @throws ExecutionException
@@ -493,7 +493,7 @@ public abstract class VirtualMachine extends Thread {
 
 		// The VM creates & returns objects of this class. Make sure it's initialized.
 		initialize_class(java.lang.Class.class.getCanonicalName());
-		
+
 		// The VM preresolves methods to these classes. Make sure that they get initialized
 		initialize_class(java.lang.reflect.Method.class.getCanonicalName());
 		initialize_class("java.lang.ref.Finalizer"); // java.lang.ref.Finalizer.class.getCanonicalName() does not work
@@ -509,7 +509,7 @@ public abstract class VirtualMachine extends Thread {
 
 	/**
 	 * Set up the system and main Thread-Group. equivalent source file is openjdk/jdk/share/native/java/lang/thread.cpp
-	 * 
+	 *
 	 * @return
 	 * @throws ClassFileException
 	 * @throws ExecutionException
@@ -537,7 +537,7 @@ public abstract class VirtualMachine extends Thread {
 
 	/**
 	 * Creates the Java Object for the main thread. On "OS"-layer, this is the main thread.
-	 * 
+	 *
 	 * @param thread_group
 	 * @return
 	 * @throws ClassFileException
@@ -575,7 +575,7 @@ public abstract class VirtualMachine extends Thread {
 		Method initMethod = initClassF.getMethodByNameAndDescriptor("initializeSystemClass", MethodType.methodType(void.class).toMethodDescriptorString());
 		// method is static - no parameters
 		Object[] arguments = new Object[0];
-				
+
 		Frame systemStartupFrame = createFrame(null, initMethod, arguments);
 		this.stack.push(systemStartupFrame);
 		systemStartupFrame.setHiddenFrame(true);
@@ -590,7 +590,7 @@ public abstract class VirtualMachine extends Thread {
 	/**
 	 * Call a java method on an objectref Contract for this method is caller knows what he does, so passing on every
 	 * exception
-	 * 
+	 *
 	 * @param objectref
 	 * @param klass
 	 * @param methodName
@@ -609,7 +609,7 @@ public abstract class VirtualMachine extends Thread {
 		systemStartupFrame.setHiddenFrame(true);
 		Boolean stepByStep = this.stepByStepMode;
 		this.stepByStepMode = false;
-		runMainLoop(systemStartupFrame);		
+		runMainLoop(systemStartupFrame);
 		this.stepByStepMode = stepByStep;
 		}
 	}
@@ -631,7 +631,7 @@ public abstract class VirtualMachine extends Thread {
 		this.stepByStepMode = false;
 		runMainLoop(systemStartupFrame);
 		this.stepByStepMode = stepByStep;
-	}				
+	}
 
 	// Equivalence to a method in OpenJDK thread.cpp. When we know that the class should be there, spare us the
 	// try_catches...
@@ -809,8 +809,16 @@ public abstract class VirtualMachine extends Thread {
                             + " " + String.format("%1$2s", this.pc) + ": Executing " + instructions[this.pc].getNameWithOtherBytes());
             }
 
-			// Execute the instruction.
-			executeInstruction(instructions[pc]);
+			Instruction instruction = instructions[pc];
+			instruction = beforeExecuteInstruction(instruction, method, currentFrame);
+			try {
+				// Execute the instruction.
+				executeInstruction(instruction);
+			} catch (ExecutionException e) {
+				treatExceptionDuringInstruction(instruction, method, currentFrame, e);
+				throw e;
+			}
+			afterExecuteInstruction(instruction, method, currentFrame);
 
 			// Jumped too far?
 			if (this.pc >= Limitations.MAX_CODE_LENGTH) {
@@ -829,6 +837,39 @@ public abstract class VirtualMachine extends Thread {
 				return;
 			}
 		}
+	}
+
+	/**
+	 * Placeholder for functionality listening to the execution of instructions BEFORE they are executed.
+	 * Allows the substitution of instructions.
+	 * @param instruction The instruction which is to be executed.
+	 * @param method The entered method
+	 * @param frame The frame
+	 * @return The actual instruction which will be executed after processing the former one.
+	 */
+	protected Instruction beforeExecuteInstruction(Instruction instruction, Method method, Frame frame) {
+		return instruction;
+	}
+
+	/**
+	 * Placeholder for functionality listening to the exeuction of instructions AFTER they are executed.
+	 * @param instruction The executed instruction
+	 * @param method The entered method
+	 * @param frame The frame
+	 */
+	protected void afterExecuteInstruction(Instruction instruction, Method method, Frame frame) {
+		return;
+	}
+
+	/**
+	 * Placeholder for functionality listening to exceptions during the execution of the instruction.
+	 * @param instruction The executed instruction
+	 * @param method The entered method
+	 * @param frame The frame
+	 * @param e The exception
+	 */
+	protected void treatExceptionDuringInstruction(Instruction instruction, Method method, Frame frame, ExecutionException e) {
+		return;
 	}
 
 	/**
@@ -943,7 +984,7 @@ public abstract class VirtualMachine extends Thread {
 	public StringCache getStringCache() {
 		return this.stringCache;
 	}
-	
+
 	/**
 	 * Get an exception from the exception generator.
 	 *
@@ -953,7 +994,7 @@ public abstract class VirtualMachine extends Thread {
 	public Objectref generateExc(String typeString) {
 		return this.throwableGenerator.getException(typeString);
 	}
-	
+
 	/**
 	 * Get an exception from the exception generator.
 	 *
@@ -962,10 +1003,10 @@ public abstract class VirtualMachine extends Thread {
 	 * @return An exception to to used in the runtime system.
 	 */
 	public Objectref generateExc(String typeString, String message) {
-		// marker for debug logs for easier finding of where an exception originated		
+		// marker for debug logs for easier finding of where an exception originated
 		Globals.getInst().execLogger.info("generating a new exception " + typeString + "(" + message + ") in muggl at: " + Thread.currentThread().getStackTrace()[0].toString());
-		
-		Globals.getInst().execLogger.debug(this.currentStackTrace());			
+
+		Globals.getInst().execLogger.debug(this.currentStackTrace());
 
 		return this.throwableGenerator.getException(typeString, message);
 	}
@@ -1070,7 +1111,7 @@ public abstract class VirtualMachine extends Thread {
 
 	/**
 	 * Create a new frame and push it onto the virtual machine stack.
-	 * 
+	 *
 	 * @param invokedBy The frame this frame is invoked by. Might by null.
 	 * @param method The Method that this frame holds.
 	 * @param arguments The arguments that will be stored in the local variables prior to execution.
@@ -1085,7 +1126,7 @@ public abstract class VirtualMachine extends Thread {
 
 	/**
 	 * Create a new frame.
-	 * 
+	 *
 	 * @param invokedBy The frame this frame is invoked by. Might by null.
 	 * @param method The Method that this frame holds.
 	 * @param arguments The arguments that will be stored in the local variables prior to execution.
@@ -1110,26 +1151,26 @@ public abstract class VirtualMachine extends Thread {
 	/**
 	 * Get the Monitor associated with the supplied object. Create a new monitor if there currently
 	 * is no monitor associated with it.
-	 * 
+	 *
 	 * @param objectref The Object to get the monitor for.
 	 * @return The associated Monitor.
 	 * @throws ExecutionException If <code>objectref</code> is null.
 	 */
 	public Monitor getMonitorForObject(Objectref objectref) throws ExecutionException {
 		if (objectref == null) throw new ExecutionException("null");
-		
+
 		// TODO
 		if (Globals.getInst().execLogger.isEnabledFor(Level.WARN))
 			Globals.getInst().execLogger.warn("Monitor-Support is not yet implemented!");
-		
+
 		// TODO: Implement this method.
 		return new Monitor();
 	}
-	
+
 	/**
 	 * Get the Monitor associated with the supplied class file. Create a new monitor if there currently
 	 * is no monitor associated with it. This is used for static invocation.
-	 * 
+	 *
 	 * @param classFile The class file associated.
 	 * @return The associated Monitor.
 	 * @throws NullPointerException If <code>classFile</code> is null.
@@ -1235,9 +1276,9 @@ public abstract class VirtualMachine extends Thread {
 				this.returnFromCurrentExecution = true;
 			}
 
-			if (!currentFrame.isHiddenFrame()) 
+			if (!currentFrame.isHiddenFrame())
 				Globals.getInst().execLogger.trace("Execution of the static initializer of " + method.getClassFile().getName() + " finished. Returning to the normal program flow.");
-			
+
 			//FIXME mxs: remove this hack
 			if(method.getClassFile().getName().equals("sun.reflect.generics.parser.SignatureParser")) {
 			method.getClassFile().getInitializedClass().putField(method.getClassFile().getFieldByName("DEBUG"), 1);
@@ -1394,7 +1435,7 @@ public abstract class VirtualMachine extends Thread {
 	/**
 	 * Generate an instance of Objectref for the specified ClassFile. This will invoke the static
 	 * initializers, if that has not been done, yet.
-	 * 
+	 *
 	 * @param classFile The class file to get an object reference for.
 	 * @return A new instance of objectref for this ClassFile.
 	 * @throws ExceptionInInitializerError If class initialization fails.
@@ -1507,7 +1548,7 @@ public abstract class VirtualMachine extends Thread {
 //			}
 //			setUpThreads();
 			Globals.getInst().execLogger.warn("Thread set-up deactivated in symbolic vm");
-			
+
 		}
 		this.universeSetupFinished = true;
 	}
