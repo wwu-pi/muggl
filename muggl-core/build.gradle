@@ -3,6 +3,7 @@ apply plugin: 'java'
 dependencies {
 	runtime project(':muggl-solver-muconst')
 	runtime project(':muggl-solver-jacop')
+	runtime project(':muggl-solver-z3')
 	compile project(':muggl-solvers')
 	compile project(':muggl-common')
     compile 'org.apache.bcel:bcel:6.2'
