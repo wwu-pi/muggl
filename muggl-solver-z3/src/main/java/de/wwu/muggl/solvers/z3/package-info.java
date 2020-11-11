@@ -1,5 +1,5 @@
 /**
- * Provides classes that integrate the JaCoP finite domain solver into Muggl.
+ * Provides classes that integrate the z3 solver into Muggl.
  *
  * @author Jan C. Dageförde. 2015
  */

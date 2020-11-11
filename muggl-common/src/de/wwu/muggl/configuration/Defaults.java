@@ -11,7 +11,7 @@ import org.eclipse.swt.graphics.RGB;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-07-15
  */
-final class Defaults {
+public final class Defaults {
 
 	/**
 	 * Private constructor to prevent initialization.
@@ -280,7 +280,13 @@ final class Defaults {
 	/**
 	 * @see Options#solverManager
 	 */
-	public static final String SOLVER_MANAGER = "de.wwu.muggl.solvers.jacop.JaCoPSolverManager";
+
+	public static final String JACOP_MANAGER = "de.wwu.muggl.solvers.jacop.JaCoPSolverManager";
+
+	public static final String Z3_MANAGER = "de.wwu.muggl.solvers.z3.Z3SolverManager";
+
+	public static final String SOLVER_MANAGER = Z3_MANAGER;
+
 	/**
 	 * @see Options#actualCliPrinting
 	 */

@@ -1,18 +1,22 @@
 package de.wwu.muggl.solvers.z3;
 
-import de.wwu.muggl.solvers.SolverManagerWithTypeConstraints;
-import de.wwu.muggl.solvers.expressions.*;
-import org.apache.log4j.Logger;
-
+import com.microsoft.z3.Expr;
+import com.microsoft.z3.Model;
+import com.microsoft.z3.ParamDescrs;
 import de.wwu.muggl.configuration.Globals;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
-import de.wwu.muggl.solvers.conf.TesttoolConfig;
+import de.wwu.muggl.solvers.SolverManagerWithTypeConstraints;
 import de.wwu.muggl.solvers.conf.SolverManagerConfig;
+import de.wwu.muggl.solvers.conf.TesttoolConfig;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
+import de.wwu.muggl.solvers.expressions.*;
 import de.wwu.muggl.solvers.solver.listener.SolverManagerListener;
 import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
+import org.apache.log4j.Logger;
+
+import java.util.*;
 
 /**
  * Z3SolverManager
@@ -27,21 +31,16 @@ import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
  * Z3 is not included; instead, it is a binary dependency of this project.
  * Refer to build.gradle for details.
  * 
- * @author Jan C. Dageförde. 2015
+ * @author Jan C. Dageförde, Hendrik Winkelmann 2020
  */
 public class Z3SolverManager extends SolverManagerWithTypeConstraints implements SolverManager {
-
 	protected boolean finalized = false;
-
 	protected SolverManagerListenerList listeners;
-
-	protected Z3MugglStore z3Store;
-
+	protected Z3MugglAdapter z3;
 	private Logger logger;
-
 	private long totalConstraintsChecked = 0L;
-
-
+	private boolean isSatisfiable = true;
+	private boolean satisfiabilityWasCalculated = true;
 
 	/**
 	 * Creates a new Solver Manager object and initializes it with a stream that
@@ -56,7 +55,7 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 
 		SolverManagerConfig solverConf = SolverManagerConfig.getInstance();
 
-		z3Store = new Z3MugglStore();
+		z3 = new Z3MugglAdapter();
 
 		listeners = new SolverManagerListenerList();
 		for (SolverManagerListener listener : solverConf.getListeners()) {
@@ -66,6 +65,10 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 						+ listener.getClass().getName());
 		}
 
+	}
+
+	protected boolean isSatisfiable() throws TimeoutException, SolverUnableToDecideException {
+		return satisfiabilityWasCalculated ? isSatisfiable : hasSolution();
 	}
 
 	/**
@@ -78,26 +81,22 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 	 */
 	@Override
 	public void addConstraint(ConstraintExpression ce) {
-
-		z3Store.increment();
-
-        if (ce instanceof TypeConstraint) {
-            this.imposeTypeConstraint((TypeConstraint) ce);
-            //System.out.println("Add: ce: " + ce);
-        } else {
-            //Z3Transformer.transformAndImpose(ce, z3Store);
-            // Still call imposeTypeConstraint without an actual constraint to ensure that levels (of type constraints) are consistent with levels (of Z3).
-            this.imposeTypeConstraint(null);
-        }
-
+		z3.increment();
+		satisfiabilityWasCalculated = false;
+		if (ce instanceof TypeConstraint) {
+			imposeTypeConstraint((TypeConstraint) ce);
+		} else {
+			z3.imposeConstraint(ce);
+			// Still call imposeTypeConstraint without an actual constraint to ensure that levels (of type constraints) are consistent with levels (of Z3).
+			imposeTypeConstraint(null);
+		}
 		listeners.fireAddConstraint(this, ce, null);
 
 		if (logger.isDebugEnabled())
 			logger.debug("Add: ce: " + ce);
 		if (logger.isTraceEnabled()) {
-			logger.trace(z3Store.toString());
+			logger.trace(z3.toString());
 		}
-
 	}
 
 	@Override
@@ -134,21 +133,29 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 		listeners.fireGetSolutionStarted(this);
 		long startTime = System.nanoTime();
 
-		if (z3Store.getLevel() == 0) {
+		if (z3.getLevel() == 0) {
 			return new Solution();
 		}
 
 		Solution result;
 
-		// TODO try finding a solution.
-        boolean solutionFound = false;
+		Map<Variable, Object> results = z3.getResults();
+        boolean solutionFound = isSatisfiable();
 
-		if (!solutionFound) { 
+		if (!solutionFound) {
 			result = Solution.NOSOLUTION;
 		} else {
 			result = new Solution();
-            // TODO: result.addBinding(variable, NumericConstant.getInstance(((IntDomain) solution[i]).min(), NumericConstant.INT));
-
+			for (Map.Entry<Variable, Object> entry : results.entrySet()) {
+				Variable v = entry.getKey();
+				if (v instanceof NumericVariable) {
+					result.addBinding(v, NumericConstant.getInstance((entry.getValue())));
+				} else if (v instanceof BooleanVariable) {
+					result.addBinding(v, BooleanConstant.getInstance((Boolean) entry.getValue()));
+				} else {
+					throw new UnsupportedOperationException("Not yet implemented");
+				}
+			}
 		}
         listeners.fireGetSolutionFinished(this, result,
                 System.nanoTime() - startTime);
@@ -177,10 +184,10 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 		totalConstraintsChecked++;
 		
 		listeners.fireHasSolutionStarted(this);
-		long startTime = System.nanoTime();
+ 		long startTime = System.nanoTime();
 
 		
-		if (z3Store.getLevel() == 0)
+		if (z3.getLevel() == 0)
 			return true;
 
 		// Check consistency with typeConstraints.
@@ -188,15 +195,15 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
             return false;
         }
 
-		// TODO: boolean result = z3Store.consistency();
-        boolean result = false;
+        boolean result = z3.isSatisfiable();
+        isSatisfiable = result;
+		satisfiabilityWasCalculated = true;
 
 		listeners.fireHasSolutionFinished(this, result,
 				System.nanoTime() - startTime);
 		if (logger.isDebugEnabled())
 			logger.debug(result);
 		return result;
-
 	}
 
 	/**
@@ -204,14 +211,13 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 	 * Uses Z3's backtracking mechanism to achieve this.
 	 */
 	public void removeConstraint() {
-        int oldLevel = z3Store.getLevel();
+        int oldLevel = z3.getLevel();
         if (oldLevel <= 0) {
             throw new IllegalStateException(
 					"Trying to remove constraint when level is already 0");
         }
-		z3Store.decrement();
+		z3.decrement();
 		this.removeTypeConstraint();
-
 
 		listeners.fireConstraintRemoved(this);
 
@@ -219,7 +225,7 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 			logger.debug("Remove constraint");
 		}
 		if (logger.isTraceEnabled()) {
-			logger.trace(z3Store.toString());
+			logger.trace(z3.toString());
 		}
 
 	}
@@ -231,8 +237,8 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 		if (logger.isDebugEnabled())
 			logger.debug("Reset");
 
-		while (z3Store.getLevel() > 0) {
-			z3Store.decrement();
+		while (z3.getLevel() > 0) {
+			z3.decrement();
             this.removeTypeConstraint();
 		}
 		// afterwards, Z3Store.level is 0.

@@ -299,7 +299,9 @@
 		<default>true</default>
 	</setting>
 	<setting name="solverManager">
-		<value>de.wwu.muggl.solvers.jacop.JaCoPSolverManager</value>
-		<default>de.wwu.muggl.solvers.jacop.JaCoPSolverManager</default>
+		<!-- <value>de.wwu.muggl.solvers.jacop.JaCoPSolverManager</value> -->
+		<!-- <default>de.wwu.muggl.solvers.jacop.JaCoPSolverManager</default> -->
+		<value>de.wwu.muggl.solvers.z3.Z3SolverManager</value>
+		<default>de.wwu.muggl.solvers.z3.Z3SolverManager</default>
 	</setting>
 </MugglConfiguration>
