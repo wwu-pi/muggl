@@ -51,6 +51,10 @@ public class Negation extends Term{
 	    throw new TypeCheckException(expr.toString() + " is not of a numeric type");
     }
 
+    public Term getExpr() {
+        return expr;
+    }
+
     @Override
     protected boolean containsAsDenominator(Term t) {
 	return expr.containsAsDenominator(t);
