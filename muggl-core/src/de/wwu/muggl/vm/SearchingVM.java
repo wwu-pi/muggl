@@ -12,7 +12,8 @@ import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
-import de.wwu.muggl.vm.initialization.FreeObjectref;
+import de.wwu.muggl.vm.initialization.*;
+import de.wwu.muggl.vm.loading.MugglClassLoader;
 import de.wwu.muli.searchtree.Choice;
 
 import java.util.Stack;
@@ -21,21 +22,29 @@ import java.util.Stack;
  * Common interface for all virtual machines that support logic variables and searching (Symbolic, Logic)
  * @author Jan C. Dageförde
  */
-public interface SearchingVM {
-	
+public abstract class SearchingVM extends VirtualMachine {
+
+	public SearchingVM(
+			Application application,
+			MugglClassLoader mugglClassLoader,
+			ClassFile classFile,
+			de.wwu.muggl.vm.classfile.structures.Method method) throws InitializationException {
+		super(application, mugglClassLoader, classFile, method);
+	}
+
 	/**
 	 * Getter for the SolverManager.
 	 * 
 	 * @return The SolverManager of this VirtualMachine.
 	 */
-	public SolverManager getSolverManager();
+	public abstract SolverManager getSolverManager();
 	
 	/**
 	 * Getter for the search algorithm implemented in this symbolic virtual machine.
 	 * 
 	 * @return The SearchAlgorithm.
 	 */
-	public SearchAlgorithm getSearchAlgorithm();
+	public abstract SearchAlgorithm getSearchAlgorithm();
 
 	/**
 	 * Generate a new choice point.
@@ -47,42 +56,38 @@ public interface SearchingVM {
 	 * @throws SymbolicExecutionException If the instruction supplied is no conditional jump, no
 	 *         load instruction or if an Exception is thrown during the choice point generation.
 	 */
-	public void generateNewChoicePoint(GeneralInstructionWithOtherBytes instruction,
+	public abstract void generateNewChoicePoint(GeneralInstructionWithOtherBytes instruction,
 			ConstraintExpression constraintExpression)
 			throws SymbolicExecutionException;
 
-    public void generateNewChoicePoint(Switch instruction, Term termFromStack, IntConstant[] keys,
+    public abstract void generateNewChoicePoint(Switch instruction, Term termFromStack, IntConstant[] keys,
                                        int[] pcs, IntConstant low, IntConstant high) throws ExecutionException;
 
-	void increaseTimeChoicePointGeneration(long increment);
+	public abstract void increaseTimeChoicePointGeneration(long increment);
 
-	void increaseTimeSolvingForChoicePointGeneration(long increment);
+	public abstract void increaseTimeSolvingForChoicePointGeneration(long increment);
 
-    int getPc();
-
-    void setPC(int jumpTarget);
-
-    Choice getCurrentChoice();
+    public abstract Choice getCurrentChoice();
 
     /**
      * Obtain current trail and reset it for further execution
      * @return Trail stack
      */
-    Stack<TrailElement> extractCurrentTrail();
+    public abstract Stack<TrailElement> extractCurrentTrail();
 
-    void addToTrail(TrailElement element);
+    public abstract void addToTrail(TrailElement element);
 
-    boolean isInSearch();
+    public abstract boolean isInSearch();
 
-    void saveFieldValue(FieldPut fieldValue);
+    public abstract void saveFieldValue(FieldPut fieldValue);
 
-    void saveLocalVariableValue(Restore valueRepresentation);
+    public abstract void saveLocalVariableValue(Restore valueRepresentation);
 
-    void saveArrayValue(ArrayRestore valueRepresentation);
+	public abstract void saveArrayValue(ArrayRestore valueRepresentation);
 
-    void storeRepresentationForFreeVariable(Frame frame, int freeVariableIndex);
+	public abstract void storeRepresentationForFreeVariable(Frame frame, int freeVariableIndex);
 
-    FreeObjectref getAFreeObjectref(ClassFile classFile);
+	public abstract FreeObjectref getAFreeObjectref(ClassFile classFile);
 
-    ClassFile resolveClassAsClassFile(ClassFile fromClass, String type) throws VmRuntimeException, ExecutionException;
+	public abstract Objectref getAPrimitiveWrapperObjectref(ClassFile classFile) throws PrimitiveWrappingImpossibleException;
 }

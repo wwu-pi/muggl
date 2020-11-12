@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.Stack;
 
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.*;
-import de.wwu.muggl.vm.initialization.FreeObjectref;
+import de.wwu.muggl.vm.initialization.*;
 import de.wwu.muli.searchtree.Choice;
 import org.apache.log4j.Level;
 
@@ -40,7 +40,6 @@ import de.wwu.muggl.vm.classfile.structures.UndefinedValue;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.execution.ConversionException;
 import de.wwu.muggl.vm.execution.ExecutionException;
-import de.wwu.muggl.vm.initialization.InitializationException;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
@@ -56,7 +55,7 @@ import de.wwu.muggl.solvers.expressions.Term;
  * @author Tim Majchrzak
  * @version 1.0.0, 2010-12-08
  */
-public class SymbolicVirtualMachine extends VirtualMachine implements SearchingVM {
+public class SymbolicVirtualMachine extends SearchingVM {
 	// The Solver Manager.
 	private SolverManager			solverManager;
 
@@ -1020,6 +1019,11 @@ public class SymbolicVirtualMachine extends VirtualMachine implements SearchingV
     public FreeObjectref getAFreeObjectref(ClassFile classFile) {
         return null;
     }
+
+    @Override
+	public Objectref getAPrimitiveWrapperObjectref(ClassFile classFile) throws PrimitiveWrappingImpossibleException {
+    	return classFile.getAPrimitiveWrapperObjectref(this);
+	}
 
     /**
 	 * Increase the time spent on solving for backtracking by the supplied increment.
