@@ -568,7 +568,7 @@ public class SolutionProcessor {
 										Field field = ((Objectref) returnValue).getInitializedClass().getClassFile().getFieldByNameAndDescriptor("value", "[C");
 										Arrayref characters = (Arrayref) ((Objectref) returnValue).getField(field);
 										initializationStringForReferenceValue = "\"";
-										for (int b = 0; b < characters.length; b++) {
+										for (int b = 0; b < characters.getLength(); b++) {
 											initializationStringForReferenceValue += (char)((IntConstant)characters.getElement(b)).getIntValue();
 										}
 										initializationStringForReferenceValue += "\"";

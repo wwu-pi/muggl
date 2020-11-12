@@ -833,8 +833,8 @@ public class NativeWrapper {
         Arrayref characters = (Arrayref) fieldContent;
 
 		// Build the String.
-		char[] chars = new char[characters.length];
-		for (int a = 0; a < characters.length; a++) {
+		char[] chars = new char[characters.getLength()];
+		for (int a = 0; a < characters.getLength(); a++) {
 			if (characters.getElement(a) instanceof IntConstant) {
 				chars[a] = (char)((IntConstant)characters.getElement(a)).getValue();
 			} else {

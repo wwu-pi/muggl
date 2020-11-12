@@ -355,7 +355,7 @@ public class ArrayInitializationChoicePoint implements ChoicePoint {
 					e.printStackTrace();
 				}
 
-				for (int a = 0; a < this.preparedArray.length; a++) {
+				for (int a = 0; a < this.preparedArray.getLength(); a++) {
 					Object element;
 					// Use an array element generator?
 					if (this.useCustomArrayElementGenerator) {

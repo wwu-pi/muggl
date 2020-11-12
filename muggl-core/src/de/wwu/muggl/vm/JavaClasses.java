@@ -188,7 +188,7 @@ public final class JavaClasses {
 			str.append("(");
 
 			Arrayref pts = ptypes(mt);
-			for (int i = 0; i < pts.length; i++) {
+			for (int i = 0; i < pts.getLength(); i++) {
 				java_lang_Class.print_signature((Objectref) pts.getElement(i), str);
 			}
 			str.append(")");

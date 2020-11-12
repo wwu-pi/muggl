@@ -101,8 +101,8 @@ public class NoExceptionHandlerFoundException extends ExecutionException {
 
 				// Convert it.
 				boolean symbolicalMode = Options.getInst().symbolicMode;
-				char[] characters = new char[arrayref.length];
-				for (int a = 0; a < arrayref.length; a++) {
+				char[] characters = new char[arrayref.getLength()];
+				for (int a = 0; a < arrayref.getLength(); a++) {
 					if (symbolicalMode) {
 						characters[a] = (char) ((IntConstant) arrayref.getElement(a)).getIntValue();
 					} else {

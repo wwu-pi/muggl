@@ -205,8 +205,8 @@ public class StringCache {
 
 		// Convert it.
 		boolean symbolicalMode = Options.getInst().symbolicMode;
-		char[] characters = new char[arrayref.length];
-		for (int a = 0; a < arrayref.length; a++) {
+		char[] characters = new char[arrayref.getLength()];
+		for (int a = 0; a < arrayref.getLength(); a++) {
 			Object elem = arrayref.getElement(a);
 			if (elem instanceof IntConstant) {
 				characters[a] = (char) ((IntConstant) elem).getIntValue();
@@ -236,8 +236,8 @@ public class StringCache {
 
 		// Convert it.
 		boolean symbolicalMode = Options.getInst().symbolicMode;
-		char[] characters = new char[arrayref.length];
-		for (int a = 0; a < arrayref.length; a++) {
+		char[] characters = new char[arrayref.getLength()];
+		for (int a = 0; a < arrayref.getLength(); a++) {
 			if (symbolicalMode) {
 				characters[a] = (char) ((IntConstant) arrayref.getElement(a)).getIntValue();
 			} else {
@@ -265,7 +265,7 @@ public class StringCache {
 		try {
 			referenceValue = this.characterClassFile.getAPrimitiveWrapperObjectref(this.vm);
 		} catch (PrimitiveWrappingImpossibleException e) {
-			// This cannot happen.
+			throw new UnsupportedOperationException("Should not happen.");
 		}
 		Arrayref arrayref = new Arrayref(referenceValue, charArray.length);
 		for (int a = 0; a < charArray.length; a++) {
@@ -354,8 +354,8 @@ public class StringCache {
 			
 			// Convert it.
 			boolean symbolicalMode = Options.getInst().symbolicMode;
-			char[] characters = new char[arrayref.length];
-			for (int a = 0; a < arrayref.length; a++) {
+			char[] characters = new char[arrayref.getLength()];
+			for (int a = 0; a < arrayref.getLength(); a++) {
 				if (symbolicalMode) {
 					characters[a] = (char) ((IntConstant) arrayref.getElement(a)).getIntValue();
 				} else {

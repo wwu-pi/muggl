@@ -13,6 +13,7 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.vm.initialization.FreeArrayref;
 
 /**
  * Implementation of the instruction  <code>arraylength</code>.
@@ -29,18 +30,17 @@ public class Arraylength extends de.wwu.muggl.instructions.general.ArraylengthAb
 	 */
 	@Override
 	public void execute(Frame frame) throws ExecutionException {
-		try {
+		try { /// TODO To change for free arrays?
 			Stack<Object> stack = frame.getOperandStack();
 			Object stackTop = stack.pop();
 			// Unexpected exception: arrayref does not point to an array at all.
 			if (stackTop != null && !(stackTop instanceof Arrayref) && !stackTop.getClass().isArray()) {
 				throw new ExecutionException("Could not get the arraylength since the element on top of the stack is not an array.");
 			}
-
 			int length;
 
 			if (stackTop instanceof Arrayref) {
-				length = ((Arrayref) stackTop).length;
+				length = ((Arrayref) stackTop).getLength();
 			} else {
 				length = Array.getLength(stackTop);
 			}
@@ -61,7 +61,7 @@ public class Arraylength extends de.wwu.muggl.instructions.general.ArraylengthAb
 	 */
 	@Override
 	public void executeSymbolically(Frame frame) throws NoExceptionHandlerFoundException, SymbolicExecutionException {
-		try {
+		try { /// TODO To change for free arrays?
 			Stack<Object> stack = frame.getOperandStack();
 			Object stackTop = stack.pop();
 			// Unexpected exception: arrayref does not point to an array at all.
@@ -75,7 +75,11 @@ public class Arraylength extends de.wwu.muggl.instructions.general.ArraylengthAb
 				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
 
 			// Push the length of the array.
-			stack.push(IntConstant.getInstance(arrayref.length));
+			if (arrayref instanceof FreeArrayref) {
+				stack.push(arrayref.getLength());
+			} else {
+				stack.push(IntConstant.getInstance(arrayref.getLength()));
+			}
 		} catch (VmRuntimeException e) {
 			SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
 			try {

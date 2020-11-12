@@ -128,7 +128,7 @@ public class MugglToJavaConversion {
 				Field field = classFile.getFieldByName("value");
 				Arrayref chars = (Arrayref) objectref.getField(field);
 				String newString = "";
-				for (int a = 0; a < chars.length; a++) {
+				for (int a = 0; a < chars.getLength(); a++) {
 					if (Options.getInst().symbolicMode) {
 						/*
 						 * TODO: Probably need to add handling for variables. It could be tried to use the current
@@ -375,9 +375,9 @@ public class MugglToJavaConversion {
 	 */
 	private void insertArrayrefIntoArray(Object array, Arrayref arrayref)
 			throws ConversionException {
-		for (int a = 0; a < arrayref.length; a++) {
+		for (int a = 0; a < arrayref.getLength(); a++) {
 			// Check if the elements are arrays, too.
-			if (arrayref.length > 0 && arrayref.getElement(0) != null
+			if (arrayref.getLength() > 0 && arrayref.getElement(0) != null
 					&& arrayref.getReferenceValue().isArray()) {
 				// Recursively invoke this method.
 				insertArrayrefIntoArray(Array.get(array, a), (Arrayref) arrayref.getElement(a));
@@ -484,7 +484,7 @@ public class MugglToJavaConversion {
 			Arrayref chars = (Arrayref) nameObjectref.getField(valueField);
 			// Build a java String from it.
 			String name = "";
-			for (int a = 0; a < chars.length; a++) {
+			for (int a = 0; a < chars.getLength(); a++) {
 				if (Options.getInst().symbolicMode) {
 					/*
 					 * TODO: Probably need to add handling for variables. It could be tried to use the current

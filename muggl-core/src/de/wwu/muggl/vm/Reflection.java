@@ -214,9 +214,9 @@ public class Reflection {
 		Object[] arguments = null;
 
 		if (args != null) {
-			arguments = new Object[args.length + addOne];
-			for (int a = 0; a < args.length; a++) {
-				if (method.isAccVarargs() && a == args.length - 1 && args.getElement(a) != null
+			arguments = new Object[args.getLength() + addOne];
+			for (int a = 0; a < args.getLength(); a++) {
+				if (method.isAccVarargs() && a == args.getLength() - 1 && args.getElement(a) != null
 						&& args.getElement(a) instanceof UndefinedValue) {
 					/*
 					 * The method may take variable arguments. If its last parameter is undefined, pass an array of zero

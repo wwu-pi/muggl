@@ -479,7 +479,7 @@ public class TestCaseSolution {
 	public Object convertArrayrefIntoConstantArray(Arrayref arrayref, int index) {
 		// First gather information about the dimensions.
 		int[] dimensions = new int[1];
-		dimensions[0] = arrayref.length;
+		dimensions[0] = arrayref.getLength();
 
 		// Work trough the dimensions.
 		Arrayref currentDimension = arrayref;
@@ -489,7 +489,7 @@ public class TestCaseSolution {
 				dimensionsNew[a] = dimensions[a];
 			}
 			currentDimension = (Arrayref) currentDimension.getElement(0);
-			dimensionsNew[dimensions.length] = currentDimension.length;
+			dimensionsNew[dimensions.length] = currentDimension.getLength();
 			dimensions = dimensionsNew;
 		}
 

@@ -67,8 +67,8 @@ public class TestVMNormalMethodRunnerHelper {
 					Arrayref arrayref = (Arrayref) stringObjectref.getField(stringValueField);
 
 					// Convert it.
-					char[] characters = new char[arrayref.length];
-					for (int a = 0; a < arrayref.length; a++) {
+					char[] characters = new char[arrayref.getLength()];
+					for (int a = 0; a < arrayref.getLength(); a++) {
 						characters[a] = (Character) arrayref.getElement(a);
 					}
 					message = new String(characters);
@@ -172,8 +172,8 @@ public class TestVMNormalMethodRunnerHelper {
 					Arrayref arrayref = (Arrayref) stringObjectref.getField(stringValueField);
 
 					// Convert it.
-					char[] characters = new char[arrayref.length];
-					for (int a = 0; a < arrayref.length; a++) {
+					char[] characters = new char[arrayref.getLength()];
+					for (int a = 0; a < arrayref.getLength(); a++) {
 						characters[a] = (Character) arrayref.getElement(a);
 					}
 					message = new String(characters);
@@ -278,8 +278,8 @@ public class TestVMNormalMethodRunnerHelper {
 					Arrayref arrayref = (Arrayref) stringObjectref.getField(stringValueField);
 
 					// Convert it.
-					char[] characters = new char[arrayref.length];
-					for (int a = 0; a < arrayref.length; a++) {
+					char[] characters = new char[arrayref.getLength()];
+					for (int a = 0; a < arrayref.getLength(); a++) {
 						characters[a] = (Character) arrayref.getElement(a);
 					}
 					message = new String(characters);

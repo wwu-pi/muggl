@@ -352,7 +352,7 @@ public class StepByStepExecutionRunner extends Thread {
 					} else if (returnedValue instanceof Arrayref) {
 						Arrayref returnedValueArrayref = (Arrayref) returnedValue;
 						String solutionText = returnedValueArrayref.toString() + " Contents: ";
-						for (int a = 0; a < returnedValueArrayref.length; a++) {
+						for (int a = 0; a < returnedValueArrayref.getLength(); a++) {
 							if (a > 0) solutionText += ", ";
 							Object element = returnedValueArrayref.getElement(a);
 							if (element != null) {

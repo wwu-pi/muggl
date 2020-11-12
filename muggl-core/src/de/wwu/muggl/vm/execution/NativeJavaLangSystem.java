@@ -93,10 +93,10 @@ public class NativeJavaLangSystem extends NativeMethodProvider {
 		if (length < 0) {
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.IndexOutOfBoundsException", "null"));
 		}
-		if (srcPos + length > src.length) {
+		if (srcPos + length > src.getLength()) {
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.IndexOutOfBoundsException", "null"));
 		}
-		if (destPos + length > dest.length) {
+		if (destPos + length > dest.getLength()) {
 			throw new VmRuntimeException(frame.getVm().generateExc("java.lang.IndexOutOfBoundsException", "null"));
 		}
 

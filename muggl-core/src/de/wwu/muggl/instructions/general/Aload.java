@@ -37,14 +37,14 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 	 */
 	@Override
 	public void execute(Frame frame) throws ExecutionException {
-		try {
+		try { /// TODO To change for free arrays?
 			// Preparations.
 			Stack<Object> stack = frame.getOperandStack();
 
 			Object index = stack.pop();
 			int idx;
 			if (index instanceof Character) {
-			    idx = (int)(((Character) index).charValue());
+			    idx = (int)(((Character) index).charValue()); // TODO why does this happen sometimes?!
             } else {
 			    idx = (int)index;
             }
@@ -61,7 +61,7 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 			Arrayref arrayref = (Arrayref) arrayrefObject;
 
 			// Runtime exception array index out of bounds.
-			if (idx >= arrayref.length || idx < 0) {
+			if (idx >= arrayref.getLength() || idx < 0) {
 				throw new VmRuntimeException(frame.getVm().generateExc(
 						"java.lang.ArrayIndexOutOfBoundsException", "Array index is out of bounds"));
 			}
@@ -95,7 +95,7 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 	@Override
 	public void executeSymbolically(Frame frame) throws NoExceptionHandlerFoundException,
 			SymbolicExecutionException {
-		try {
+		try { /// TODO To change for free arrays?
 			// Preparations.
 			Stack<Object> stack = frame.getOperandStack();
             Object elem = stack.pop();
@@ -118,7 +118,7 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 			Arrayref arrayref = (Arrayref) arrayrefObject;
 
 			// Runtime exception array index out of bounds.
-			if (arrayref.length <= index || index < 0) {
+			if (arrayref.getLength() <= index || index < 0) {
 				throw new VmRuntimeException(frame.getVm().generateExc(
 						"java.lang.ArrayIndexOutOfBoundsException", "Array index is out of bounds"));
 			}

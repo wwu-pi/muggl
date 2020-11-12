@@ -54,7 +54,7 @@ public class NativeJavaLangReflectArray extends NativeMethodProvider {
 	}
 
 	public static int getLength(Frame frame, Arrayref arr) {
-		return arr.length;
+		return arr.getLength();
 	}
 
 	/*
