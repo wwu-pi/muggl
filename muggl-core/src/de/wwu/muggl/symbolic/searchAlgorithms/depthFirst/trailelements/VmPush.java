@@ -77,7 +77,7 @@ public class VmPush extends Push {
 			objectInfo = "The object is of type " + this.object.getClass().getName()
 					+ " and its toString() method returns: " + this.object.toString();
 		}
-		return "Trail element that pushes an object onto the virtual machine stack. " + objectInfo;
+		return "VmPush: " + object; // "Trail element that pushes an object onto the virtual machine stack. " + objectInfo;
 	}
 
 }

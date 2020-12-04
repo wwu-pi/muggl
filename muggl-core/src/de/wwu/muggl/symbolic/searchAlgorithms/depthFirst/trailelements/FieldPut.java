@@ -45,8 +45,8 @@ public abstract class FieldPut implements TrailElement {
 			valueInfo = "The value is of type " + this.value.getClass().getName()
 					+ " and its toString() method returns: " + this.value.toString();
 		}
-		return "Trail element that puts a value to the field " + this.field.getName()
-				+ " of class " + this.field.getClassFile().getName() + "." + valueInfo;
+		return "FieldPut: " + value; // "Trail element that puts a value to the field " + this.field.getName()
+				// + " of class " + this.field.getClassFile().getName() + "." + valueInfo;
 	}
 
 }

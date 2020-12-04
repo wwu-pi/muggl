@@ -11,6 +11,7 @@ import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muli.searchtree.ST;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -63,4 +64,8 @@ public class ILoad extends Load implements Instruction {
 		return ClassFile.T_INT;
 	}
 
+	@Override
+	public String toString() {
+		return "{ILoad " + getName() + " :: " + index + " " + Arrays.toString(otherBytes) + "}";
+	}
 }

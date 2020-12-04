@@ -39,8 +39,8 @@ public class FrameChange implements TrailElement {
 	 */
 	@Override
 	public String toString() {
-		return "Trail element that changes the currently executed frame back to the stored frame for method "
-				+ this.frame.getMethod().getFullNameWithParameterTypesAndNames();
+		return "FrameChange"; //"Trail element that changes the currently executed frame back to the stored frame for method "
+				// + this.frame.getMethod().getFullNameWithParameterTypesAndNames();
 	}
 
 }

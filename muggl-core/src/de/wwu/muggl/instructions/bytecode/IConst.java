@@ -74,4 +74,9 @@ public class IConst extends Const implements Instruction {
 		return ClassFile.T_INT;
 	}
 
+	@Override
+	public String toString() {
+		return "{IConst " + getName() + "}";
+	}
+
 }

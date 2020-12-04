@@ -14,6 +14,8 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
 
+import java.util.Arrays;
+
 /**
  * Implementation of the instruction <code>new</code>.
  *
@@ -125,6 +127,11 @@ public class New extends de.wwu.muggl.instructions.general.ObjectInitialization 
 									"java.lang.InstantiationError",
 									"java.lang.NoClassDefFoundError"};
 		return exceptionTypes;
+	}
+
+	@Override
+	public String toString() {
+		return "{New " + getName() + " :: " + Arrays.toString(otherBytes) + "}";
 	}
 
 }

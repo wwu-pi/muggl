@@ -1,5 +1,6 @@
 package de.wwu.muggl.instructions.typed;
 
+import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.structures.Method;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
@@ -88,9 +89,9 @@ public abstract class TypedInstruction {
 		String[] desiredTypes = getDesiredTypes();
 		boolean matchedOneType = false;
 		for (int a = 0; a < desiredTypes.length; a++) {
-            if (desiredTypes[a].equals("java.lang.Character") && value.getClass().getName().equals("de.wwu.muggl.solvers.expressions.IntConstant")) {
+            if (desiredTypes[a].equals(Character.class.getName()) && value.getClass().getName().equals(IntConstant.class.getName())) {
                 matchedOneType = true;
-                value = extendValue(value, "java.lang.Character");
+                value = extendValue(value, Character.class.getName());
                 break;
             }
 			if (value.getClass().getName().equals(desiredTypes[a])) {

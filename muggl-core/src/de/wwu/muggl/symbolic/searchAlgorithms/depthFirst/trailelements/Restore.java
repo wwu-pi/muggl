@@ -56,8 +56,8 @@ public class Restore implements TrailElement {
 			valueInfo = "The value is of type " + this.value.getClass().getName()
 					+ " and its toString() method returns: " + this.value.toString();
 		}
-		return "Trail element that restores a local variable in the currently executed frame to its former value. "
-				+ "The variable index is " + this.index + "." + valueInfo;
+		return "Restore: " + index + " -> " + value; // ""Trail element that restores a local variable in the currently executed frame to its former value. "
+				// + "The variable index is " + this.index + "." + valueInfo;
 	}
 
     public int getIndex() {

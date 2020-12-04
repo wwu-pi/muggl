@@ -44,7 +44,7 @@ public class Push implements TrailElement {
 			objectInfo = "The object is of type " + this.object.getClass().getName()
 					+ " and its toString() method returns: " + this.object.toString();
 		}
-		return "Trail element that pushes an object onto the operand stack of the currently executed frame. " + objectInfo;
+		return "Push: " + object; //"Trail element that pushes an object onto the operand stack of the currently executed frame. " + objectInfo;
 	}
 
 }

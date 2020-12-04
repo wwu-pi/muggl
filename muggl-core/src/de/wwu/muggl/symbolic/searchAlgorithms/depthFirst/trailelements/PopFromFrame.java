@@ -29,8 +29,8 @@ public class PopFromFrame implements TrailElement {
 	 */
 	@Override
 	public String toString() {
-		return "Trail element that pops an object from the operand machine stack of the specified frame ("
-				+ this.frame.toString() + ").";
+		return "PopFromFrame: " + frame; //"Trail element that pops an object from the operand machine stack of the specified frame ("
+				// + this.frame.toString() + ").";
 	}
 
 	/**

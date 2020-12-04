@@ -43,4 +43,8 @@ public class IAload extends Aload implements Instruction {
 		return ClassFile.T_INT;
 	}
 
+	@Override
+	public String toString() {
+		return "{IAload " + this.getName() + "}";
+	}
 }

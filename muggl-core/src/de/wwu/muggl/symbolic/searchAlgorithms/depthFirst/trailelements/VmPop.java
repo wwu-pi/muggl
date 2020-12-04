@@ -17,7 +17,7 @@ public class VmPop extends Pop {
 	 */
 	@Override
 	public String toString() {
-		return "Trail element that pops an object from the virtual machine stack.";
+		return "VmPop"; // "Trail element that pops an object from the virtual machine stack.";
 	}
 
 }

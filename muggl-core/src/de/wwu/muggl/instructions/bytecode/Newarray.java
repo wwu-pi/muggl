@@ -133,24 +133,24 @@ public class Newarray extends de.wwu.muggl.instructions.general.ObjectInitializa
 			byte type = (byte) this.otherBytes[0];
 			String representedType;
 			if (type == ClassFile.T_BOOLEAN) {
-				representedType = "java.lang.Boolean";
+				representedType = Boolean.class.getName();
 			} else if (type == ClassFile.T_BYTE) {
-				representedType = "java.lang.Byte";
+				representedType = Byte.class.getName();
 			} else if (type == ClassFile.T_CHAR) {
-				representedType = "java.lang.Character";
+				representedType = Character.class.getName();
 			} else if (type == ClassFile.T_DOUBLE) {
-				representedType = "java.lang.Double";
+				representedType = Double.class.getName();
 			} else if (type == ClassFile.T_FLOAT) {
-				representedType = "java.lang.Float";
+				representedType = Float.class.getName();
 			} else if (type == ClassFile.T_INT) {
-				representedType = "java.lang.Integer";
+				representedType = Integer.class.getName();
 			} else if (type == ClassFile.T_LONG) {
-				representedType = "java.lang.Long";
+				representedType = Long.class.getName();
 			} else if (type == ClassFile.T_SHORT) {
-				representedType = "java.lang.Short";
+				representedType = Short.class.getName();
 			} else {
 				// Unexpected exception: The type can not be processed by this method.
-				throw new ExecutionException("atype suplied for newarray is unknown.");
+				throw new ExecutionException("atype suplied for newarray is unknown: " + type);
 			}
 			
 			// Instantiate the array.
@@ -168,11 +168,10 @@ public class Newarray extends de.wwu.muggl.instructions.general.ObjectInitializa
 					throw new VmRuntimeException(frame.getVm().generateExc(
 							"java.lang.NegativeArraySizeException",
 							"Cannot create an array of negative size."));
-
 				// Generate a suitable Objectref.
 				try {
 					ReferenceValue referenceValue = frame.getVm().getAnObjectref(frame.getVm().getClassLoader().getClassAsClassFile(
-									"de.wwu.muggl.solvers.expressions.Term"));
+									Term.class.getName()));
 					InitializedClass initializedClass = frame.getVm().getClassLoader().
 							getClassAsClassFile(representedType).getTheInitializedClass(frame.getVm());
 

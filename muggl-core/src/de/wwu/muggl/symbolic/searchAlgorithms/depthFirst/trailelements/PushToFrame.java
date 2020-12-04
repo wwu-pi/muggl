@@ -35,8 +35,8 @@ public class PushToFrame implements TrailElement {
 	 */
 	@Override
 	public String toString() {
-		return "Trail element that pushes the object " + this.value.toString() + " to the operand stack of the specified frame ("
-				+ this.frame.toString() + ").";
+		return "PushToFrame: " + value + frame; //Trail element that pushes the object " + this.value.toString() + " to the operand stack of the specified frame ("
+				// + this.frame.toString() + ").";
 	}
 
     /**

@@ -7,6 +7,8 @@ import de.wwu.muggl.instructions.typed.IntegerInstruction;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 
+import java.util.Arrays;
+
 /**
  * Implementation of the instruction <code>istore</code>.
  *
@@ -53,4 +55,8 @@ public class IStore extends Store implements Instruction {
 		return types;
 	}
 
+	@Override
+	public String toString() {
+		return "{IStore " + getName() + " :: " + index + " " + Arrays.toString(otherBytes) + "}";
+	}
 }

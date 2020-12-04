@@ -42,8 +42,8 @@ public class PCChange implements TrailElement {
 	 */
 	@Override
 	public String toString() {
-		return String.format("Trail element that changes the currently executed pc back to the stored pc %d",
-				this.pc);
+		return "PCChange: " + pc; //String.format("Trail element that changes the currently executed pc back to the stored pc %d",
+				//this.pc);
 	}
 
 }
