@@ -9,34 +9,17 @@ import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
 import de.wwu.muggl.vm.initialization.IReferenceValue;
 
 public class ArrayStore extends ArrayConstraint {
-    private final IReferenceValue arrayref;
     private final String varName;
-    private final Term index;
-    private final Term lengthTerm;
-    private final Term storedValueTerm;
+    private final Term lengthTerm; // TODO Keep?
 
     public ArrayStore(IReferenceValue arrayref, String varName, Term index, Term lengthTerm, Term storedValueTerm) {
-        this.arrayref = arrayref;
+        super(arrayref, index, storedValueTerm);
         this.varName = varName;
-        this.index = index;
         this.lengthTerm = lengthTerm;
-        this.storedValueTerm = storedValueTerm;
     }
 
     public static ArrayStore newInstance(IReferenceValue arrayref, String varName, Term index, Term lengthTerm, Term storedValueTerm) {
         return new ArrayStore(arrayref, varName, index, lengthTerm, storedValueTerm);
-    }
-
-    public IReferenceValue getArrayref() {
-        return arrayref;
-    }
-
-    public Term getIndexTerm() {
-        return index;
-    }
-
-    public Term getStoredValueTerm() {
-        return storedValueTerm;
     }
 
     public String getName() {
@@ -67,7 +50,7 @@ public class ArrayStore extends ArrayConstraint {
         return "ArrayStore{arrayref=" + arrayref
                 + ", varName=" + varName
                 + ", index=" + index
-                + ", storedValueTerm=" + storedValueTerm + "}";
+                + ", storedValueTerm=" + value + "}";
     }
 
     @Override

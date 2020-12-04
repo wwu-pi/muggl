@@ -48,7 +48,7 @@ public class Z3MugglAdapter {
 		solver.add(expression);
 	}
 
-	public BoolExpr getConstraintExpression(ConstraintExpression ce) {
+	private BoolExpr getConstraintExpression(ConstraintExpression ce) {
 		if (ce instanceof Not) {
 			throw new UnsupportedOperationException("Case not yet regarded."); // TODO
 		} else if (ce instanceof BooleanEqual) {
@@ -96,9 +96,9 @@ public class Z3MugglAdapter {
 
 	private BoolExpr getArrayStoreExpr(ArrayStore arrayStore) {
 		IReferenceValue arrayref = arrayStore.getArrayref();
-		ArrayExpr array = getArrayExprForArrayref(arrayref, arrayStore.getStoredValueTerm(), arrayStore.getName());
+		ArrayExpr array = getArrayExprForArrayref(arrayref, arrayStore.getValueTerm(), arrayStore.getName());
 		Expr indexExpr = exprFromTerm(arrayStore.getIndexTerm());
-		Expr storeValue = exprFromTerm(arrayStore.getStoredValueTerm());
+		Expr storeValue = exprFromTerm(arrayStore.getValueTerm());
 		// Get the storeExpr which is equal to array, except that it has storeValue at indexExpr.
 		ArrayExpr storeExpr = context.mkStore(array, indexExpr, storeValue);
 		Stack<ArrayExpr> arrayExprsForArrayref = this.arrayrefsToMostRecentArrayExpr.get(arrayref);
@@ -111,10 +111,10 @@ public class Z3MugglAdapter {
 
 	private BoolExpr getArrayAccessExpr(ArraySelect arraySelect) {
 		IReferenceValue arrayref = arraySelect.getArrayref();
-		ArrayExpr array = getArrayExprForArrayref(arrayref, arraySelect.getLoadedValueTerm(), arraySelect.getName());
+		ArrayExpr array = getArrayExprForArrayref(arrayref, arraySelect.getValueTerm(), arraySelect.getName());
 		Expr indexExpr = exprFromTerm(arraySelect.getIndexTerm());
 		Expr selectExpr = context.mkSelect(array, indexExpr);
-		Expr loadedValue = exprFromTerm(arraySelect.getLoadedValueTerm());
+		Expr loadedValue = exprFromTerm(arraySelect.getValueTerm());
 		BoolExpr equals = context.mkEq(selectExpr, loadedValue);
 		return equals;
 	}
