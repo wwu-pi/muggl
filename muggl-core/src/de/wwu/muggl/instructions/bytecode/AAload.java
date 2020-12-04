@@ -21,55 +21,6 @@ import de.wwu.muggl.vm.initialization.Arrayref;
 public class AAload extends Aload implements Instruction {
 
 	/**
-	 * Execute the inheriting instruction.
-	 * @param frame The currently executed frame.
-	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
-	 */
-	@Override
-	public void execute(Frame frame) throws ExecutionException {
-		try {
-			// Preparations.
-			Stack<Object> stack = frame.getOperandStack();
-			int index = (Integer) stack.pop();
-
-			// Runtime exception: arrayref is null
-			if (stack.peek() == null) {
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
-			}
-
-			// Unexpected exception: Arrayref does not point to an array.
-			if (!((Arrayref) stack.peek()).isArray()) {
-				throw new ExecutionException("Could not " + getName() + ": Expected an array, but did not get one.");
-			}
-			Arrayref arrayref  = (Arrayref) stack.pop();
-
-			// Runtime exception: array index out of bounds.
-			Object value;
-			try {
-				// Load from the array.
-				value = arrayref.getElement(index);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ArrayIndexOutOfBoundsException", e.getMessage()));
-			}
-
-			// Unexpected exception: The object at the index is not of one of the required types.
-			value = this.typedInstruction.validateAndExtendValue(value);
-
-			// Push the value.
-			frame.getOperandStack().push(value);
-		} catch (VmRuntimeException e) {
-			ExceptionHandler handler = new ExceptionHandler(frame, e);
-			try {
-				handler.handleException();
-			} catch (ExecutionException e2) {
-				executionFailed(e2);
-			}
-		} catch (ExecutionException e) {
-			executionFailed(e);
-		}
-	}
-
-	/**
 	 * Constructor to initialize the TypedInstruction.
 	 */
 	public AAload() {

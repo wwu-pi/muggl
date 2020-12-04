@@ -1,7 +1,11 @@
 package de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements;
 
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.initialization.Arrayref;
+import de.wwu.muggl.vm.initialization.FreeArrayref;
 
 /**
  * This TrailElement is the counterpiece for the xastore instructions. It is generated
@@ -15,9 +19,8 @@ import de.wwu.muggl.vm.initialization.Arrayref;
  */
 public class ArrayRestore extends Restore {
 	// Field for the array reference.
-	private Arrayref arrayref;
-	private Number[] primitiveArrayref;
-
+	private final Arrayref arrayref;
+	private final Term index;
 	/**
 	 * Constructor for reference arrays: Initialize with the array reference, the index
 	 * and the value to restore.
@@ -28,31 +31,28 @@ public class ArrayRestore extends Restore {
 	public ArrayRestore(Arrayref arrayref, int index, Object object) {
 		super(index, object);
 		this.arrayref = arrayref;
-		this.primitiveArrayref = null;
+		this.index = IntConstant.getInstance(index);
 	}
 
-	/**
-	 * Constructor for primitive type arrays: Initialize with the reference to the
-	 * primitive value array (represented by an array of the java.lang wrapper class),
-	 * the index and the value to restore.
-	 * @param primitiveArrayref The primitive value array reference.
-	 * @param index An index into the local variables.
-	 * @param object The Number object that has to be restored at the local variable index.
-	 */
-	public ArrayRestore(Number[] primitiveArrayref, int index, Number object) {
-		super(index, object);
-		this.arrayref = null;
-		this.primitiveArrayref = primitiveArrayref;
+	public ArrayRestore(Arrayref arrayref, Term index, Object object) {
+		super(-1, object);
+		this.arrayref = arrayref;
+		this.index = index;
 	}
+
 
     public ArrayRestore createInverse() {
 	    ArrayRestore inverse;
 	    if (this.arrayref != null) {
-            Object formerValue = this.arrayref.getElement(this.index);
+			Object formerValue;
+	    	if (arrayref instanceof FreeArrayref) {
+	    		formerValue = ((FreeArrayref) arrayref).getFreeArrayElement(index);
+			} else {
+				formerValue = this.arrayref.getElement(((IntConstant) index).getIntValue());
+			}
             inverse = new ArrayRestore(this.arrayref, this.index, formerValue);
         } else {
-	        Number formerValue = this.primitiveArrayref[this.index];
-            inverse = new ArrayRestore(this.primitiveArrayref, this.index, formerValue);
+	        throw new IllegalStateException("Not allowed.");
         }
         return inverse;
     }
@@ -62,9 +62,13 @@ public class ArrayRestore extends Restore {
 	 */
 	public void restore() {
 		if (this.arrayref != null) {
-			this.arrayref.putElement(this.index, this.value);
+			if (arrayref instanceof FreeArrayref) {
+				((FreeArrayref) arrayref).putElementIntoFreeArray(index, value);
+			} else {
+				arrayref.putElement(((IntConstant) index).getIntValue(), value);
+			}
 		} else {
-			this.primitiveArrayref[this.index] = (Number) this.value;
+			throw new IllegalStateException("Not allowed.");
 		}
 	}
 
@@ -93,7 +97,7 @@ public class ArrayRestore extends Restore {
 			valueInfo = "The value is of type " + this.value.getClass().getName()
 					+ " and its toString() method returns: " + this.value.toString();
 		}
-		return "Trail element that restores an element of an array to its former value. "
-				+ "The element index is " + this.index + "." + valueInfo;
+		return "ArrayRestore: " + index + " -> " + value; // "Trail element that restores an element of an array to its former value. "
+				//+ "The element index is " + this.index + "." + valueInfo;
 	}
 }

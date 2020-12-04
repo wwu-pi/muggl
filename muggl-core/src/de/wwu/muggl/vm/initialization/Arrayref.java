@@ -1,5 +1,6 @@
 package de.wwu.muggl.vm.initialization;
 
+import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.vm.SystemDictionary;
 import de.wwu.muggl.vm.execution.ExecutionAlgorithms;
@@ -26,7 +27,7 @@ public class Arrayref implements ReferenceValue {
 	/**
 	 * The length (number of elements) of the array referenced.
 	 */
-	public int length;
+	protected int length;
 	/**
 	 * The elements stored in this array.
 	 */
@@ -34,6 +35,10 @@ public class Arrayref implements ReferenceValue {
 	private long instantiationNumber;
 	
 	private Objectref mirrorJava;
+
+	private static int numberFreeArrayrefs;
+	private final int arrayrefId = numberFreeArrayrefs++;
+	private Term lengthTerm;
 
 	/**
      * Initialize the arrayref according to the parameters of another Arrayref.
@@ -44,6 +49,7 @@ public class Arrayref implements ReferenceValue {
         this.instantiationNumber = referenceValue.getInitializedClass().getClassFile()
                 .getClassLoader().getNextInstantiationNumber();
         this.length = other.length;
+        this.lengthTerm = IntConstant.getInstance(length);
         if (other.elements instanceof ReferenceValue[]) {
             this.elements = new ReferenceValue[this.length];
         } else {
@@ -55,6 +61,10 @@ public class Arrayref implements ReferenceValue {
         setupMirror();
     }
 
+    public int getArrayrefId() {
+    	return arrayrefId;
+	}
+    
 	/**
 	 * Initialize the arrayref. It must have a type of ReferenceValue and
 	 * a fixed length.
@@ -67,6 +77,7 @@ public class Arrayref implements ReferenceValue {
 		this.instantiationNumber = referenceValue.getInitializedClass().getClassFile()
 		.getClassLoader().getNextInstantiationNumber();
 		this.length = length;
+		this.lengthTerm = IntConstant.getInstance(length);
 		if (referenceValue.isPrimitive()) {
 			// Primitive types will be represented in the java.lang wrapper classes.
 			this.elements = new Object[this.length];
@@ -74,9 +85,8 @@ public class Arrayref implements ReferenceValue {
 		} else {
 			this.elements = new ReferenceValue[this.length];
 		}
-		
 		setupMirror();
-		
+
 	}
 
 	private void setupMirror() {
@@ -120,6 +130,7 @@ public class Arrayref implements ReferenceValue {
 		if (dimensionCount[0] == 0) {
 			this.referenceValue = referenceValue;
 			this.length = 0;
+			this.lengthTerm = IntConstant.ZERO;
 		} else {
 			for (int a = 0; a < dimensionCount[dimension]; a++) {
 				Arrayref value = null;
@@ -130,6 +141,7 @@ public class Arrayref implements ReferenceValue {
 					if (a == 0) {
 						this.referenceValue = value;
 						this.length = dimensionCount[dimension];
+						this.lengthTerm = IntConstant.getInstance(length);
 						this.elements = new ReferenceValue[this.length];
 					}
 					// Fill in the values.
@@ -138,6 +150,7 @@ public class Arrayref implements ReferenceValue {
 					// Generate the array reference on the first pass.
 					this.referenceValue = referenceValue;
 					this.length = dimensionCount[dimension];
+					this.lengthTerm = IntConstant.getInstance(length);
 					if (referenceValue.isPrimitive()) {
 						// Primitive types will be represented in the java.lang wrapper classes.
 						this.elements = new Object[this.length];
@@ -149,6 +162,14 @@ public class Arrayref implements ReferenceValue {
 			}
 		}
 		setupMirror();
+	}
+
+	public int getLength() {
+		return length;
+	}
+
+	public Term getLengthTerm() {
+		return lengthTerm;
 	}
 
 	/**
@@ -393,6 +414,7 @@ public class Arrayref implements ReferenceValue {
 
 		for (int i = 0; i < this.length; i++) {
 			if (this.getElement(i) instanceof Arrayref) {
+				throw new UnsupportedOperationException("Not yet supported.");
 				// maybe in future use - but please test
 				// int[] sub = ((Arrayref)
 				// this.getElement(i)).toPrimitiveInt(); System.arraycopy(sub, 0, ret, i, sub.length);

@@ -30,7 +30,7 @@ public class Arraylength extends de.wwu.muggl.instructions.general.ArraylengthAb
 	 */
 	@Override
 	public void execute(Frame frame) throws ExecutionException {
-		try { /// TODO To change for free arrays?
+		try {
 			Stack<Object> stack = frame.getOperandStack();
 			Object stackTop = stack.pop();
 			// Unexpected exception: arrayref does not point to an array at all.
@@ -61,7 +61,7 @@ public class Arraylength extends de.wwu.muggl.instructions.general.ArraylengthAb
 	 */
 	@Override
 	public void executeSymbolically(Frame frame) throws NoExceptionHandlerFoundException, SymbolicExecutionException {
-		try { /// TODO To change for free arrays?
+		try {
 			Stack<Object> stack = frame.getOperandStack();
 			Object stackTop = stack.pop();
 			// Unexpected exception: arrayref does not point to an array at all.
@@ -75,11 +75,7 @@ public class Arraylength extends de.wwu.muggl.instructions.general.ArraylengthAb
 				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
 
 			// Push the length of the array.
-			if (arrayref instanceof FreeArrayref) {
-				stack.push(arrayref.getLength());
-			} else {
-				stack.push(IntConstant.getInstance(arrayref.getLength()));
-			}
+			stack.push(arrayref.getLengthTerm());
 		} catch (VmRuntimeException e) {
 			SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
 			try {

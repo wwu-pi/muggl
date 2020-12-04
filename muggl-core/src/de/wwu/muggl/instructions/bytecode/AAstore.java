@@ -5,6 +5,8 @@ import java.util.Stack;
 import de.wwu.muggl.instructions.general.Astore;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.typed.ReferenceInstruction;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
+import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.ArrayRestore;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.SearchingVM;
@@ -18,6 +20,7 @@ import de.wwu.muggl.vm.impl.symbolic.SymbolicVirtualMachine;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.Arrayref;
 import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.vm.initialization.FreeObjectref;
 
 /**
  * Implementation of the instruction  <code>aastore</code>.
@@ -26,113 +29,6 @@ import de.wwu.muggl.solvers.expressions.IntConstant;
  * @version 1.0.0, 2010-03-10
  */
 public class AAstore extends Astore implements Instruction {
-
-	/**
-	 * Execute the inheriting instruction.
-	 * @param frame The currently executed frame.
-	 * @throws ExecutionException Thrown in case of fatal problems during the execution.
-	 */
-	@Override
-	public void execute(Frame frame) throws ExecutionException {
-		try {
-			// Preparations.
-			Stack<Object> stack = frame.getOperandStack();
-			Object value = stack.pop();
-			int index = (Integer) stack.pop();
-
-			// Runtime exception: arrayref is null
-			if (stack.peek() == null) {
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
-			}
-
-			// Unexpected exception: arrayref does not point to an array.
-			if (!((Arrayref) stack.peek()).isArray()) {
-				throw new ExecutionException("Could not  " + getName() + ": Expected an array, but did not get one.");
-			}
-			Arrayref arrayref  = (Arrayref) stack.pop();
-
-			// Set the value into the array and save it.
-			try {
-				arrayref.putElement(index, value);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				// Runtime exception array index out of bounds.
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ArrayIndexOutOfBoundsException", e.getMessage()));
-			} catch (ArrayStoreException e) {
-				// Runtime exception: Array store exception.
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ArrayStoreException", e.getMessage()));
-			}
-		} catch (VmRuntimeException e) {
-			ExceptionHandler handler = new ExceptionHandler(frame, e);
-			try {
-				handler.handleException();
-			} catch (ExecutionException e2) {
-				executionFailed(e2);
-			}
-		} catch (ExecutionException e) {
-			executionFailed(e);
-		}
-	}
-
-	/**
-	 * Execute the instruction symbolically.
-	 * @param frame The currently executed frame.
-	 * @throws NoExceptionHandlerFoundException If no handler could be found.
-	 * @throws SymbolicExecutionException Thrown in case of fatal problems during the symbolic execution.
-	 */
-	@Override
-	public void executeSymbolically(Frame frame) throws NoExceptionHandlerFoundException, SymbolicExecutionException {
-		try {
-			// Preparations.
-			Stack<Object> stack = frame.getOperandStack();
-			Object value = stack.pop();
-			Object top = stack.pop();
-			int index;
-			if (top instanceof IntConstant) {
-				index = ((IntConstant) top).getValue();
-			} else if (top instanceof Integer) {
-				index = (Integer) top;
-			} else {
-				throw new SymbolicExecutionException("The found index was of an unsupported value type.");
-			}
-
-			// Runtime exception: arrayref is null
-			if (stack.peek() == null) {
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NullPointerException"));
-			}
-
-			// Unexpected exception: arrayref does not point to an array.
-			if (!((Arrayref) stack.peek()).isArray()) {
-				throw new SymbolicExecutionException("Could not  " + getName() + ": Expected an array, but did not get one.");
-			}
-			Arrayref arrayref  = (Arrayref) stack.pop();
-
-			// Save the current value, if necessary.
-			if (((SearchingVM) frame.getVm()).isInSearch()) {
-				ArrayRestore arrayValue = new ArrayRestore(arrayref, index, value);
-				((SearchingVM) frame.getVm()).saveArrayValue(arrayValue);
-			}
-
-			// Set the value into the array and save it.
-			try {
-				arrayref.putElement(index, value);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				// Runtime exception array index out of bounds.
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ArrayIndexOutOfBoundsException", e.getMessage()));
-			} catch (ArrayStoreException e) {
-				// Runtime exception: Array store exception.
-				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.ArrayStoreException", e.getMessage()));
-			}
-		} catch (VmRuntimeException e) {
-			SymbolicExceptionHandler handler = new SymbolicExceptionHandler(frame, e);
-			try {
-				handler.handleException();
-			} catch (ExecutionException e2) {
-				executionFailedSymbolically(e2);
-			}
-		} catch (SymbolicExecutionException e) {
-			executionFailedSymbolically(e);
-		}
-	}
 
 	/**
 	 * Constructor to initialize the TypedInstruction.
