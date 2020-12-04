@@ -285,6 +285,8 @@ public final class Defaults {
 
 	public static final String Z3_MANAGER = "de.wwu.muggl.solvers.z3.Z3SolverManager";
 
+	public static boolean EXCEPTION_IF_FREE_ARRAY_INDEX_OOB = true;
+
 	public static final String SOLVER_MANAGER = Z3_MANAGER;
 
 	/**
