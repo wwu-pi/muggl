@@ -35,23 +35,23 @@ public class SolverManagerNew implements SolverManager, MuconstSolverManager {
 	    TesttoolConfig.getLogger().debug("SolverManager: added listener " + listener.getClass().getName());
 	}
     }
-    
+
     @Override
-    public void addConstraint(ConstraintExpression ce) {
-	ComposedConstraint cc = ce.convertToComposedConstraint(substitutionTable);
-	substitutionTable.signalStackElementAdded();
-	
-	
-	
-	try {
-	    composedConstraintSolver.addConstraint(cc);
-	} catch (IncorrectSolverException e) {
-	    e.printStackTrace();
-	}
-	
-	listeners.fireAddConstraint(this, ce, cc);
-	
-	//return cc;
+    public void addConstraintPastChecks(ConstraintExpression ce) {
+        ComposedConstraint cc = ce.convertToComposedConstraint(substitutionTable);
+        substitutionTable.signalStackElementAdded();
+
+
+
+        try {
+            composedConstraintSolver.addConstraint(cc);
+        } catch (IncorrectSolverException e) {
+            e.printStackTrace();
+        }
+
+        listeners.fireAddConstraint(this, ce, cc);
+
+        //return cc;
     }
 
     @Override

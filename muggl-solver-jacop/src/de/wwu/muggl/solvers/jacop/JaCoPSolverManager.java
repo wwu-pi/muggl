@@ -91,18 +91,20 @@ public class JaCoPSolverManager extends SolverManagerWithTypeConstraints impleme
 	 *            virtual machine.
 	 */
 	@Override
-	public void addConstraint(ConstraintExpression ce) {
-
+	public void addConstraintPastChecks(ConstraintExpression ce) {
 		jacopStore.setLevel(jacopStore.level + 1);
+		_addConstraint(ce);
+	}
 
-        if (ce instanceof TypeConstraint) {
-            this.imposeTypeConstraint((TypeConstraint) ce);
-            //System.out.println("Add: ce: " + ce);
-        } else {
-            JaCoPTransformer.transformAndImpose(ce, jacopStore);
-            // Still call imposeTypeConstraint without an actual constraint to ensure that levels (of type constraints) are consistent with levels (of jacop).
-            this.imposeTypeConstraint(null);
-        }
+	protected void _addConstraint(ConstraintExpression ce) {
+		if (ce instanceof TypeConstraint) {
+			this.imposeTypeConstraint((TypeConstraint) ce);
+			//System.out.println("Add: ce: " + ce);
+		} else {
+			JaCoPTransformer.transformAndImpose(ce, jacopStore);
+			// Still call imposeTypeConstraint without an actual constraint to ensure that levels (of type constraints) are consistent with levels (of jacop).
+			this.imposeTypeConstraint(null);
+		}
 
 		listeners.fireAddConstraint(this, ce, null);
 
@@ -112,7 +114,6 @@ public class JaCoPSolverManager extends SolverManagerWithTypeConstraints impleme
 			logger.trace(jacopStore.toString());
 			logger.trace(jacopStore.toStringChangedEl());
 		}
-
 	}
 
 	@Override

@@ -2,11 +2,11 @@ package de.wwu.muggl.solvers.z3;
 
 import com.microsoft.z3.*;
 import de.wwu.muggl.solvers.expressions.*;
+import de.wwu.muggl.solvers.solver.constraints.ArraySelect;
+import de.wwu.muggl.solvers.solver.constraints.ArrayStore;
+import de.wwu.muggl.vm.initialization.IReferenceValue;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
+import java.util.*;
 
 /**
  * Z3MugglStore
@@ -23,6 +23,7 @@ public class Z3MugglAdapter {
 	protected final Solver solver;
 	private int level = 0;
 	protected final Z3MugglStore valueConnections = new Z3MugglStore();
+	protected final Stack<ConstraintExpression> addedConstraints = new Stack<>();
 
 	public Z3MugglAdapter() {
 		context = new Context();
@@ -32,14 +33,6 @@ public class Z3MugglAdapter {
 		parameters.add("model", true);
 		//context.usingParams(Tactic)
 		solver = context.mkSolver();
-	}
-
-	private void newBacktrackPoint() {
-		solver.push();
-	}
-
-	private void backtrackOnce() {
-		solver.pop();
 	}
 
 	public boolean isSatisfiable() {
@@ -65,9 +58,13 @@ public class Z3MugglAdapter {
 		} else if (ce instanceof SingleConstraintExpression) {
 			return getSingleConstraintExpression((SingleConstraintExpression) ce);
 		} else if (ce instanceof And) {
-			throw new UnsupportedOperationException("Case not yet regarded."); // TODO
+			ConstraintExpression lhs = ((And) ce).getE1();
+			ConstraintExpression rhs = ((And) ce).getE2();
+			return context.mkAnd(getConstraintExpression(lhs), getConstraintExpression(rhs));
 		} else if (ce instanceof Or) {
-			throw new UnsupportedOperationException("Case not yet regarded."); // TODO
+			ConstraintExpression lhs = ((Or) ce).getE1();
+			ConstraintExpression rhs = ((Or) ce).getE2();
+			return context.mkOr(getConstraintExpression(lhs), getConstraintExpression(rhs));
 		} else if (ce instanceof Xor) {
 			throw new UnsupportedOperationException("Case not yet regarded."); // TODO
 		} else if (ce instanceof LessThan) {
@@ -88,14 +85,65 @@ public class Z3MugglAdapter {
 			} else {
 				return eq;
 			}
+		} else if (ce instanceof ArraySelect) {
+			return getArrayAccessExpr((ArraySelect) ce);
+		} else if (ce instanceof ArrayStore) {
+			return getArrayStoreExpr((ArrayStore) ce);
 		} else {
 			throw new UnsupportedOperationException("Case not handled: " + ce);
 		}
 	}
 
+	private BoolExpr getArrayStoreExpr(ArrayStore arrayStore) {
+		IReferenceValue arrayref = arrayStore.getArrayref();
+		ArrayExpr array = getArrayExprForArrayref(arrayref, arrayStore.getStoredValueTerm(), arrayStore.getName());
+		Expr indexExpr = exprFromTerm(arrayStore.getIndexTerm());
+		Expr storeValue = exprFromTerm(arrayStore.getStoredValueTerm());
+		// Get the storeExpr which is equal to array, except that it has storeValue at indexExpr.
+		ArrayExpr storeExpr = context.mkStore(array, indexExpr, storeValue);
+		Stack<ArrayExpr> arrayExprsForArrayref = this.arrayrefsToMostRecentArrayExpr.get(arrayref);
+		// Save it as the most recent ArrayExpr representing the FreeArray
+		arrayExprsForArrayref.push(storeExpr);
+		BoolExpr arrayEqual = context.mkEq(storeExpr, storeExpr);
+		return arrayEqual;
+	}
+
+
+	private BoolExpr getArrayAccessExpr(ArraySelect arraySelect) {
+		IReferenceValue arrayref = arraySelect.getArrayref();
+		ArrayExpr array = getArrayExprForArrayref(arrayref, arraySelect.getLoadedValueTerm(), arraySelect.getName());
+		Expr indexExpr = exprFromTerm(arraySelect.getIndexTerm());
+		Expr selectExpr = context.mkSelect(array, indexExpr);
+		Expr loadedValue = exprFromTerm(arraySelect.getLoadedValueTerm());
+		BoolExpr equals = context.mkEq(selectExpr, loadedValue);
+		return equals;
+	}
+
+	private ArrayExpr newArrayExprFromTerm(String varName, Term value) {
+		// TODO More than integer should be possible.
+		return context.mkArrayConst(varName + "_" + arrayId++, context.mkIntSort(), context.mkIntSort());
+	}
+
+	protected int arrayId = 0;
+
+	// For each new ArrayStore-constraint, replace the current ArrayExpr with the new resulting ArrayExpr.
+	// For each backtracking-step in which a ArrayStore-constraint is popped, also pop the corresponding ArrayExpr.
+	protected final Map<IReferenceValue, Stack<ArrayExpr>> arrayrefsToMostRecentArrayExpr = new HashMap<>();
+	private ArrayExpr getArrayExprForArrayref(IReferenceValue arrayref, Term storedValue, String varName) {
+		Stack<ArrayExpr> arraysForArrayref = arrayrefsToMostRecentArrayExpr.get(arrayref);
+		if (arraysForArrayref == null) {
+			arraysForArrayref = new Stack<>();
+			arrayrefsToMostRecentArrayExpr.put(arrayref, arraysForArrayref);
+			ArrayExpr array = newArrayExprFromTerm(varName, storedValue);
+			arraysForArrayref.push(array);
+		}
+		return arraysForArrayref.peek();
+	}
+
 	private BoolExpr getSingleConstraintExpression(SingleConstraintExpression sce) {
 		if (sce instanceof BooleanConstant) {
-			throw new UnsupportedOperationException("Case not yet regarded."); // TODO
+			BooleanConstant temp = (BooleanConstant) sce;
+			return context.mkBool(temp.getValue());
 		} else if (sce instanceof BooleanVariable) {
 			throw new UnsupportedOperationException("Case not yet regarded."); // TODO
 		} else {
@@ -132,6 +180,8 @@ public class Z3MugglAdapter {
 			return numericConstantFromTerm((NumericConstant) t);
 		} else if (t instanceof BinaryOperation) {
 			return exprFromBinaryOperation((BinaryOperation) t);
+		} else if (t instanceof ObjectExpression) {
+			throw new UnsupportedOperationException("Case not handled: " + t);
 		} else {
 			throw new UnsupportedOperationException("Case not handled: " + t);
 		}
@@ -151,9 +201,9 @@ public class Z3MugglAdapter {
 			return result;
 		}
 		if (nv.isInteger()) {
-			result = context.mkIntConst(nv.getInternalName());
+			result = context.mkIntConst(nv.getName() + "_" + nv.getInternalName());
 		} else {
-			result = context.mkRealConst(nv.getInternalName());
+			result = context.mkRealConst(nv.getName() + "_" + nv.getInternalName());
 		}
 		valueConnections.addVariable(nv, result);
 		return result;
@@ -199,9 +249,14 @@ public class Z3MugglAdapter {
      * Begin a new layer of constraints for the incremental constraint solver.
      */
 	public void increment() {
-        this.level++;
-        newBacktrackPoint();
+        increment(null);
     }
+
+    public void increment(ConstraintExpression ce) {
+		this.level++;
+		solver.push();
+		addedConstraints.push(ce);
+	}
 
     /**
      * Remove a layer of constraints from the incremental constraint solver.
@@ -211,7 +266,12 @@ public class Z3MugglAdapter {
             throw new IllegalStateException("Operation not allowed: Level is already 0.");
         }
         this.level--;
-        backtrackOnce();
+        solver.pop();
+        ConstraintExpression ce = addedConstraints.pop();
+        if (ce instanceof ArrayStore) {
+        	ArrayStore as = (ArrayStore) ce;
+        	this.arrayrefsToMostRecentArrayExpr.get(as.getArrayref()).pop();
+		}
     }
 
     public int getLevel() {
@@ -253,7 +313,7 @@ public class Z3MugglAdapter {
 		 * @param z3Variable Z3 Var object
 		 * @return Muggl variable if mapping exists; null otherwise
 		 */
-		public Variable getVariable(Expr z3Variable) {
+		public Object getVariable(Expr z3Variable) {
 			return z3ToMugglVariable.get(z3Variable);
 		}
 

@@ -1,9 +1,8 @@
 package de.wwu.muggl.solvers.z3;
 
-import com.microsoft.z3.Expr;
-import com.microsoft.z3.Model;
-import com.microsoft.z3.ParamDescrs;
+import com.microsoft.z3.BoolExpr;
 import de.wwu.muggl.configuration.Globals;
+import de.wwu.muggl.solvers.ArrayConstraintAccumulator;
 import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.solvers.SolverManagerWithTypeConstraints;
@@ -12,6 +11,7 @@ import de.wwu.muggl.solvers.conf.TesttoolConfig;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
 import de.wwu.muggl.solvers.expressions.*;
+import de.wwu.muggl.solvers.solver.constraints.ArrayConstraint;
 import de.wwu.muggl.solvers.solver.listener.SolverManagerListener;
 import de.wwu.muggl.solvers.solver.listener.SolverManagerListenerList;
 import org.apache.log4j.Logger;
@@ -37,8 +37,9 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 	protected boolean finalized = false;
 	protected SolverManagerListenerList listeners;
 	protected Z3MugglAdapter z3;
+	protected ArrayConstraintAccumulator arrayConstraintAccumulator;
 	private Logger logger;
-	private long totalConstraintsChecked = 0L;
+	protected List<ConstraintExpression> addedConstraints = new ArrayList<>();
 	private boolean isSatisfiable = true;
 	private boolean satisfiabilityWasCalculated = true;
 
@@ -64,11 +65,16 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 				logger.debug("SolverManager: added listener "
 						+ listener.getClass().getName());
 		}
+		arrayConstraintAccumulator = new ArrayConstraintAccumulator(this);
 
 	}
 
 	protected boolean isSatisfiable() throws TimeoutException, SolverUnableToDecideException {
 		return satisfiabilityWasCalculated ? isSatisfiable : hasSolution();
+	}
+
+	public BoolExpr[] getConstraints() {
+		return z3.solver.getAssertions();
 	}
 
 	/**
@@ -81,15 +87,27 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 	 */
 	@Override
 	public void addConstraint(ConstraintExpression ce) {
-		z3.increment();
+		if (ce instanceof ArrayConstraint) {
+			arrayConstraintAccumulator.accumulate((ArrayConstraint) ce);
+		} else {
+			addConstraintPastChecks(ce);
+		}
+	}
+
+	@Override
+	public void addConstraintPastChecks(ConstraintExpression ce) {
 		satisfiabilityWasCalculated = false;
+		addedConstraints.add(ce);
 		if (ce instanceof TypeConstraint) {
+			z3.increment();
 			imposeTypeConstraint((TypeConstraint) ce);
 		} else {
+			z3.increment(ce);
 			z3.imposeConstraint(ce);
 			// Still call imposeTypeConstraint without an actual constraint to ensure that levels (of type constraints) are consistent with levels (of Z3).
 			imposeTypeConstraint(null);
 		}
+
 		listeners.fireAddConstraint(this, ce, null);
 
 		if (logger.isDebugEnabled())
@@ -132,6 +150,7 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 
 		listeners.fireGetSolutionStarted(this);
 		long startTime = System.nanoTime();
+		arrayConstraintAccumulator.flush();
 
 		if (z3.getLevel() == 0) {
 			return new Solution();
@@ -181,8 +200,6 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 		if (logger.isDebugEnabled())
 			logger.debug("hasSolution: ");
 
-		totalConstraintsChecked++;
-		
 		listeners.fireHasSolutionStarted(this);
  		long startTime = System.nanoTime();
 
@@ -210,7 +227,7 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 	 * Removes the lastly added constraint from the constraint stack.
 	 * Uses Z3's backtracking mechanism to achieve this.
 	 */
-	public void removeConstraint() {
+	public void removeConstraint() { // TODO adjust to flushing
         int oldLevel = z3.getLevel();
         if (oldLevel <= 0) {
             throw new IllegalStateException(
@@ -245,7 +262,6 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 		// Assumption: Level is always raised before adding a constraint.
 		// Therefore, there are no constraints at level 0 that would need to be
 		// removed.
-		totalConstraintsChecked = 0;
 	}
 
 	private void addShutdownHook() {
@@ -274,7 +290,7 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 	@Deprecated
 	@Override
 	public long getTotalConstraintsChecked() {
-		return totalConstraintsChecked; //Z3Store.numberConstraints();
+		return z3.solver.getNumAssertions();
 	}
 
 	/**
@@ -282,8 +298,6 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 	 */
 	@Deprecated
 	@Override
-	public void resetCounter() {
-		totalConstraintsChecked = 0;
-	}
+	public void resetCounter() { }
 
 }

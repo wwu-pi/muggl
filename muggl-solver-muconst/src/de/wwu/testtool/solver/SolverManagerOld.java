@@ -89,7 +89,7 @@ public class SolverManagerOld implements SolverManager, MuconstSolverManager {
 	 *         constraint stack.
 	 */
 	@Override
-	public void addConstraint(ConstraintExpression ce) {
+	public void addConstraintPastChecks(ConstraintExpression ce) {
 
 		ComposedConstraint cc = ce
 				.convertToComposedConstraint(substitutionTable);
@@ -100,12 +100,12 @@ public class SolverManagerOld implements SolverManager, MuconstSolverManager {
 
 		listeners.fireAddConstraint(this, ce, cc);
 
-														// RafaC
-														if (logger.isDebugEnabled())
-																logger.debug("Add: ce: " + ce + ". cc: " + cc);
-														if (logger.isTraceEnabled()) {
-																logger.trace(constraintStackToString());
-														}
+		// RafaC
+		if (logger.isDebugEnabled())
+			logger.debug("Add: ce: " + ce + ". cc: " + cc);
+		if (logger.isTraceEnabled()) {
+			logger.trace(constraintStackToString());
+		}
 
 		//return cc;
 	}

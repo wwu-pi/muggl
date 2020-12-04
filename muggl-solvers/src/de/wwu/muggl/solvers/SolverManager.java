@@ -4,6 +4,7 @@ import de.wwu.muggl.solvers.Solution;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
 import de.wwu.muggl.solvers.expressions.ConstraintExpression;
+import de.wwu.muggl.solvers.expressions.Term;
 
 /**
  * Should take care of:
@@ -22,8 +23,19 @@ public interface SolverManager {
      * @return the transformed system of constraints that was added to the
      * constraint stack.
      */
-    public void addConstraint(ConstraintExpression ce);
-    
+    default void addConstraint(ConstraintExpression ce) {
+        addConstraintPastChecks(ce);
+    }
+
+    void addConstraintPastChecks(ConstraintExpression ce);
+
+    default boolean checkSatWithNewConstraintAndRemove(ConstraintExpression ce) throws TimeoutException, SolverUnableToDecideException {
+        addConstraintPastChecks(ce);
+        boolean result = hasSolution();
+        removeConstraint();
+        return result;
+    }
+
     /**
      * Tries to find a solution for the first non-contradictory constraint system contained in the constraint
      * stack of the solver manager.
