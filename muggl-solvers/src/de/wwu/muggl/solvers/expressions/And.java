@@ -173,4 +173,12 @@ public class And extends ConstraintExpression{
     public String toTexString(boolean useInternalVariableNames) {
 	return "(" + e1.toTexString(useInternalVariableNames) + " \\wedge " + e2.toTexString(useInternalVariableNames) + ")";
     }
+
+    public ConstraintExpression getE1() {
+    	return e1;
+	}
+
+	public ConstraintExpression getE2() {
+    	return e2;
+	}
 }
