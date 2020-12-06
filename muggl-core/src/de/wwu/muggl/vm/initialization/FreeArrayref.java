@@ -15,12 +15,23 @@ public class FreeArrayref extends ModifieableArrayref {
     private final Term lengthTerm;
     private final Map<Term, Object> elements;
     private final String name;
+    private final boolean concretized;
 
     public FreeArrayref(String name, ReferenceValue referenceValue, Term length) {
+        this(name, referenceValue, length, false);
+    }
+
+    public FreeArrayref(String name, ReferenceValue referenceValue, Term length, boolean concretized) {
         super(referenceValue, 0);
         this.name = name + "_" + this.getArrayrefId();
         this.lengthTerm = length;
         this.elements = new HashMap<>();
+        this.concretized = concretized;
+        if (concretized) {
+            if (!(lengthTerm instanceof IntConstant)) {
+                throw new IllegalStateException("Concretized free arrays should have constant length");
+            }
+        }
     }
 
     public Term getLengthTerm() {
@@ -57,12 +68,21 @@ public class FreeArrayref extends ModifieableArrayref {
 
     @Override
     public Object getElement(int index) {
-        throw new UnsupportedOperationException("Not supported.");
+        if (concretized) {
+            return ((IntConstant) lengthTerm).getIntValue();
+        } else {
+            throw new UnsupportedOperationException("Not supported.");
+        }
     }
 
     @Override
     public void putElement(int index, Object element) {
-        throw new UnsupportedOperationException("Not supported.");
+        if (concretized) {
+            // TODO Check element
+            elements.put(IntConstant.getInstance(index), element);
+        } else {
+            throw new UnsupportedOperationException("Not supported.");
+        }
     }
 
     @Override
@@ -112,6 +132,10 @@ public class FreeArrayref extends ModifieableArrayref {
 
     @Override
     public int getLength() {
-        throw new UnsupportedOperationException("Not supported.");
+        if (concretized) {
+            return ((IntConstant) lengthTerm).getIntValue();
+        } else {
+            throw new UnsupportedOperationException("Not supported.");
+        }
     }
 }
