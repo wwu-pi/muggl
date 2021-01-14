@@ -35,7 +35,8 @@ public class FreeArrayref extends ModifieableArrayref {
     }
 
     public Arrayref concretizeWith(ArrayList<Object> values, IntConstant length) {
-        FreeArrayref concretizedRef = new FreeArrayref(name, referenceValue, length, true);
+        //FreeArrayref concretizedRef = new FreeArrayref(name, referenceValue, length, true);
+        Arrayref concretizedRef = new ModifieableArrayref(referenceValue, length.getValue());
         if (values.size() != length.getIntValue()) {
             throw new IllegalStateException("Number of elements and length must equal.");
         }

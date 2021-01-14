@@ -208,14 +208,14 @@ public class Arrayref implements ReferenceValue {
 			String targetClass = this.referenceValue.getInitializedClass().getClassFile().getName();
 			if (!targetClass.equals(srcClass)) {
 				// it is legal to store ints (from the stack, see baload/bastore in byte and booleans
-				if (srcClass.equals("java.lang.Integer")) {
-					if (targetClass.equals("java.lang.Byte")) {
+				if (srcClass.equals(Integer.class.getName())) {
+					if (targetClass.equals(Byte.class.getName())) {
 						element = ((Integer) element).byteValue();
-					} else if (targetClass.equals("java.lang.Boolean")) {
+					} else if (targetClass.equals(Boolean.class.getName())) {
 						element = (((Integer) element) == 0) ? false : true;
-					}else if (targetClass.equals("java.lang.Character")) {
+					}else if (targetClass.equals(Character.class.getName())) {
 						element = (char)((int) element);
-					}else if (targetClass.equals("java.lang.Short")) {
+					}else if (targetClass.equals(Short.class.getName())) {
 						element = ((Integer) element).shortValue();
 					}				
 				}

@@ -6,6 +6,7 @@ import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.VirtualMachine;
+import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
@@ -128,25 +129,15 @@ public class FreeObjectrefInitialisers {
             classFile = resolveOrThrowException(vm, fromClass, type.replaceAll("\\[", ""));
             referenceValue = vm.getAFreeObjectref(classFile);
         } else {
-            if (type.contains("[F")) { // float
-                classFile = resolveOrThrowException(vm, fromClass, Float.class.getName());
-            } else if (type.contains("[D")) { // double
-                classFile = resolveOrThrowException(vm, fromClass, Double.class.getName());
-            } else if (type.contains("[Z")) { // boolean
-                classFile = resolveOrThrowException(vm, fromClass, Boolean.class.getName());
-            } else if (type.contains("[B")) { // byte
-                classFile = resolveOrThrowException(vm, fromClass, Byte.class.getName());
-            } else if (type.contains("[S")) { // short
-                classFile = resolveOrThrowException(vm, fromClass, Short.class.getName());
-            } else if (type.contains("[I")) { // int
-                classFile = resolveOrThrowException(vm, fromClass, Integer.class.getName());
-            } else if (type.contains("[J")) { // long
-                classFile = resolveOrThrowException(vm, fromClass, Long.class.getName());
-            } else {
-                throw new IllegalStateException("Array type is not supported: " + type);
+            try {
+                classFile = vm.getClassLoader()
+                        .getClassAsClassFile(
+                                VmSymbols.basicType2JavaClassName(VmSymbols.signature2BasicType(type.replace("[", ""))));
+                referenceValue = classFile.getAPrimitiveWrapperObjectref(vm);
+                initializedClass = classFile.getTheInitializedClass(vm);
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
             }
-            referenceValue = vm.getAnObjectref(classFile);
-            initializedClass = classFile.getTheInitializedClass(vm);
 
         }
 
