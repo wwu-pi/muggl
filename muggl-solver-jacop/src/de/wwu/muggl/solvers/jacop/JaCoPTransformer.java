@@ -2,6 +2,9 @@ package de.wwu.muggl.solvers.jacop;
 
 import java.util.ArrayList;
 
+import de.wwu.muggl.solvers.expressions.*;
+import de.wwu.muggl.solvers.expressions.Or;
+import de.wwu.muggl.solvers.expressions.Sum;
 import org.jacop.constraints.*;
 import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
@@ -28,30 +31,6 @@ import org.jacop.floats.constraints.XeqP;
 import org.jacop.floats.core.FloatDomain;
 import org.jacop.floats.core.FloatIntervalDomain;
 import org.jacop.floats.core.FloatVar;
-
-import de.wwu.muggl.solvers.expressions.TypeCast;
-import de.wwu.muggl.solvers.expressions.BinaryOperation;
-import de.wwu.muggl.solvers.expressions.ConstraintExpression;
-import de.wwu.muggl.solvers.expressions.Difference;
-import de.wwu.muggl.solvers.expressions.DoubleConstant;
-import de.wwu.muggl.solvers.expressions.FloatConstant;
-import de.wwu.muggl.solvers.expressions.GreaterOrEqual;
-import de.wwu.muggl.solvers.expressions.GreaterThan;
-import de.wwu.muggl.solvers.expressions.HasLeftAndRightTerms;
-import de.wwu.muggl.solvers.expressions.IntConstant;
-import de.wwu.muggl.solvers.expressions.LessOrEqual;
-import de.wwu.muggl.solvers.expressions.LessThan;
-import de.wwu.muggl.solvers.expressions.LongConstant;
-import de.wwu.muggl.solvers.expressions.Modulo;
-import de.wwu.muggl.solvers.expressions.NumericConstant;
-import de.wwu.muggl.solvers.expressions.NumericEqual;
-import de.wwu.muggl.solvers.expressions.NumericNotEqual;
-import de.wwu.muggl.solvers.expressions.NumericVariable;
-import de.wwu.muggl.solvers.expressions.Or;
-import de.wwu.muggl.solvers.expressions.Product;
-import de.wwu.muggl.solvers.expressions.Sum;
-import de.wwu.muggl.solvers.expressions.Term;
-import de.wwu.muggl.solvers.expressions.Variable;
 
 /**
  * JaCoPTransformer
@@ -85,6 +64,15 @@ public class JaCoPTransformer {
 			imposeEquation((HasLeftAndRightTerms) ce, store);
 		} else if (ce instanceof Or) {
 			imposeDisjunction((Or)ce, store);
+		} else if (ce instanceof BooleanConstant) {
+			BooleanConstant bc = (BooleanConstant) ce;
+			int val = bc.getValue() ? 1 : 0;
+			IntVar var = new IntVar(store, val, val);
+			IntVar varTrue = new IntVar(store, 1, 1);
+			org.jacop.constraints.XeqY dummyEquation = new XeqY(var, varTrue);
+			store.impose(dummyEquation); // Ugly, really ad-hoc way of expression constant true or false.
+			//org.jacop.core.BooleanVar bv = new BooleanVar(store, "trueOrFalse", val, val);
+			//org.jacop.constraints.BoolClause wrappingClause = new BoolClause(bv);
 		} else {
 			throw new IllegalArgumentException("Unknown constraint type " + ce.getClass().getName());
 		}
