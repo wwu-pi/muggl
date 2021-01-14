@@ -10,6 +10,7 @@ import de.wwu.muggl.vm.initialization.IReferenceValue;
 import java.util.Arrays;
 import java.util.Set;
 
+// For objects in FreeArrays. Not a general expression for FreeObjects.
 public class ObjectExpression extends Term {
 
     protected final String[] allFields;
