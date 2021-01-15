@@ -7,10 +7,7 @@ import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.loading.MugglClassLoader;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +51,14 @@ public class FreeObjectref extends Objectref {
         disallowedTypes = new HashSet<>();
     }
 
+    public FreeObjectref(FreeObjectref other) {
+        this(other.getInitializedClass(), other.isPrimitive());
+        possibleTypes = new HashSet<>(other.getPossibleTypes());
+        disallowedTypes = new HashSet<>(other.getDisallowedTypes());
+        fields = new HashMap<>(other.getFields());
+        cachedVariables = new HashMap<>(other.cachedVariables);
+    }
+
     @Override
     public boolean isOfASpecificType() {
         // This becomes true if the type is sufficiently constrained.
@@ -94,9 +99,19 @@ public class FreeObjectref extends Objectref {
             ClassFile actualType = commonSupertypes.get(0);
             for (Field field : actualType.getFields()) {
                 if (!this.hasValueFor(field)) {
+                    // TODO Why is this done multiple times? I assume that for A <- B <- C this is done for a field b
+                    //  for B and C separately. However, this destroys the identity of variables which might already be
+                    //  involved in constraints. I will quick-fix this with a cache-map for now...
+                    Object cachedValue = cachedVariables.get(field);
+                    if (cachedValue != null) {
+                        fields.put(field, cachedValue);
+                        boundFields.add(field);
+                        continue;
+                    }
                     String type = field.getDescriptor();
                     SearchingVM vm = (SearchingVM)(VirtualMachine.getLatestVM());
                     Object value = FreeObjectrefInitialisers.createRepresentationForFreeVariableOrField(vm, this.getInitializedClass().getClassFile(), type, field.getName());
+                    cachedVariables.put(field, value);
                     if (value != null) {
                         this.fields.put(field, value);
                         boundFields.add(field);
@@ -106,6 +121,8 @@ public class FreeObjectref extends Objectref {
         }
         return boundFields;
     }
+
+    protected Map<Field, Object> cachedVariables = new HashMap<>();
 
     @Override
     public Set<String> getDisallowedTypes() {
