@@ -24,7 +24,15 @@ public class INeg extends Neg implements Instruction {
 	@Override
 	public void execute(Frame frame) {
 		Stack<Object> stack = frame.getOperandStack();
-		stack.push(0 - (Integer) stack.pop());
+		Object val = stack.pop();
+		if (val instanceof IntConstant) {
+			val = - ((IntConstant) val).getIntValue();
+		} else if (val instanceof Integer) {
+			val = - (Integer) val;
+		} else {
+			throw new IllegalStateException("There should be an integer on top of the stack.");
+		}
+		stack.push(val);
 	}
 
 	/**

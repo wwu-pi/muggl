@@ -52,8 +52,8 @@ public class IntegerInstruction extends TypedInstruction {
 			return ((Byte) value).intValue();
 		case "java.lang.Short":
 			return ((Short) value).intValue();
-		case "java.lang.Character":
-			return (int) ((Character) value);
+		case "java.lang.Character": // TODO What is this even? Why does this happen?
+			return (int) (value instanceof IntConstant ? ((IntConstant) value).getIntValue() : ((Character) value));
         case "de.wwu.muggl.solvers.expressions.IntConstant":
             return ((IntConstant)value).getIntValue();
 		default: 

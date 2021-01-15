@@ -170,15 +170,18 @@ public class Newarray extends de.wwu.muggl.instructions.general.ObjectInitializa
 							"Cannot create an array of negative size."));
 				// Generate a suitable Objectref.
 				try {
-					ReferenceValue referenceValue = frame.getVm().getAnObjectref(frame.getVm().getClassLoader().getClassAsClassFile(
-									Term.class.getName()));
+//					ReferenceValue referenceValue = frame.getVm().getAnObjectref(frame.getVm().getClassLoader().getClassAsClassFile(
+//									Term.class.getName()));
+//					InitializedClass initializedClass = frame.getVm().getClassLoader().
+//							getClassAsClassFile(representedType).getTheInitializedClass(frame.getVm());
+//					// Generate and push the array.
+//					ModifieableArrayref arrayref = new ModifieableArrayref(referenceValue, count);
+//					arrayref.disableTypeChecking();
+//					arrayref.setRepresentedTypeAsAPrimitiveWrapper(initializedClass);
 					InitializedClass initializedClass = frame.getVm().getClassLoader().
 							getClassAsClassFile(representedType).getTheInitializedClass(frame.getVm());
-
-					// Generate and push the array.
-					ModifieableArrayref arrayref = new ModifieableArrayref(referenceValue, count);
-					arrayref.disableTypeChecking();
-					arrayref.setRepresentedTypeAsAPrimitiveWrapper(initializedClass);
+					ReferenceValue referenceValue = initializedClass.getANewPrimitiveWrapper();
+					Arrayref arrayref = new Arrayref(referenceValue, count);
 					frame.getOperandStack().push(arrayref);
 				} catch (ClassFileException e) {
 					// It is almost impossible that this happens.

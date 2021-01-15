@@ -1,5 +1,8 @@
 package de.wwu.muggl.vm.initialization;
 
+import de.wwu.muggl.solvers.expressions.IntConstant;
+import de.wwu.muggl.solvers.expressions.Term;
+
 /**
  * This ModifieableArrayref inherits the complete functionality of an arrayref and does
  * only modify the put(int index, Object element)-Method. It however provides the method reset(int length) which
@@ -29,6 +32,12 @@ public class ModifieableArrayref extends Arrayref {
 	 */
 	public ModifieableArrayref(ReferenceValue referenceValue, int length) {
 		super(referenceValue, length);
+		this.representedTypeInitializedClass = null;
+		this.representedTypeIsAPrimitiveWrapper = false;
+	}
+
+	public ModifieableArrayref(ModifieableArrayref other) {
+		super(other);
 		this.representedTypeInitializedClass = null;
 		this.representedTypeIsAPrimitiveWrapper = false;
 	}
@@ -136,7 +145,7 @@ public class ModifieableArrayref extends Arrayref {
 	 *
 	 * An example for a fully qualified name: java.lang.Integer
 	 *
-	 * @param type The fully qualified name of the type.
+	 * @param ic The fully qualified name of the type.
 	 */
 	public void setRepresentedTypeInitializedClass(InitializedClass ic) {
 		this.representedTypeInitializedClass = ic;

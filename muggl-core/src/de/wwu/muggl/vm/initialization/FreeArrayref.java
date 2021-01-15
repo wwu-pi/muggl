@@ -12,21 +12,24 @@ import java.util.Map;
 
 public class FreeArrayref extends ModifieableArrayref {
     public class UninitializedMarker {}
-    private final Term lengthTerm;
-    private final Map<Term, Object> elements;
+    private Term lengthTerm;
+    private Map<Term, Object> elements;
     private final String name;
-    private final boolean concretized;
+    private boolean concretized;
 
-    public FreeArrayref(String name, ReferenceValue referenceValue, Term length) {
-        this(name, referenceValue, length, false);
+    public FreeArrayref(FreeArrayref other) {
+        super(other);
+        name = other.getName();
+        lengthTerm = other.getLengthTerm();
+        elements = other.getFreeArrayElements();
+        concretized = other.concretized;
     }
 
-    public FreeArrayref(String name, ReferenceValue referenceValue, Term length, boolean concretized) {
+    public FreeArrayref(String name, ReferenceValue referenceValue, Term length) {
         super(referenceValue, 0);
         this.name = name + "_" + this.getArrayrefId();
         this.lengthTerm = length;
         this.elements = new HashMap<>();
-        this.concretized = concretized;
         if (concretized) {
             if (!(lengthTerm instanceof IntConstant)) {
                 throw new IllegalStateException("Concretized free arrays should have constant length");
@@ -34,16 +37,17 @@ public class FreeArrayref extends ModifieableArrayref {
         }
     }
 
-    public Arrayref concretizeWith(ArrayList<Object> values, IntConstant length) {
-        //FreeArrayref concretizedRef = new FreeArrayref(name, referenceValue, length, true);
-        Arrayref concretizedRef = new ModifieableArrayref(referenceValue, length.getValue());
+    public void concretizeWith(ArrayList<Object> values, IntConstant length) {
         if (values.size() != length.getIntValue()) {
             throw new IllegalStateException("Number of elements and length must equal.");
         }
+        concretized = true;
+        elements = new HashMap<>();
+        lengthTerm = length;
         for (int i = 0; i < values.size(); i++) {
-            concretizedRef.putElement(i, values.get(i));
+            putElement(i, values.get(i));
         }
-        return concretizedRef;
+        // TODO Change referenceValue if term?
     }
 
     public Term getLengthTerm() {
@@ -66,10 +70,6 @@ public class FreeArrayref extends ModifieableArrayref {
         return result;
     }
 
-    public Object getFreeArrayElement(int index) {
-        return getFreeArrayElement(IntConstant.getInstance(index));
-    }
-
     public void putElementIntoFreeArray(Term index, Object element) {
         if (element instanceof UninitializedMarker) {
             elements.remove(index);
@@ -81,7 +81,7 @@ public class FreeArrayref extends ModifieableArrayref {
     @Override
     public Object getElement(int index) {
         if (concretized) {
-            return ((IntConstant) lengthTerm).getIntValue();
+            return elements.get(IntConstant.getInstance(index));
         } else {
             throw new UnsupportedOperationException("Not supported.");
         }
@@ -149,5 +149,13 @@ public class FreeArrayref extends ModifieableArrayref {
         } else {
             throw new UnsupportedOperationException("Not supported.");
         }
+    }
+
+    public void setFreeArrayElements(Map<Term, Object> newElements) {
+        this.elements = newElements;
+    }
+
+    public void setLengthTerm(Term newLengthTerm) {
+        this.lengthTerm = newLengthTerm;
     }
 }
