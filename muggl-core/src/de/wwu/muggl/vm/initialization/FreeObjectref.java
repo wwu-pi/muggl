@@ -158,4 +158,8 @@ public class FreeObjectref extends Objectref {
         }
         return super.getMirrorJava();
     }
+
+    public void setConcreteStaticReference(InitializedClass concreteClass) {
+        this.staticReference = concreteClass;
+    }
 }

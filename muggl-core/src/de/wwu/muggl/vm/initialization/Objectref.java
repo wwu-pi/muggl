@@ -26,7 +26,7 @@ import de.wwu.muggl.vm.threading.Monitor;
  */
 public class Objectref extends FieldContainer implements ReferenceValue {
 	// Fields
-	private InitializedClass staticReference;
+	protected InitializedClass staticReference;
 	private boolean primitiveWrapper;
 	private Monitor monitor;
 	private long instantiationNumber;
