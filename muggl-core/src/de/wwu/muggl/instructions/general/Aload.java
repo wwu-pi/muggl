@@ -181,7 +181,7 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 						if (marker.loadedElement instanceof UninitializedMarker) {
 							throw new IllegalStateException("Should have been substituted with real value.");
 						}
-						((FreeArrayref) arrayref).putElementIntoFreeArray(indexTerm, marker.loadedElement);
+						((FreeArrayref) arrayref).putElementIntoFreeArray(indexTerm, marker.loadedElement, true);
 						frame.getOperandStack().push(marker.loadedElement);
 					} else {
 						frame.getOperandStack().push(arrayref.getElement(((IntConstant) indexTerm).getIntValue()));

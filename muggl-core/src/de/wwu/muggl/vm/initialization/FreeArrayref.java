@@ -6,9 +6,7 @@ import de.wwu.muggl.solvers.expressions.Term;
 import de.wwu.muggl.vm.VirtualMachine;
 import sun.misc.VM;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class FreeArrayref extends ModifieableArrayref {
     public class UninitializedMarker {}
@@ -16,12 +14,16 @@ public class FreeArrayref extends ModifieableArrayref {
     private Map<Term, Object> elements;
     private final String name;
     private boolean concretized;
+    // If a program explicitly stores values in the FreeArray (that means: they are not initialized free by
+    // retrieving a value using load), the corresponding indices and values are stored here.
+    protected Map<Term, Object> originalElements;
 
     public FreeArrayref(FreeArrayref other) {
         super(other);
         name = other.getName();
         lengthTerm = other.getLengthTerm();
-        elements = other.getFreeArrayElements();
+        elements = new HashMap<>(other.getFreeArrayElements());
+        originalElements = new HashMap<>();
         concretized = other.concretized;
     }
 
@@ -30,6 +32,7 @@ public class FreeArrayref extends ModifieableArrayref {
         this.name = name + "_" + this.getArrayrefId();
         this.lengthTerm = length;
         this.elements = new HashMap<>();
+        originalElements = new HashMap<>();
         if (concretized) {
             if (!(lengthTerm instanceof IntConstant)) {
                 throw new IllegalStateException("Concretized free arrays should have constant length");
@@ -70,12 +73,19 @@ public class FreeArrayref extends ModifieableArrayref {
         return result;
     }
 
-    public void putElementIntoFreeArray(Term index, Object element) {
+    public void putElementIntoFreeArray(Term index, Object element, boolean freeInitialized) {
+        if (!freeInitialized && !originalElements.containsKey(index)) {
+            originalElements.put(index, elements.get(index));
+        }
         if (element instanceof UninitializedMarker) {
             elements.remove(index);
         } else {
             elements.put(index, element);
         }
+    }
+
+    public void putElementIntoFreeArray(Term index, Object element) {
+        putElementIntoFreeArray(index, element, false);
     }
 
     @Override

@@ -101,7 +101,8 @@ public class FreeObjectref extends Objectref {
                 if (!this.hasValueFor(field)) {
                     // TODO Why is this done multiple times? I assume that for A <- B <- C this is done for a field b
                     //  for B and C separately. However, this destroys the identity of variables which might already be
-                    //  involved in constraints. I will quick-fix this with a cache-map for now...
+                    //  involved in constraints. I will quick-fix this with a cache-map for now...This can also be used
+                    //  to get the original initialized values.
                     Object cachedValue = cachedVariables.get(field);
                     if (cachedValue != null) {
                         fields.put(field, cachedValue);
@@ -120,6 +121,10 @@ public class FreeObjectref extends Objectref {
             }
         }
         return boundFields;
+    }
+
+    public Map<Field, Object> getCachedVariables() {
+        return cachedVariables;
     }
 
     protected Map<Field, Object> cachedVariables = new HashMap<>();
