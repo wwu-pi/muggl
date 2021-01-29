@@ -1,9 +1,6 @@
 package de.wwu.muggl.vm.initialization;
 
-import de.wwu.muggl.solvers.expressions.BooleanVariable;
-import de.wwu.muggl.solvers.expressions.Expression;
-import de.wwu.muggl.solvers.expressions.NumericVariable;
-import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muggl.solvers.expressions.*;
 import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.VirtualMachine;
 import de.wwu.muggl.vm.VmSymbols;
@@ -150,7 +147,7 @@ public class FreeObjectrefInitialisers {
         }
 
         result = createNestingIfNeeded(result, type);
-
+        vm.getSolverManager().addConstraint(GreaterOrEqual.newInstance(result.getLengthTerm(), IntConstant.getInstance(0)));
         return result;
     }
 
