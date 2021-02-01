@@ -56,7 +56,7 @@ public class FreeObjectref extends Objectref {
         possibleTypes = new HashSet<>(other.getPossibleTypes());
         disallowedTypes = new HashSet<>(other.getDisallowedTypes());
         fields = new HashMap<>(other.getFields());
-        cachedVariables = new HashMap<>(other.cachedVariables);
+        memorizedVariables = new HashMap<>(other.memorizedVariables);
     }
 
     @Override
@@ -78,7 +78,6 @@ public class FreeObjectref extends Objectref {
         this.possibleTypes = possibleTypes;
         this.disallowedTypes = disallowedTypes;
 
-        List<Field> boundFields = new ArrayList<>();
 
         // Check whether the allowed types (possible \ disallowed) are along a single hierarchy. If so, use the common supertype for binding fields.
         HashSet<String> allowedTypes = new HashSet<>(possibleTypes);
@@ -94,40 +93,52 @@ public class FreeObjectref extends Objectref {
                 allowedTypeClasses.stream().allMatch(subType -> subType.isSubtypeOf(superType))).collect(Collectors.toList());
 
         // If there is a unique supertype, feel free to initialize.
+        List<Field> boundFields = new ArrayList<>();
         if (commonSupertypes.size() == 1) {
+            initializeNewBoundFields(commonSupertypes.get(0), boundFields);
+
+        }
+        return boundFields;
+    }
+
+    private void initializeNewBoundFields(ClassFile actualType, List<Field> boundFields) {
+        while (actualType != null) {
             // Check which fields are annotated and replace undefined fields by logic variables.
-            ClassFile actualType = commonSupertypes.get(0);
             for (Field field : actualType.getFields()) {
                 if (!this.hasValueFor(field)) {
                     // TODO Why is this done multiple times? I assume that for A <- B <- C this is done for a field b
                     //  for B and C separately. However, this destroys the identity of variables which might already be
-                    //  involved in constraints. I will quick-fix this with a cache-map for now...This can also be used
+                    //  involved in constraints. I will quick-fix this with a memorization-map for now...This can also be used
                     //  to get the original initialized values.
-                    Object cachedValue = cachedVariables.get(field);
+                    Object cachedValue = memorizedVariables.get(field);
                     if (cachedValue != null) {
                         fields.put(field, cachedValue);
                         boundFields.add(field);
                         continue;
                     }
                     String type = field.getDescriptor();
-                    SearchingVM vm = (SearchingVM)(VirtualMachine.getLatestVM());
+                    SearchingVM vm = (SearchingVM) (VirtualMachine.getLatestVM());
                     Object value = FreeObjectrefInitialisers.createRepresentationForFreeVariableOrField(vm, this.getInitializedClass().getClassFile(), type, field.getName());
-                    cachedVariables.put(field, value);
+                    memorizedVariables.put(field, value);
                     if (value != null) {
                         this.fields.put(field, value);
                         boundFields.add(field);
                     }
                 }
             }
+            try {
+                actualType = actualType.getSuperClassFile();
+            } catch (ClassFileException e) {
+                throw new IllegalStateException(e);
+            }
         }
-        return boundFields;
     }
 
-    public Map<Field, Object> getCachedVariables() {
-        return cachedVariables;
+    public Map<Field, Object> getMemorizedVariables() {
+        return memorizedVariables;
     }
 
-    protected Map<Field, Object> cachedVariables = new HashMap<>();
+    protected Map<Field, Object> memorizedVariables = new HashMap<>();
 
     @Override
     public Set<String> getDisallowedTypes() {

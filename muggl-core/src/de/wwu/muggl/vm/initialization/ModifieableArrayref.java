@@ -22,7 +22,7 @@ import de.wwu.muggl.solvers.expressions.Term;
 public class ModifieableArrayref extends Arrayref {
 	private boolean typeCheckingDisabled;
 	private InitializedClass representedTypeInitializedClass;
-	private boolean representedTypeIsAPrimitiveWrapper;
+	protected boolean representedTypeIsAPrimitiveWrapper;
 
 	/**
 	 * Initialize the arrayref. It must be of a have a type of ReferenceValue and

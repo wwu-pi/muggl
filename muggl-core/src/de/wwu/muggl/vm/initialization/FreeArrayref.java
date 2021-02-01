@@ -7,6 +7,7 @@ import de.wwu.muggl.vm.VirtualMachine;
 import sun.misc.VM;
 
 import java.util.*;
+import java.util.function.DoubleBinaryOperator;
 
 public class FreeArrayref extends ModifieableArrayref {
     public class UninitializedMarker {}
@@ -25,6 +26,7 @@ public class FreeArrayref extends ModifieableArrayref {
         elements = new HashMap<>(other.getFreeArrayElements());
         originalElements = new HashMap<>();
         concretized = other.concretized;
+        representedTypeIsAPrimitiveWrapper = other.isRepresentedTypeIsAPrimitiveWrapper();
     }
 
     public FreeArrayref(String name, ReferenceValue referenceValue, Term length) {
@@ -74,8 +76,9 @@ public class FreeArrayref extends ModifieableArrayref {
     }
 
     public void putElementIntoFreeArray(Term index, Object element, boolean freeInitialized) {
-        if (!freeInitialized && !originalElements.containsKey(index)) {
-            originalElements.put(index, elements.get(index));
+        // Is the element initialized due to an Aload?
+        if (freeInitialized && !originalElements.containsKey(index)) {
+            originalElements.put(index, element);
         }
         if (element instanceof UninitializedMarker) {
             elements.remove(index);
@@ -91,7 +94,18 @@ public class FreeArrayref extends ModifieableArrayref {
     @Override
     public Object getElement(int index) {
         if (concretized) {
-            return elements.get(IntConstant.getInstance(index));
+            Object value = elements.get(IntConstant.getInstance(index));
+            if (value == null && referenceValue.isPrimitive()) {
+                if (referenceValue.getName().equals(Integer.class.getName())) {
+                    return 0;
+                } else if (referenceValue.getName().equals(Double.class.getName())) {
+                    return 0.0;
+                } else {
+                    throw new IllegalStateException("Not yet implemented.");
+                }
+            } else {
+                return value;
+            }
         } else {
             throw new UnsupportedOperationException("Not supported.");
         }
@@ -105,6 +119,10 @@ public class FreeArrayref extends ModifieableArrayref {
         } else {
             throw new UnsupportedOperationException("Not supported.");
         }
+    }
+
+    public Map<Term, Object> getOriginalElements() {
+        return originalElements;
     }
 
     @Override
