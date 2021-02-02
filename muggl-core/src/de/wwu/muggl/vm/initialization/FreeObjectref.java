@@ -27,6 +27,14 @@ public class FreeObjectref extends Objectref {
     private Set<String> disallowedTypes;
 
     /**
+     * During re-initialization of new types older initialization which are already involved in constraints might get lost.
+     * This map thus memorizes already initialized fields of subclasses.
+     */
+    private Map<Field, Object> memorizedVariables = new HashMap<>();
+
+    private Map<Field, FreeObjectrefInitialisers.LAZY_FIELD_MARKER> substitutedMarkers = new HashMap<>();;
+
+    /**
      * Private constructor to get concrete instances of an initialized class. These instances
      * have a reference to the InitializedClass, which keeps control of the static
      * fields. The concrete instance itself keeps control of instance fields.
@@ -57,6 +65,7 @@ public class FreeObjectref extends Objectref {
         disallowedTypes = new HashSet<>(other.getDisallowedTypes());
         fields = new HashMap<>(other.getFields());
         memorizedVariables = new HashMap<>(other.memorizedVariables);
+        substitutedMarkers = new HashMap<>(other.substitutedMarkers);
     }
 
     @Override
@@ -118,7 +127,7 @@ public class FreeObjectref extends Objectref {
                     }
                     String type = field.getDescriptor();
                     SearchingVM vm = (SearchingVM) (VirtualMachine.getLatestVM());
-                    Object value = FreeObjectrefInitialisers.createRepresentationForFreeVariableOrField(vm, this.getInitializedClass().getClassFile(), type, field.getName());
+                    Object value = FreeObjectrefInitialisers.initializeLazyMarker(this, field);
                     memorizedVariables.put(field, value);
                     if (value != null) {
                         this.fields.put(field, value);
@@ -134,11 +143,24 @@ public class FreeObjectref extends Objectref {
         }
     }
 
+    public void addSubstitutedLazyMarker(FreeObjectrefInitialisers.LAZY_FIELD_MARKER marker) {
+        if (marker.initForObjectref != this) {
+            throw new IllegalStateException("The marker should be added for the represented FreeObjectref.");
+        }
+        substitutedMarkers.put(marker.initForField, marker);
+    }
+
+    public FreeObjectrefInitialisers.LAZY_FIELD_MARKER getSubstitutedMarker(Field f) {
+        return substitutedMarkers.get(f);
+    }
+
+    public Map<Field, FreeObjectrefInitialisers.LAZY_FIELD_MARKER> getSubstitutedMarkers() {
+        return substitutedMarkers;
+    }
+
     public Map<Field, Object> getMemorizedVariables() {
         return memorizedVariables;
     }
-
-    protected Map<Field, Object> memorizedVariables = new HashMap<>();
 
     @Override
     public Set<String> getDisallowedTypes() {

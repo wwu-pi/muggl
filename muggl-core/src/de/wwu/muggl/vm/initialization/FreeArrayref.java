@@ -24,7 +24,7 @@ public class FreeArrayref extends ModifieableArrayref {
         name = other.getName();
         lengthTerm = other.getLengthTerm();
         elements = new HashMap<>(other.getFreeArrayElements());
-        originalElements = new HashMap<>();
+        originalElements = new HashMap<>(other.originalElements);
         concretized = other.concretized;
         representedTypeIsAPrimitiveWrapper = other.isRepresentedTypeIsAPrimitiveWrapper();
     }
