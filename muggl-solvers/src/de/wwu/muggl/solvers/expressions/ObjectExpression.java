@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 // For objects in FreeArrays. Not a general expression for FreeObjects.
-public class ObjectExpression extends Term {
+public class ObjectExpression implements Expression {
 
     protected final String[] allFields;
     protected final Object[] allVals;
@@ -44,13 +44,23 @@ public class ObjectExpression extends Term {
     // Field values are either other ObjectExpressions, or fields.
 
     @Override
-    public Term clearMultiFractions(Set<Term> denominators) {
-        throw new IllegalStateException("Case not yet implemented.");
+    public void checkTypes() throws TypeCheckException {
+
+    }
+
+    @Override
+    public Expression insert(Solution solution, boolean produceNumericSolution) {
+        return null;
     }
 
     @Override
     public Term insertAssignment(Assignment assignment) {
         throw new IllegalStateException("Case not yet implemented.");
+    }
+
+    @Override
+    public boolean isBoolean() {
+        return false;
     }
 
     @Override
@@ -67,86 +77,18 @@ public class ObjectExpression extends Term {
 
     @Override
     public byte getType() {
-        throw new IllegalStateException("Case not yet implemented.");
+        return 0;
     }
 
     @Override
     public String toTexString(boolean useInternalVariableNames) {
-        throw new IllegalStateException("Case not yet implemented.");
+        return null;
     }
 
     @Override
     public String toHaskellString() {
-        throw new IllegalStateException("Case not yet implemented.");
+        return null;
     }
 
-    @Override
-    public void checkTypes() throws TypeCheckException {
 
-    }
-
-    @Override
-    public Term insert(Solution solution, boolean produceNumericSolution) {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
-
-    @Override
-    public Term substitute(Term a, Term b) {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
-
-    @Override
-    public Polynomial toPolynomial() {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
-
-    @Override
-    protected boolean containsAsDenominator(Term t) {
-        return false;
-    }
-
-    @Override
-    protected Substitution findSubstitution(SubstitutionTable subTable) {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
-
-    @Override
-    protected Set<Term> getDenominators() {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
-
-    @Override
-    protected Modulo getFirstModulo() {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
-
-    @Override
-    protected Quotient getFirstNonintegerQuotient() {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
-
-    @Override
-    protected Quotient getFirstQuotient() {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
-
-    @Override
-    protected TypeCast getFirstTypeCast(boolean onlyNarrowing) {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
-
-    @Override
-    protected Modulo getInmostModulo() {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
-
-    @Override
-    protected Quotient getInmostQuotient() {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
-
-    @Override
-    protected Term multiply(Term factor) {
-        throw new IllegalStateException("Case not yet implemented.");
-    }
 }

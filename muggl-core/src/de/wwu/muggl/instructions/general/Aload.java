@@ -1,10 +1,8 @@
 package de.wwu.muggl.instructions.general;
 
-import java.lang.Exception;
 import java.util.*;
 
 import de.wwu.muggl.configuration.Defaults;
-import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.instructions.interfaces.control.JumpException;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
@@ -306,7 +304,7 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 
 		if (!(loadedOrGeneratedElement instanceof Objectref)) {
 			if (arrayref instanceof FreeArrayref) {
-				Term encodedObject = encodeValueToTerm(loadedOrGeneratedElement);
+				Expression encodedObject = encodeValueToTerm(loadedOrGeneratedElement);
 				ArraySelect arraySelect = ArraySelect.newInstance(
 						arrayref,
 						arrayref instanceof FreeArrayref ? ((FreeArrayref) arrayref).getVarNameWithId() : arrayref.getName() + arrayref.getArrayrefId(),
@@ -342,21 +340,23 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 
 	private static int indexAccesses = 0;
 	protected Object initializeNewElementOfFreeArrayref(SearchingVM vm, FreeArrayref freeArrayref, Term index) {
-		ReferenceValue referenceValue = freeArrayref.getReferenceValue();
-		if (referenceValue.isPrimitive() || freeArrayref.isRepresentedTypeIsAPrimitiveWrapper()) {
-			// TODO in principle, more than int should be possible.
-			NumericVariable var = new NumericVariable(freeArrayref.getVarNameWithId() + "[" + index + "]_"+indexAccesses++, Expression.Type.INT.toByte());
-			return var;
-		} else {
-			return FreeObjectrefInitialisers.createRepresentationForFreeObject(vm, vm.getCurrentFrame().getMethod().getClassFile(), freeArrayref.getReferenceValue().getName());
+		Object result =  FreeObjectrefInitialisers.createRepresentationForFreeVariableOrField(
+				vm,
+				vm.getCurrentFrame().getMethod().getClassFile(),
+				freeArrayref.getElementDescriptor(),
+				freeArrayref.getVarNameWithId() + "[" + index + "]_"+indexAccesses++
+		);
+		if (result instanceof BooleanVariable) { // Boolean variables are seemingly not used really. In if-statements, a Int is expected.
+			result = new NumericVariable(freeArrayref.getVarNameWithId() + "[" + index + "]_"+indexAccesses++, Expression.Type.INT.toByte());
 		}
+		return result;
 	}
 
-	protected Term encodeValueToTerm(Object value) {
-		if (value instanceof Term) {
-			return (Term) value;
+	protected Expression encodeValueToTerm(Object value) {
+		if (value instanceof Term || value instanceof BooleanVariable) {
+			return (Expression) value;
 		}
-		Term result;
+		Expression result;
 		if (value instanceof Number) {
 			if (value instanceof Integer) {
 				result = IntConstant.getInstance(((Integer) value).intValue());
@@ -373,7 +373,7 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 		return result;
 	}
 
-	protected Term encodeObjectAsExpression(Objectref value) {
+	protected Expression encodeObjectAsExpression(Objectref value) {
 		// TODO Get fields of super- and subclass.
 		InitializedClass initializedClass = value.getInitializedClass();
 		Field[] fields = initializedClass.getClassFile().getFields();

@@ -176,7 +176,8 @@ public class FreeObjectrefInitialisers {
         FreeArrayref result = new FreeArrayref(
                 name,
                 referenceValue,
-                new NumericVariable(name+".length", Expression.Type.INT.toByte()));
+                new NumericVariable(name+".length", Expression.Type.INT.toByte()),
+                type.replaceFirst("\\[", ""));
         if (!isObjectArray) {
             result.setRepresentedTypeAsAPrimitiveWrapper(initializedClass);
         }

@@ -1,10 +1,7 @@
 package de.wwu.muggl.solvers.solver.constraints;
 
 import de.wwu.muggl.solvers.Solution;
-import de.wwu.muggl.solvers.expressions.ConstraintExpression;
-import de.wwu.muggl.solvers.expressions.Not;
-import de.wwu.muggl.solvers.expressions.Term;
-import de.wwu.muggl.solvers.expressions.TypeCheckException;
+import de.wwu.muggl.solvers.expressions.*;
 import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
 import de.wwu.muggl.vm.initialization.IReferenceValue;
 
@@ -12,13 +9,13 @@ public class ArraySelect extends ArrayConstraint {
     private final String varName;
     private final Term lengthTerm; // TODO keep?
 
-    private ArraySelect(IReferenceValue arrayref, String varName, Term index, Term lengthTerm, Term loadedValueTerm) {
-        super(arrayref, index, loadedValueTerm);
+    private ArraySelect(IReferenceValue arrayref, String varName, Term index, Term lengthTerm, Expression loadedValue) {
+        super(arrayref, index, loadedValue);
         this.varName = varName;
         this.lengthTerm = lengthTerm;
     }
 
-    public static ArraySelect newInstance(IReferenceValue arrayref, String varName, Term index, Term lengthTerm, Term loadedValue) {
+    public static ArraySelect newInstance(IReferenceValue arrayref, String varName, Term index, Term lengthTerm, Expression loadedValue) {
         return new ArraySelect(arrayref, varName, index, lengthTerm, loadedValue);
     }
 

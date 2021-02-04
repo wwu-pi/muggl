@@ -1,13 +1,9 @@
 package de.wwu.muggl.vm.initialization;
 
 import de.wwu.muggl.solvers.expressions.IntConstant;
-import de.wwu.muggl.solvers.expressions.NumericVariable;
 import de.wwu.muggl.solvers.expressions.Term;
-import de.wwu.muggl.vm.VirtualMachine;
-import sun.misc.VM;
 
 import java.util.*;
-import java.util.function.DoubleBinaryOperator;
 
 public class FreeArrayref extends ModifieableArrayref {
     public class UninitializedMarker {}
@@ -18,6 +14,7 @@ public class FreeArrayref extends ModifieableArrayref {
     // If a program explicitly stores values in the FreeArray (that means: they are not initialized free by
     // retrieving a value using load), the corresponding indices and values are stored here.
     protected LinkedHashMap<Term, Object> originalElements;
+    protected final String elementType;
 
     public FreeArrayref(FreeArrayref other) {
         super(other);
@@ -27,14 +24,16 @@ public class FreeArrayref extends ModifieableArrayref {
         originalElements = new LinkedHashMap<>(other.originalElements);
         concretized = other.concretized;
         representedTypeIsAPrimitiveWrapper = other.isRepresentedTypeIsAPrimitiveWrapper();
+        elementType = other.elementType;
     }
 
-    public FreeArrayref(String name, ReferenceValue referenceValue, Term length) {
+    public FreeArrayref(String name, ReferenceValue referenceValue, Term length, String elementType) {
         super(referenceValue, 0);
         this.name = name + "_" + this.getArrayrefId();
         this.lengthTerm = length;
-        this.elements = new LinkedHashMap<>();
+        elements = new LinkedHashMap<>();
         originalElements = new LinkedHashMap<>();
+        this.elementType = elementType;
         if (concretized) {
             if (!(lengthTerm instanceof IntConstant)) {
                 throw new IllegalStateException("Concretized free arrays should have constant length");
@@ -185,5 +184,9 @@ public class FreeArrayref extends ModifieableArrayref {
 
     public void setLengthTerm(Term newLengthTerm) {
         this.lengthTerm = newLengthTerm;
+    }
+
+    public String getElementDescriptor() {
+        return elementType;
     }
 }

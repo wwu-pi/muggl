@@ -1,10 +1,7 @@
 package de.wwu.muggl.solvers.solver.constraints;
 
 import de.wwu.muggl.solvers.Solution;
-import de.wwu.muggl.solvers.expressions.ConstraintExpression;
-import de.wwu.muggl.solvers.expressions.Not;
-import de.wwu.muggl.solvers.expressions.Term;
-import de.wwu.muggl.solvers.expressions.TypeCheckException;
+import de.wwu.muggl.solvers.expressions.*;
 import de.wwu.muggl.solvers.solver.tools.SubstitutionTable;
 import de.wwu.muggl.vm.initialization.IReferenceValue;
 
@@ -12,14 +9,14 @@ public class ArrayStore extends ArrayConstraint {
     private final String varName;
     private final Term lengthTerm; // TODO Keep?
 
-    public ArrayStore(IReferenceValue arrayref, String varName, Term index, Term lengthTerm, Term storedValueTerm) {
-        super(arrayref, index, storedValueTerm);
+    public ArrayStore(IReferenceValue arrayref, String varName, Term index, Term lengthTerm, Expression storedValue) {
+        super(arrayref, index, storedValue);
         this.varName = varName;
         this.lengthTerm = lengthTerm;
     }
 
-    public static ArrayStore newInstance(IReferenceValue arrayref, String varName, Term index, Term lengthTerm, Term storedValueTerm) {
-        return new ArrayStore(arrayref, varName, index, lengthTerm, storedValueTerm);
+    public static ArrayStore newInstance(IReferenceValue arrayref, String varName, Term index, Term lengthTerm, Expression storedValue) {
+        return new ArrayStore(arrayref, varName, index, lengthTerm, storedValue);
     }
 
     public String getName() {

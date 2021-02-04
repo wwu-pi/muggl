@@ -310,7 +310,7 @@ public abstract class Astore extends GeneralInstruction implements JumpException
 
 		if (!(elementToStore instanceof Objectref)) {
 			if (arrayref instanceof FreeArrayref) {
-				Term encodedObject = encodeValueToTerm(elementToStore);
+				Expression encodedObject = encodeValueToTerm(elementToStore);
 				ArrayStore arrayStore = ArrayStore.newInstance(
 						arrayref,
 						arrayref instanceof FreeArrayref ? ((FreeArrayref) arrayref).getVarNameWithId() : arrayref.getName() + arrayref.getArrayrefId(),
@@ -332,12 +332,12 @@ public abstract class Astore extends GeneralInstruction implements JumpException
 				GreaterOrEqual.newInstance(index, arrayref.getLengthTerm()));
 	}
 
-	protected Term encodeValueToTerm(Object value) {
+	protected Expression encodeValueToTerm(Object value) {
 		// TODO Refactor with Aload
 		if (value instanceof Term) {
 			return (Term) value;
 		}
-		Term result;
+		Expression result;
 		if (value instanceof Number) {
 			if (value instanceof Integer) {
 				result = IntConstant.getInstance(((Integer) value).intValue());
@@ -354,7 +354,7 @@ public abstract class Astore extends GeneralInstruction implements JumpException
 		return result;
 	}
 
-	protected Term encodeObjectAsExpression(Objectref value) {
+	protected Expression encodeObjectAsExpression(Objectref value) {
 		// TODO Refactor with Aload
 		// TODO Get fields of super- and subclass.
 		InitializedClass initializedClass = value.getInitializedClass();

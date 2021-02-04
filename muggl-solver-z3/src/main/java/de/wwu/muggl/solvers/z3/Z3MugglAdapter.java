@@ -94,11 +94,26 @@ public class Z3MugglAdapter {
 		}
 	}
 
+	protected Expr exprFromExpression(Expression expression) {
+		if (expression instanceof Term) {
+			return exprFromTerm((Term) expression);
+		} else if (expression instanceof ObjectExpression) {
+			throw new IllegalStateException("Not yet implemented.");
+		} else if (expression instanceof BooleanVariable) {
+			return context.mkBoolConst(((BooleanVariable) expression).getInternalName());
+		} else if (expression instanceof BooleanConstant) {
+			return context.mkBool(((BooleanConstant) expression).getValue());
+		} else {
+			throw new IllegalStateException("Not yet supported type of expression: " + expression);
+		}
+	}
+
 	private BoolExpr getArrayStoreExpr(ArrayStore arrayStore) {
 		IReferenceValue arrayref = arrayStore.getArrayref();
-		ArrayExpr array = getArrayExprForArrayref(arrayref, arrayStore.getValueTerm(), arrayStore.getName());
+		ArrayExpr array = getArrayExprForArrayref(arrayref, arrayStore.getValueExpression(), arrayStore.getName());
 		Expr indexExpr = exprFromTerm(arrayStore.getIndexTerm());
-		Expr storeValue = exprFromTerm(arrayStore.getValueTerm());
+
+		Expr storeValue = exprFromExpression(arrayStore.getValueExpression());
 		// Get the storeExpr which is equal to array, except that it has storeValue at indexExpr.
 		ArrayExpr storeExpr = context.mkStore(array, indexExpr, storeValue);
 		Stack<ArrayExpr> arrayExprsForArrayref = this.arrayrefsToMostRecentArrayExpr.get(arrayref);
@@ -111,17 +126,26 @@ public class Z3MugglAdapter {
 
 	private BoolExpr getArrayAccessExpr(ArraySelect arraySelect) {
 		IReferenceValue arrayref = arraySelect.getArrayref();
-		ArrayExpr array = getArrayExprForArrayref(arrayref, arraySelect.getValueTerm(), arraySelect.getName());
+		ArrayExpr array = getArrayExprForArrayref(arrayref, arraySelect.getValueExpression(), arraySelect.getName());
 		Expr indexExpr = exprFromTerm(arraySelect.getIndexTerm());
 		Expr selectExpr = context.mkSelect(array, indexExpr);
-		Expr loadedValue = exprFromTerm(arraySelect.getValueTerm());
+		Expr loadedValue = exprFromExpression(arraySelect.getValueExpression());
 		BoolExpr equals = context.mkEq(selectExpr, loadedValue);
 		return equals;
 	}
 
-	private ArrayExpr newArrayExprFromTerm(String varName, Term value) {
-		// TODO More than integer should be possible.
-		return context.mkArrayConst(varName + "_" + arrayId++, context.mkIntSort(), context.mkIntSort());
+	private ArrayExpr newArrayExprFromTerm(String varName, Expression value) {
+		Sort arraySort;
+		if (value instanceof Term) {
+			arraySort = context.mkIntSort();
+		} else if (value instanceof BooleanVariable || value instanceof BooleanConstant) {
+			arraySort = context.mkBoolSort();
+		} else if (value instanceof ObjectExpression) {
+			throw new IllegalStateException("Not yet implemented.");
+		} else {
+			throw new IllegalStateException("Unknown case: " + value);
+		}
+		return context.mkArrayConst(varName + "_" + arrayId++, context.mkIntSort(), arraySort);
 	}
 
 	protected int arrayId = 0;
@@ -129,7 +153,7 @@ public class Z3MugglAdapter {
 	// For each new ArrayStore-constraint, replace the current ArrayExpr with the new resulting ArrayExpr.
 	// For each backtracking-step in which a ArrayStore-constraint is popped, also pop the corresponding ArrayExpr.
 	protected final Map<IReferenceValue, Stack<ArrayExpr>> arrayrefsToMostRecentArrayExpr = new HashMap<>();
-	private ArrayExpr getArrayExprForArrayref(IReferenceValue arrayref, Term storedValue, String varName) {
+	private ArrayExpr getArrayExprForArrayref(IReferenceValue arrayref, Expression storedValue, String varName) {
 		Stack<ArrayExpr> arraysForArrayref = arrayrefsToMostRecentArrayExpr.get(arrayref);
 		if (arraysForArrayref == null) {
 			arraysForArrayref = new Stack<>();
@@ -180,8 +204,6 @@ public class Z3MugglAdapter {
 			return numericConstantFromTerm((NumericConstant) t);
 		} else if (t instanceof BinaryOperation) {
 			return exprFromBinaryOperation((BinaryOperation) t);
-		} else if (t instanceof ObjectExpression) {
-			throw new UnsupportedOperationException("Case not handled: " + t);
 		} else {
 			throw new UnsupportedOperationException("Case not handled: " + t);
 		}
