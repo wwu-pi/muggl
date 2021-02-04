@@ -122,6 +122,12 @@ public class Z3SolverManager extends SolverManagerWithTypeConstraints implements
 		listeners.fireFinalize(this);
 		finalized = true;
 		TesttoolConfig.getInstance().finalize();
+		z3.solver.reset();
+		z3 = new Z3MugglAdapter();
+		arrayConstraintAccumulator = new ArrayConstraintAccumulator(this);
+		addedConstraints.clear();
+		satisfiabilityWasCalculated = false;
+		isSatisfiable = false;
 		super.finalize();
 	}
 

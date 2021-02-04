@@ -12,19 +12,19 @@ import java.util.function.DoubleBinaryOperator;
 public class FreeArrayref extends ModifieableArrayref {
     public class UninitializedMarker {}
     private Term lengthTerm;
-    private Map<Term, Object> elements;
+    private LinkedHashMap<Term, Object> elements;
     private final String name;
     private boolean concretized;
     // If a program explicitly stores values in the FreeArray (that means: they are not initialized free by
     // retrieving a value using load), the corresponding indices and values are stored here.
-    protected Map<Term, Object> originalElements;
+    protected LinkedHashMap<Term, Object> originalElements;
 
     public FreeArrayref(FreeArrayref other) {
         super(other);
         name = other.getName();
         lengthTerm = other.getLengthTerm();
-        elements = new HashMap<>(other.getFreeArrayElements());
-        originalElements = new HashMap<>(other.originalElements);
+        elements = new LinkedHashMap<>(other.getFreeArrayElements());
+        originalElements = new LinkedHashMap<>(other.originalElements);
         concretized = other.concretized;
         representedTypeIsAPrimitiveWrapper = other.isRepresentedTypeIsAPrimitiveWrapper();
     }
@@ -33,8 +33,8 @@ public class FreeArrayref extends ModifieableArrayref {
         super(referenceValue, 0);
         this.name = name + "_" + this.getArrayrefId();
         this.lengthTerm = length;
-        this.elements = new HashMap<>();
-        originalElements = new HashMap<>();
+        this.elements = new LinkedHashMap<>();
+        originalElements = new LinkedHashMap<>();
         if (concretized) {
             if (!(lengthTerm instanceof IntConstant)) {
                 throw new IllegalStateException("Concretized free arrays should have constant length");
@@ -47,7 +47,7 @@ public class FreeArrayref extends ModifieableArrayref {
             throw new IllegalStateException("Number of elements and length must equal.");
         }
         concretized = true;
-        elements = new HashMap<>();
+        elements = new LinkedHashMap<>();
         lengthTerm = length;
         for (int i = 0; i < values.size(); i++) {
             putElement(i, values.get(i));
@@ -167,7 +167,7 @@ public class FreeArrayref extends ModifieableArrayref {
 
     @Override
     public String toString() {
-        return "FreeArrayref{name=" + getVarNameWithId() + ",elements=" + elements + ",length=" + lengthTerm + "}";
+        return "FreeArrayref{name=" + getVarNameWithId() + ",elements=" + elements + ",originalElements=" + originalElements + ",length=" + lengthTerm + "}";
     }
 
     @Override
@@ -179,7 +179,7 @@ public class FreeArrayref extends ModifieableArrayref {
         }
     }
 
-    public void setFreeArrayElements(Map<Term, Object> newElements) {
+    public void setFreeArrayElements(LinkedHashMap<Term, Object> newElements) {
         this.elements = newElements;
     }
 

@@ -5,7 +5,6 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.Get;
 import de.wwu.muggl.instructions.interfaces.Instruction;
 import de.wwu.muggl.vm.Frame;
-import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
@@ -71,8 +70,8 @@ public class Getfield extends Get implements Instruction {
 			// Get the fields' value.
 			Object value = getFieldValue(frame);
 
-			if (value instanceof FreeObjectrefInitialisers.LAZY_FIELD_MARKER) {
-				FreeObjectrefInitialisers.LAZY_FIELD_MARKER marker = (FreeObjectrefInitialisers.LAZY_FIELD_MARKER) value;
+			if (value instanceof FreeObjectrefInitialisers.LazyFieldMarker) {
+				FreeObjectrefInitialisers.LazyFieldMarker marker = (FreeObjectrefInitialisers.LazyFieldMarker) value;
 				value = marker.replaceLazyMarker();
 			}
 

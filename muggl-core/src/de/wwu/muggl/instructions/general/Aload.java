@@ -348,10 +348,7 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 			NumericVariable var = new NumericVariable(freeArrayref.getVarNameWithId() + "[" + index + "]_"+indexAccesses++, Expression.Type.INT.toByte());
 			return var;
 		} else {
-			return FreeObjectrefInitialisers.createFreeObjectWithFreeFields(
-					vm,
-					freeArrayref.getReferenceValue().getInitializedClass().getClassFile(),
-					freeArrayref.getName() + "[" + index + "]");
+			return FreeObjectrefInitialisers.createRepresentationForFreeObject(vm, vm.getCurrentFrame().getMethod().getClassFile(), freeArrayref.getReferenceValue().getName());
 		}
 	}
 

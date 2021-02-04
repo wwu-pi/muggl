@@ -5,7 +5,6 @@ import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.VirtualMachine;
 import de.wwu.muggl.vm.VmSymbols;
 import de.wwu.muggl.vm.classfile.ClassFile;
-import de.wwu.muggl.vm.classfile.ClassFileException;
 import de.wwu.muggl.vm.classfile.structures.Field;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
 import de.wwu.muggl.vm.execution.ExecutionException;
@@ -17,22 +16,17 @@ public class FreeObjectrefInitialisers {
     // When executing getfield-bytecode on an Objectref, this marker will be substituted by calling
     // createRepresentationForFreeVariableOrField(...). The substituted value will be stored. This enables copies which
     // were created in SolutionIterator (to represent the inputs of a method-call) to get the initial values.
-    public static final class LAZY_FIELD_MARKER {
+    public static final class LazyFieldMarker {
         public final FreeObjectref initForObjectref;
         public final Field initForField;
         private Object substituteFor = null;
-        private boolean substituted = false;
 
-        private LAZY_FIELD_MARKER(FreeObjectref initForObjectref, Field initForField) {
+        private LazyFieldMarker(FreeObjectref initForObjectref, Field initForField) {
             this.initForField = initForField;
             this.initForObjectref = initForObjectref;
         }
 
-        public void setSubstituteFor(Object substituteFor) {
-            if (substituted) {
-                throw new IllegalStateException("You should only substitute a lazy placeholder once.");
-            }
-            substituted = true;
+        private void setSubstituteFor(Object substituteFor) {
             this.substituteFor = substituteFor;
         }
 
@@ -40,50 +34,29 @@ public class FreeObjectrefInitialisers {
             return substituteFor;
         }
 
-        private static LAZY_FIELD_MARKER get(FreeObjectref initForObjectref, Field initForField) {
-            return new LAZY_FIELD_MARKER(initForObjectref, initForField);
+        private static LazyFieldMarker get(FreeObjectref initForObjectref, Field initForField) {
+            return new LazyFieldMarker(initForObjectref, initForField);
         }
 
         public Object replaceLazyMarker() {
-            if (substituted){
-                this.initForObjectref.putField(initForField, substituteFor);
-                return substituteFor;
+            SearchingVM vm = (SearchingVM) VirtualMachine.getLatestVM();
+            Object value;
+            if (substituteFor != null) {
+                value = substituteFor;
             } else {
-                Object value = FreeObjectrefInitialisers.createRepresentationForFreeVariableOrField(
-                        (SearchingVM) VirtualMachine.getLatestVM(),
-                        this.initForObjectref.getInitializedClass().getClassFile(),
+                value = FreeObjectrefInitialisers.createRepresentationForFreeVariableOrField(
+                        vm,
+                        vm.getCurrentFrame().getMethod().getClassFile(),
                         this.initForField.getDescriptor(),
                         this.initForField.getName()
                 );
-                this.initForObjectref.putField(this.initForField, value);
-                this.initForObjectref.addSubstitutedLazyMarker(this);
                 this.setSubstituteFor(value);
-                return value;
+                this.initForObjectref.addSubstitutedLazyMarker(this);
             }
-        }
-
-        public boolean isSubstituted() {
-            return substituted;
+            this.initForObjectref.putField(this.initForField, value);
+            return value;
         }
     }
-
-    public static Object createFreeObjectWithFreeFields(SearchingVM vm, ClassFile classFile, String name) {
-        // Get and check the initialized class.
-        InitializedClass initializedClass = classFile.getTheInitializedClass(vm);
-        // Get the object reference.
-        FreeObjectref objectref = initializedClass.getANewFreeObject();
-        Field[] fields = classFile.getFields();
-        for (Field f : fields) {
-            if (f.getName().contains("$this0")) {
-                continue;
-            }
-            Object fieldObjectref = createRepresentationForFreeVariableOrField(vm, f.getClassFile(), f.getDescriptor(), name + f.getName());
-            objectref.putField(f, fieldObjectref);
-        }
-        return objectref;
-    }
-
-
 
     public static Object createRepresentationForFreeVariableOrField(SearchingVM vm, ClassFile fromClass, String type, String name) {
         // Convert string type to expression type.
@@ -139,7 +112,8 @@ public class FreeObjectrefInitialisers {
         return freeVariableRepresentation;
     }
 
-    private static FreeObjectref createRepresentationForFreeObject(SearchingVM vm, ClassFile fromClass, String type) {
+    public static FreeObjectref createRepresentationForFreeObject(SearchingVM vm, ClassFile fromClass, String type) {
+
         ClassFile classFile = resolveOrThrowException(vm, fromClass, type);
         // Get an uninitialised(!) Objectref.
         FreeObjectref anObjectref = vm.getAFreeObjectref(classFile);
@@ -149,17 +123,20 @@ public class FreeObjectrefInitialisers {
         // - the instance one is not called on purpose, see paper.
 
         for (Field field : classFile.getFields()) {
+            if (field.getName().contains("$this0")) {
+                continue;
+            }
             if (anObjectref.hasValueFor(field)) {
                 continue;
             }
             // Initialise uninitialised fields with lazy markers.
-            anObjectref.putField(field, LAZY_FIELD_MARKER.get(anObjectref, field));
+            anObjectref.putField(field, LazyFieldMarker.get(anObjectref, field));
         }
         return anObjectref;
     }
 
-    public static LAZY_FIELD_MARKER initializeLazyMarker(FreeObjectref freeObjectref, Field field) {
-        LAZY_FIELD_MARKER result = LAZY_FIELD_MARKER.get(freeObjectref, field);
+    public static LazyFieldMarker initializeLazyMarker(FreeObjectref freeObjectref, Field field) {
+        LazyFieldMarker result = LazyFieldMarker.get(freeObjectref, field);
         freeObjectref.putField(field, result);
         return result;
     }

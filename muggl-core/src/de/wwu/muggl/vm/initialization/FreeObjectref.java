@@ -32,7 +32,7 @@ public class FreeObjectref extends Objectref {
      */
     private Map<Field, Object> memorizedVariables = new HashMap<>();
 
-    private Map<Field, FreeObjectrefInitialisers.LAZY_FIELD_MARKER> substitutedMarkers = new HashMap<>();;
+    private Map<Field, FreeObjectrefInitialisers.LazyFieldMarker> substitutedMarkers = new HashMap<>();;
 
     /**
      * Private constructor to get concrete instances of an initialized class. These instances
@@ -61,9 +61,10 @@ public class FreeObjectref extends Objectref {
 
     public FreeObjectref(FreeObjectref other) {
         this(other.getInitializedClass(), other.isPrimitive());
-        possibleTypes = new HashSet<>(other.getPossibleTypes());
-        disallowedTypes = new HashSet<>(other.getDisallowedTypes());
         fields = new HashMap<>(other.getFields());
+
+        applyTypeConstraint(new HashSet<>(other.possibleTypes), new HashSet<>(other.disallowedTypes));
+
         memorizedVariables = new HashMap<>(other.memorizedVariables);
         substitutedMarkers = new HashMap<>(other.substitutedMarkers);
     }
@@ -143,18 +144,18 @@ public class FreeObjectref extends Objectref {
         }
     }
 
-    public void addSubstitutedLazyMarker(FreeObjectrefInitialisers.LAZY_FIELD_MARKER marker) {
+    public void addSubstitutedLazyMarker(FreeObjectrefInitialisers.LazyFieldMarker marker) {
         if (marker.initForObjectref != this) {
             throw new IllegalStateException("The marker should be added for the represented FreeObjectref.");
         }
         substitutedMarkers.put(marker.initForField, marker);
     }
 
-    public FreeObjectrefInitialisers.LAZY_FIELD_MARKER getSubstitutedMarker(Field f) {
+    public FreeObjectrefInitialisers.LazyFieldMarker getSubstitutedMarker(Field f) {
         return substitutedMarkers.get(f);
     }
 
-    public Map<Field, FreeObjectrefInitialisers.LAZY_FIELD_MARKER> getSubstitutedMarkers() {
+    public Map<Field, FreeObjectrefInitialisers.LazyFieldMarker> getSubstitutedMarkers() {
         return substitutedMarkers;
     }
 
