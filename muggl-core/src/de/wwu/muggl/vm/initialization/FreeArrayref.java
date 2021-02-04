@@ -113,8 +113,7 @@ public class FreeArrayref extends ModifieableArrayref {
     @Override
     public void putElement(int index, Object element) {
         if (concretized) {
-            // TODO Check element
-            elements.put(IntConstant.getInstance(index), element);
+            putElementIntoFreeArray(IntConstant.getInstance(index), element);
         } else {
             throw new UnsupportedOperationException("Not supported.");
         }

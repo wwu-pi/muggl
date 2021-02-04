@@ -287,11 +287,10 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 				GreaterOrEqual.newInstance(index, arrayref.getLengthTerm()));
 	}
 
-	protected ConstraintExpression getIndexInBoundsConstraint(SearchingVM vm, Arrayref arrayref, Term index, ArrayLoadMarker marker) throws ExecutionException {
+	protected ConstraintExpression getIndexInBoundsConstraint(SearchingVM vm, Arrayref arrayref, Term index, ArrayLoadMarker marker) throws ExecutionException, TimeoutException, SolverUnableToDecideException {
 		ConstraintExpression indexConstraint = And.newInstance(
 				LessThan.newInstance(index, arrayref.getLengthTerm()),
 				GreaterOrEqual.newInstance(index, IntConstant.ZERO));
-
 		Object loadedOrGeneratedElement = getElementFromArrayAtIndex(arrayref, index);
 
 		if (loadedOrGeneratedElement instanceof FreeArrayref.UninitializedMarker) {
@@ -304,13 +303,31 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 
 		if (!(loadedOrGeneratedElement instanceof Objectref)) {
 			if (arrayref instanceof FreeArrayref) {
-				Expression encodedObject = encodeValueToTerm(loadedOrGeneratedElement);
-				ArraySelect arraySelect = ArraySelect.newInstance(
+				ArraySelect arraySelect;
+				Expression encodedObject = encodeValueToExpression(loadedOrGeneratedElement);
+				arraySelect = ArraySelect.newInstance(
 						arrayref,
 						arrayref instanceof FreeArrayref ? ((FreeArrayref) arrayref).getVarNameWithId() : arrayref.getName() + arrayref.getArrayrefId(),
 						index,
 						arrayref.getLengthTerm(),
 						encodedObject);
+				if (!vm.getSolverManager().checkSatWithNewConstraintAndRemove(arraySelect)) {
+					// This can only evaluate to false if an index term has been overwritten by a ArrayStore beforehand.
+					// In this case, we should replace the obsolete array index. For labelling, this is not a problem
+					// since a FreeArrayref stores its elements in a LinkedHashMap so that elements which were added
+					// later on will automatically overwrite the corresponding elements which have been invalidated.
+					FreeArrayref freeArrayref = (FreeArrayref) arrayref;
+					// Overwrite previous value with new initialized free variable
+					Object replacementValue = initializeNewElementOfFreeArrayref(vm, freeArrayref, index);
+					freeArrayref.putElementIntoFreeArray(index, replacementValue);
+					encodedObject = encodeValueToExpression(replacementValue);
+					arraySelect = ArraySelect.newInstance(
+							arrayref,
+							freeArrayref.getVarNameWithId(),
+							index,
+							arrayref.getLengthTerm(),
+							encodedObject);
+				}
 				return And.newInstance(indexConstraint, arraySelect);
 			} else { // TODO enable the same for regular arrays (?) implicitly use free arrays with pre-initialized values
 				return indexConstraint;
@@ -352,7 +369,7 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 		return result;
 	}
 
-	protected Expression encodeValueToTerm(Object value) {
+	protected Expression encodeValueToExpression(Object value) {
 		if (value instanceof Term || value instanceof BooleanVariable) {
 			return (Expression) value;
 		}
