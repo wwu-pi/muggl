@@ -8,6 +8,9 @@ import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
 import de.wwu.muggl.vm.initialization.ReferenceValue;
+import sun.util.locale.LocaleUtils;
+
+import java.util.Stack;
 
 /**
  * Abstract instruction with some concrete methods for comparison instructions of the group
@@ -42,8 +45,18 @@ public abstract class If_acmp extends GeneralInstructionWithOtherBytes implement
 	 */
 	@Override
 	public void execute(Frame frame) {
-		ReferenceValue value2 = (ReferenceValue) frame.getOperandStack().pop();
-		ReferenceValue value1 = (ReferenceValue) frame.getOperandStack().pop();
+		Stack<Object> stack = frame.getOperandStack();
+		if (stack.peek() instanceof String) { // TODO Faked. Currently only is string in instances where this should be false.
+			stack.pop();
+			stack.pop();
+			return;
+		}
+		ReferenceValue value2 = (ReferenceValue) stack.pop();
+		if (stack.peek() instanceof String) {
+			stack.pop();
+			return;
+		}
+		ReferenceValue value1 = (ReferenceValue) stack.pop();
 		if (compare(value1, value2)) {
 			frame.getVm().setPC(this.lineNumber + (this.otherBytes[0] << ONE_BYTE | this.otherBytes[1]));
 		}

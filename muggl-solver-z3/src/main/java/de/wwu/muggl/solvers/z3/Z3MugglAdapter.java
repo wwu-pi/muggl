@@ -50,7 +50,7 @@ public class Z3MugglAdapter {
 
 	private BoolExpr getConstraintExpression(ConstraintExpression ce) {
 		if (ce instanceof Not) {
-			throw new UnsupportedOperationException("Case not yet regarded."); // TODO
+			return context.mkNot((BoolExpr) exprFromExpression(((Not) ce).getVar()));
 		} else if (ce instanceof BooleanEqual) {
 			throw new UnsupportedOperationException("Case not yet regarded."); // TODO
 		} else if (ce instanceof BooleanNotEqual) {
@@ -100,7 +100,13 @@ public class Z3MugglAdapter {
 		} else if (expression instanceof ObjectExpression) {
 			throw new IllegalStateException("Not yet implemented.");
 		} else if (expression instanceof BooleanVariable) {
-			return context.mkBoolConst(((BooleanVariable) expression).getInternalName());
+			BoolExpr result = (BoolExpr) valueConnections.getVariable((BooleanVariable) expression);
+			if (result != null) {
+				return result;
+			}
+			result = context.mkBoolConst(((BooleanVariable) expression).getInternalName());
+			valueConnections.addVariable((BooleanVariable) expression, result);
+			return result;
 		} else if (expression instanceof BooleanConstant) {
 			return context.mkBool(((BooleanConstant) expression).getValue());
 		} else {
@@ -169,7 +175,7 @@ public class Z3MugglAdapter {
 			BooleanConstant temp = (BooleanConstant) sce;
 			return context.mkBool(temp.getValue());
 		} else if (sce instanceof BooleanVariable) {
-			throw new UnsupportedOperationException("Case not yet regarded."); // TODO
+			return (BoolExpr) exprFromExpression(sce);
 		} else {
 			throw new UnsupportedOperationException("Case not handled: " + sce);
 		}

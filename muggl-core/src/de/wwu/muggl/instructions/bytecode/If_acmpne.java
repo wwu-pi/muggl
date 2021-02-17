@@ -44,7 +44,7 @@ public class If_acmpne extends If_acmp implements Instruction {
 	 * @return true If the expected condition is met, false otherwise.
 	 */
 	@Override
-	protected boolean compare(ReferenceValue value1, ReferenceValue value2) {		
+	protected boolean compare(ReferenceValue value1, ReferenceValue value2) {
 		if (value1 instanceof Objectref && value2 instanceof Objectref) {
 			// impossible to have the same object representing the <array>.getclass, so fake here
 			Objectref o1 = (Objectref) value1;
@@ -54,9 +54,7 @@ public class If_acmpne extends If_acmp implements Instruction {
 						.getMirroredMugglArray().getReferenceValue().getInitializedClass().getClassFile();
 			}
 		}
-		
-		if (value1 != value2) return true;
-		return false;
+		return value1 != value2;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import de.wwu.muggl.instructions.general.Xor;
 import de.wwu.muggl.instructions.interfaces.Instruction;
+import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 
@@ -23,7 +24,11 @@ public class IXor extends Xor implements Instruction {
 	@Override
 	public void execute(Frame frame) {
 		Stack<Object> stack = frame.getOperandStack();
-		stack.push((Integer) stack.pop() ^ (Integer) stack.pop());
+		Object value2 = stack.pop();
+		Object value1 = stack.pop();
+		int val1 = value1 instanceof IntConstant ? ((IntConstant) value1).getValue() : (Integer) value1;
+		int val2 = value2 instanceof IntConstant ? ((IntConstant) value2).getValue() : (Integer) value2;
+		stack.push(val2 ^ val1);
 	}
 
 	/**

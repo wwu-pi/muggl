@@ -4,6 +4,7 @@ import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.interfaces.control.JumpConditional;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.ClassFile;
@@ -55,6 +56,8 @@ public abstract class If extends GeneralInstructionWithOtherBytes implements Jum
 		int value;
 		if (rawValue instanceof Boolean)
 			value = (boolean) rawValue ? 1 : 0;
+		else if (rawValue instanceof BooleanConstant)
+			value = ((BooleanConstant) rawValue).getValue() ? 1 : 0;
 		else if (rawValue instanceof IntConstant)
 		    value = ((IntConstant) rawValue).getIntValue();
         else

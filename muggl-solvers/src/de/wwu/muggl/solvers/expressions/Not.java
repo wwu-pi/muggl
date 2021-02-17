@@ -128,4 +128,8 @@ public class Not extends ConstraintExpression{
     public String toTexString(boolean useInternalVariableNames) {
 	return "\\neg (" + var.toTexString(useInternalVariableNames) + ")";
     }
+
+    public BooleanVariable getVar() {
+        return var;
+    }
 }

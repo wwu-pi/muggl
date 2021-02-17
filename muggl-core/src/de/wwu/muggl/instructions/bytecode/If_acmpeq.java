@@ -44,8 +44,7 @@ public class If_acmpeq extends If_acmp implements Instruction {
 	 */
 	@Override
 	protected boolean compare(ReferenceValue value1, ReferenceValue value2) {
-		if (value1 == value2) return true;
-		return false;
+		return value1 == value2;
 	}
 
 }

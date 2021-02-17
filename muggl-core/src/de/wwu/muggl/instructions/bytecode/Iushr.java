@@ -26,9 +26,12 @@ public class Iushr extends Shift implements Instruction {
 	@Override
 	public void execute(Frame frame) {
 		Stack<Object> stack = frame.getOperandStack();
-		Integer value2 = (Integer) stack.pop();
-		Integer value1 = (Integer) stack.pop();
-		stack.push(value1 >>> value2);
+		Object value2 = stack.pop();
+		Object value1 = stack.pop();
+		int val1 = value1 instanceof IntConstant ? ((IntConstant) value1).getValue() : (Integer) value1;
+		int val2 = value2 instanceof IntConstant ? ((IntConstant) value2).getValue() : (Integer) value2;
+
+		stack.push(val1 >>> val2);
 	}
 
 	/**

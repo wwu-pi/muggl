@@ -2,6 +2,7 @@ package de.wwu.muggl.vm.initialization;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -345,4 +346,13 @@ public class Objectref extends FieldContainer implements ReferenceValue {
         types.add(getInitializedClass().getClassFile().getName());
         return types;
     }
+
+    public Field getFieldForName(String name) {
+		for (Field f : getInitializedClass().getClassFile().getFields()) {
+			if (f.getName().equals(name)) {
+				return f;
+			}
+		}
+		return null;
+	}
 }

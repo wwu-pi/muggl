@@ -275,7 +275,7 @@ public class Frame {
 	 */
 	@Override
 	public String toString() {
-		return "Frame for " + this.method.getFullNameWithParameterTypesAndNames() + " at pc "
+		return "Frame for " + (method != null ? this.method.getFullNameWithParameterTypesAndNames() : " currently uninitialized method") + " at pc "
 				+ this.pc + ".";
 	}
 
