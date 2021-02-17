@@ -1,5 +1,6 @@
 package de.wwu.muggl.instructions.general;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,7 @@ import de.wwu.muggl.instructions.interfaces.data.VariableDefining;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
 import de.wwu.muggl.solvers.expressions.*;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.StackToTrail;
+import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.StackWithTrail;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.VmSymbols;
@@ -26,10 +28,7 @@ import de.wwu.muggl.vm.classfile.structures.constants.ConstantMethodref;
 import de.wwu.muggl.vm.exceptions.ExceptionHandler;
 import de.wwu.muggl.vm.exceptions.NoExceptionHandlerFoundException;
 import de.wwu.muggl.vm.exceptions.VmRuntimeException;
-import de.wwu.muggl.vm.execution.ExecutionException;
-import de.wwu.muggl.vm.execution.ForwardingUnsuccessfulException;
-import de.wwu.muggl.vm.execution.NativeWrapper;
-import de.wwu.muggl.vm.execution.ResolutionAlgorithms;
+import de.wwu.muggl.vm.execution.*;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.FreeObjectref;
@@ -459,7 +458,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 			}
 		}
 
-		
+
 		// Is the method native?
 		if (actualMethod.isAccNative()) {
 			if (Options.getInst().doNotHaltOnNativeMethods) {
@@ -505,7 +504,7 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 						if (!frame.isHiddenFrame()
 								&& Globals.getInst().logBasedOnWhiteBlacklist(actualMethod.getPackageAndName()).orElse(true))
 							Globals.getInst().execLogger
-									.debug("Forwarded the native method1 " + actualMethod.getPackageAndName() + " to a wrapper.");
+									.debug("Forwarded the native method " + actualMethod.getPackageAndName() + " to a wrapper.");
 						
 						// Release the monitor if it is synchronized.
 						if (actualMethod.isAccSynchronized()) {
@@ -570,6 +569,23 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 			// The method is native but there is no way of handling it.
 			throw new ExecutionException("Error while executing instruction " + getName()
 					+ ": Execution of native methods is impossible.");
+		}
+
+		if (actualMethod.getPackageAndName().equals(Field.class.getName() + ".get") && actualMethod.getNumberOfArguments() == 1) {
+			/*
+			 * If required, get the object reference and drop the first parameter (the
+			 * object reference).
+			 */
+			// Try to forward.
+			try {
+				// Save current frame...
+				Object val = NativeJavaLangReflectField.get(frame, (Objectref) parameters[0], (Objectref) parameters[1]);
+				stack.push(val);
+			} catch (Exception e) {
+				throw new IllegalStateException(e);
+			}
+			frame.setPc(frame.getVm().getPc() + 1 + this.getNumberOfOtherBytes());
+			return;
 		}
 
 		// Save current frame...

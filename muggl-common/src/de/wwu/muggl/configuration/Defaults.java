@@ -289,6 +289,8 @@ public final class Defaults {
 
 	public static final String SOLVER_MANAGER = Z3_MANAGER;
 
+	public static boolean DELEGATE_NON_SEARCH_REGION_TO_HOST_DURING_TESTS = true;
+
 	/**
 	 * @see Options#actualCliPrinting
 	 */

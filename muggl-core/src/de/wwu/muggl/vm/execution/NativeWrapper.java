@@ -70,6 +70,7 @@ public class NativeWrapper {
 		//NativeJavaLangSystem.registerNatives(); NOT registered here, because a valid VM must be present for initialisation!
 		NativeJavaLangThrowable.registerNatives();
 		NativeJavaSecurityAccessController.registerNatives();
+		NativeJavaLangReflectField.registerNatives();
 		//NativeSunMiscVM NOT registered here, because a valid VM must be present for initialisation!
 		Globals.getInst().logger.debug("Native method handlers registered");
 	}
@@ -485,7 +486,7 @@ public class NativeWrapper {
 					frame.getOperandStack().push(fieldVal);			
 				}
 				else
-					frame.getOperandStack().push(null);
+					frame.getOperandStack().push(parameters[0]);
 				return true;
 			}else if(method.getName().equals("getInt")){
 				if(parameters[0] instanceof Arrayref) {
