@@ -1,6 +1,8 @@
 package de.wwu.muggl.instructions.general;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +40,7 @@ import de.wwu.muggl.vm.loading.MugglClassLoader;
 import de.wwu.muli.searchtree.Choice;
 import de.wwu.muli.searchtree.Fail;
 import de.wwu.muli.searchtree.ST;
+import sun.reflect.ReflectionFactory;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
@@ -448,6 +451,61 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
             // The traditional way.
             actualMethod = selectMethod(frame, method, methodClassFile, objectrefClassFile);
         }
+
+		if (frame.getVm().getGenerateTestCases()
+				&& !((SearchingVM) frame.getVm()).isInSearch()
+				&& frame.getMethod() == frame.getVm().getInitialMethod()) {
+			try {
+				// If Muli is used to generate test cases and we are not currently in symbolic mode, we can delegate the
+				// execution of all methods which do not start an own search region (thus enabling symbolic mode) to the
+				// host vm.
+				// This means that, when running test mode, main-method-functions only start either a new search region,
+				// or a deterministic method.
+
+				MugglAndHostJvmConversions newConversion = new MugglAndHostJvmConversions();
+				Object[] hostJvmParameters = Arrays.stream(parameters).map(newConversion::toObjectOfHostJvm).toArray();
+				Class<?>[] parameterTypes = Arrays.stream(hostJvmParameters).map(Object::getClass).toArray(Class<?>[]::new);
+				boolean isStaticMethod = actualMethod.isAccStatic();
+				Object invokingObject = null;
+				Class<?> invokingObjectClass = actualMethod.getClassFile().getInstanceOfClass();
+
+				if (!isStaticMethod) {
+					invokingObject = hostJvmParameters[0];
+					invokingObjectClass = parameterTypes[0];
+					Class<?>[] adjustedParameterTypes = new Class<?>[parameterTypes.length - 1];
+					Object[] adjustedParameters = new Object[hostJvmParameters.length - 1];
+					for (int i = 1; i < hostJvmParameters.length; i++) {
+						adjustedParameterTypes[i - 1] = parameterTypes[i];
+						adjustedParameters[i - 1] = hostJvmParameters[i];
+					}
+					hostJvmParameters = adjustedParameters;
+					parameterTypes = adjustedParameterTypes;
+				}
+
+				try {
+					java.lang.reflect.Method m = invokingObjectClass.getDeclaredMethod(actualMethod.getName(), parameterTypes);
+					boolean isAccessible = m.isAccessible();
+					m.setAccessible(true);
+					Object result = m.invoke(invokingObject, hostJvmParameters);
+					m.setAccessible(isAccessible);
+					if (m.getReturnType() != void.class) {
+						stack.push(newConversion.toObjectInMugglJvm(result, m.getReturnType().isPrimitive()));
+					}
+					frame.setPc(frame.getVm().getPc() + 1 + this.getNumberOfOtherBytes());
+					return;
+				} catch (NoSuchMethodException e) {
+					System.out.println("No such method found: " + actualMethod.getName() + ", for object: " + invokingObject
+							+ "." + " Continuing execution of Muggl VM.");
+				} catch (InvocationTargetException | IllegalAccessException e) {
+					throw new IllegalStateException(e);
+				}
+			} catch (VerifyError e) {System.out.println("Delegation to Host JVM failed, continuing execution of Muggl VM.");}
+			catch (StackOverflowError e) {
+				e.printStackTrace();
+				throw e;
+			}
+		}
+
 
 		// Enter the monitor if the method is synchronized.
 		if (actualMethod.isAccSynchronized()) {
