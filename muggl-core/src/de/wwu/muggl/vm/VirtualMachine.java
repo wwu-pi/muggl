@@ -157,6 +157,16 @@ public abstract class VirtualMachine extends Thread {
 	 */
 	private static Objectref threadObj = null;
 
+	private boolean generateTestCases = false;
+
+	public void setGenerateTestCases(boolean b) {
+		generateTestCases = true;
+	}
+
+	public boolean getGenerateTestCases() {
+		return generateTestCases;
+	}
+
 	/**
 	 * System properties for the Muggl VM. Extracted from the mandatory properties in the Java API
 	 */
@@ -816,7 +826,6 @@ public abstract class VirtualMachine extends Thread {
 				executeInstruction(instruction);
 			} catch (ExecutionException e) {
 				treatExceptionDuringInstruction(instruction, method, currentFrame, e);
-				throw e;
 			}
 			afterExecuteInstruction(instruction, method, currentFrame);
 
@@ -868,8 +877,8 @@ public abstract class VirtualMachine extends Thread {
 	 * @param frame The frame
 	 * @param e The exception
 	 */
-	protected void treatExceptionDuringInstruction(Instruction instruction, Method method, Frame frame, ExecutionException e) {
-		return;
+	protected void treatExceptionDuringInstruction(Instruction instruction, Method method, Frame frame, ExecutionException e) throws ExecutionException {
+		throw e;
 	}
 
 	/**
@@ -1425,6 +1434,7 @@ public abstract class VirtualMachine extends Thread {
 	public void finalize() {
 		try {
 			super.finalize();
+			generateTestCases = false;
 		} catch (Throwable t) {
 			// Log it, but do nothing.
 			if (Globals.getInst().execLogger.isEnabledFor(Level.WARN))

@@ -54,6 +54,10 @@ public class FreeArrayref extends ModifieableArrayref {
         // TODO Change referenceValue if term?
     }
 
+    public boolean isConcretized() {
+        return concretized;
+    }
+
     public Term getLengthTerm() {
         return lengthTerm;
     }

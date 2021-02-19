@@ -75,6 +75,16 @@ public class Ifeq extends If implements Instruction {
 		if (op instanceof BooleanVariable) {
 			return Optional.of(new Choice(frame, getPcOfSubsequentInstruction(vm),
 					getJumpTarget(), ((BooleanVariable) op).negate() , vm.extractCurrentTrail(), vm.getCurrentChoice()));
+		} else if (op instanceof NumericVariable) {
+			return Optional.of(new Choice(frame,
+					getPcOfSubsequentInstruction(vm),
+					getJumpTarget(),
+					NumericEqual.newInstance(
+							(NumericVariable) op,
+							IntConstant.getInstance(0)),
+					vm.extractCurrentTrail(),
+					vm.getCurrentChoice())
+			);
 		} else {
 			int value;
 			if (op instanceof Boolean)

@@ -209,24 +209,29 @@ final class StringCacheEntry {
 	 * @throws IllegalArgumentException If the String object reference is cached already.
 	 */
 	private void put(char[] keys, int offset, Objectref stringObjectref) {
-		// Try to find the edge to the desired entry.
-		HashableCharacter hashableCharacter = HashableCharacter.instanceFor(keys[offset]);
-		StringCacheEntry entry = this.children.get(hashableCharacter);
-		if (entry == null) {
-			// Create the edge.
-			entry = new StringCacheEntry(this.stringCache, keys[offset], null);
-			this.children.put(hashableCharacter, entry);
-		}
+		StringCacheEntry entryBefore = this;
+		while (true) {
+			// Try to find the edge to the desired entry.
+			HashableCharacter hashableCharacter = HashableCharacter.instanceFor(keys[offset]);
+			StringCacheEntry entry = entryBefore.children.get(hashableCharacter);
+			if (entry == null) {
+				// Create the edge.
+				entry = new StringCacheEntry(entryBefore.stringCache, keys[offset], null);
+				entryBefore.children.put(hashableCharacter, entry);
+			}
 
-		// What to do next?
-		if (offset < keys.length - 1) {
-			// Keep on searching (and, at need, generating).
-			entry.put(keys, offset + 1, stringObjectref);
-		} else if (offset == keys.length - 1) {
-			// Check if the entry already exists.
-			if (entry.stringObjectref != null)
-				throw new IllegalArgumentException("String object reference is cached already.");
-			entry.stringObjectref = stringObjectref;
+			// What to do next?
+			if (offset < keys.length - 1) {
+				// Keep on searching (and, at need, generating).
+				offset++;
+				entryBefore = entry;
+			} else if (offset >= keys.length - 1) {
+				// Check if the entry already exists.
+				if (entry.stringObjectref != null)
+					throw new IllegalArgumentException("String object reference is cached already.");
+				entry.stringObjectref = stringObjectref;
+				break;
+			}
 		}
 	}
 
