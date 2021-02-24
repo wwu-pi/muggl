@@ -826,6 +826,7 @@ public abstract class VirtualMachine extends Thread {
 				executeInstruction(instruction);
 			} catch (ExecutionException e) {
 				treatExceptionDuringInstruction(instruction, method, currentFrame, e);
+				throw e;
 			}
 			afterExecuteInstruction(instruction, method, currentFrame);
 
