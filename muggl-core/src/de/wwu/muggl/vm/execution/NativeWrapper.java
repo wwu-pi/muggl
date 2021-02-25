@@ -71,6 +71,7 @@ public class NativeWrapper {
 		NativeJavaLangThrowable.registerNatives();
 		NativeJavaSecurityAccessController.registerNatives();
 		NativeJavaLangReflectField.registerNatives();
+		NativeJavaLangMath.registerNatives();
 		//NativeSunMiscVM NOT registered here, because a valid VM must be present for initialisation!
 		Globals.getInst().logger.debug("Native method handlers registered");
 	}

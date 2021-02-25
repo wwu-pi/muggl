@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import de.wwu.muggl.instructions.general.Conversion;
 import de.wwu.muggl.instructions.interfaces.Instruction;
+import de.wwu.muggl.solvers.expressions.DoubleConstant;
 import de.wwu.muggl.vm.Frame;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.execution.ExecutionException;
@@ -37,7 +38,13 @@ public class D2i extends Conversion implements Instruction {
 	@Override
 	public void executeSymbolically(Frame frame) {
 		Stack<Object> stack = frame.getOperandStack();
-		Term oldTerm = (Term) stack.pop();
+		Object o = stack.pop();
+		Term oldTerm;
+		if(o instanceof Term) {
+			oldTerm = (Term) o;
+		} else {
+			oldTerm = DoubleConstant.getInstance((Double) o);
+		}
 		Term newTerm = TypeCast.newInstance(oldTerm, oldTerm.getType(), Expression.INT);
 		stack.push(newTerm);
 	}

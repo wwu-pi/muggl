@@ -1,5 +1,6 @@
 package de.wwu.muggl.vm.initialization;
 
+import de.wwu.muggl.solvers.expressions.BooleanConstant;
 import de.wwu.muggl.solvers.expressions.IntConstant;
 import de.wwu.muggl.solvers.expressions.NumericConstant;
 import de.wwu.muggl.vm.SystemDictionary;
@@ -218,6 +219,8 @@ public class Arrayref implements ReferenceValue {
 					}else if (targetClass.equals(Short.class.getName())) {
 						element = ((Integer) element).shortValue();
 					}				
+				} else if(srcClass.equals(BooleanConstant.class.getName()) && targetClass.equals(Boolean.class.getName())){
+					element = ((BooleanConstant) element).getValue();
 				}
 			}
 

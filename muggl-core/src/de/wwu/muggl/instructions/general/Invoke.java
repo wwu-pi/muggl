@@ -516,8 +516,19 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 			}
 		}
 
+		if (actualMethod.getPackageAndName().equals(Math.class.getName() + ".random") && actualMethod.getNumberOfArguments() == 0) {
+			try {
+				NativeWrapper.forwardNativeInvocation(frame, method, methodClassFile, null, parameters);
+			} catch (ForwardingUnsuccessfulException e) {
+				Globals.getInst().execLogger.warn(
+						"Forwarding of the native method " + actualMethod.getPackageAndName()
+								+ " was not successfull. The reason is: " + e.getMessage());
+			}
+			return;
+		}
 
-		// Is the method native?
+
+			// Is the method native?
 		if (actualMethod.isAccNative()) {
 			if (Options.getInst().doNotHaltOnNativeMethods) {
 				try {
