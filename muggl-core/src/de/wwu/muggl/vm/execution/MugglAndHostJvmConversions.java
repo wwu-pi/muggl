@@ -1,10 +1,7 @@
 package de.wwu.muggl.vm.execution;
 
 import de.wwu.muggl.instructions.FieldResolutionError;
-import de.wwu.muggl.solvers.expressions.DoubleConstant;
-import de.wwu.muggl.solvers.expressions.FloatConstant;
-import de.wwu.muggl.solvers.expressions.IntConstant;
-import de.wwu.muggl.solvers.expressions.NumericVariable;
+import de.wwu.muggl.solvers.expressions.*;
 import de.wwu.muggl.vm.VirtualMachine;
 import de.wwu.muggl.vm.classfile.ClassFile;
 import de.wwu.muggl.vm.classfile.ClassFileException;
@@ -300,8 +297,17 @@ public class MugglAndHostJvmConversions {
         if (o == null) {
             return null;
         }
+        if (o instanceof Objectref
+                || o instanceof Arrayref
+                || o instanceof Term
+                || o instanceof BooleanConstant) {
+            // This mix is expected for transforming a Solution-object in SolutionIterator.
+            return o;
+        }
         Object result = hostJvmToMugglMapping.get(o);
-        if (result != null) {
+        if (result != null && !isPrimitive) {
+            // The check for isPrimitive is needed. Otherwise we could not distinguish between cached
+            // wrapper variables and cached primitives.
             return result;
         }
         if (isPrimitive) {
@@ -309,7 +315,13 @@ public class MugglAndHostJvmConversions {
             // represented as these types in Muggl.
             return o;
         }
+//        if (o.getClass() == Class.class) { /// TODO
+//            try {
+//                return mugglClassLoader.getClassAsClassFile(o.getClass()).getInitializedClass();
+//            } catch (Exception e) { throw new IllegalStateException(e); }
+//        }
         Class<?> hostClass = o.getClass();
+
         if (hostClass.isArray()) {
             return transformArrayToArrayref(o, hostJvmToMugglMapping);
         } else {
@@ -336,6 +348,15 @@ public class MugglAndHostJvmConversions {
         return f.getName().contains("jacoco");
     }
 
+    protected boolean isFieldInInitializedClass(String fieldName, Set<Field> initializedStaticFields) {
+        for (Field field : initializedStaticFields) {
+            if (field.getName().equals(fieldName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected Objectref transformObjectToObjectref(Object o, Map<Object, Object> hostJvmToMugglMapping) {
         Class<?> oClass = o.getClass();
         if (oClass == String.class) {
@@ -346,12 +367,20 @@ public class MugglAndHostJvmConversions {
         Objectref result = newObjectrefForClass(oClass);
         hostJvmToMugglMapping.put(o, result);
         Map<java.lang.reflect.Field, Field> allMugglFields = new HashMap<>();
-        ClassFile classFile = result.getInitializedClass().getClassFile();
+        InitializedClass ic = result.getInitializedClass();
+        Set<Field> initializedStaticFields = ic.getStaticFields().keySet();
+        ClassFile classFile = ic.getClassFile();
+
         while (oClass != null) {
             java.lang.reflect.Field[] declaredFields = oClass.getDeclaredFields();
             for (java.lang.reflect.Field f : declaredFields) {
                 if (ignoreHostJvmField(f)) {
                     continue;
+                }
+                if ((f.getModifiers() & (Modifier.STATIC | Modifier.FINAL)) == (Modifier.STATIC | Modifier.FINAL)) {
+                    if (isFieldInInitializedClass(f.getName(), initializedStaticFields)) {
+                        continue;
+                    }
                 }
                 allMugglFields.put(f, classFile.getFieldByName(f.getName(), true));
             }
@@ -362,13 +391,26 @@ public class MugglAndHostJvmConversions {
                 java.lang.reflect.Field f = entry.getKey();
                 boolean isAccessible = f.isAccessible();
                 f.setAccessible(true);
+
+                Object val;
+                boolean isStaticField = (f.getModifiers() & Modifier.STATIC) == Modifier.STATIC;
+                if (isStaticField) {
+                    val = f.get(null);
+                } else {
+                    val = f.get(o);
+                }
+
                 Object mugglValue = toObjectInMugglJvm(
-                        f.get(o),
+                        val,
                         f.getType().isPrimitive(),
                         hostJvmToMugglMapping
                 );
                 f.setAccessible(isAccessible);
-                result.putField(entry.getValue(), mugglValue);
+                if (isStaticField) {
+                    result.getInitializedClass().putField(entry.getValue(), mugglValue);
+                } else {
+                    result.putField(entry.getValue(), mugglValue);
+                }
             }
             return result;
         } catch (IllegalAccessException e) {
