@@ -1,5 +1,6 @@
 package de.wwu.muggl.vm.execution;
 
+import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.FieldResolutionError;
 import de.wwu.muggl.solvers.expressions.*;
 import de.wwu.muggl.vm.VirtualMachine;
@@ -130,7 +131,7 @@ public class MugglAndHostJvmConversions {
     protected Object transformArrayrefToArray(Arrayref ar, Map<Object, Object> mugglToHostJvmMapping) {
         ClassFile classFile = ar.getInitializedClass().getClassFile();
         Class<?> classOfElements = classFile.getInstanceOfClass();
-        if (ar.isPrimitive()) {
+        if (isPrimitive(ar)) {
             String className = classFile.getName();
             if (className.equals(Double.class.getName())) {
                 classOfElements = double.class;
@@ -152,18 +153,47 @@ public class MugglAndHostJvmConversions {
                 throw new IllegalStateException("Unknown className: " + className);
             }
         }
-        Object result = Array.newInstance(classOfElements, ar.getLength());
-        mugglToHostJvmMapping.put(ar, result);
-        for (int i = 0; i < ar.getLength(); i++) {
-            Object hostJvmElement = toObjectOfHostJvm(ar.getElement(i), mugglToHostJvmMapping);
-            try {
-            Array.set(result, i, hostJvmElement);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            }
+        Object result;
+        if (ar instanceof FreeArrayref) {
+            result = Array.newInstance(classOfElements, ar.getLength());
+        } else {
+            result = Array.newInstance(classOfElements, ar.getDimensions());
         }
+        mugglToHostJvmMapping.put(ar, result);
+        insertArrayrefIntoArray(result, ar);
         return result;
     }
+
+    protected boolean isPrimitive(Arrayref ar) {
+        if (ar.isPrimitive()) {
+            return true;
+        }
+        if (ar.getLength() > 0 && ar.getElement(0) instanceof Arrayref) {
+            return isPrimitive((Arrayref) ar.getElement(0));
+        }
+        return false;
+    }
+
+    // Copied and adapted from MugglToJavaConversion
+    private void insertArrayrefIntoArray(Object array, Arrayref arrayref) {
+        for (int a = 0; a < arrayref.getLength(); a++) {
+            // Check if the elements are arrays, too.
+            if (arrayref.getLength() > 0 && arrayref.getElement(0) != null
+                    && (arrayref.getReferenceValue().isArray() || arrayref.getElement(0) instanceof Arrayref)) {
+                // Recursively invoke this method.
+                insertArrayrefIntoArray(Array.get(array, a), (Arrayref) arrayref.getElement(a));
+            } else {
+                // Insert the value after converting it to java.
+                try {
+                    Array.set(array, a, toObjectOfHostJvm(arrayref.getElement(a), mugglToHostJvmMapping));
+                } catch (Exception e) {
+                    System.out.println(e);
+                    throw e;
+                }
+            }
+        }
+    }
+
 
     protected Object transformObjectrefToObject(Objectref or, Map<Object, Object> mugglToHostJvmMapping) {
         InitializedClass mugglInitializedClass = or.getInitializedClass();
@@ -335,13 +365,39 @@ public class MugglAndHostJvmConversions {
         Class<?> componentType = o.getClass().getComponentType();
         boolean isPrimitive = componentType.isPrimitive();
         Objectref referenceValue = newObjectrefForClass(componentType, isPrimitive);
-        Arrayref result = new Arrayref(referenceValue, arrayLength);
+        Arrayref result;
+        if (componentType.isArray()) {
+            result = new Arrayref(referenceValue, getDimensionCount(o));
+        } else {
+            result = new Arrayref(referenceValue, arrayLength);
+        }
         hostJvmToMugglMapping.put(o, result);
         for (int i = 0; i < arrayLength; i++) {
             Object elementValue = toObjectInMugglJvm(Array.get(o, i), isPrimitive, hostJvmToMugglMapping);
             result.putElement(i, elementValue);
         }
         return result;
+    }
+
+    // Copied from MugglToJavaConversion
+    private int[] getDimensionCount(Object array) {
+        // Browse through the array to determine its dimensions.
+        int[] dimensionCount = new int[0];
+        while (true) {
+            int[] dimensionCountNew = new int[dimensionCount.length + 1];
+            for (int a = 0; a < dimensionCount.length; a++) {
+                dimensionCountNew[a] = dimensionCount[a];
+            }
+            dimensionCountNew[dimensionCount.length] = Array.getLength(array);
+            dimensionCount = dimensionCountNew;
+            if (Array.getLength(array) > 0 && Array.get(array, 0) != null
+                    && Array.get(array, 0).getClass().isArray()) {
+                array = Array.get(array, 0);
+            } else {
+                break;
+            }
+        }
+        return dimensionCount;
     }
 
     protected boolean ignoreHostJvmField(java.lang.reflect.Field f) {
