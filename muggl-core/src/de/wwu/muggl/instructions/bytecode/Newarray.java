@@ -54,7 +54,8 @@ public class Newarray extends de.wwu.muggl.instructions.general.ObjectInitializa
 	public void execute(Frame frame) throws ExecutionException {
 		try {
 			Stack<Object> stack = frame.getOperandStack();
-			int count = (Integer) stack.pop();
+			Object val = stack.pop();
+			int count = val instanceof Integer ? (Integer) val : ((IntConstant) val).getIntValue();
 			// Runtime Exception: count is less than zero.
 			if (count < 0)
 				throw new VmRuntimeException(frame.getVm().generateExc("java.lang.NegativeArraySizeException",
@@ -152,7 +153,7 @@ public class Newarray extends de.wwu.muggl.instructions.general.ObjectInitializa
 				// Unexpected exception: The type can not be processed by this method.
 				throw new ExecutionException("atype suplied for newarray is unknown: " + type);
 			}
-			
+
 			// Instantiate the array.
             Object length = frame.getOperandStack().pop();
             Term term;
