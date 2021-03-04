@@ -1,10 +1,6 @@
 package de.wwu.muggl.instructions.general;
 
-import java.lang.Exception;
-import java.util.*;
-
 import de.wwu.muggl.configuration.Defaults;
-import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.interfaces.control.JumpException;
 import de.wwu.muggl.instructions.interfaces.data.StackPop;
 import de.wwu.muggl.instructions.interfaces.data.VariableUsing;
@@ -12,9 +8,9 @@ import de.wwu.muggl.instructions.typed.TypedInstruction;
 import de.wwu.muggl.solvers.SolverManager;
 import de.wwu.muggl.solvers.exceptions.SolverUnableToDecideException;
 import de.wwu.muggl.solvers.exceptions.TimeoutException;
-import de.wwu.muggl.solvers.expressions.*;
 import de.wwu.muggl.solvers.expressions.And;
 import de.wwu.muggl.solvers.expressions.Or;
+import de.wwu.muggl.solvers.expressions.*;
 import de.wwu.muggl.solvers.solver.constraints.ArrayStore;
 import de.wwu.muggl.symbolic.searchAlgorithms.depthFirst.trailelements.ArrayRestore;
 import de.wwu.muggl.vm.Frame;
@@ -27,7 +23,11 @@ import de.wwu.muggl.vm.execution.ExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.SymbolicExecutionException;
 import de.wwu.muggl.vm.impl.symbolic.exceptions.SymbolicExceptionHandler;
 import de.wwu.muggl.vm.initialization.*;
-import de.wwu.muli.searchtree.*;
+import de.wwu.muli.searchtree.Choice;
+import de.wwu.muli.searchtree.Fail;
+import de.wwu.muli.searchtree.ST;
+
+import java.util.*;
 
 /**
  * Abstract instruction with some concrete methods for storing elements into arrays. Concrete

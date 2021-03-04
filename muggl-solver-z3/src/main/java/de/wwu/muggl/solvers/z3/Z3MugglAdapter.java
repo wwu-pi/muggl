@@ -295,11 +295,33 @@ public class Z3MugglAdapter {
         this.level--;
         solver.pop();
         ConstraintExpression ce = addedConstraints.pop();
-        if (ce instanceof ArrayStore) {
+        ce = tryToFindArrayStore(ce);
+        if (ce != null) {
         	ArrayStore as = (ArrayStore) ce;
         	this.arrayrefsToMostRecentArrayExpr.get(as.getArrayref()).pop();
 		}
     }
+
+    private ConstraintExpression tryToFindArrayStore(ConstraintExpression ce) {
+    	if (ce instanceof And) {
+    		ConstraintExpression result = tryToFindArrayStore(((And) ce).getE1());
+    		if (result != null) {
+    			return result;
+			}
+    		result = tryToFindArrayStore(((And) ce).getE2());
+    		return result;
+		} else if (ce instanceof Or) {
+			ConstraintExpression result = tryToFindArrayStore(((Or) ce).getE1());
+			if (result != null) {
+				return result;
+			}
+			result = tryToFindArrayStore(((Or) ce).getE2());
+			return result;
+    	} else if (ce instanceof ArrayStore) {
+    		return ce;
+		}
+    	return null;
+	}
 
     public int getLevel() {
         return this.level;
