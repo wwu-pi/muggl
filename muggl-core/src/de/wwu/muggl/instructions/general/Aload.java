@@ -212,8 +212,10 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 			} else {
 				throw new UnsupportedOperationException("Unknown case for index: " + elem);
 			}
+			// Start constructing choices & exception
+			ArrayLoadMarker marker = new ArrayLoadMarker();
 			// Create constraint expressions for case index < array.length and index >= array.length
-			ConstraintExpression indexInRange = getIndexInBoundsConstraint(vm, arrayref, indexAsTerm, null);
+			ConstraintExpression indexInRange = getIndexInBoundsConstraint(vm, arrayref, indexAsTerm, marker);
 			ConstraintExpression indexOutOfRange = getIndexOutOfBoundsConstraint(arrayref, indexAsTerm);
 
 			// Check if GTE is feasible. This would lead to an ArrayIndexOutOfBoundsException.
@@ -225,8 +227,6 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 
 			Choice currentChoice = vm.getCurrentChoice();
 			if (hasSolutionInRange || hasSolutionOutOfRange) {
-				// Start constructing choices & exception
-				ArrayLoadMarker marker = new ArrayLoadMarker();
 				marker.arrayref = arrayref;
 				marker.indexAsTerm = indexAsTerm;
 				marker.hasSolutionOutOfBounds = hasSolutionOutOfRange;
@@ -239,7 +239,7 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 				}
 				if (hasSolutionInRange) {
 					pcs.add(vm.getPc());
-					constraintExpressions.add(getIndexInBoundsConstraint(vm, arrayref, indexAsTerm, marker));
+					constraintExpressions.add(indexInRange);
 				}
 				stack.push(marker);
 				Stack<TrailElement> trail = vm.extractCurrentTrail();
@@ -307,7 +307,7 @@ public abstract class Aload extends GeneralInstruction implements JumpException,
 				Expression encodedObject = encodeValueToExpression(loadedOrGeneratedElement);
 				arraySelect = ArraySelect.newInstance(
 						arrayref,
-						arrayref instanceof FreeArrayref ? ((FreeArrayref) arrayref).getVarNameWithId() : arrayref.getName() + arrayref.getArrayrefId(),
+						((FreeArrayref) arrayref).getVarNameWithId(),
 						index,
 						arrayref.getLengthTerm(),
 						encodedObject);

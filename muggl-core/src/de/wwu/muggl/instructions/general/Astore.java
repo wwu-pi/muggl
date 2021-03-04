@@ -313,7 +313,7 @@ public abstract class Astore extends GeneralInstruction implements JumpException
 				Expression encodedObject = encodeValueToTerm(elementToStore);
 				ArrayStore arrayStore = ArrayStore.newInstance(
 						arrayref,
-						arrayref instanceof FreeArrayref ? ((FreeArrayref) arrayref).getVarNameWithId() : arrayref.getName() + arrayref.getArrayrefId(),
+						((FreeArrayref) arrayref).getVarNameWithId(),
 						index,
 						arrayref.getLengthTerm(),
 						encodedObject);

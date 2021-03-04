@@ -125,8 +125,7 @@ public class Z3MugglAdapter {
 		Stack<ArrayExpr> arrayExprsForArrayref = this.arrayrefsToMostRecentArrayExpr.get(arrayref);
 		// Save it as the most recent ArrayExpr representing the FreeArray
 		arrayExprsForArrayref.push(storeExpr);
-		BoolExpr arrayEqual = context.mkEq(storeExpr, storeExpr);
-		return arrayEqual;
+		return context.mkTrue();
 	}
 
 

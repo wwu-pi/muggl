@@ -183,7 +183,7 @@ public class FreeObjectrefInitialisers {
         }
 
         result = createNestingIfNeeded(result, type);
-        vm.getSolverManager().addConstraint(GreaterOrEqual.newInstance(result.getLengthTerm(), IntConstant.getInstance(0)));
+        //vm.getSolverManager().addConstraint(GreaterOrEqual.newInstance(result.getLengthTerm(), IntConstant.getInstance(0)));
         return result;
     }
 
