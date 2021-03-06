@@ -60,28 +60,28 @@ codeCoverageReport.dependsOn {
 }
 
 def static getSwtVersion(){
-	String swtVersion = '4.3.2';
-	return swtVersion;
+	String swtVersion = '4.3.2'
+	return swtVersion
 }
 
 def static getSwtArch(){
-	com.google.gradle.osdetector.OsDetector osdetector = new com.google.gradle.osdetector.OsDetector();
-	String swtArch = null;
+	com.google.gradle.osdetector.OsDetector osdetector = new com.google.gradle.osdetector.OsDetector()
+	String swtArch = null
 	if (osdetector.os == 'linux') {
 		if (osdetector.arch == 'x86_64') {
-			swtArch = 'gtk.linux.x86_64';
+			swtArch = 'gtk.linux.x86_64'
 		} else if (osdetector.arch == 'x86_32') {
-			swtArch = 'gtk.linux.x86';
+			swtArch = 'gtk.linux.x86'
 		}
 	} else if (osdetector.os == 'windows') {
 		if (osdetector.arch == 'x86_64') {
-			swtArch = 'win32.win32.x86_64';
+			swtArch = 'win32.win32.x86_64'
 		} else if (osdetector.arch == 'x86_32') {
-			swtArch = 'win32.win32.x86';
+			swtArch = 'win32.win32.x86'
 		}
 	} else if (osdetector.os == 'osx') {
 		if (osdetector.arch == 'x86_64') {
-			swtArch = 'cocoa.macosx.x86_64';
+			swtArch = 'cocoa.macosx.x86_64'
 		}
 	}
 
@@ -89,7 +89,7 @@ def static getSwtArch(){
 		throw new GradleScriptException("No suitable SWT library found for your platform.")
 	}
 
-	return swtArch;
+	return swtArch
 }
 
 /**

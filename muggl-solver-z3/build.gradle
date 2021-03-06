@@ -8,25 +8,25 @@ dependencies {
 } 
 
 def static getZ3Arch(){
-	com.google.gradle.osdetector.OsDetector osdetector = new com.google.gradle.osdetector.OsDetector();
+	com.google.gradle.osdetector.OsDetector osdetector = new com.google.gradle.osdetector.OsDetector()
 
 	if (osdetector.arch != 'x86_64') {
 		throw new GradleScriptException("No suitable Z3 binary library found for your platform. 64bit required.")
 	}
 
-	String z3libstring = null;
+	String z3libstring = null
 	if (osdetector.os == 'linux') {
-		z3libstring = 'ubuntu-16.04';
+		z3libstring = 'ubuntu-16.04'
 	} else if (osdetector.os == 'windows') {
-		z3libstring = 'win';
+		z3libstring = 'win'
 	} else if (osdetector.os == 'osx') {
-		z3libstring = 'osx-10.14.6';
+		z3libstring = 'osx-10.14.6'
 	}
 
 	if (z3libstring == null) {
 		throw new GradleScriptException("No suitable SWT library found for your platform.")
 	}
 
-	return z3libstring;
+	return z3libstring
 }
 
