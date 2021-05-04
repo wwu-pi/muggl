@@ -1,12 +1,18 @@
 package de.wwu.muggl.instructions.bytecode;
 
+import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.If;
 import de.wwu.muggl.instructions.interfaces.Instruction;
+import de.wwu.muggl.solvers.expressions.*;
+import de.wwu.muggl.vm.Frame;
+import de.wwu.muggl.vm.SearchingVM;
 import de.wwu.muggl.vm.classfile.structures.attributes.AttributeCode;
-import de.wwu.muggl.solvers.expressions.ConstraintExpression;
-import de.wwu.muggl.solvers.expressions.NumericNotEqual;
-import de.wwu.muggl.solvers.expressions.Term;
+import de.wwu.muli.searchtree.Choice;
+import de.wwu.muli.searchtree.ST;
+
+import java.util.Optional;
+import java.util.Stack;
 
 /**
  * Implementation of the instruction <code>ifne</code>.
@@ -59,4 +65,32 @@ public class Ifne extends If implements Instruction {
 		return NumericNotEqual.newInstance(term1, term2);
 	}
 
+	@Override
+	public Optional<ST> executeMuli(SearchingVM vm, Frame frame) {
+		if (!vm.isInSearch()) {
+			super.execute(frame);
+			return Optional.empty();
+		}
+
+		Stack<Object> stack = frame.getOperandStack();
+		Object op = stack.pop();
+		if (op instanceof BooleanVariable) {
+			return Optional.of(new Choice(frame, getPcOfSubsequentInstruction(vm),
+					getJumpTarget(), ((BooleanVariable) op) , vm.extractCurrentTrail(), vm.getCurrentChoice()));
+		} else if (op instanceof NumericVariable) {
+			return Optional.of(new Choice(frame,
+					getPcOfSubsequentInstruction(vm),
+					getJumpTarget(),
+					Not.newInstance(NumericEqual.newInstance(
+							(NumericVariable) op,
+							IntConstant.getInstance(0))),
+					vm.extractCurrentTrail(),
+					vm.getCurrentChoice())
+			);
+		} else {
+			stack.push(op);
+			super.execute(frame);
+			return Optional.empty();
+		}
+	}
 }

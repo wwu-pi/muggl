@@ -64,9 +64,9 @@ public class Ifeq extends If implements Instruction {
 		return NumericEqual.newInstance(term1, term2);
 	}
 
+	@Override
 	public Optional<ST> executeMuli(SearchingVM vm, Frame frame) {
-		Options options = Options.getInst();
-		if (!options.symbolicMode) {
+		if (!vm.isInSearch()) {
 			super.execute(frame);
 			return Optional.empty();
 		}
