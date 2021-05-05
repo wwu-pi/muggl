@@ -2,6 +2,7 @@ package de.wwu.muggl.instructions.bytecode;
 
 import java.util.*;
 
+import de.wwu.muggl.configuration.Options;
 import de.wwu.muggl.instructions.InvalidInstructionInitialisationException;
 import de.wwu.muggl.instructions.general.CheckcastInstanceof;
 import de.wwu.muggl.instructions.interfaces.Instruction;
@@ -109,7 +110,7 @@ public class Instanceof extends CheckcastInstanceof implements Instruction, Jump
 	@Override
     public Optional<ST> executeMuli(SearchingVM vm, Frame frame) throws ExecutionException {
         // In (symbolic) search mode, different rules apply.
-        if (!vm.isInSearch()) {
+        if (!Options.getInst().symbolicMode) {
             execute(frame);
             return Optional.empty();
         }
