@@ -499,7 +499,9 @@ public abstract class Invoke extends GeneralInstructionWithOtherBytes implements
 				} catch (InvocationTargetException | IllegalAccessException e) {
 					throw new IllegalStateException(e);
 				}
-			} catch (VerifyError e) {System.out.println("Delegation to Host JVM failed, continuing execution of Muggl VM.");}
+			} catch (VerifyError e) {
+				System.out.println("Delegation to Host JVM failed, continuing execution of Muggl VM.");
+			}
 			catch (StackOverflowError e) {
 				e.printStackTrace();
 				throw e;
